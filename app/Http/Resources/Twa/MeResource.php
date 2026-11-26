@@ -18,13 +18,13 @@ use Illuminate\Http\Request;
  * @phpstan-import-type PracticeBlock from MePayloadBuilder
  * @phpstan-import-type GameBlock from MePayloadBuilder
  *
- * @property array{learner: Learner, groups: list<array{id: int, title: string}>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock} $resource
+ * @property array{learner: Learner, groups: list<array{id: int, title: string}>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: PracticeBlock, game: GameBlock, pro_emoji: string|null} $resource
  */
 final class MeResource extends TwaResource
 {
     /**
      * @return array{
-     *   learner: array{id: int, first_name: string|null, username: string|null, locale: string, onboarding_completed: bool},
+     *   learner: array{id: int, first_name: string|null, username: string|null, locale: string, onboarding_completed: bool, pro_emoji: string|null},
      *   groups: list<array{id: int, title: string}>,
      *   stats: array{words_learned: int, words_due_today: int},
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null},
@@ -47,6 +47,8 @@ final class MeResource extends TwaResource
                 'username' => $learner->username,
                 'locale' => $learner->interface_locale,
                 'onboarding_completed' => $learner->onboarding_state === 'done',
+                // The emoji of Pro next to the name (docs/31 §5а): null without a live Pro, whatever is chosen.
+                'pro_emoji' => $this->resource['pro_emoji'],
             ],
             'groups' => $this->resource['groups'],
             'stats' => [

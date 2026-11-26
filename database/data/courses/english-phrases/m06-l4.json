@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 6,
+    "title": "Дом и время",
+    "title_uz": "Uy va vaqt"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Планы",
+    "title_uz": "Rejalar"
+  },
+  "words": [
+    {
+      "word": "What are you up to?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чем занимаешься?",
+        "uz": "nima qilyapsan?"
+      },
+      "example": "Hi, Tom! What are you up to this weekend? — Nothing special.",
+      "example_translations": {
+        "ru": "Привет, Том! Чем занимаешься на выходных? — Ничего особенного.",
+        "uz": "Salom, Tom! Dam olish kunlari nima qilyapsan? — Hech narsa, oddiy."
+      },
+      "hooks": {
+        "ru": "Дружески спрашивают о делах и планах — сейчас или на ближайшие дни",
+        "uz": "Hozirgi yoki yaqin kunlardagi ishlar va rejalar haqida do'stona so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm on my way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я уже в пути",
+        "uz": "yo'ldaman"
+      },
+      "example": "Where are you? The film starts in five minutes! — I'm on my way.",
+      "example_translations": {
+        "ru": "Ты где? Фильм начинается через пять минут! — Я уже в пути.",
+        "uz": "Qayerdasan? Kino besh daqiqadan keyin boshlanadi! — Yo'ldaman."
+      },
+      "hooks": {
+        "ru": "Говорят по телефону, что уже вышли и скоро будут на месте",
+        "uz": "Telefonda allaqachon yo'lga chiqib, tez orada yetib borishni aytishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make plans",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "строить планы",
+        "uz": "reja tuzmoq"
+      },
+      "example": "Let's make plans for the summer holidays.",
+      "example_translations": {
+        "ru": "Давай строить планы на летние каникулы.",
+        "uz": "Yozgi ta'til uchun reja tuzaylik."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы заранее договориться, что и когда делать",
+        "uz": "Nima va qachon qilishni oldindan kelishib olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "plans",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "play it by ear",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "действовать по обстоятельствам",
+        "uz": "vaziyatga qarab ish tutmoq"
+      },
+      "example": "Are we going to the park tomorrow? — Let's play it by ear. It depends on the weather.",
+      "example_translations": {
+        "ru": "Мы завтра идём в парк? — Посмотрим по обстоятельствам. Зависит от погоды.",
+        "uz": "Ertaga bog'ga boramizmi? — Vaziyatga qarab ish tutamiz. Ob-havoga bog'liq."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не хотят планировать заранее и решат на месте",
+        "uz": "Oldindan reja qilmay, joyida hal qilmoqchi bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ear",
+        "literal": {
+          "ru": "играть на слух",
+          "uz": "eshitganicha chalmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Any plans for the weekend?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "какие планы на выходные?",
+        "uz": "dam olish kunlariga rejangiz bormi?"
+      },
+      "example": "Any plans for the weekend? — Yes, we're visiting my grandparents.",
+      "example_translations": {
+        "ru": "Какие планы на выходные? — Едем к бабушке с дедушкой.",
+        "uz": "Dam olish kunlariga rejangiz bormi? — Ha, buvim va bobomnikiga boramiz."
+      },
+      "hooks": {
+        "ru": "Лёгкий вопрос коллеге или знакомому в конце недели",
+        "uz": "Hafta oxirida hamkasb yoki tanishga beriladigan oddiy savol"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "weekend",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "We'll see",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "посмотрим",
+        "uz": "ko'ramiz"
+      },
+      "example": "Can we go to the zoo on Sunday? — We'll see.",
+      "example_translations": {
+        "ru": "Можно мы в воскресенье пойдём в зоопарк? — Посмотрим.",
+        "uz": "Yakshanba kuni hayvonot bog'iga boramizmi? — Ko'ramiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда пока не хотят обещать ни «да», ни «нет»; так часто отвечают родители",
+        "uz": "Hozircha «ha» ham, «yo'q» ham demoqchi bo'lmaganda aytiladi; ota-onalar ko'p shunday javob beradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "see",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "put off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "откладывать",
+        "uz": "keyinga qoldirmoq"
+      },
+      "example": "Stop putting off your homework and start now.",
+      "example_translations": {
+        "ru": "Хватит откладывать домашнее задание, начни сейчас.",
+        "uz": "Uy vazifasini keyinga qoldirishni bas qil, hoziroq boshla."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дело переносят на потом, часто без причины",
+        "uz": "Ish keyinga, ko'pincha sababsiz qoldirilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "off",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "call off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отменить",
+        "uz": "bekor qilmoq"
+      },
+      "example": "They called off the match because of the rain.",
+      "example_translations": {
+        "ru": "Матч отменили из-за дождя.",
+        "uz": "Yomg'ir sababli o'yinni bekor qilishdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда запланированное событие отменяют",
+        "uz": "Rejalashtirilgan tadbir bekor qilinganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "call",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I'll be there",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я приду",
+        "uz": "albatta boraman"
+      },
+      "example": "My birthday party starts at eight. — Great, I'll be there.",
+      "example_translations": {
+        "ru": "Мой день рождения начинается в восемь. — Отлично, я приду.",
+        "uz": "Tug'ilgan kunim soat sakkizda boshlanadi. — Zo'r, albatta boraman."
+      },
+      "hooks": {
+        "ru": "Обещают прийти на встречу или праздник",
+        "uz": "Uchrashuv yoki bayramga kelishga va'da berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "there",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "look forward to",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ждать с нетерпением",
+        "uz": "intiqlik bilan kutmoq"
+      },
+      "example": "I'm really looking forward to the holidays.",
+      "example_translations": {
+        "ru": "Я с нетерпением жду каникул.",
+        "uz": "Ta'tilni intiqlik bilan kutyapman."
+      },
+      "hooks": {
+        "ru": "Говорят о приятном событии в будущем, которого очень ждут",
+        "uz": "Kelajakdagi, intizorlik bilan kutilayotgan yoqimli voqea haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "forward",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

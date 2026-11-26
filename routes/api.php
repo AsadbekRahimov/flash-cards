@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
+use App\Http\Controllers\Api\Twa\AllTimeRatingController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BattleController;
@@ -13,6 +14,10 @@ use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\ClassCaravanController;
 use App\Http\Controllers\Api\Twa\ClientTimingController;
 use App\Http\Controllers\Api\Twa\CourseController;
+use App\Http\Controllers\Api\Twa\Cup\CupController;
+use App\Http\Controllers\Api\Twa\Cup\CupDuelController;
+use App\Http\Controllers\Api\Twa\Cup\CupRoundController;
+use App\Http\Controllers\Api\Twa\Cup\CupSetupController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
@@ -36,11 +41,15 @@ use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\ReadinessController;
 use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
+use App\Http\Controllers\Api\Twa\ShareController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
+use App\Http\Middleware\EnsureCupAccess;
+use App\Http\Middleware\EnsureCupDuels;
 use App\Http\Middleware\SetTwaLocale;
 use App\Http\Middleware\TwaAuth;
+use App\Http\Resources\Twa\Cup\CupRoundResource;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('twa')->group(function (): void {
@@ -52,6 +61,8 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
         Route::post('/me/settings/timezone/revert', [SettingsController::class, 'revertTimezone'])->name('twa.me.settings.timezone.revert');
+        Route::post('/me/settings/region/revert', [SettingsController::class, 'revertRegion'])->name('twa.me.settings.region.revert');
+        Route::post('/me/region-prompt/dismiss', [SettingsController::class, 'dismissRegionPrompt'])->name('twa.me.region_prompt.dismiss');
         Route::post('/me/account-restored/seen', [MeController::class, 'restoredSeen'])->name('twa.me.account_restored.seen');
         Route::post('/me/delete', [SettingsController::class, 'delete'])->name('twa.me.delete');
         Route::get('/me/organizations', [OrganizationController::class, 'index'])->name('twa.me.organizations');
@@ -66,12 +77,23 @@ Route::prefix('twa')->group(function (): void {
         // The monthly rating with prizes (docs/13 §7.6, docs/04 A.19): the rating, and the viewer's own line for the finish screen.
         Route::get('/league/month', [MonthlyRatingController::class, 'show'])->name('twa.league.month');
         Route::get('/league/month/me', [MonthlyRatingController::class, 'me'])->name('twa.league.month.me');
+        // "All time" (docs/32 §5, §8.3, docs/04 A.19a) and the tables of a region (docs/35 §2.4).
+        Route::get('/league/all-time', AllTimeRatingController::class)->name('twa.league.all_time');
 
         // Achievements (docs/13 §7.4, docs/04 A.13).
         Route::get('/achievements', [AchievementController::class, 'index'])->name('twa.achievements');
         Route::post('/achievements/{key}/shared', [AchievementController::class, 'shared'])
             ->where('key', '[a-z0-9_]{1,32}')
             ->name('twa.achievements.shared');
+
+        // "Share" through the bot (docs/36 §1в, docs/04 A.22): a prepared message for `WebApp.shareMessage` (a Bot API call: its own
+        // limiter, per learner) and the client's analytics of it.
+        Route::post('/share/prepare', [ShareController::class, 'prepare'])
+            ->middleware('throttle:twa-share')
+            ->name('twa.share.prepare');
+        Route::post('/share/events', [ShareController::class, 'event'])
+            ->middleware('throttle:twa-share-event')
+            ->name('twa.share.events');
 
         // Friends and challenges (docs/13 §7.5, docs/04 A.13): reads share `twa-api`, writes have their own cap.
         Route::get('/friends', [FriendController::class, 'index'])->name('twa.friends');
@@ -240,6 +262,55 @@ Route::prefix('twa')->group(function (): void {
                 });
             });
         });
+
+        // The cup of a group (docs/33 §7.2, docs/04 A.23, K7). `CUP_ACCESS=off` closes all of it with one 403 `cup_unavailable`. The
+        // routes that may call Telegram (getChatMember) or write have limiters of their own on top of `twa-api`; the codes are the
+        // 22 characters of base64url (anything else is a plain 404 of the router), the ids up to 18 digits.
+        Route::middleware(EnsureCupAccess::class)->group(function (): void {
+            Route::get('/cups', [CupController::class, 'index'])->name('twa.cups.index');
+            Route::get('/cups/by-code/{code}', [CupController::class, 'invite'])
+                ->where('code', '[A-Za-z0-9_-]{22}')
+                ->middleware('throttle:twa-cup-read')
+                ->name('twa.cups.invite');
+            Route::middleware('throttle:twa-cup-admin')->group(function (): void {
+                Route::get('/cups/setup/{code}', [CupSetupController::class, 'show'])->where('code', '[A-Za-z0-9_-]{22}')->name('twa.cups.setup');
+                Route::post('/cups/setup/{code}/publish', [CupSetupController::class, 'publish'])->where('code', '[A-Za-z0-9_-]{22}')->name('twa.cups.publish');
+                Route::patch('/cups/{id}/settings', [CupSetupController::class, 'update'])->where('id', '[0-9]{1,18}')->name('twa.cups.settings');
+                Route::post('/cups/{id}/cancel', [CupSetupController::class, 'cancel'])->where('id', '[0-9]{1,18}')->name('twa.cups.cancel');
+            });
+            Route::prefix('cups/{id}')->where(['id' => '[0-9]{1,18}'])->group(function (): void {
+                Route::middleware('throttle:twa-cup-read')->group(function (): void {
+                    Route::get('/', [CupController::class, 'show'])->name('twa.cups.show');
+                    Route::get('/rounds/today', [CupController::class, 'today'])->name('twa.cups.today');
+                });
+                Route::middleware('throttle:twa-cup-join')->group(function (): void {
+                    Route::post('/join', [CupController::class, 'join'])->name('twa.cups.join');
+                    Route::patch('/me', [CupController::class, 'rename'])->name('twa.cups.rename');
+                    Route::post('/leave', [CupController::class, 'leave'])->name('twa.cups.leave');
+                });
+                Route::post('/rounds/today', [CupController::class, 'start'])->middleware('throttle:twa-cup-start')->name('twa.cups.start');
+
+                // The duels (docs/04 A.23d, D2): `CUP_DUELS` off - one 409 `cup_duel_disabled` before anything is read. The actions
+                // ask Telegram about the one who acts and write: `twa-cup-duel`; the poll of one duel (the waiting screen) has a bucket of
+                // its own, the list shares the reads of the cup.
+                Route::prefix('duels')->middleware(EnsureCupDuels::class)->group(function (): void {
+                    Route::get('/', [CupDuelController::class, 'index'])->middleware('throttle:twa-cup-read')->name('twa.cups.duels.index');
+                    Route::post('/', [CupDuelController::class, 'store'])->middleware('throttle:twa-cup-duel')->name('twa.cups.duels.store');
+                    Route::prefix('{duel}')->where(['duel' => '[0-9]{1,18}'])->group(function (): void {
+                        Route::get('/', [CupDuelController::class, 'show'])->middleware('throttle:twa-cup-duel-poll')->name('twa.cups.duels.show');
+                        Route::middleware('throttle:twa-cup-duel')->group(function (): void {
+                            Route::post('/accept', [CupDuelController::class, 'accept'])->name('twa.cups.duels.accept');
+                            Route::post('/decline', [CupDuelController::class, 'decline'])->name('twa.cups.duels.decline');
+                            Route::post('/cancel', [CupDuelController::class, 'cancel'])->name('twa.cups.duels.cancel');
+                        });
+                    });
+                });
+            });
+            Route::prefix('cup-rounds/{attempt}')->where(['attempt' => '[0-9]{1,18}'])->group(function (): void {
+                Route::get('/', [CupRoundController::class, 'show'])->name('twa.cup-rounds.show');
+                Route::post('/answer', [CupRoundController::class, 'answer'])->middleware('throttle:twa-cup-answer')->name('twa.cup-rounds.answer');
+            });
+        });
     });
 
     // The poll of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): a request every 2 s for as long as a room or a match is on screen is
@@ -263,5 +334,10 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/practice/battles/{battle}/audio/{element}', [PracticeAudioController::class, 'battle'])
             ->where('battle', '[0-9]{1,18}')
             ->name(BattleReader::AUDIO_ROUTE);
+        // The clip of a `listen` task of a round of a cup (K7): the learner's own attempt, the current or an answered task only.
+        Route::get('/cup-rounds/{attempt}/audio/{element}', [CupRoundController::class, 'audio'])
+            ->where('attempt', '[0-9]{1,18}')
+            ->middleware(EnsureCupAccess::class)
+            ->name(CupRoundResource::AUDIO_ROUTE);
     });
 });

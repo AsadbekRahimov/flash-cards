@@ -53,6 +53,22 @@ describe('billing store', () => {
     expect(getLocale()).toBe('ru')
   })
 
+  it('hands the emoji next to the name (learner.pro_emoji) to the settings store; a /me without the field keeps it', async () => {
+    const settings = useSettingsStore()
+    vi.mocked(api.me.get).mockResolvedValue({ ...me(), learner: { ...me().learner, pro_emoji: '🔥' } })
+
+    await useBillingStore().load({ force: true })
+    expect(settings.proEmoji).toBe('🔥')
+
+    vi.mocked(api.me.get).mockResolvedValue(me())
+    await useBillingStore().load({ force: true })
+    expect(settings.proEmoji).toBe('🔥')
+
+    vi.mocked(api.me.get).mockResolvedValue({ ...me(), learner: { ...me().learner, pro_emoji: null } })
+    await useBillingStore().load({ force: true })
+    expect(settings.proEmoji).toBeNull()
+  })
+
   it('warns, keeps what it had and does not throw when /me fails', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const billing = useBillingStore()

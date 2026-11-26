@@ -156,7 +156,7 @@ it('GET /friends carries camel_asset of each friend while the game is open, and 
     $response = $this->withHeaders(PracticeKit::headers($me))->getJson('/api/twa/friends')->assertOk();
 
     expect(array_column($response->json('friends'), 'camel_asset', 'first_name'))->toEqualCanonicalizing(['Dilnoza' => 'camel_golden', 'Aziz' => null])
-        ->and(array_keys($response->json('friends.0')))->toBe(['id', 'first_name', 'streak', 'words_learned', 'since', 'camel_asset']);
+        ->and(array_keys($response->json('friends.0')))->toBe(['id', 'first_name', 'pro_emoji', 'streak', 'words_learned', 'since', 'camel_asset']);
 });
 
 it('GET /friends has no camel_asset and reads no game table while the game is closed; one statement more while it is open', function (): void {

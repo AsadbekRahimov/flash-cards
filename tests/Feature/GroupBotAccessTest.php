@@ -48,7 +48,7 @@ it('does not warn when the bot is an administrator or the creator', function (st
 
     // Only the welcome of a group that waits for activation, without the admin warning.
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow добавлен в группу')
+        ->and($this->tg->sent[0]['text'])->toContain('Muhrla добавлен в группу')
         ->and($this->tg->sent[0]['text'])->not->toContain(__('bot.group.bot_not_admin', [], 'ru'))
         ->and($this->tg->chatMemberLookups)->toBe([['chat_id' => -100777, 'user_id' => 777000111]])
         ->and(TelegramGroup::query()->where('chat_id', -100777)->value('status'))->toBe('pending');
@@ -161,7 +161,7 @@ function clientWithResponses(Response ...$responses): IrazasyedTelegramClient
 it('reads the status out of a getChatMember answer', function (string $status): void {
     $client = clientWithResponses(new Response(200, [], json_encode([
         'ok' => true,
-        'result' => ['user' => ['id' => 777000111, 'is_bot' => true, 'first_name' => 'LexiFlow'], 'status' => $status],
+        'result' => ['user' => ['id' => 777000111, 'is_bot' => true, 'first_name' => 'Muhrla'], 'status' => $status],
     ], JSON_THROW_ON_ERROR)));
 
     expect($client->getChatMemberStatus(-100777, 777000111))->toBe($status);

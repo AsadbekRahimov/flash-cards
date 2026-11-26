@@ -11,8 +11,9 @@ use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Services\Battle\BattleSettings;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\SendBattleDmJob;
 use App\Models\Battle;
 use App\Models\Learner;
@@ -36,9 +37,10 @@ final class BattleMessenger
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
         private readonly BattleSettings $settings,
         private readonly PracticeAccess $access,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -71,7 +73,7 @@ final class BattleMessenger
             $recipient->telegram_user_id,
             $this->invitedText($battle, $challenger, $locale),
             __('battle.dm.open', [], $locale),
-            rtrim((string) config('twa.base_url'), '/').'/twa/battles/'.$battle->id,
+            $this->buttons->twaUrl(TwaScreen::Battle, ['id' => $battle->id]),
         ));
     }
 
@@ -152,9 +154,18 @@ final class BattleMessenger
             $send();
         } catch (TelegramForbiddenException $e) {
             $log->delete();
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
 
             Log::warning('telegram.battle_dm_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no row and send.
+                $log->delete();
+            }
+
+            // A timeout / 5xx may have been delivered: the row stays, the retry only skips. A 429 is put back by
+            // ThrottleTelegramOutbound for `retry_after` (docs/34 §4в п. 8).
+            throw $e;
         }
     }
 

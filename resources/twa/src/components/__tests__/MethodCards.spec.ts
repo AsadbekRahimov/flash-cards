@@ -185,7 +185,7 @@ describe('PretestCard and PretestReveal', () => {
 
   it('shows the word and four meanings, sends the pick once, or "I don\'t know" as an empty answer', async () => {
     const w = mount(PretestCard, { props: { card: pretest } })
-    expect(w.text()).toContain('Знаете это слово?')
+    expect(w.text()).toContain('Выберите перевод, если знаете слово')
     expect(w.get('[data-testid=word]').text()).toBe('mother')
     expect(w.text()).not.toContain('мать…')
     expect(w.findAll('button[data-testid^=option-]')).toHaveLength(4)

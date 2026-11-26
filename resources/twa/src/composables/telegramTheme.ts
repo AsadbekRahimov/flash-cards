@@ -1,7 +1,7 @@
 import WebApp from '@twa-dev/sdk'
 
 /**
- * The app has its own palette (docs/14 §4.1, redesign 2026-11): light and dark, both in `style.css`. Telegram only says which
+ * The app has its own palette (docs/14 §4.1, redesign 2026-11-25): light and dark, both in `style.css`. Telegram only says which
  * of the two (`colorScheme`); its theme colours (`themeParams`) paint nothing. This module sets `<html data-theme>` and paints the
  * window chrome Telegram draws itself (the header above the app and the window background) in the colours of the palette.
  */
@@ -20,8 +20,8 @@ export type ChromeTone = 'page' | 'surface'
  * script `src/boot/theme-boot.js` (`<meta name="theme-color">` before the bundle) uses the same page colours.
  */
 export const CHROME_COLORS: Readonly<Record<ColorScheme, Readonly<Record<ChromeTone, `#${string}`>>>> = {
-  light: { page: '#f6f7f9', surface: '#ffffff' },
-  dark: { page: '#11141c', surface: '#191d28' },
+  light: { page: '#f4f6fb', surface: '#ffffff' },
+  dark: { page: '#0f1420', surface: '#181d2a' },
 }
 
 /**

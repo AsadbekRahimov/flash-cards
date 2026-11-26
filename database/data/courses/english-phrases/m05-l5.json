@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 5,
+    "title": "Город и дорога",
+    "title_uz": "Shahar va yo'l"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Отель и аэропорт",
+    "title_uz": "Mehmonxona va aeroport"
+  },
+  "words": [
+    {
+      "word": "check in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зарегистрироваться, заселиться",
+        "uz": "ro'yxatdan o'tmoq, joylashmoq"
+      },
+      "example": "We can check in at the hotel after two o'clock.",
+      "example_translations": {
+        "ru": "В отель можно заселиться после двух часов.",
+        "uz": "Mehmonxonaga soat ikkidan keyin joylashish mumkin."
+      },
+      "hooks": {
+        "ru": "Говорят о регистрации в отеле или в аэропорту перед рейсом",
+        "uz": "Mehmonxonada yoki aeroportda reys oldidan ro'yxatdan o'tish haqida"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "in",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "check out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выехать из отеля",
+        "uz": "mehmonxonadan chiqib ketmoq"
+      },
+      "example": "What time do we have to check out? — By twelve noon.",
+      "example_translations": {
+        "ru": "Во сколько нам нужно выехать из номера? — До двенадцати часов дня.",
+        "uz": "Mehmonxonadan soat nechada chiqishimiz kerak? — Tushki soat o'n ikkigacha."
+      },
+      "hooks": {
+        "ru": "Говорят об отъезде из отеля: сдают ключ и оплачивают счёт",
+        "uz": "Mehmonxonadan ketish haqida: kalit topshiriladi, hisob to'lanadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "out",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Enjoy your stay",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приятного пребывания",
+        "uz": "vaqtingiz yaxshi o'tsin"
+      },
+      "example": "Here's your key, room 305. Enjoy your stay! — Thank you!",
+      "example_translations": {
+        "ru": "Вот ваш ключ, номер 305. Приятного пребывания! — Спасибо!",
+        "uz": "Mana kalitingiz, 305-xona. Vaqtingiz yaxshi o'tsin! — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Говорит администратор отеля, отдавая гостю ключ",
+        "uz": "Mehmonxona ma'muri mehmonga kalitni berayotib aytadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stay",
+        "literal": {
+          "ru": "наслаждайтесь пребыванием",
+          "uz": "qolishingizdan zavqlaning"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make a reservation",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "забронировать",
+        "uz": "oldindan joy band qilmoq"
+      },
+      "example": "I'd like to make a reservation for three nights, please.",
+      "example_translations": {
+        "ru": "Я хотел бы забронировать номер на три ночи.",
+        "uz": "Uch kechaga xona band qilmoqchi edim."
+      },
+      "hooks": {
+        "ru": "Говорят в отеле или ресторане, заранее заказывая место",
+        "uz": "Mehmonxona yoki restoranda oldindan joy buyurtma qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "reservation",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Window or aisle?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у окна или у прохода?",
+        "uz": "deraza yonidami yoki yo'lak yonidami?"
+      },
+      "example": "Window or aisle? — Window, please. I love watching the clouds.",
+      "example_translations": {
+        "ru": "У окна или у прохода? — У окна, пожалуйста. Люблю смотреть на облака.",
+        "uz": "Deraza yonidami yoki yo'lak yonidami? — Deraza yonida, iltimos. Bulutlarni tomosha qilishni yaxshi ko'raman."
+      },
+      "hooks": {
+        "ru": "Вопрос при регистрации на рейс: какое место вы хотите",
+        "uz": "Reysga ro'yxatdan o'tishda beriladigan savol: qaysi joyni xohlaysiz"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "aisle",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a boarding pass",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "посадочный талон",
+        "uz": "bortga chiqish taloni"
+      },
+      "example": "Please have your passport and boarding pass ready.",
+      "example_translations": {
+        "ru": "Приготовьте, пожалуйста, паспорт и посадочный талон.",
+        "uz": "Iltimos, pasport va bortga chiqish talonini tayyorlab qo'ying."
+      },
+      "hooks": {
+        "ru": "Документ, по которому пускают в самолёт",
+        "uz": "Samolyotga chiqish uchun beriladigan hujjat"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "boarding",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "My flight is delayed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мой рейс задерживается",
+        "uz": "reysim kechikyapti"
+      },
+      "example": "I'll be late for dinner. My flight is delayed by two hours.",
+      "example_translations": {
+        "ru": "Я опоздаю к ужину. Мой рейс задерживается на два часа.",
+        "uz": "Kechki ovqatga kechikaman. Reysim ikki soatga kechikyapti."
+      },
+      "hooks": {
+        "ru": "Сообщают близким, что самолёт вылетит позже",
+        "uz": "Yaqinlarga samolyot kechroq uchishini xabar qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "delayed",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you have any vacancies?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у вас есть свободные номера?",
+        "uz": "bo'sh xonalaringiz bormi?"
+      },
+      "example": "Good evening. Do you have any vacancies for tonight? — Yes, one double room.",
+      "example_translations": {
+        "ru": "Добрый вечер. У вас есть свободные номера на сегодня? — Да, один двухместный.",
+        "uz": "Xayrli kech. Bugun kechaga bo'sh xonalaringiz bormi? — Ha, bitta ikki kishilik xona bor."
+      },
+      "hooks": {
+        "ru": "Спрашивают в гостинице без брони, есть ли места",
+        "uz": "Oldindan band qilmasdan mehmonxonada bo'sh joy bor-yo'qligini so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "vacancies",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "room service",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обслуживание в номере",
+        "uz": "xonaga xizmat ko'rsatish"
+      },
+      "example": "We were tired, so we ordered dinner from room service.",
+      "example_translations": {
+        "ru": "Мы устали, поэтому заказали ужин в номер.",
+        "uz": "Charchagan edik, shuning uchun kechki ovqatni xonaga buyurtma qildik."
+      },
+      "hooks": {
+        "ru": "Говорят о доставке еды и услуг прямо в номер отеля",
+        "uz": "Mehmonxona xonasiga ovqat va xizmat yetkazib berish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "service",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go through security",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проходить досмотр",
+        "uz": "xavfsizlik nazoratidan o'tmoq"
+      },
+      "example": "We went through security quickly and had time for a coffee.",
+      "example_translations": {
+        "ru": "Мы быстро прошли досмотр, и у нас осталось время на кофе.",
+        "uz": "Xavfsizlik nazoratidan tez o'tdik va kofe ichishga vaqtimiz qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о проверке пассажиров и багажа в аэропорту",
+        "uz": "Aeroportda yo'lovchi va yuklarni tekshirish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "security",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

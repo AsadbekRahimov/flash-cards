@@ -7,6 +7,7 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
 use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\DeepgramSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleServiceAccount;
 use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\TtsCharacterBudget;
@@ -279,7 +280,29 @@ final class WordAudioScheduler
             }
         }
 
-        return $this->budget->exhausted() ? self::SKIP_BUDGET_EXHAUSTED : null;
+        // docs/26 §10: the same reasons for Deepgram - its halt marker, no key, not a voice of Deepgram.
+        if ($this->usesDeepgram()) {
+            if (DeepgramSpeechSynthesizer::haltCode() !== null) {
+                return self::SKIP_HALTED;
+            }
+            if (! DeepgramSpeechSynthesizer::hasKey()) {
+                return self::SKIP_CREDENTIALS_MISSING;
+            }
+            if (! DeepgramSpeechSynthesizer::supportsVoice($this->audio->defaultVoice())) {
+                return self::SKIP_VOICE_UNSUPPORTED;
+            }
+        }
+
+        $driver = $this->usesDeepgram() ? ConfiguredSpeechSynthesizer::DEEPGRAM : ($this->usesGoogle() ? ConfiguredSpeechSynthesizer::GOOGLE : null);
+
+        return $this->budget->exhausted($driver) ? self::SKIP_BUDGET_EXHAUSTED : null;
+    }
+
+    /** The jobs would go to Deepgram: the bound driver is `deepgram` (or the configured one, read now, is). */
+    private function usesDeepgram(): bool
+    {
+        return $this->tts instanceof DeepgramSpeechSynthesizer
+            || ($this->tts instanceof ConfiguredSpeechSynthesizer && ConfiguredSpeechSynthesizer::driver() === ConfiguredSpeechSynthesizer::DEEPGRAM);
     }
 
     /** The jobs would go to Google: the bound driver is `google` (or the configured one, read now, is). */

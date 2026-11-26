@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 15,
+    "title": "Идиомы: животные",
+    "title_uz": "Iboralar: hayvonlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Рыбы и другие",
+    "title_uz": "Baliqlar va boshqalar"
+  },
+  "words": [
+    {
+      "word": "a fish out of water",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не в своей тарелке",
+        "uz": "o'zini begonadek his qiladigan"
+      },
+      "example": "At my first business dinner, I felt like a fish out of water.",
+      "example_translations": {
+        "ru": "На первом деловом ужине я чувствовал себя не в своей тарелке.",
+        "uz": "Birinchi ishbilarmonlar kechki ovqatida o'zimni begonadek his qildim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда человек оказался в непривычной обстановке и чувствует себя неловко",
+        "uz": "Odam notanish muhitga tushib, o'zini noqulay his qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fish",
+        "literal": {
+          "ru": "рыба без воды",
+          "uz": "suvdan chiqqan baliq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a big fish in a small pond",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "первый парень на деревне",
+        "uz": "kichik davraning kattasi"
+      },
+      "example": "In our small town he's famous, but he's just a big fish in a small pond.",
+      "example_translations": {
+        "ru": "В нашем городке он знаменит, но это просто первый парень на деревне.",
+        "uz": "Kichik shaharchamizda u mashhur, lekin u shunchaki kichik davraning kattasi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который важен только в маленьком коллективе или месте",
+        "uz": "Faqat kichik jamoa yoki joyda muhim bo'lgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pond",
+        "literal": {
+          "ru": "большая рыба в маленьком пруду",
+          "uz": "kichik hovuzdagi katta baliq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "smell a rat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чуять подвох",
+        "uz": "hiyla borligini sezmoq"
+      },
+      "example": "The price was so low that I smelled a rat.",
+      "example_translations": {
+        "ru": "Цена была такой низкой, что я почуял подвох.",
+        "uz": "Narx shunchalik past ediki, hiyla borligini sezdim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда подозревают обман или что-то нечестное",
+        "uz": "Aldov yoki nohalol ish borligidan shubhalanganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rat",
+        "literal": {
+          "ru": "почуять крысу",
+          "uz": "kalamush hidini sezmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the elephant in the room",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проблема, о которой все молчат",
+        "uz": "hamma bilgan, lekin tilga olmaydigan muammo"
+      },
+      "example": "We talked for an hour, but nobody mentioned the elephant in the room: the budget.",
+      "example_translations": {
+        "ru": "Мы говорили целый час, но никто не упомянул проблему, о которой все молчат, — бюджет.",
+        "uz": "Bir soat gaplashdik, lekin hech kim hamma bilgan muammo — byudjetni tilga olmadi."
+      },
+      "hooks": {
+        "ru": "Говорят об очевидной важной проблеме, которую все неловко обходят молчанием",
+        "uz": "Hamma noqulaylikdan gapirmay chetlab o'tadigan aniq, muhim muammo haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "elephant",
+        "literal": {
+          "ru": "слон в комнате",
+          "uz": "xonadagi fil"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "something fishy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что-то тут нечисто",
+        "uz": "bunda bir gap bor"
+      },
+      "example": "He won't tell us where he got the money. There's something fishy about it.",
+      "example_translations": {
+        "ru": "Он не говорит, откуда у него деньги. Что-то тут нечисто.",
+        "uz": "U pulni qayerdan olganini aytmayapti. Bunda bir gap bor."
+      },
+      "hooks": {
+        "ru": "Говорят, когда что-то кажется подозрительным",
+        "uz": "Biror narsa shubhali tuyulganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fishy",
+        "literal": {
+          "ru": "что-то рыбное",
+          "uz": "baliq hidi keladigan nimadir"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "packed like sardines",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как сельди в бочке",
+        "uz": "igna tashlasa yerga tushmaydi"
+      },
+      "example": "The metro was so crowded this morning; we were packed like sardines.",
+      "example_translations": {
+        "ru": "Утром в метро было так тесно: мы стояли как сельди в бочке.",
+        "uz": "Bugun ertalab metroda shunchalik odam ko'p ediki, igna tashlasa yerga tushmasdi."
+      },
+      "hooks": {
+        "ru": "Говорят о транспорте или месте, где очень тесно от людей",
+        "uz": "Odam juda tiqilib ketgan transport yoki joy haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sardines",
+        "literal": {
+          "ru": "уложены как сардины",
+          "uz": "sardinadek joylangan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "crocodile tears",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "крокодиловы слёзы",
+        "uz": "soxta ko'z yoshlari"
+      },
+      "example": "He said sorry with tears in his eyes, but they were crocodile tears.",
+      "example_translations": {
+        "ru": "Он извинялся со слезами на глазах, но это были крокодиловы слёзы.",
+        "uz": "U ko'zida yosh bilan kechirim so'radi, lekin bular soxta ko'z yoshlari edi."
+      },
+      "hooks": {
+        "ru": "Говорят о притворной печали или раскаянии",
+        "uz": "Soxta qayg'u yoki pushaymonlik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "crocodile",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the lion's share",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "львиная доля",
+        "uz": "eng katta qismi"
+      },
+      "example": "My older sister always gets the lion's share of the cake.",
+      "example_translations": {
+        "ru": "Моей старшей сестре всегда достаётся львиная доля торта.",
+        "uz": "Tortning eng katta qismi doim opamga tegadi."
+      },
+      "hooks": {
+        "ru": "Говорят о самой большой части чего-то: денег, работы, еды",
+        "uz": "Pul, ish yoki ovqat kabi narsaning eng katta qismi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "share",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bull in a china shop",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как слон в посудной лавке",
+        "uz": "har narsani sindirib yuradigan beo'xshov"
+      },
+      "example": "My little brother is like a bull in a china shop; he breaks everything he touches.",
+      "example_translations": {
+        "ru": "Мой младший брат — как слон в посудной лавке: ломает всё, к чему прикоснётся.",
+        "uz": "Ukam har narsani sindirib yuradigan beo'xshov: qo'li tekkan narsani buzadi."
+      },
+      "hooks": {
+        "ru": "Говорят о неуклюжем или бестактном человеке, который всё портит",
+        "uz": "Hamma narsani buzib qo'yadigan beo'xshov yoki qo'pol odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bull",
+        "literal": {
+          "ru": "бык в посудной лавке",
+          "uz": "chinni do'konidagi buqa"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a whale of a time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отлично провести время",
+        "uz": "maza qilib vaqt o'tkazmoq"
+      },
+      "example": "The kids had a whale of a time at the water park.",
+      "example_translations": {
+        "ru": "Дети отлично провели время в аквапарке.",
+        "uz": "Bolalar akvaparkda maza qilib vaqt o'tkazishdi."
+      },
+      "hooks": {
+        "ru": "Радостно говорят о весёлом, интересном отдыхе или празднике",
+        "uz": "Quvnoq, qiziqarli dam olish yoki bayram haqida quvonib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "whale",
+        "literal": {
+          "ru": "провести китовое время",
+          "uz": "kitdek vaqt o'tkazmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -12,6 +12,7 @@ use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\DTO\AudioFailureOutcome;
 use App\Domain\Practice\DTO\BattleAnswerOutcome;
+use App\Domain\Practice\DTO\CupBattlePlan;
 use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
@@ -368,16 +369,18 @@ final class BattleService
      * (`meta.left` names the role that left a room). A match that is playing is left by `surrender`.
      *
      * @throws BattleException battle_not_found | battle_closed | battle_not_challenger | battle_wrong_state
+     * @throws PracticeException practice_unavailable | practice_pro_required (not for the match of a cup duel)
      */
     public function cancel(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $this->clock->advance($battle, $now);
 
@@ -413,12 +416,13 @@ final class BattleService
     public function ready(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -491,15 +495,16 @@ final class BattleService
         ?CarbonImmutable $now = null,
     ): BattleAnswerOutcome {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
         $requestId = strtolower($requestId);
 
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
-                return $this->transact(function () use ($by, $battleId, $requestId, $round, $answer, $now): BattleAnswerOutcome|BattleException|PracticeException {
+                return $this->transact(function () use ($by, $battleId, $requestId, $round, $answer, $now, $denied): BattleAnswerOutcome|BattleException|PracticeException {
                     $battle = $this->lock($battleId, $by);
-                    if ($battle === null) {
-                        return BattleException::notFound();
+                    $refusal = $this->refusalOf($battle, $denied);
+                    if ($refusal !== null || $battle === null) {
+                        return $refusal ?? BattleException::notFound();
                     }
                     $me = $battle->participant($by->id);
                     $this->clock->advanceThenTouch($battle, $me, $now);
@@ -589,12 +594,13 @@ final class BattleService
     public function surrender(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -625,17 +631,18 @@ final class BattleService
     public function audioFailed(Learner $by, int $battleId, string $requestId, string $elementId, ?CarbonImmutable $now = null): AudioFailureOutcome
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
         $requestId = strtolower($requestId);
 
         // The disk is asked BEFORE the transaction: on R2 it is a HEAD (or two), which must not run while the row of the match
         // is locked. The snapshot never changes after the invitation, so the clip of the locked row is the one probed here.
-        $probe = $this->probeClip($by, $battleId, $requestId, $elementId);
+        $probe = $this->probeClip($by, $battleId, $requestId, $elementId, $denied);
 
-        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe): AudioFailureOutcome|BattleException|PracticeException {
+        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe, $denied): AudioFailureOutcome|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -679,20 +686,126 @@ final class BattleService
         });
     }
 
+    // ------------------------------------------------------------------ the duel of a cup (docs/33 §5.7, D1)
+
+    /**
+     * The match of a duel of a cup, made ready BEFORE the transaction of the acceptance: no friendship, no Free limit, no access to the
+     * practice of the players (the cup decides who may play - its participants; the rated duel is the same for Free and Pro, docs/29);
+     * only the switches of the battle and of the mode, and the snapshot of exactly `practice.battle.rounds` rounds of the WHOLE course of
+     * the cup in the languages of both players. Nothing is written.
+     *
+     * @throws BattleException battle_disabled | battle_material_unavailable
+     * @throws PracticeException practice_mode_disabled
+     */
+    public function prepareForCup(Learner $challenger, Learner $opponent, PracticeMode $mode, Course $course): CupBattlePlan
+    {
+        if (! $mode->battleable()) {
+            throw new LogicException("The mode {$mode->value} is not played in a battle.");
+        }
+        $this->access->assertBattleEnabled();
+        $this->access->assertModeEnabled($mode);
+
+        $challengerLocale = $this->locales->forLearner($challenger);
+        $opponentLocale = $this->locales->forLearner($opponent);
+        $seed = SeededShuffle::newSeed();
+        $snapshot = $this->snapshot($challenger, $mode, MaterialScope::forPlay($course, null, null, $seed), new LocaleSet([$challengerLocale, $opponentLocale]), $seed);
+
+        return new CupBattlePlan($challenger, $opponent, $mode, $course, $snapshot, $challengerLocale, $opponentLocale);
+    }
+
+    /**
+     * Opens the match of a duel of a cup INSIDE the caller's transaction (the acceptance of the duel, docs/33 §5.7 step 4): the row goes
+     * straight to `room` - the acceptance has happened - with BOTH players busy (`active_learner_id`) and the pair's `open_pair`; the room
+     * lives `room_ttl_seconds`, and the presence counts from now for both (the challenger must come, docs/33 §5.7). The battle knows its
+     * duel (`cup_duel_id`): its end is scored by the cup ({@see BattleClock}). `$limitExempt` - a rated duel, not counted in the Free
+     * limit (the caller claims the limit itself for a friendly one, under the challenger's row, before this).
+     *
+     * A player busy with another match, or a pair with a battle that is not over, is a violation of a unique index: the exception
+     * leaves with the caller's transaction (rolled back, the slots of the duel with it) and the caller asks {@see busyBattleOf()} /
+     * {@see openBattleOfPairOf()} what keeps them busy.
+     *
+     * @throws UniqueConstraintViolationException active_learner_id | open_pair
+     */
+    public function openForCup(CupBattlePlan $plan, int $cupDuelId, bool $limitExempt, CarbonImmutable $now): Battle
+    {
+        $challenger = $plan->challenger;
+        $opponent = $plan->opponent;
+
+        $battle = new Battle([
+            'challenger_id' => $challenger->id,
+            'opponent_id' => $opponent->id,
+            'friendship_id' => null,
+            'open_pair' => Battle::pairKey($challenger->id, $opponent->id),
+            'course_id' => $plan->course->id,
+            'lesson_id' => null,
+            'mode' => $plan->mode,
+            'status' => BattleStatus::Room,
+            'end_reason' => null,
+            'snapshot' => $plan->snapshot->toArray(),
+            'current_round' => 0,
+            'phase' => null,
+            'invite_expires_at' => $now,
+            'accepted_at' => $now,
+            'room_expires_at' => $now->addSeconds($this->settings->roomTtlSeconds()),
+            'rematch_of_id' => null,
+            'cup_duel_id' => $cupDuelId,
+            'limit_exempt' => $limitExempt,
+            'state_version' => 1,
+            'meta' => [],
+        ]);
+        $battle->setCreatedAt($now)->setUpdatedAt($now)->save();
+
+        $rows = [];
+        foreach ([[$challenger, BattleRole::Challenger, $plan->challengerLocale, null], [$opponent, BattleRole::Opponent, $plan->opponentLocale, $now]] as [$learner, $role, $locale, $seen]) {
+            $rows[] = BattleParticipant::query()->create([
+                'battle_id' => $battle->id,
+                'learner_id' => $learner->id,
+                'role' => $role,
+                'active_learner_id' => $learner->id,
+                'ready_at' => null,
+                'last_seen_at' => $seen,
+                'surrendered_at' => null,
+                'score' => 0,
+                'locale' => $locale,
+            ]);
+        }
+        $battle->setRelation('participants', new EloquentCollection($rows));
+
+        DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleAccepted, ['battle_id' => $battle->id, 'cup_duel_id' => $cupDuelId], learner: $challenger));
+
+        return $battle;
+    }
+
+    /**
+     * The match the learner is busy with, after the clock has had its say (a due one is moved in a short transaction of its own); null
+     * when nothing keeps them busy. For a caller whose insert hit `active_learner_id` (the duel of a cup), outside its transaction.
+     */
+    public function busyBattleOf(Learner $learner, ?CarbonImmutable $now = null): ?int
+    {
+        return $this->busyWith($learner, $now ?? CarbonImmutable::now());
+    }
+
+    /** The battle of the pair that is not over (`open_pair`), after the clock - the same for a caller whose insert hit `open_pair`. */
+    public function openBattleOfPairOf(Learner $a, Learner $b, ?CarbonImmutable $now = null): ?int
+    {
+        return $this->openBattleOfPair($a, $b, $now ?? CarbonImmutable::now());
+    }
+
     // ------------------------------------------------------------------ the pieces
 
     /**
      * The look at the file of a reported clip, without a lock: null when there is nothing to look at (no such match of the
-     * learner, a repeated report, an element without audio - the transaction answers those). An error of the disk (R2 down, a
-     * timeout) counts as "the file is there": the report is then not confirmed and the match goes on, never a 500.
+     * learner, a match the learner is refused the practice for, a repeated report, an element without audio - the transaction
+     * answers those). An error of the disk (R2 down, a timeout) counts as "the file is there": the report is then not confirmed and
+     * the match goes on, never a 500.
      *
      * @return array{disk: string, path: string, missing: bool}|null
      */
-    private function probeClip(Learner $by, int $battleId, string $requestId, string $elementId): ?array
+    private function probeClip(Learner $by, int $battleId, string $requestId, string $elementId, ?PracticeException $denied): ?array
     {
         /** @var Battle|null $battle */
-        $battle = Battle::query()->whereKey($battleId)->first(['id', 'challenger_id', 'opponent_id', 'snapshot', 'meta']);
-        if ($battle === null || ! $battle->involves($by->id)) {
+        $battle = Battle::query()->whereKey($battleId)->first(['id', 'challenger_id', 'opponent_id', 'cup_duel_id', 'snapshot', 'meta']);
+        if ($battle === null || ! $battle->involves($by->id) || $this->refusalOf($battle, $denied) !== null) {
             return null;
         }
         $reports = $battle->meta['audio_reports'] ?? null;
@@ -713,6 +826,35 @@ final class BattleService
         }
 
         return ['disk' => $clip->disk, 'path' => $clip->path, 'missing' => $missing];
+    }
+
+    /**
+     * The refusal of the practice for this learner (pilot, plan, switch), kept - not thrown - until the match is known: the match of a
+     * duel of a cup is played by the participants of the cup whatever their access to the practice (docs/33 §11.9.1, docs/29: the rated
+     * duel is the same for Free and Pro). No query for a learner who may practice.
+     */
+    private function deniedPractice(Learner $by): ?PracticeException
+    {
+        try {
+            $this->access->assertCanPractice($by);
+        } catch (PracticeException $e) {
+            return $e;
+        }
+
+        return null;
+    }
+
+    /**
+     * What a learner refused the practice gets for this match: nothing for the match of a cup duel (`cup_duel_id`), the refusal for
+     * any other - and for a match that is not his or does not exist (the same 403 as before the match was read).
+     */
+    private function refusalOf(?Battle $battle, ?PracticeException $denied): ?PracticeException
+    {
+        if ($denied === null || ($battle !== null && $battle->cup_duel_id !== null)) {
+            return null;
+        }
+
+        return $denied;
     }
 
     /**

@@ -28,7 +28,7 @@ final readonly class BattleView
     /**
      * @param  array{slug: string, title: string}  $course
      * @param  array{id: int, stage: int|null, number: int|null, title: string|null}|null  $lesson
-     * @param  array{first_name: string|null}  $opponent
+     * @param  array{first_name: string|null, pro_emoji: string|null}  $opponent
      * @param  array{me: bool, opponent: bool}  $ready
      * @param  array{me: int, opponent: int}  $scores
      * @param  array{outcome: string, end_reason: string|null, rounds: list<array{no: int, me: array{verdict: string, points: int}, opponent: array{verdict: string, points: int}}>}|null  $result

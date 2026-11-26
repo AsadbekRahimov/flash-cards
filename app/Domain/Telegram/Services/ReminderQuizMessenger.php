@@ -11,6 +11,7 @@ use App\Domain\Learners\Enums\ReminderKind;
 use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Telegram\Support\ReminderQuizCallback;
+use App\Domain\Telegram\Support\TwaScreen;
 
 /**
  * The texts and keyboards of the reminder question (docs/04 B.5a, docs/12 §7.5); formatting only, no I/O.
@@ -22,18 +23,22 @@ use App\Domain\Telegram\Support\ReminderQuizCallback;
  */
 final class ReminderQuizMessenger
 {
-    /** `from=` of the app button after the answer; the one of the question (and of the plain reminder) is {@see ReminderSender::TWA_PATH}. */
-    public const TWA_PATH_ANSWERED = '/twa/?from=reminder_quiz';
+    /** `from=` of the app button after the answer; the one of the question (and of the plain reminder) is {@see ReminderSender::FROM}. */
+    public const FROM_ANSWERED = 'reminder_quiz';
+
+    public function __construct(private readonly BotButtons $buttons) {}
 
     /**
      * @return array{text: string, reply_markup: array{inline_keyboard: list<list<array<string, mixed>>>}}
      */
     public function question(ReminderContent $content, ReminderQuiz $quiz, string $locale): array
     {
-        $lead = match ($content->kind) {
-            ReminderKind::StreakAtRisk => trans_choice('reminders.quiz.lead.streak_at_risk', $content->streakCurrent, [], $locale),
-            ReminderKind::Inactive => trans_choice('reminders.quiz.lead.inactive', $content->idleDays, [], $locale),
-            ReminderKind::NewWords => __('reminders.quiz.lead.new_words', [], $locale),
+        $lead = match (true) {
+            // The day after a lesson (docs/31 §5б, ReviewScoreHint): its words came up for review and earn points.
+            $content->scoreHint => __('reminders.quiz.lead.score_due', [], $locale),
+            $content->kind === ReminderKind::StreakAtRisk => trans_choice('reminders.quiz.lead.streak_at_risk', $content->streakCurrent, [], $locale),
+            $content->kind === ReminderKind::Inactive => trans_choice('reminders.quiz.lead.inactive', $content->idleDays, [], $locale),
+            $content->kind === ReminderKind::NewWords => __('reminders.quiz.lead.new_words', [], $locale),
             default => trans_choice('reminders.quiz.lead.review', $content->dueCount, [], $locale),
         };
 
@@ -45,7 +50,7 @@ final class ReminderQuizMessenger
         foreach ($quiz->options as $index => $option) {
             $keyboard[] = [['text' => ReminderQuiz::buttonLabel($option), 'callback_data' => ReminderQuizCallback::data($quiz->token, $index)]];
         }
-        $keyboard[] = [$this->appButton(__('reminders.open_button', [], $locale), ReminderSender::TWA_PATH)];
+        $keyboard[] = [$this->appButton(__('reminders.open_button', [], $locale), ReminderSender::FROM)];
 
         return [
             'text' => "{$lead}\n\n{$question}\n\n".__('reminders.quiz.footer', [], $locale),
@@ -67,7 +72,7 @@ final class ReminderQuizMessenger
 
         return [
             'text' => "{$line}\n\n{$after}\n\n".__('reminders.quiz.footer', [], $locale),
-            'reply_markup' => ['inline_keyboard' => [[$this->appButton(__('reminders.quiz.open_more', [], $locale), self::TWA_PATH_ANSWERED)]]],
+            'reply_markup' => ['inline_keyboard' => [[$this->appButton(__('reminders.quiz.open_more', [], $locale), self::FROM_ANSWERED)]]],
         ];
     }
 
@@ -78,7 +83,7 @@ final class ReminderQuizMessenger
      */
     public function expiredMarkup(string $locale): array
     {
-        return ['inline_keyboard' => [[$this->appButton(__('reminders.open_button', [], $locale), ReminderSender::TWA_PATH)]]];
+        return ['inline_keyboard' => [[$this->appButton(__('reminders.open_button', [], $locale), ReminderSender::FROM)]]];
     }
 
     public function expiredAlert(string $locale): string
@@ -87,8 +92,8 @@ final class ReminderQuizMessenger
     }
 
     /** @return array{text: string, web_app: array{url: string}} */
-    private function appButton(string $text, string $path): array
+    private function appButton(string $text, string $from): array
     {
-        return ['text' => $text, 'web_app' => ['url' => rtrim((string) config('twa.base_url'), '/').$path]];
+        return ['text' => $text, 'web_app' => ['url' => $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => $from])]];
     }
 }

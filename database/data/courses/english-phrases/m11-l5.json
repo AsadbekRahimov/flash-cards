@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 11,
+    "title": "Люди и отношения",
+    "title_uz": "Odamlar va munosabatlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Семья и друзья",
+    "title_uz": "Oila va do'stlar"
+  },
+  "words": [
+    {
+      "word": "Like father, like son",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "яблоко от яблони недалеко падает",
+        "uz": "qush uyasida ko'rganini qiladi"
+      },
+      "example": "Tim fixes cars just like his dad. — Like father, like son!",
+      "example_translations": {
+        "ru": "Тим чинит машины, прямо как его папа. — Яблоко от яблони недалеко падает!",
+        "uz": "Tim xuddi dadasidek mashina tuzatadi. — Qush uyasida ko'rganini qiladi-da!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда сын похож на отца характером, привычками или занятием",
+        "uz": "O'g'il fe'li, odatlari yoki kasbi bilan otasiga o'xshasa aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "son",
+        "literal": {
+          "ru": "каков отец, таков и сын",
+          "uz": "otasi qanday bo'lsa, o'g'li ham shunday"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "run in the family",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это у нас семейное",
+        "uz": "nasldan-naslga o'tmoq"
+      },
+      "example": "All my uncles are tall. — Yes, it runs in the family.",
+      "example_translations": {
+        "ru": "Все мои дяди высокие. — Да, это у нас семейное.",
+        "uz": "Hamma tog'alarim baland bo'yli. — Ha, bu bizda nasldan-naslga o'tadi."
+      },
+      "hooks": {
+        "ru": "Говорят о черте, таланте или болезни, которые есть у многих в одной семье",
+        "uz": "Bir oiladagi ko'p odamlarda uchraydigan xususiyat, iste'dod yoki kasallik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "run",
+        "literal": {
+          "ru": "бежать в семье",
+          "uz": "oilada yugurmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "A friend in need is a friend indeed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "друзья познаются в беде",
+        "uz": "do'st boshga ish tushganda bilinadi"
+      },
+      "example": "Thanks for driving me to the hospital at night. — A friend in need is a friend indeed.",
+      "example_translations": {
+        "ru": "Спасибо, что ночью отвёз меня в больницу. — Друзья познаются в беде.",
+        "uz": "Kechasi meni kasalxonaga olib borganing uchun rahmat. — Do'st boshga ish tushganda bilinadi."
+      },
+      "hooks": {
+        "ru": "Говорят о друге, который помог в трудную минуту",
+        "uz": "Qiyin paytda yordam bergan do'st haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "need",
+        "literal": {
+          "ru": "друг в нужде — настоящий друг",
+          "uz": "muhtojlikdagi do'st — haqiqiy do'st"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "Blood is thicker than water",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кровь не вода",
+        "uz": "qon qonni tortadi"
+      },
+      "example": "He always helps his cousins first. — Well, blood is thicker than water.",
+      "example_translations": {
+        "ru": "Он всегда в первую очередь помогает двоюродным братьям. — Ну, кровь не вода.",
+        "uz": "U doim birinchi navbatda amakivachchalariga yordam beradi. — Nima ham derdik, qon qonni tortadi."
+      },
+      "hooks": {
+        "ru": "Говорят, что родные важнее друзей и чужих людей",
+        "uz": "Qarindoshlar do'st va begonalardan muhimroq ekanini aytishda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "blood",
+        "literal": {
+          "ru": "кровь гуще воды",
+          "uz": "qon suvdan quyuqroq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take after",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти в кого-то из родных",
+        "uz": "(ota-onasiga) tortmoq"
+      },
+      "example": "Malika takes after her mother; they're both great cooks.",
+      "example_translations": {
+        "ru": "Малика пошла в маму: они обе прекрасно готовят.",
+        "uz": "Malika onasiga tortgan: ikkalasi ham juda mazali ovqat pishiradi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда ребёнок похож на родителя или родственника внешностью или характером",
+        "uz": "Bola tashqi ko'rinishi yoki fe'li bilan ota-onasi yoki qarindoshiga o'xshasa aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "after",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "bring up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "воспитывать, растить",
+        "uz": "tarbiyalab voyaga yetkazmoq"
+      },
+      "example": "My grandparents brought me up after my parents moved abroad.",
+      "example_translations": {
+        "ru": "Меня вырастили бабушка с дедушкой, когда родители уехали за границу.",
+        "uz": "Ota-onam chet elga ketganidan keyin meni buvim va bobom tarbiyalab voyaga yetkazishdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто растил и воспитывал ребёнка",
+        "uz": "Bolani kim o'stirib, tarbiyalagani haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bring",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "grow up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вырасти, повзрослеть",
+        "uz": "ulg'aymoq, voyaga yetmoq"
+      },
+      "example": "I grew up in a small village near Samarkand.",
+      "example_translations": {
+        "ru": "Я вырос в маленьком посёлке под Самаркандом.",
+        "uz": "Men Samarqand yaqinidagi kichik qishloqda ulg'ayganman."
+      },
+      "hooks": {
+        "ru": "Говорят о детстве и о том, где человек вырос; Grow up! — упрёк: веди себя по-взрослому",
+        "uz": "Bolalik va qayerda ulg'ayganlik haqida aytiladi; Grow up! — «kattalardek tut o'zingni» degan tanbeh"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "grow",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "look after",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "присматривать, заботиться",
+        "uz": "qaramoq, g'amxo'rlik qilmoq"
+      },
+      "example": "Can you look after my little sister while I'm at the shop?",
+      "example_translations": {
+        "ru": "Можешь присмотреть за моей младшей сестрой, пока я в магазине?",
+        "uz": "Men do'kondaligimda singlimga qarab tura olasanmi?"
+      },
+      "hooks": {
+        "ru": "Говорят о заботе о детях, пожилых родных, домашних животных или вещах",
+        "uz": "Bolalar, keksa qarindoshlar, uy hayvonlari yoki buyumlarga g'amxo'rlik qilish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "look",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "an only child",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "единственный ребёнок в семье",
+        "uz": "oilada yolg'iz farzand"
+      },
+      "example": "I'm an only child, so I always wanted a brother or a sister.",
+      "example_translations": {
+        "ru": "Я единственный ребёнок в семье, поэтому всегда хотел брата или сестру.",
+        "uz": "Men oilada yolg'iz farzandman, shuning uchun doim aka-ukam yoki opa-singlim bo'lishini xohlardim."
+      },
+      "hooks": {
+        "ru": "Говорят о ребёнке, у которого нет братьев и сестёр",
+        "uz": "Aka-ukasi yoki opa-singlisi yo'q bola haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "only",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "start a family",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "завести детей",
+        "uz": "farzand ko'rmoq"
+      },
+      "example": "They want to buy a house before they start a family.",
+      "example_translations": {
+        "ru": "Они хотят купить дом, прежде чем заводить детей.",
+        "uz": "Ular farzand ko'rishdan oldin uy sotib olishmoqchi."
+      },
+      "hooks": {
+        "ru": "Говорят о паре, которая решает завести первого ребёнка",
+        "uz": "Birinchi farzand ko'rishga qaror qilgan er-xotin haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "start",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

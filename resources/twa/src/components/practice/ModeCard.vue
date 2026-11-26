@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import type { IconName } from '@/components/ui/icons'
 import { estimateMinutes, modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeModeInfo } from '@/api/types'
 
 /**
- * One row of "All modes" on the practice hub (docs/16 §11.2, docs/design Practice): the name of the mode, a line of example under
- * it, and one value on the right - the state of the row (a chip: "Continue", "Pro", "Few materials", "Off"), else the personal best
- * (timed pairs), else "≈ 2 min". No icon tile: the rows of the redesign are text.
+ * One row of "All games" on the practice hub (docs/16 §11.2, docs/design/2026-11-25-redesign Practice): a quiet tile with the icon of
+ * the mode (`bg-accent-soft`, the icon in the accent), the name of the mode, a line of example under it, and one value on the right - the
+ * state of the row (a chip: "Continue", "Pro", "Few materials", "Off"), else the personal best (timed pairs), else "≈ 2 min". The rows
+ * have no lines of their own: the list draws the lines between them (`divide-y`).
  *
  * - `info` — the card as the server states it (`state`, `available` / `required`, `reason`, `estimate_seconds`).
  * - `resume` — the unfinished session of this mode in this very place: the card says "Continue" and `select` leads back
@@ -38,6 +41,18 @@ const mode = computed((): PracticeMode => props.info.mode)
 const title = computed(() => modeTitle(mode.value))
 const example = computed(() => t(`practice.mode.${mode.value}.example`))
 const estimate = computed(() => t('practice.hub.estimate', { minutes: estimateMinutes(props.info.estimate_seconds) }))
+
+/** The picture of the mode in its tile: decorative (the name says the same). */
+const ICONS: Record<PracticeMode, IconName> = {
+  pairs: 'arrows-right-left',
+  collocation: 'puzzle-piece',
+  sentence: 'rectangle-stack',
+  dictation: 'speaker-wave',
+  pairs_timed: 'clock',
+  word_form: 'pencil-square',
+  error_hunt: 'light-bulb',
+}
+const icon = computed((): IconName => ICONS[mode.value] ?? 'puzzle-piece')
 
 const playable = computed(() => props.info.state === 'available' || props.info.state === 'pro_required' || Boolean(props.resume))
 
@@ -90,7 +105,7 @@ function select(): void {
   <component
     :is="playable ? 'button' : 'div'"
     :type="playable ? 'button' : undefined"
-    class="block w-full border-t border-divider px-[18px] py-3 text-left"
+    class="block w-full px-3.5 py-2.5 text-left"
     :class="{ 'transition-colors active:bg-fill': playable, 'opacity-60': info.state === 'disabled' }"
     :aria-label="playable ? label : undefined"
     :aria-busy="busy ? 'true' : undefined"
@@ -99,9 +114,12 @@ function select(): void {
     :data-state="resume ? 'resume' : info.state"
     @click="playable ? select() : undefined"
   >
-    <span class="flex min-h-7 items-center gap-3">
+    <span class="flex min-h-10 items-center gap-3">
+      <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent" aria-hidden="true" data-testid="mode-icon">
+        <AppIcon :name="icon" :size="22" />
+      </span>
       <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span class="text-[15px] leading-5 font-semibold" data-testid="mode-title">{{ title }}</span>
+        <span class="text-base leading-5 font-bold" data-testid="mode-title">{{ title }}</span>
         <span class="line-clamp-2 text-[13px] leading-[18px] break-words text-muted" data-testid="mode-example">{{ example }}</span>
       </span>
 
@@ -124,12 +142,12 @@ function select(): void {
     </span>
 
     <template v-if="!playable">
-      <span v-if="info.state === 'not_enough'" class="mt-2 block text-[13px] leading-[18px] text-muted" data-testid="mode-reason">{{ reason }}</span>
+      <span v-if="info.state === 'not_enough'" class="mt-2 ml-[52px] block text-[13px] leading-[18px] text-muted" data-testid="mode-reason">{{ reason }}</span>
       <!-- Not a button inside a button: a row that cannot be played now is a plain block, so this one is allowed. -->
       <button
         v-if="info.state === 'not_enough' && learn && learnHelps"
         type="button"
-        class="btn btn-tinted btn-sm mt-2"
+        class="btn btn-tinted btn-sm mt-2 ml-[52px]"
         :data-testid="`mode-learn-${mode}`"
         @click="emit('learn')"
       >

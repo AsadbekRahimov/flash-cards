@@ -9,6 +9,8 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\GroupBotRemoval;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
@@ -63,8 +65,10 @@ final class PostLeaderboardJob implements ShouldQueue
         LeaderboardBuilder $builder,
         ProductEventRecorder $events,
         ?LocaleResolver $locales = null,
+        ?GroupBotRemoval $groups = null,
     ): void {
         $locales ??= app(LocaleResolver::class);
+        $groups ??= app(GroupBotRemoval::class);
 
         /** @var ExamSession|null $session */
         $session = ExamSession::query()
@@ -97,6 +101,7 @@ final class PostLeaderboardJob implements ShouldQueue
         Cache::lock("telegram:leaderboard:{$session->id}", 120)->block(10, function () use (
             $telegram,
             $events,
+            $groups,
             $session,
             $text,
         ): void {
@@ -114,6 +119,10 @@ final class PostLeaderboardJob implements ShouldQueue
                     ['exam_session_id' => $session->id],
                     group: $session->group,
                 );
+            } catch (TelegramForbiddenException $e) {
+                // The bot is not in the group any more (docs/34 §4в п. 3): the group goes `disabled`, the job ends without an
+                // error and without the marker - there is nobody to post to, and `failed_jobs` is not the place to learn it.
+                $groups->disable($session->group, $e, 'leaderboard');
             } catch (\Throwable $e) {
                 Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
                     'exam_session_id' => $session->id,

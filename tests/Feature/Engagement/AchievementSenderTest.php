@@ -13,6 +13,7 @@ use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendAchievementJob;
 use App\Models\Achievement;
@@ -53,7 +54,7 @@ it('sends the PNG with a Russian caption and a share button with the learner inv
     $button = $photo['markup']['inline_keyboard'][0][0];
     $link = 'https://t.me/LexiFlowBot?start=ref_'.$learner->fresh()?->referral_code;
     expect($button['text'])->toBe('Поделиться')
-        ->and($button['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я получил(а) достижение «Серия 7 дней» в LexiFlow! Учим английский в Telegram.'));
+        ->and($button['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я получил(а) достижение «Серия 7 дней» в Muhrla! Учим английский в Telegram.'));
 });
 
 it('speaks Uzbek and renders the Uzbek card', function (): void {
@@ -123,9 +124,10 @@ it('leaves the marker after an ambiguous failure so that a retry does not duplic
         ->and(NotificationLog::query()->where('type', 'achievement')->count())->toBe(1);
 });
 
-it('does not send the card again on a retry after an ambiguous (non-403) failure', function (): void {
+it('does not send the card again on a retry after an ambiguous (transport) failure', function (): void {
     $achievement = Achievement::factory()->create();
-    $this->tg->failSends = 1; // a Bot API refusal that is not a 403: it is unknown whether the photo arrived
+    $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true; // a timeout: it is unknown whether the photo arrived
 
     expect(fn () => sendAch($achievement))->toThrow(TelegramApiException::class);
 
@@ -133,6 +135,30 @@ it('does not send the card again on a retry after an ambiguous (non-403) failure
     expect(sendAch($achievement))->toBe('skipped')
         ->and($this->tg->photos)->toHaveCount(0)
         ->and(NotificationLog::query()->where('type', 'achievement')->count())->toBe(1);
+});
+
+it('drops the marker on a 429 (certainly not delivered) so that the retry sends the card exactly once', function (): void {
+    $achievement = Achievement::factory()->create();
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 7;
+
+    expect(fn () => sendAch($achievement))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->where('type', 'achievement')->count())->toBe(0);
+
+    expect(sendAch($achievement))->toBe('sent')
+        ->and(sendAch($achievement))->toBe('skipped')
+        ->and($this->tg->photos)->toHaveCount(1)
+        ->and(NotificationLog::query()->where('type', 'achievement')->count())->toBe(1);
+});
+
+it('drops the marker on another definite refusal (4xx) and rethrows it', function (): void {
+    $achievement = Achievement::factory()->create();
+    $this->tg->failSends = 1;
+
+    expect(fn () => sendAch($achievement))->toThrow(TelegramApiException::class);
+
+    expect(NotificationLog::query()->where('type', 'achievement')->count())->toBe(0)
+        ->and(sendAch($achievement))->toBe('sent');
 });
 
 it('is dispatched by the unlock once and runs through the bot-wide send budget', function (): void {

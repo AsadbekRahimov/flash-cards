@@ -23,8 +23,8 @@ use Throwable;
  * One word per job: a failing TTS call retries with backoff and never takes the rest of the batch down. Idempotent.
  *
  * Synthesis errors (docs/26 §9.2), as in {@see GeneratePracticeAudioJob}: a `retryable` one is thrown for the retry; the
- * monthly limit ends the job quietly (the nightly reconciliation picks the word up next month - no failed job, no warning
- * per word); any other final one fails the job at once. Words of a learner's own deck are never voiced by the synthesizer
+ * monthly limit (the credit limit of `deepgram`, §10) ends the job quietly (the nightly reconciliation picks the word up next
+ * month, or once the limit is raised - no failed job, no warning per word); any other final one fails the job at once. Words of a learner's own deck are never voiced by the synthesizer
  * (docs/26 §9.4) - checked here too, whatever queued the job.
  *
  * A disk that does not take the file after a synthesis ({@see WordAudioNotStoredException}): the audio was paid for and is
@@ -106,7 +106,7 @@ abstract class PregenerateAudioJob implements ShouldBeUniqueUntilProcessing, Sho
             if ($e->retryable) {
                 throw $e;
             }
-            if ($e->getMessage() === SpeechSynthesisException::MONTHLY_LIMIT_REACHED) {
+            if ($e->isBudgetSpent()) {
                 return;
             }
 

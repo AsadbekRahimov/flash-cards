@@ -22,6 +22,7 @@ use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\RegionDistributionWidget;
 use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\SchedulerComparisonWidget;
@@ -69,6 +70,7 @@ class Dashboard extends BaseDashboard
         OnboardingFunnelWidget::class,
         GameActivityWidget::class,
         ExerciseMixTableWidget::class,
+        RegionDistributionWidget::class,
         LeagueGroupsTableWidget::class,
         OrgActivationTableWidget::class,
     ];

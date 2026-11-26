@@ -8,6 +8,7 @@ use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\GradeResult;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
+use App\Domain\Practice\DTO\MaterialWord;
 use App\Domain\Practice\DTO\ModeAvailability;
 use App\Domain\Practice\DTO\PairsRound;
 use App\Domain\Practice\DTO\Snapshot;
@@ -17,6 +18,7 @@ use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Grading\PairsGrader;
 use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Support\PairsPacker;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
 
 /**
@@ -26,7 +28,13 @@ use App\Models\Learner;
  *
  * MATERIAL: the words the learner has been introduced to (as for `pairs`), fit when they have an English text and a variant of the
  * translation in every locale. At least `min_words` of them (and one round of `per_round`), else `no_words`; enough words that
- * cannot stand together in a round, `ambiguous`.
+ * cannot stand together in a round, `ambiguous`. A game on ONE lesson that is short of them (the step 3 of the day plan, docs/31 §5б)
+ * is TOPPED UP with words of the same course the learner has learned ({@see PracticeMaterialService::learnedCourseWordsOutsideLesson()}),
+ * chosen by the seed of the session, to `min_words` rounded up to whole rounds: every fit word of the lesson stays in, the others
+ * only fill the board. Only words fit by the same rule fill it, and how many are found does not depend on the seed: the availability
+ * (under its own seed) and the game (under the session's) say the same. A lesson without a single fit word is not topped up
+ * (`no_words`): the game would not be on the lesson. Only when a game is OPENED: the counting scope of the hub reports the lesson's
+ * own words, as before (its budget of statements is pinned).
  *
  * ROUNDS: `rounds` rounds of exactly `per_round` words. Each cycle lays all fit words out under its own seed (`{seed}:cycle:{k}`,
  * the first cycle under the seed itself) with {@see PairsPacker} - no two words that clash in a round - and the cycles go on, over
@@ -55,12 +63,12 @@ final class PairsTimedMode implements PracticeModeHandler
 
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
-        return $this->plan($scope, $learner, $locales, self::AVAILABILITY_SEED, self::rounds())['availability'];
+        return $this->plan($scope, $learner, $locales, self::AVAILABILITY_SEED, self::rounds(), self::AVAILABILITY_SEED)['availability'];
     }
 
     public function build(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $size, bool $strictSize): array
     {
-        $plan = $this->plan($scope, $learner, $locales, $seed, max(1, $size));
+        $plan = $this->plan($scope, $learner, $locales, $seed, max(1, $size), $seed);
         if (! $plan['availability']->isAvailable) {
             throw PracticeException::notEnoughMaterial($this->mode(), $plan['availability'], $scope->course->slug, $scope->lesson?->id);
         }
@@ -127,9 +135,9 @@ final class PairsTimedMode implements PracticeModeHandler
     /**
      * @return array{words: list<Candidate>, rounds: list<list<int>>, seeds: list<string>, availability: ModeAvailability}
      */
-    private function plan(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $wanted): array
+    private function plan(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $wanted, string $topUpSeed): array
     {
-        $words = $this->words($scope, $learner, $locales);
+        $words = $this->toppedUp($scope, $learner, $locales, $this->words($scope, $learner, $locales), $topUpSeed);
         $count = count($words);
         $perRound = self::perRound();
         $required = max(self::minWords(), $perRound);
@@ -190,6 +198,44 @@ final class PairsTimedMode implements PracticeModeHandler
             }
 
             return $fit;
+        });
+    }
+
+    /**
+     * The words of a lesson short of `min_words` with learned words of the course after them (see the class doc); any other scope as it is.
+     *
+     * @param  list<Candidate>  $words
+     * @return list<Candidate>
+     */
+    private function toppedUp(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, array $words, string $seed): array
+    {
+        $perRound = self::perRound();
+        $target = (int) (ceil(max(self::minWords(), $perRound) / $perRound) * $perRound);
+        // Only a scope a game is opened from: the counts of the hub (`forCount`) stay as they were - no statement more on the hub, whose
+        // budget is pinned (docs/16 §13); the step 3 of the day plan opens the game directly (`source = deeplink`), not through the hub.
+        if ($scope->countOnly || $scope->lesson === null || $learner === null || $words === [] || count($words) >= $target) {
+            return $words;
+        }
+
+        $key = 'pairs_timed:topup:'.$learner->id.':'.implode(',', $locales->locales).':'.bin2hex(hash('sha256', $seed, true));
+
+        return $scope->remember($key, function () use ($scope, $learner, $locales, $words, $seed, $target): array {
+            $want = $target - count($words);
+            $taken = array_flip(array_map(static fn (array $c): int => $c['word']->id, $words));
+
+            // The material reads on past its sample until `$want` words the board can use are found: the number of them does not
+            // depend on the seed, so the availability (one seed) and the game (the seed of the session) agree.
+            $usable = static fn (MaterialWord $word): bool => ! isset($taken[$word->id]) && PairsMode::candidate($word, $locales) !== null;
+
+            $extra = [];
+            foreach ($this->material->learnedCourseWordsOutsideLesson($scope, $learner, $locales, $seed, $want, $usable) as $word) {
+                $candidate = PairsMode::candidate($word, $locales);
+                if ($candidate !== null) {
+                    $extra[] = $candidate;
+                }
+            }
+
+            return [...$words, ...array_slice(SeededShuffle::apply($extra, $seed, 'practice:topup:order'), 0, $want)];
         });
     }
 

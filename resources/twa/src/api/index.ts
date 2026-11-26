@@ -23,6 +23,20 @@ import type {
   BillingPeriod,
   BillingProviderKey,
   CheckoutResponse,
+  CupAnswerRequest,
+  CupAnswerResponse,
+  CupBoardResponse,
+  CupInvite,
+  CupListResponse,
+  CupParticipantView,
+  CupLeaveResponse,
+  CupRound,
+  CupSettingsPatch,
+  CupSetup,
+  CupTodayResponse,
+  CupDuel,
+  CupDuelChallengeRequest,
+  CupDuelListResponse,
   Course,
   CourseDetail,
   CoursesResponse,
@@ -53,9 +67,12 @@ import type {
   PracticeSession,
   Quality,
   ReferralsResponse,
+  LeagueBoardPage,
   LeagueResponse,
   MonthlyRatingResponse,
   MonthlyRatingMeResponse,
+  AllTimeResponse,
+  BoardQuery,
   FriendsResponse,
   ChallengesResponse,
   ChallengeItem,
@@ -75,6 +92,7 @@ import type {
   GameRunView,
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
+import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
@@ -129,6 +147,10 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
+    /** Takes back the last change of the region within 10 minutes (docs/35 §2.3); 422 `region_revert_unavailable` later. */
+    revertRegion: () => client().post<MeResponse>('/me/settings/region/revert'),
+    /** "Not now" on the region card of the Rating tab: hidden for 30 days; idempotent, 204. */
+    dismissRegionPrompt: () => client().post<void>('/me/region-prompt/dismiss'),
     /** "Delete account": soft delete with the explicit confirmation; the token stops working at once. */
     /** The "account restored" sheet was shown; idempotent, 204. */
     accountRestoredSeen: () => client().post<void>('/me/account-restored/seen'),
@@ -150,13 +172,35 @@ export const api = {
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
-    month: () => client().get<MonthlyRatingResponse>('/league/month'),
+    /**
+     * `query`: the table to show (docs/04 A.19, v2): the category and the region; empty - the learner's own category, the whole of it
+     * (and the v1 month knows no tables). 422 `region_not_set`, `region_scope_unavailable` for `scope: 'region'`.
+     */
+    month: (query: BoardQuery = {}) =>
+      Object.keys(query).length === 0
+        ? client().get<MonthlyRatingResponse>('/league/month')
+        : client().get<MonthlyRatingResponse>('/league/month', { ...query }),
+    /** The page of a v2 table after `next_cursor`; 422 `invalid_cursor` for a cursor that is not of this table any more. */
+    monthPage: (query: BoardQuery, after: string) => client().get<LeagueBoardPage>('/league/month', { ...query, after }),
+    /** "All time" (docs/04 A.19a): `{enabled: false}` while the word points are not live; 422 `region_not_set` as the month. */
+    allTime: (query: BoardQuery = {}) =>
+      Object.keys(query).length === 0
+        ? client().get<AllTimeResponse>('/league/all-time')
+        : client().get<AllTimeResponse>('/league/all-time', { ...query }),
+    allTimePage: (query: BoardQuery, after: string) => client().get<LeagueBoardPage>('/league/all-time', { ...query, after }),
     monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me'),
   },
   achievements: {
     list: () => client().get<AchievementsResponse>('/achievements'),
     /** The learner opened the share dialog of an unlocked key; answers with the refreshed list. */
     shared: (key: string) => client().post<AchievementsResponse>(`/achievements/${encodeURIComponent(key)}/shared`),
+  },
+  share: {
+    /** A message "through the bot" with the card and the button (docs/04 A.22); 403/404/422/429/503 -> the plain share dialog. */
+    prepare: (kind: ShareKind, subject: string | null) =>
+      client().post<SharePrepared>('/share/prepare', subject === null ? { kind } : { kind, subject }),
+    /** The client's analytics of a share (204); sent without waiting, a failure is swallowed by the caller. */
+    event: (body: ShareEventRequest) => client().post<void>('/share/events', { ...body }),
   },
   friends: {
     get: () => client().get<FriendsResponse>('/friends'),
@@ -373,5 +417,67 @@ export const api = {
       client().post<BattleAudioFailedResponse>(`/practice/battles/${id}/audio-failed`, { ...body }, ACT),
     /** A clip of a dictation round (`audio_url` of the element, or one of `audio_preload` in the room). */
     audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
+  },
+  /**
+   * The friends' cup of a group (docs/04 A.23). By id every refusal of a stranger is 403 `cup_not_member` (also "no such cup"); a
+   * stranger's attempt is 404 `cup_round_not_found`; 403 `cup_unavailable` - the cup is switched off.
+   */
+  cups: {
+    /** The invitation of the link of the chat. 403 `cup_not_member`; 409 `cup_paused` / `cup_unverifiable`; 503; 429 `cup_check_busy`. */
+    invite: (code: string) => client().get<CupInvite>(`/cups/by-code/${encodeURIComponent(code)}`),
+    /** My cups: the open first, then the last ten over. */
+    list: () => client().get<CupListResponse>('/cups'),
+    /** The table, my day and my days. */
+    show: (id: number) => client().get<CupBoardResponse>(`/cups/${id}`),
+    /** Joins (201) or answers the row already there (200). 409 `cup_not_open`, 410 `cup_closed`, 422 `cup_display_name_invalid`. */
+    join: (id: number, displayName?: string) =>
+      client().post<CupParticipantView>(`/cups/${id}/join`, displayName !== undefined ? { display_name: displayName } : {}),
+    /** The name in the tournament, at most 3 changes: 409 `cup_rename_limit`. */
+    rename: (id: number, displayName: string) => client().patch<CupParticipantView>(`/cups/${id}/me`, { display_name: displayName }),
+    /** Leaves the cup for good (docs/33 §11.12): 200, a repeat too; 403 `cup_not_member`; 410 `cup_closed`. */
+    leave: (id: number) => client().post<CupLeaveResponse>(`/cups/${id}/leave`, undefined, ACT),
+    today: (id: number) => client().get<CupTodayResponse>(`/cups/${id}/rounds/today`),
+    /** Starts the round of today (201) or returns the open one (200). 409 `cup_round_done {points}` / `cup_not_started` / `cup_paused`. */
+    startRound: (id: number) => client().post<CupRound>(`/cups/${id}/rounds/today`, undefined, ACT),
+    /** Resumes an attempt: the same tasks, the original deadline. */
+    round: (attemptId: number) => client().get<CupRound>(`/cup-rounds/${attemptId}`, undefined, READ),
+    /** 409 `answer_already_accepted` / `element_not_current` / `cup_round_expired`; 410 `cup_closed`. */
+    answer: (attemptId: number, body: CupAnswerRequest) => client().post<CupAnswerResponse>(`/cup-rounds/${attemptId}/answer`, { ...body }, ACT),
+    /** The clip of a `listen` task (`audio_url` of the task). */
+    audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
+    /** The setup of a draft by an administrator of the chat. 403 `cup_not_chat_admin`. */
+    setup: (code: string) => client().get<CupSetup>(`/cups/setup/${encodeURIComponent(code)}`),
+    /** 409 `cup_bot_not_admin`; 422 `cup_level_invalid` / `cup_material_unavailable`. */
+    publish: (code: string, body: { level?: string; locale?: string } = {}) =>
+      client().post<CupSetup>(`/cups/setup/${encodeURIComponent(code)}/publish`, { ...body }),
+    settings: (id: number, patch: CupSettingsPatch) => client().patch<CupSetup>(`/cups/${id}/settings`, { ...patch }),
+    cancel: (id: number) => client().post<CupSetup>(`/cups/${id}/cancel`),
+    /**
+     * The duels of a cup (docs/04 A.23d). 409 `cup_duel_disabled` while off; 403 `cup_not_member` (also no cup, a participant who
+     * left); 404 `cup_duel_not_found` (also a duel of another cup or addressed to somebody else).
+     */
+    duels: {
+      /** Challenges to me, open ones to anybody, mine, my duels of today, and whether I may challenge. */
+      list: (id: number) => client().get<CupDuelListResponse>(`/cups/${id}/duels`),
+      /** One duel: the screen of a challenge and the poll of the waiting screen (every 3 s; `battle_id` appears once accepted). */
+      show: (id: number, duelId: number) => client().get<CupDuel>(`/cups/${id}/duels/${duelId}`, undefined, READ),
+      /**
+       * Challenges (201) or answers the same `request_id` again (200). 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope,
+       * limit}`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`; 403 `cup_duel_unavailable`, `practice_limit_reached`; 410
+       * `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`.
+       */
+      challenge: (id: number, body: CupDuelChallengeRequest) => client().post<CupDuel>(`/cups/${id}/duels`, { ...body }, ACT),
+      /**
+       * Accepts (201; 200 accepted before): go to `/battles/{battle_id}` at once. 409 `cup_duel_rating_changed {rated}` (show the new
+       * status, accept again with it), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}`,
+       * `cup_duel_opponent_busy`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`.
+       */
+      accept: (id: number, duelId: number, expectRated: boolean) =>
+        client().post<CupDuel>(`/cups/${id}/duels/${duelId}/accept`, { expect_rated: expectRated }, ACT),
+      /** The one challenged says no. 403 `cup_duel_not_recipient`; 409 `cup_duel_closed`. */
+      decline: (id: number, duelId: number) => client().post<CupDuel>(`/cups/${id}/duels/${duelId}/decline`, undefined, ACT),
+      /** The challenger withdraws. 409 `cup_duel_closed`. */
+      cancel: (id: number, duelId: number) => client().post<CupDuel>(`/cups/${id}/duels/${duelId}/cancel`, undefined, ACT),
+    },
   },
 }

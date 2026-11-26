@@ -12,6 +12,7 @@ use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LearnerWordStages;
 use App\Domain\Content\DTO\LessonProgress;
 use App\Domain\Content\DTO\NextLesson;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -296,8 +297,9 @@ final class CourseCatalogService
     /**
      * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
      * public published courses with `exam_tag = goal`, the one of the same level first, then
-     * featured ones, then catalog order. A course without words is never suggested. Null when no
-     * course fits the goal — the caller falls back to the general catalog, then to the default course.
+     * featured ones, then catalog order. A course without words is never suggested, nor a course of phrases (docs/35 §3.3 a:
+     * a section of its own, never the main course - whatever goal names it). Null when no course fits the goal — the caller
+     * falls back to the general catalog, then to the default course.
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
@@ -307,7 +309,7 @@ final class CourseCatalogService
 
         $matching = array_values(array_filter(
             $this->published($this->locales->default()),
-            fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0,
+            fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0 && $c->section() !== Phrase::SECTION_PHRASES,
         ));
 
         // usort is stable: equal candidates stay in catalog order (position, id).
@@ -432,21 +434,23 @@ final class CourseCatalogService
         $lessons = $this->lessonsStarted($course, $learner);
 
         $done = 0;
-        $started = 0;
+        $totalStarted = 0;
         $learned = 0;
         $mastered = 0;
         foreach ($lessons as $counts) {
             $done += $counts['done'];
-            $started += $counts['started'];
+            $totalStarted += $counts['started'];
             $learned += $counts['learned'];
             $mastered += $counts['mastered'];
         }
 
         $next = null;
+        $titles = [];
         foreach ($tree as $row) {
-            if ($row['total'] > ($lessons[$row['lesson_id']]['started'] ?? 0)) {
-                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title']);
-                break;
+            $titles[$row['lesson_id']] = $row['lesson_title'];
+            $started = $lessons[$row['lesson_id']]['started'] ?? 0;
+            if ($next === null && $row['total'] > $started) {
+                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title'], $row['total'] - $started);
             }
         }
 
@@ -454,7 +458,8 @@ final class CourseCatalogService
             $this->present($course, $locale),
             new LearnerProgress($done, $course->words_count),
             $next,
-            new LearnerWordStages($started, $learned, $mastered),
+            new LearnerWordStages($totalStarted, $learned, $mastered),
+            $titles,
         );
     }
 
@@ -491,11 +496,20 @@ final class CourseCatalogService
      * lives on the non-evicting default store, docs/19 §4; the trees are a pure cache). Called after commit by whatever changes the
      * course's words ({@see CoursePublisher::recount()}), its status ({@see CoursePublisher::transition()}) and its modules and
      * lessons (CourseTreeObserver). A reader that computed the tree from rows older than the change writes to the old version,
-     * which nobody reads any more.
+     * which nobody reads any more. The shared pool of distractors of the platform ({@see PlatformDistractorPool}) goes with it, unless
+     * `$platformPool` is false: the course is not the platform's (`owner_type`), known to the caller from the row it holds.
      */
-    public function forgetCourseTree(int $courseId): void
+    public function forgetCourseTree(int $courseId, bool $platformPool = true): void
     {
         Cache::increment(self::courseTreeVersionKey($courseId));
+
+        // The same callers decide what the platform lends as distractors: a course published or hidden, a lesson added, moved or
+        // removed, words recounted. The pool is shared by every course, so it has no version of a course in its key - it is dropped,
+        // unless the caller knows (without a statement) the course is not the platform's: a learner's deck or a course of a center is
+        // never in it, and dropping it on every word a learner adds kept it empty under load (docs/38 «варианты ответа»).
+        if ($platformPool) {
+            PlatformDistractorPool::forget();
+        }
     }
 
     public static function courseTreeVersionKey(int $courseId): string

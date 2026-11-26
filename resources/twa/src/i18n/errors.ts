@@ -48,6 +48,9 @@ export const KNOWN_ERROR_CODES = [
   'deck_title_invalid',
   'timezone_change_too_soon',
   'timezone_revert_unavailable',
+  'region_change_too_soon',
+  'region_revert_unavailable',
+  'pro_emoji_pro_required',
   'price_not_configured',
   'provider_disabled',
   'provider_not_supported',
@@ -151,6 +154,8 @@ export const KNOWN_ERROR_CODES = [
   'booster_not_applicable',
   // The round of hard words (docs/06 §14, docs/04 A.3): `error.details.reason` tells which of the four refusals it is.
   'hard_round_unavailable',
+  // The review of a lesson studied today (docs/06 §15, docs/04 A.3): `error.details.reason` tells which of the three refusals it is.
+  'lesson_review_unavailable',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
@@ -172,12 +177,23 @@ function hardRoundMessage(reason: unknown): string {
   }
 }
 
+/** Why the review of a lesson did not open (`error.details.reason` of 409 `lesson_review_unavailable`); an unknown reason gets the general words. */
+function lessonReviewMessage(reason: unknown): string {
+  switch (reason) {
+    case 'no_new_words': return t('error.lesson_review.no_new_words')
+    case 'no_objective_exercise': return t('error.lesson_review.no_objective_exercise')
+    case 'disabled': return t('error.lesson_review.disabled')
+    default: return t('error.code.lesson_review_unavailable')
+  }
+}
+
 /** Human-readable, localized text for anything thrown by the API layer. */
 export function errorMessage(err: unknown, context: ErrorContext): string {
   if (err instanceof ApiClientError) {
     // Promo codes answer 410 (expired) too — that is not a closed session.
     if (err.code.startsWith('promo_') && isKnownCode(err.code)) return t(`error.code.${err.code}`)
     if (err.code === 'hard_round_unavailable') return hardRoundMessage(err.details?.reason)
+    if (err.code === 'lesson_review_unavailable') return lessonReviewMessage(err.details?.reason)
     if (err.kind === 'gone') return t(`error.closed.${context}`)
     if (err.kind === 'network') return t('error.network')
     if (err.code === 'forbidden') return t(`error.forbidden.${context}`)

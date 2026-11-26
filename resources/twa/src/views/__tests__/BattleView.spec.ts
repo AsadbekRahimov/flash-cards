@@ -819,6 +819,14 @@ describe('BattleView — the countdown', () => {
 })
 
 describe('BattleView — a round', () => {
+  it('shows the opponent\'s emoji of Pro after the name on the scoreboard (docs/31 §5а)', async () => {
+    const base = battle()
+    const r = await render({ ...base, opponent: { ...base.opponent, pro_emoji: '🦁' } })
+
+    expect(text(r, 'score-opponent-name')).toBe('Dilnoza🦁')
+    expect(get(r, 'score-opponent-name').get('[data-testid=pro-emoji]').attributes('aria-hidden')).toBe('true')
+  })
+
   it('shows the round, the score and the timer, and the component of the mode with `mode="battle"`', async () => {
     const r = await render(battle())
 
@@ -826,6 +834,8 @@ describe('BattleView — a round', () => {
     expect(text(r, 'score-me')).toBe('100')
     expect(text(r, 'score-opponent')).toBe('125')
     expect(text(r, 'score-opponent-name')).toBe('Dilnoza')
+    // no emoji of Pro without one
+    expect(get(r, 'score-opponent-name').find('[data-testid=pro-emoji]').exists()).toBe(false)
     expect(text(r, 'timer-text')).toBe('0:40')
     expect(get(r, 'probe').attributes('data-element')).toBe('eSent00002')
     expect(get(r, 'probe').attributes('data-mode')).toBe('battle')

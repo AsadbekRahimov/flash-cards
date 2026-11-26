@@ -5,21 +5,27 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Support;
 
 use App\Domain\Learners\Services\LearnerRegistrar;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Models\Learner;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 
 /**
  * Turns the sender of a private-chat update into a learner. Writing to the bot is the person's
  * own action: the learner is created / revived and `last_seen_at` is bumped
  * ({@see LearnerRegistrar::fromTelegramUser()}), and `dm_blocked_at` is cleared — a person who
- * writes to the bot has evidently not blocked it (docs/12 §7.5).
+ * writes to the bot has evidently not blocked it (docs/12 §7.5). The flag itself is written by
+ * {@see DmReachability} only (docs/34 §4в п. 3).
  *
  * A staff member is not a learner here ({@see isStaff()}): no learner row is created for them and the learner-facing
  * handlers stay silent, so they never end up in the onboarding.
  */
 final class DmLearnerResolver
 {
-    public function __construct(private readonly LearnerRegistrar $registrar) {}
+    public function __construct(
+        private readonly LearnerRegistrar $registrar,
+        private readonly DmReachability $reachability,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $from  Telegram `User` (`message.from` / `callback_query.from`)
@@ -68,7 +74,8 @@ final class DmLearnerResolver
         $learner = $this->registrar->fromTelegramUser($from);
 
         if ($learner->dm_blocked_at !== null) {
-            $learner->forceFill(['dm_blocked_at' => null])->save();
+            $this->reachability->markReachable($learner->telegram_user_id, DmReachability::VIA_START);
+            $learner->refresh();
         }
 
         return $learner;
@@ -78,34 +85,22 @@ final class DmLearnerResolver
      * Any message or button tap in a private chat proves the DM is open: clears `dm_blocked_at`
      * of an existing learner without creating one (`/help`, `/stats`, `/promo` and future DM
      * handlers do not go through {@see resolve()}). One indexed conditional UPDATE; a no-op for
-     * teachers and unknown senders. Called by the dispatcher before any handler (docs/12 §7.5).
+     * teachers and unknown senders. Called by the dispatcher before any handler (docs/12 §7.5);
+     * `my_chat_member` `member` passes its own `$via`.
      */
-    public function markReachable(int $telegramUserId): void
+    public function markReachable(int $telegramUserId, string $via = DmReachability::VIA_DM): void
     {
-        if ($telegramUserId <= 0) {
-            return;
-        }
-
-        Learner::query()
-            ->where('telegram_user_id', $telegramUserId)
-            ->whereNotNull('dm_blocked_at')
-            ->update(['dm_blocked_at' => null]);
+        $this->reachability->markReachable($telegramUserId, $via);
     }
 
     /**
      * The learner blocked the bot (`my_chat_member`, private chat, `kicked`): no reminder can reach
      * them, so they leave the dispatcher's selection at once instead of after the first 403. Only
-     * an existing learner is touched; the first moment is kept on a repeated update.
+     * an existing learner is touched; the first moment is kept on a repeated update. `$at` is the
+     * `date` of the update when Telegram sent one.
      */
-    public function markBlocked(int $telegramUserId): void
+    public function markBlocked(int $telegramUserId, ?CarbonImmutable $at = null): void
     {
-        if ($telegramUserId <= 0) {
-            return;
-        }
-
-        Learner::query()
-            ->where('telegram_user_id', $telegramUserId)
-            ->whereNull('dm_blocked_at')
-            ->update(['dm_blocked_at' => now()->utc()->format('Y-m-d H:i:s')]);
+        $this->reachability->markUnreachable($telegramUserId, DmReachability::REASON_KICKED, $at, DmReachability::VIA_MY_CHAT_MEMBER);
     }
 }

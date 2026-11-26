@@ -321,7 +321,7 @@ it('calls the Stars Bot API methods through the SDK: createInvoiceLink / answerP
 
     $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
 
-    expect($client->createInvoiceLink('LexiFlow Pro', 'desc', 'tok', 'XTR', [['label' => 'Pro', 'amount' => 150]], 2_592_000))->toBe('https://t.me/$abc');
+    expect($client->createInvoiceLink('Muhrla Pro', 'desc', 'tok', 'XTR', [['label' => 'Pro', 'amount' => 150]], 2_592_000))->toBe('https://t.me/$abc');
     $client->createInvoiceLink('Year', 'desc', 'tok2', 'XTR', [['label' => 'Pro', 'amount' => 1300]]);
     $client->answerPreCheckoutQuery('q1', true);
     $client->answerPreCheckoutQuery('q2', false, 'Nope');
@@ -330,7 +330,7 @@ it('calls the Stars Bot API methods through the SDK: createInvoiceLink / answerP
     $transactions = $client->getStarTransactions(100, 500);
 
     expect($sdk->calls)->toBe([
-        ['createInvoiceLink', ['title' => 'LexiFlow Pro', 'description' => 'desc', 'payload' => 'tok', 'currency' => 'XTR', 'prices' => [['label' => 'Pro', 'amount' => 150]], 'subscription_period' => 2_592_000]],
+        ['createInvoiceLink', ['title' => 'Muhrla Pro', 'description' => 'desc', 'payload' => 'tok', 'currency' => 'XTR', 'prices' => [['label' => 'Pro', 'amount' => 150]], 'subscription_period' => 2_592_000]],
         ['createInvoiceLink', ['title' => 'Year', 'description' => 'desc', 'payload' => 'tok2', 'currency' => 'XTR', 'prices' => [['label' => 'Pro', 'amount' => 1300]]]],
         ['answerPreCheckoutQuery', ['pre_checkout_query_id' => 'q1', 'ok' => true]],
         ['answerPreCheckoutQuery', ['pre_checkout_query_id' => 'q2', 'ok' => false, 'error_message' => 'Nope']],
@@ -391,7 +391,7 @@ it('sets the command menu and the menu button through raw Bot API calls with JSO
     };
 
     $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
-    $button = ['type' => 'web_app', 'text' => 'LexiFlow', 'web_app' => ['url' => 'https://twa.test/twa/']];
+    $button = ['type' => 'web_app', 'text' => 'Muhrla', 'web_app' => ['url' => 'https://twa.test/twa/']];
 
     expect($client->setMyCommands([['command' => 'today', 'description' => 'Занятие на сегодня']], ['type' => 'all_private_chats']))->toBeTrue()
         ->and($client->setMyCommands([['command' => 'today', 'description' => "Bugungi mashg'ulot"]], ['type' => 'all_group_chats'], 'uz'))->toBeTrue()
@@ -410,7 +410,7 @@ it('sets the command menu and the menu button through raw Bot API calls with JSO
             'language_code' => 'uz',
         ]],
         ['setChatMenuButton', [
-            'menu_button' => '{"type":"web_app","text":"LexiFlow","web_app":{"url":"https://twa.test/twa/"}}',
+            'menu_button' => '{"type":"web_app","text":"Muhrla","web_app":{"url":"https://twa.test/twa/"}}',
         ]],
     ]);
 

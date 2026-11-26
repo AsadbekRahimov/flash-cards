@@ -29,4 +29,10 @@ enum DoneReason: string
 
     /** Hard-words scope (`hard_review`, docs/06 §14): every word of the round's set was served and none is left to repeat. */
     case HardRoundComplete = 'hard_round_complete';
+
+    /**
+     * Lesson review (`lesson_review`, docs/06 §15): every word of the set was answered right, or used up its serves - nothing is left
+     * to ask. `progress.done` is the words answered right.
+     */
+    case LessonReviewComplete = 'lesson_review_complete';
 }

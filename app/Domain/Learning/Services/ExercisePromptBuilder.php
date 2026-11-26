@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
+use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\Enums\ExerciseType;
-use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -20,8 +21,11 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * Meaning / reverse / audio / pretest need {@see OPTIONS} choices: the right one plus real distractors — active words
  * of the same lesson, then of the same course, then of published public platform courses
- * ({@see Course::scopePublicPlatform()}, the same whitelist as the exam builder; private courses
+ * ({@see PlatformDistractorPool}: `Course::scopePublicPlatform()`, the same whitelist as the exam builder; private courses
  * of centers and learners never leak in).
+ * The platform layer keeps to the kind of the card (docs/35 §3.3 c, docs/06 §16): a phrase takes the phrase courses (`exam_tag = phrases`)
+ * only, a word every other course - a phrase never stands among single words. The lesson and the course are of one kind already (the import
+ * keeps phrases to phrase courses).
  * Distractors and their order are chosen by a hash of (seed, candidate), so two `/next` calls for
  * the same serve show the same screen. When there are not enough distractors the card falls back
  * to a flash prompt — the type in the prompt is what the client must follow.
@@ -48,6 +52,7 @@ final class ExercisePromptBuilder
         private readonly WordTranslationResolver $translations,
         private readonly GapFillBuilder $gapFill,
         private readonly LearningCache $cache,
+        private readonly PlatformDistractorPool $platform,
     ) {}
 
     /**
@@ -64,7 +69,7 @@ final class ExercisePromptBuilder
                 $locale,
                 $seed,
             )) < self::OPTIONS - 1 ? ExerciseType::Flash : $type,
-            ExerciseType::GapFill => $this->gapFill->fromText($word->word, $example ?? $word->example) === null ? ExerciseType::Flash : $type,
+            ExerciseType::GapFill => $this->gapFill->forCard($word, $example) === null ? ExerciseType::Flash : $type,
             default => $type,
         };
     }
@@ -158,7 +163,7 @@ final class ExercisePromptBuilder
 
     private function gapFillPrompt(Word $word, ResolvedTranslation $translation, ?string $audioUrl, ?string $example): ExercisePrompt
     {
-        $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
+        $gap = $this->gapFill->forCard($word, $example);
         if ($gap === null) {
             // The selector only picks gap_fill when the example carries the word; a stale example is a flash card.
             return ExercisePrompt::flash($word->word, $audioUrl);
@@ -291,7 +296,8 @@ final class ExercisePromptBuilder
     }
 
     /**
-     * Candidate queries, nearest first; each is evaluated only when the previous ones ran short.
+     * The candidates, nearest first; each layer is evaluated only when the previous ones ran short: the lesson and the platform
+     * layers are cached pools (no statement on a hit), the course layer is a query.
      *
      * @return iterable<Builder<Word>|list<Word>>
      */
@@ -304,8 +310,7 @@ final class ExercisePromptBuilder
             // `ORDER BY id LIMIT` makes the planner walk the words primary key and filter, which reads
             // almost the whole table for a course with high ids (107 ms at 100k words vs 0.1 ms for
             // course 1). `id + 0` cannot use that index: the course lessons are read by lesson_id and
-            // the same 40 lowest ids are taken (3-6 ms for any course). The platform layer below keeps
-            // the plain key walk: its matches start at the lowest ids (0.15 ms).
+            // the same 40 lowest ids are taken (0.4-2 ms for any course at 270k words).
             yield $this->pool($word)
                 ->reorder()
                 ->orderByRaw('words.id + 0')
@@ -313,10 +318,25 @@ final class ExercisePromptBuilder
                 ->whereIn('lesson_id', Lesson::query()->select('id')->whereIn('stage_id', Stage::query()->select('id')->where('course_id', $courseId)));
         }
 
-        yield $this->pool($word)
-            ->whereIn('lesson_id', Lesson::query()->select('id')
-                ->whereIn('stage_id', Stage::query()->select('id')
-                    ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
+        // The platform layer is no query of its own: the shared pool of the kind (plain rows of the pure cache, no statement on
+        // a hit, one bounded statement of 1-2 ms on a miss). As a query - the lowest 40 ids among ALL the words of the public
+        // courses - it read every one of them on each call: 36-43 ms at 60k public words, and growing with them (docs/38).
+        yield $this->platformPool($word);
+    }
+
+    /**
+     * The third layer: the {@see POOL} lowest ids of the public courses of the platform of the card's kind, other than the card.
+     *
+     * @return list<Word>
+     */
+    private function platformPool(Word $word): array
+    {
+        $words = [];
+        foreach ($this->platform->nearest(Phrase::isPhraseWord($word), self::POOL, exceptWordId: (int) $word->id) as $row) {
+            $words[] = (new Word)->forceFill(['id' => $row['id'], 'lesson_id' => $row['lesson_id'], 'word' => $row['word'], 'translation' => $row['translation'], 'part_of_speech' => $row['part_of_speech']]);
+        }
+
+        return $words;
     }
 
     /** The course of the word's lesson (two key lookups), null when the lesson or its stage is gone. */

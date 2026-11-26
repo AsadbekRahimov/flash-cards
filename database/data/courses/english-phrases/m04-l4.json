@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 4,
+    "title": "Покупки и деньги",
+    "title_uz": "Xarid va pul"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Деньги в жизни",
+    "title_uz": "Hayotda pul"
+  },
+  "words": [
+    {
+      "word": "save up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "копить деньги",
+        "uz": "pul yig'moq"
+      },
+      "example": "I'm saving up for a new phone.",
+      "example_translations": {
+        "ru": "Я коплю на новый телефон.",
+        "uz": "Yangi telefon uchun pul yig'yapman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что откладывают деньги на покупку",
+        "uz": "Biror xarid uchun pul jamg'arish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "save",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pay back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вернуть долг",
+        "uz": "qarzni qaytarmoq"
+      },
+      "example": "Thanks for the loan. I'll pay you back on Friday.",
+      "example_translations": {
+        "ru": "Спасибо, что выручил деньгами. Верну в пятницу.",
+        "uz": "Qarz berganing uchun rahmat. Jumada qaytaraman."
+      },
+      "hooks": {
+        "ru": "Обещают вернуть одолженные деньги",
+        "uz": "Qarzga olingan pulni qaytarishga va'da berish"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "run out of money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "остаться без денег",
+        "uz": "puli tugab qolmoq"
+      },
+      "example": "We ran out of money at the end of our vacation.",
+      "example_translations": {
+        "ru": "В конце отпуска у нас закончились деньги.",
+        "uz": "Ta'tilimiz oxirida pulimiz tugab qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда деньги кончились раньше, чем хотелось",
+        "uz": "Pul kutilganidan oldin tugab qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "run",
+        "literal": {
+          "ru": "выбежать из денег",
+          "uz": "puldan yugurib chiqmoq"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Money doesn't grow on trees",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "деньги с неба не падают",
+        "uz": "pul osmondan tushmaydi"
+      },
+      "example": "Mom, can I have a new bike? — Money doesn't grow on trees, you know!",
+      "example_translations": {
+        "ru": "Мам, купишь мне новый велосипед? — Деньги с неба не падают, знаешь ли!",
+        "uz": "Oyi, yangi velosiped olib berasizmi? — Pul osmondan tushmaydi-ku, bolam!"
+      },
+      "hooks": {
+        "ru": "Так родители напоминают детям, что деньги достаются трудом",
+        "uz": "Ota-onalar bolalarga pul mehnat bilan topilishini shunday eslatadi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "trees",
+        "literal": {
+          "ru": "деньги не растут на деревьях",
+          "uz": "pul daraxtda o'smaydi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "make money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зарабатывать деньги",
+        "uz": "pul topmoq"
+      },
+      "example": "My uncle makes money by selling fruit at the market.",
+      "example_translations": {
+        "ru": "Мой дядя зарабатывает, продавая фрукты на рынке.",
+        "uz": "Amakim bozorda meva sotib pul topadi."
+      },
+      "hooks": {
+        "ru": "Говорят о заработке; «do money» по-английски не говорят",
+        "uz": "Daromad haqida aytiladi; inglizchada «do money» deyilmaydi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "make",
+        "literal": {
+          "ru": "делать деньги",
+          "uz": "pul qilmoq"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "short of money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с деньгами туговато",
+        "uz": "pul biroz yetishmaydi"
+      },
+      "example": "I'm a bit short of money this month. Can we eat at home?",
+      "example_translations": {
+        "ru": "В этом месяце у меня с деньгами туговато. Может, поедим дома?",
+        "uz": "Bu oy pulim biroz yetishmayapti. Uyda ovqatlansak bo'ladimi?"
+      },
+      "hooks": {
+        "ru": "Мягко признаются, что сейчас мало денег",
+        "uz": "Hozir pul kamligini muloyim tan olish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "short",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "lend someone money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "одолжить кому-то денег",
+        "uz": "birovga qarz bermoq"
+      },
+      "example": "Could you lend me some money until Monday?",
+      "example_translations": {
+        "ru": "Не одолжишь мне денег до понедельника?",
+        "uz": "Dushanbagacha qarz berib turolmaysanmi?"
+      },
+      "hooks": {
+        "ru": "Просят денег в долг; «lend» — давать, «borrow» — брать",
+        "uz": "Qarz so'rash; «lend» — bermoq, «borrow» — olmoq"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lend",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on a budget",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "экономно",
+        "uz": "tejab-tergab"
+      },
+      "example": "We're students, so we travel on a budget.",
+      "example_translations": {
+        "ru": "Мы студенты, поэтому путешествуем экономно.",
+        "uz": "Biz talabamiz, shuning uchun tejab-tergab sayohat qilamiz."
+      },
+      "hooks": {
+        "ru": "Говорят о жизни или поездке с ограниченными расходами",
+        "uz": "Xarajatlari cheklangan hayot yoki safar haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "budget",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "save for a rainy day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "откладывать на чёрный день",
+        "uz": "qora kun uchun pul yig'moq"
+      },
+      "example": "My grandmother always told me to save for a rainy day.",
+      "example_translations": {
+        "ru": "Бабушка всегда говорила мне откладывать на чёрный день.",
+        "uz": "Buvim doim menga qora kun uchun pul yig'ib qo'yishni aytardi."
+      },
+      "hooks": {
+        "ru": "Советуют откладывать деньги на случай трудностей",
+        "uz": "Qiyin kunlar uchun pul yig'ib qo'yishni maslahat berish"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "rainy",
+        "literal": {
+          "ru": "копить на дождливый день",
+          "uz": "yomg'irli kun uchun yig'moq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pocket money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "карманные деньги",
+        "uz": "cho'ntak puli"
+      },
+      "example": "My parents give me pocket money every week.",
+      "example_translations": {
+        "ru": "Родители дают мне карманные деньги каждую неделю.",
+        "uz": "Ota-onam menga har hafta cho'ntak puli berishadi."
+      },
+      "hooks": {
+        "ru": "Деньги, которые дети получают от родителей на мелкие расходы; в США — «allowance»",
+        "uz": "Bolalar mayda xarajatlar uchun ota-onadan oladigan pul; AQShda — «allowance»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "pocket",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

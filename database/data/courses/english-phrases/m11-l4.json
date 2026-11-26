@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 11,
+    "title": "Люди и отношения",
+    "title_uz": "Odamlar va munosabatlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Отношения",
+    "title_uz": "Munosabatlar"
+  },
+  "words": [
+    {
+      "word": "get along with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ладить с",
+        "uz": "... bilan yaxshi chiqishmoq"
+      },
+      "example": "Do you get along with your new classmates? — Yes, they're really friendly.",
+      "example_translations": {
+        "ru": "Ты ладишь с новыми одноклассниками? — Да, они очень дружелюбные.",
+        "uz": "Yangi sinfdoshlaring bilan yaxshi chiqishyapsanmi? — Ha, ular juda samimiy."
+      },
+      "hooks": {
+        "ru": "Говорят о хороших, дружных отношениях с людьми рядом: в классе, на работе, дома",
+        "uz": "Sinfda, ishda yoki uyda atrofdagilar bilan yaxshi munosabat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "along",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hit it off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сразу найти общий язык",
+        "uz": "darhol til topishib ketmoq"
+      },
+      "example": "Anna and Malika met at the conference and hit it off right away.",
+      "example_translations": {
+        "ru": "Анна и Малика познакомились на конференции и сразу нашли общий язык.",
+        "uz": "Anna va Malika konferensiyada tanishishdi va darhol til topishib ketishdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда люди при первой встрече сразу понравились друг другу",
+        "uz": "Odamlar birinchi uchrashuvdayoq bir-biriga yoqib qolsa aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hit",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "fall out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поссориться",
+        "uz": "arazlashib qolmoq"
+      },
+      "example": "Tom and his brother fell out over money and haven't spoken since.",
+      "example_translations": {
+        "ru": "Том с братом поссорились из-за денег и с тех пор не разговаривают.",
+        "uz": "Tom akasi bilan pul sababli arazlashib qolgan va o'shandan beri gaplashishmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят о ссоре, после которой люди перестают общаться; часто с with: fall out with someone",
+        "uz": "Odamlar janjallashib, gaplashmay qo'yganda aytiladi; ko'pincha with bilan: fall out with someone"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "out",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "see eye to eye",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сходиться во взглядах",
+        "uz": "fikri bir joydan chiqmoq"
+      },
+      "example": "My sister and I don't always see eye to eye, but we never argue for long.",
+      "example_translations": {
+        "ru": "Мы с сестрой не всегда сходимся во взглядах, но долго никогда не спорим.",
+        "uz": "Opam bilan fikrimiz har doim ham bir joydan chiqavermaydi, lekin uzoq tortishmaymiz."
+      },
+      "hooks": {
+        "ru": "Говорят, чаще с отрицанием, о том, согласны ли люди друг с другом",
+        "uz": "Odamlar bir-biri bilan rozi yoki rozi emasligi haqida, ko'pincha inkor shaklida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "see",
+        "literal": {
+          "ru": "видеть глаз в глаз",
+          "uz": "ko'zma-ko'z ko'rmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "make friends",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заводить друзей",
+        "uz": "do'st orttirmoq"
+      },
+      "example": "It was hard to make friends in a new city at first.",
+      "example_translations": {
+        "ru": "Сначала в новом городе было трудно заводить друзей.",
+        "uz": "Avvaliga yangi shaharda do'st orttirish qiyin bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о знакомстве и дружбе с новыми людьми: в школе, на новом месте",
+        "uz": "Maktabda yoki yangi joyda yangi odamlar bilan do'stlashish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "friends",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "have a lot in common",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "иметь много общего",
+        "uz": "umumiy jihatlari ko'p bo'lmoq"
+      },
+      "example": "We both love football and old films, so we have a lot in common.",
+      "example_translations": {
+        "ru": "Мы оба любим футбол и старые фильмы, так что у нас много общего.",
+        "uz": "Ikkimiz ham futbol va eski filmlarni yaxshi ko'ramiz, ya'ni umumiy jihatlarimiz ko'p."
+      },
+      "hooks": {
+        "ru": "Говорят о людях с похожими интересами, взглядами или жизнью",
+        "uz": "Qiziqishlari, qarashlari yoki hayoti o'xshash odamlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "common",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "помириться",
+        "uz": "yarashmoq"
+      },
+      "example": "They had a big argument, but they made up the next day.",
+      "example_translations": {
+        "ru": "Они сильно поругались, но на следующий день помирились.",
+        "uz": "Ular qattiq janjallashishdi, lekin ertasi kuni yarashib olishdi."
+      },
+      "hooks": {
+        "ru": "Говорят о примирении после ссоры; в этом значении часто с with: make up with someone",
+        "uz": "Janjaldan keyin yarashish haqida aytiladi; bu ma'noda ko'pincha with bilan: make up with someone"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "look up to",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "равняться на, уважать",
+        "uz": "... dan o'rnak olmoq"
+      },
+      "example": "I've always looked up to my older brother.",
+      "example_translations": {
+        "ru": "Я всегда равнялся на старшего брата.",
+        "uz": "Men doim akamdan o'rnak olganman."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, которым восхищаются и на которого хотят быть похожими",
+        "uz": "Havas qilinadigan va unga o'xshashni istagan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "look",
+        "literal": {
+          "ru": "смотреть снизу вверх на",
+          "uz": "pastdan yuqoriga qaramoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get to know",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "узнать поближе",
+        "uz": "yaqindan tanimoq"
+      },
+      "example": "She seemed shy, but she's really fun once you get to know her.",
+      "example_translations": {
+        "ru": "Она казалась застенчивой, но с ней очень весело, когда узнаешь её поближе.",
+        "uz": "U uyatchan ko'ringandi, lekin yaqindan tanisang, u bilan juda qiziq."
+      },
+      "hooks": {
+        "ru": "Говорят, когда со временем узнают человека лучше",
+        "uz": "Vaqt o'tib, odamni yaxshiroq bilib olganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "know",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on the same wavelength",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на одной волне",
+        "uz": "bir-birini darhol tushunadigan"
+      },
+      "example": "Aziz and I are on the same wavelength; we often say the same thing at once.",
+      "example_translations": {
+        "ru": "Мы с Азизом на одной волне: часто говорим одно и то же одновременно.",
+        "uz": "Aziz bilan bir-birimizni darhol tushunamiz: ko'pincha bir vaqtda bir xil gapni aytamiz."
+      },
+      "hooks": {
+        "ru": "Говорят о людях, которые думают одинаково и понимают друг друга с полуслова",
+        "uz": "Bir xil fikrlaydigan va bir-birini yarim so'zdan tushunadigan odamlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "wavelength",
+        "literal": {
+          "ru": "на той же длине волны",
+          "uz": "bir xil to'lqin uzunligida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

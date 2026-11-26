@@ -40,7 +40,9 @@ use InvalidArgumentException;
  *    those that waited too long. Together with the bot-wide send budget the jobs also take
  *    ({@see ThrottleTelegramOutbound}) a peak cannot grow an unbounded backlog;
  *  - the job holds the second idempotency level (`notifications_log`, see
- *    {@see ReminderSender}).
+ *    {@see ReminderSender});
+ *  - the wording of the day after a lesson (docs/31 §5б): one statement per chunk ({@see ReviewScoreHint::learnerIds()}, none
+ *    while the word points are off) marks the jobs whose reminder may say "yesterday's words earn points".
  *
  * Backfill: learners who have a `reminder_time` but no `next_reminder_at` (rows created
  * before {@see LearnerRegistrar} started scheduling at creation, imports) get one here,
@@ -48,13 +50,20 @@ use InvalidArgumentException;
  * alone — they are not reminded anyway. Whether the onboarding is finished does not
  * matter: §7.5 reminds a learner created from a group too; the first 403 marks them
  * `dm_blocked_at` and that is the end of it until they write to the bot.
+ *
+ * Dead accounts (docs/34 §4в п. 6, B7: `dm_blocked_reason` = `user_deactivated` / `chat_not_found`) keep no
+ * pointer at all: `DmReachability` clears `next_reminder_at` when it closes such a DM, and neither the
+ * selection nor the backfill above gives it back while `dm_blocked_at` is set.
  */
 final class ReminderDispatcher
 {
     /** The longest a job is held back to flatten the peak (see {@see delaySeconds()}). */
     public const MAX_SPREAD_SECONDS = 14 * 60;
 
-    public function __construct(private readonly LearnerClock $clock) {}
+    public function __construct(
+        private readonly LearnerClock $clock,
+        private readonly ReviewScoreHint $scoreHint,
+    ) {}
 
     public function dispatchDue(?CarbonImmutable $now = null): ReminderDispatchReport
     {
@@ -67,6 +76,9 @@ final class ReminderDispatcher
             ->whereNotNull('next_reminder_at')
             ->where('next_reminder_at', '<=', $now->format('Y-m-d H:i:s'))
             ->chunkById($this->batchSize(), function (Collection $learners) use ($now, $report): bool {
+                // One statement per chunk (none while the word points are off): whose reminder may say "yesterday's words earn points".
+                $hinted = $this->scoreHint->learnerIds($learners, $now);
+
                 foreach ($learners as $learner) {
                     // Before the claim: what is not claimed stays due for the next run.
                     if ($report->queued >= $this->runCap()) {
@@ -75,7 +87,7 @@ final class ReminderDispatcher
                         return false;
                     }
 
-                    $this->claim($learner, $now, $report);
+                    $this->claim($learner, $now, $report, isset($hinted[$learner->id]));
                 }
 
                 return true;
@@ -133,7 +145,7 @@ final class ReminderDispatcher
             ->whereNull('blocked_at');
     }
 
-    private function claim(Learner $learner, CarbonImmutable $now, ReminderDispatchReport $report): void
+    private function claim(Learner $learner, CarbonImmutable $now, ReminderDispatchReport $report, bool $scoreHint = false): void
     {
         $seen = $learner->getRawOriginal('next_reminder_at');
         if (! is_string($seen) || $seen === '') {
@@ -170,7 +182,7 @@ final class ReminderDispatcher
         }
 
         // Own `default` queue: a reminder peak must not delay the replies of the `high` (bot) queue.
-        SendLearnerReminderJob::dispatch($learner->id, $scheduledFor)
+        SendLearnerReminderJob::dispatch($learner->id, $scheduledFor, $scoreHint)
             ->onQueue('default')
             ->delay($this->delaySeconds($report->queued));
 

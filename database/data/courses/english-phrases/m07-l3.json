@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 7,
+    "title": "Эмоции",
+    "title_uz": "His-tuyg'ular"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Грусть и разочарование",
+    "title_uz": "Qayg'u va umidsizlik"
+  },
+  "words": [
+    {
+      "word": "What a shame!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как жаль!",
+        "uz": "attang!"
+      },
+      "example": "The concert was cancelled. — What a shame! I wanted to go.",
+      "example_translations": {
+        "ru": "Концерт отменили. — Как жаль! Я хотел пойти.",
+        "uz": "Konsert bekor qilindi. — Attang! Bormoqchi edim."
+      },
+      "hooks": {
+        "ru": "Сожалеют о небольшой неудаче; это не «позор», а «жаль»",
+        "uz": "Kichik omadsizlikdan afsuslanib aytiladi; «sharmandalik» emas, «afsus» ma'nosida"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "shame",
+        "literal": {
+          "ru": "какой позор!",
+          "uz": "qanday sharmandalik!"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "That's too bad",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "очень жаль",
+        "uz": "juda afsus"
+      },
+      "example": "I can't come to your party, I'm working. — That's too bad.",
+      "example_translations": {
+        "ru": "Я не смогу прийти на твой праздник, я работаю. — Очень жаль.",
+        "uz": "Bazmingga kela olmayman, ishlayapman. — Juda afsus."
+      },
+      "hooks": {
+        "ru": "Сочувственно отвечают на неприятную новость",
+        "uz": "Noxush xabarga hamdardlik bilan javob berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bad",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "feel down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "грустить",
+        "uz": "kayfiyati tushmoq"
+      },
+      "example": "I've been feeling down since my best friend moved away.",
+      "example_translations": {
+        "ru": "Мне грустно с тех пор, как мой лучший друг уехал.",
+        "uz": "Eng yaqin do'stim ko'chib ketganidan beri kayfiyatim tushib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о грусти без серьёзной причины или после небольшой потери",
+        "uz": "Jiddiy sababsiz yoki kichik yo'qotishdan keyingi g'amginlik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "down",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "down in the dumps",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как в воду опущенный",
+        "uz": "ruhi tushkun"
+      },
+      "example": "Why are you so down in the dumps? — I failed my driving test.",
+      "example_translations": {
+        "ru": "Ты чего как в воду опущенный? — Я не сдал на права.",
+        "uz": "Nega ruhing tushkun? — Haydovchilik imtihonidan o'tolmadim."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о человеке, который грустит и ходит хмурый",
+        "uz": "G'amgin va qovog'i soliq odam haqida hazil aralash aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "dumps",
+        "literal": {
+          "ru": "внизу на свалке",
+          "uz": "axlatxona tubida"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "let someone down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подвести",
+        "uz": "umidini puchga chiqarmoq"
+      },
+      "example": "I promised to help him and I let him down.",
+      "example_translations": {
+        "ru": "Я обещал ему помочь и подвёл его.",
+        "uz": "Unga yordam berishga va'da bergan edim, lekin umidini puchga chiqardim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда человек не сделал того, на что рассчитывали",
+        "uz": "Odam undan kutilgan ishni qilmaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "let",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Cheer up!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не грусти!",
+        "uz": "xafa bo'lma!"
+      },
+      "example": "Cheer up! It's only one bad mark.",
+      "example_translations": {
+        "ru": "Не грусти! Это всего одна плохая оценка.",
+        "uz": "Xafa bo'lma! Bu atigi bitta yomon baho."
+      },
+      "hooks": {
+        "ru": "Подбадривают грустного друга",
+        "uz": "G'amgin do'stga dalda berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cheer",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It's not the end of the world",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это не конец света",
+        "uz": "dunyo tugab qolgani yo'q"
+      },
+      "example": "So you missed the train. It's not the end of the world.",
+      "example_translations": {
+        "ru": "Ну, опоздал ты на поезд. Это не конец света.",
+        "uz": "Xo'sh, poyezdga ulgurmading. Dunyo tugab qolgani yo'q."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто слишком расстроен из-за мелкой неудачи",
+        "uz": "Kichik omadsizlikdan haddan tashqari xafa bo'lgan odamni tinchlantirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "end",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm sorry to hear that",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне жаль это слышать",
+        "uz": "buni eshitib afsuslandim"
+      },
+      "example": "My grandfather is in hospital. — I'm sorry to hear that.",
+      "example_translations": {
+        "ru": "Мой дедушка в больнице. — Мне жаль это слышать.",
+        "uz": "Bobom kasalxonada yotibdi. — Buni eshitib afsuslandim."
+      },
+      "hooks": {
+        "ru": "Вежливо выражают сочувствие плохой новости; это не извинение",
+        "uz": "Yomon xabarga xushmuomalalik bilan hamdardlik bildiriladi; bu uzr so'rash emas"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hear",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a letdown",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разочарование",
+        "uz": "umidsizlik"
+      },
+      "example": "Everyone loved the book, but the film was a real letdown.",
+      "example_translations": {
+        "ru": "Книга всем понравилась, а фильм стал настоящим разочарованием.",
+        "uz": "Kitob hammaga yoqdi, lekin film haqiqiy umidsizlik bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что оказалось хуже, чем ожидали",
+        "uz": "Kutilganidan yomonroq chiqqan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "letdown",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Things will get better",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё наладится",
+        "uz": "hammasi yaxshi bo'ladi"
+      },
+      "example": "I know it's hard now, but things will get better.",
+      "example_translations": {
+        "ru": "Я знаю, сейчас тяжело, но всё наладится.",
+        "uz": "Hozir qiyinligini bilaman, lekin hammasi yaxshi bo'ladi."
+      },
+      "hooks": {
+        "ru": "Утешают человека в трудный период",
+        "uz": "Qiyin davrdagi odamga taskin berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "better",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

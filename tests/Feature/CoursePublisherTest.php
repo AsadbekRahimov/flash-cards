@@ -159,7 +159,9 @@ it('drops the catalog cache only after the outermost transaction has committed',
         $inside = $levels;
     });
 
-    expect($inside)->toBe([])->and($levels)->toBe([$base]);
+    // The catalog, and the shared pool of distractors of the platform the course may lend its words to (twice: the status
+    // change of the publisher and the observer of the course) - every one of them after the commit.
+    expect($inside)->toBe([])->and($levels)->toBe([$base, $base, $base]);
 });
 
 it('publishes when translations are complete for exactly the threshold share of words', function (): void {

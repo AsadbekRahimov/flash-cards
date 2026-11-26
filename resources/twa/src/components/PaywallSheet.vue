@@ -11,27 +11,41 @@ import { formatDate } from '@/composables/format'
 import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
 import { supportContactLink } from '@/composables/supportContact'
+import { BRAND_PRO } from '@/brand'
 import { useBillingStore } from '@/stores/billing'
+import { useSettingsStore } from '@/stores/settings'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { GameBoosterLimitHit } from '@/api/gameShopTypes'
 import type { BillingPeriod, BillingProviderKey, CatalogItem, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit' | 'game'
+export type PaywallReason =
+  | 'quota'
+  | 'info'
+  | 'decks'
+  | 'streak_freeze'
+  | 'exam_simulator'
+  | 'practice'
+  | 'practice_limit'
+  | 'game'
+  | 'daily_goal'
+  | 'trial_ended'
 
 /**
- * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, the Pro mock-up of docs/design): a white bottom sheet with a grabber and a close
- * button; "LexiFlow Pro" above the title, the title is the reason the sheet is open (`HEADINGS`, by the placement), the lead, what Free
- * gives and the three main things Pro gives (`ProBenefits short`: the name on the left, the note on the right).
+ * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, docs/design/2026-11-25-redesign Pro): a white bottom sheet with a grabber and a close
+ * button; the chip "Muhrla Pro" (a crown, `BRAND_PRO`) above the title, the title is the reason the sheet is open (`HEADINGS`, by the
+ * placement), the lead, what Free gives and the three main things Pro gives (`ProBenefits short`: a tick, the name, the note under it).
  *
  * Mode `coming_soon` (Phase 1): "Pro is coming", what Free gives, a promo code field and — only when
  * the owner configured one — the support contact for centers.
  *
  * Mode `purchase` (the server reports it only while something is for sale, see `/me`): the offer chip, the periods as cards in a row
- * (month → quarter → year, only the ones `GET /billing/catalog` sent; each with its price and, when it saves, "N % cheaper"), the
- * primary button with the price in it ("Get Pro for 150 Stars", the first provider that prices the chosen period), "Not now", a small
- * line on how the payment goes (the way of the payment in progress once one was started here, else the primary button's), and the
+ * (month → quarter → year, only the ones `GET /billing/catalog` sent; each with its price and, when it saves, "N % cheaper" — the
+ * catalog's number, never one of the mock-up; a chosen card that saves nothing says "chosen"), the primary button with the price in it
+ * ("Get Pro for 150 Stars", the first provider that prices the chosen period), "Not now", a small line on how the payment goes (the way
+ * of the payment in progress once one was started here, else the primary button's; "without auto-renewal" only where it is so: a Stars
+ * month is a Telegram subscription that renews itself every 30 days, the line says that instead), and the
  * other providers below — then the order is polled until the webhook has paid it. Every period offers the providers whose currency
  * the catalog prices it in (the quarter, like the month and the year, in Stars and in sums). Stars opens the
  * Telegram invoice, Payme / Click the payment page. The switch is `billing.canPurchase` (mode `purchase` AND a
@@ -44,7 +58,9 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * `practiceLead`); `'practice_limit'` is the end of the free sessions of practice or of the free battles of today (docs/18 §3; `limitHit`
  * holds the numbers the lead quotes, and the time the counter is full again is told in the learner's zone, the one of the Today screen; a
  * limit of 0 is "only Pro": the lead says so, with no day to wait for - sessions: the practice, and the battles with it only when they are
- * for Pro only too); `'game'` is a run of the Karvon map or a boss behind the Free allowance (docs/18 §3; the lead names no numbers: they are on the stop sheet); `'info'` is
+ * for Pro only too); `'daily_goal'` is a daily goal above the Free limit (a locked value of the Settings, or 403 `daily_goal_pro_required`;
+ * the title and the lead quote `options.daily_goal_max` of the settings, docs/05 §8c-1); `'trial_ended'` is the one-off sheet at the first
+ * opening after the welcome trial ended (Today, `composables/trialEnded.ts`; the lead says the goal is the Free maximum now); `'game'` is a run of the Karvon map or a boss behind the Free allowance (docs/18 §3; the lead names no numbers: they are on the stop sheet); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -94,6 +110,10 @@ const router = useRouter()
 const route = useRoute()
 const billing = useBillingStore()
 const today = useTodayStore()
+const settings = useSettingsStore()
+
+/** The highest daily goal of Free (`options.daily_goal_max` of the settings that `/me` carries); null = not known or no limit. */
+const goalMax = computed((): number | null => settings.data?.options.daily_goal_max ?? null)
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
@@ -179,6 +199,10 @@ const boosterLead = computed((): string => {
 })
 
 const reasonLead = computed((): string => {
+  if (props.reason === 'daily_goal') return goalMax.value !== null ? t('paywall.lead_daily_goal', { max: goalMax.value }) : ''
+  if (props.reason === 'trial_ended') {
+    return goalMax.value !== null ? t('paywall.lead_trial_ended', { max: goalMax.value }) : t('paywall.lead_trial_ended_generic')
+  }
   if (props.reason === 'game') return boosterLead.value
   if (props.reason === 'practice_limit') return limitLead.value
   if (props.reason === 'practice') return practiceLead.value
@@ -214,11 +238,13 @@ const HEADINGS: Record<PaywallReason, StringKey> = {
   practice: 'paywall.heading.practice',
   practice_limit: 'paywall.heading.practice_limit',
   game: 'paywall.heading.game',
+  daily_goal: 'paywall.heading.daily_goal',
+  trial_ended: 'paywall.heading.trial_ended',
 }
 
 /**
  * The title of the sheet: the reason it is open; "Renew Pro" for a Pro learner who extends; "What Pro will have" when opened just to
- * read about Pro while it is not for sale; "LexiFlow Pro" for a Pro learner with nothing to extend; the name of the plan once the learner is Pro (`done`).
+ * read about Pro while it is not for sale; "Muhrla Pro" for a Pro learner with nothing to extend; the name of the plan once the learner is Pro (`done`).
  */
 const title = computed(() => {
   if (done.value) return 'Pro'
@@ -226,6 +252,8 @@ const title = computed(() => {
   if (props.reason === 'info' && !purchaseMode.value) return t('paywall.title')
   // A Pro learner with nothing to extend (the renewal runs, a perpetual grant, Pro from a center) is not sold anything: the plan's name.
   if (props.reason === 'info' && isPro.value) return t('billing.plan.pro')
+  // "A goal above 10 is in Pro": the number is the Free limit; without it the general title.
+  if (props.reason === 'daily_goal') return goalMax.value !== null ? t(HEADINGS.daily_goal, { max: goalMax.value }) : t('paywall.heading.info')
   return t(HEADINGS[props.reason])
 })
 
@@ -363,6 +391,12 @@ const primaryLabel = computed((): string => {
   return t(extendUntil.value !== null ? 'billing.pay_cta_renew' : 'billing.pay_cta', { price: option.price })
 })
 
+/**
+ * Whether a payment renews by itself: only a Stars month is a Telegram subscription (`subscription_period` 30 days); a Stars quarter or
+ * year and every payment by Payme / Click pay one period (docs/13 §0).
+ */
+const renewsItself = (provider: BillingProviderKey, of: BillingPeriod | null): boolean => provider === 'telegram_stars' && of === 'month'
+
 /** The way the learner started paying from this sheet: the line under the button names it while that payment goes on. */
 const payingWith = ref<BillingProviderKey | null>(null)
 
@@ -467,13 +501,21 @@ onBeforeUnmount(() => {
       <div ref="scroller" class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-testid="paywall-scroll" @scroll.passive="measure">
         <div class="pb-4">
           <header class="flex flex-col gap-2.5 pt-3 pr-8 short:gap-1.5 short:pt-1">
-            <p class="text-[13px] leading-[18px] text-muted" data-testid="paywall-eyebrow">{{ t('billing.plan.pro') }}</p>
-            <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
+            <p class="flex">
+              <span class="inline-flex h-7 items-center gap-1.5 rounded-full bg-accent-soft px-3 text-[13px] leading-none font-bold text-accent" data-testid="paywall-eyebrow">
+                <!-- The crown of the mock-up. -->
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 18h16l1-10-5 4-4-7-4 7-5-4z" />
+                </svg>
+                {{ BRAND_PRO }}
+              </span>
+            </p>
+            <h2 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
 
             <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
 
             <template v-if="!done">
-              <p v-if="lead" class="text-[15px] leading-[22px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
+              <p v-if="lead" class="text-[15px] leading-[21px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
 
               <p v-if="freeLine" class="text-[13px] leading-[18px] text-muted" data-testid="paywall-free">{{ freeLine }}</p>
             </template>
@@ -504,24 +546,29 @@ onBeforeUnmount(() => {
                 class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
                 :class="[
                   periodCards.length > 2 ? 'px-2.5 py-3' : 'p-3.5',
-                  card.period === period ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'border border-hairline bg-surface',
+                  card.period === period ? 'border-2 border-primary bg-accent-soft' : 'border border-hairline bg-surface',
                 ]"
                 :data-testid="`period-${card.period}`"
                 @click="choosePeriod(card.period)"
               >
-                <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
+                <span class="text-sm leading-[18px] text-muted">{{ card.label }}</span>
                 <span data-testid="period-price">
                   <span
-                    class="block font-semibold whitespace-nowrap"
+                    class="block font-extrabold whitespace-nowrap"
                     :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-[26px]'"
                   >{{ splitPrice(card.price).amount }}</span> <span class="block text-[13px] leading-[18px] text-muted">{{ splitPrice(card.price).unit }}</span>
                 </span>
                 <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
                 <span
-                  class="min-h-[18px] text-[13px] leading-[18px]"
-                  :class="card.period === period ? 'text-accent-ink' : 'text-muted'"
+                  v-if="card.pct !== null"
+                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-success-ink"
                   data-testid="period-saving"
                 >{{ savingText(card.pct) }}</span>
+                <span
+                  v-else
+                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-accent-ink"
+                  data-testid="period-saving"
+                >{{ card.period === period ? t('billing.period.chosen') : '' }}</span>
               </button>
             </div>
 
@@ -674,8 +721,12 @@ onBeforeUnmount(() => {
           <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
             {{ t('paywall.not_now') }}
           </button>
-          <p v-if="payMethod" class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
-            {{ t('billing.pay_via', { provider: t(`billing.provider.${payMethod}`) }) }}
+          <p v-if="payMethod" class="text-center text-xs leading-[17px] text-muted" data-testid="pay-method">
+            {{
+              t(renewsItself(payMethod, period) ? 'billing.pay_via_renews' : 'billing.pay_via_once', {
+                provider: t(`billing.provider.${payMethod}`),
+              })
+            }}
           </p>
         </template>
       </div>

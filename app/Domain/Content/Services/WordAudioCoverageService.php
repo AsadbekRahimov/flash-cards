@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\AudioCoverageReport;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Models\Course;
 use App\Models\Word;
@@ -109,14 +110,17 @@ final class WordAudioCoverageService
     private function countByStage(Course $course): array
     {
         // Only the examples that are voiced at all ({@see WordAudioService::exampleText()}): not blanks alone, and not longer than
-        // one request of Google. The length is of the trimmed text: the inner runs of blanks, collapsed for the synthesizer, are
-        // not collapsed here, so a sentence over 5 000 bytes only by its inner blanks would be left out (the longest example is
-        // 74 bytes). The SQL fragments are fixed text; the blanks and the limit are bindings.
+        // one request of Google (5 000 bytes) nor than the characters of one request of the driver in effect
+        // ({@see ConfiguredSpeechSynthesizer::maxTextChars()}: 2 000 for `deepgram`). The length is of the trimmed text: the inner
+        // runs of blanks, collapsed for the synthesizer, are not collapsed here, so a sentence over the limit only by its inner
+        // blanks would be left out (the longest example is 74 bytes). The SQL fragments are fixed text; the blanks and the limits
+        // are bindings.
         $pgsql = Word::query()->getModel()->getConnection()->getDriverName() === 'pgsql';
         $trimmed = $pgsql ? 'BTRIM(words.example, ?)' : 'TRIM(words.example, ?)';
         $bytes = $pgsql ? "OCTET_LENGTH({$trimmed})" : "LENGTH(CAST({$trimmed} AS BLOB))";
-        $voiced = "words.example IS NOT NULL AND {$trimmed} <> ? AND {$bytes} <= ?";
-        $voicedBindings = [self::BLANKS, '', self::BLANKS, GoogleSpeechSynthesizer::MAX_TEXT_BYTES];
+        $chars = $pgsql ? "CHAR_LENGTH({$trimmed})" : "LENGTH({$trimmed})";
+        $voiced = "words.example IS NOT NULL AND {$trimmed} <> ? AND {$bytes} <= ? AND {$chars} <= ?";
+        $voicedBindings = [self::BLANKS, '', self::BLANKS, GoogleSpeechSynthesizer::MAX_TEXT_BYTES, self::BLANKS, ConfiguredSpeechSynthesizer::maxTextChars()];
 
         $rows = $this->activeWords($course)
             ->groupBy('stages.id', 'stages.number', 'stages.title')

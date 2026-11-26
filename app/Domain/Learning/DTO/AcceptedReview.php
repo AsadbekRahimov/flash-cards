@@ -17,6 +17,9 @@ use App\Models\WordRepetition;
  * For a meaning / reverse / audio card (the card was sent without what gives the right option away) it also carries what the serve
  * showed, to be sent back with the verdict: the word, its translation, the example of the serve (and its translation), whether the serve would show
  * the hooks (decided before the grade moved the card's state) and whether the word was a leech.
+ *
+ * `score` — the word points of the answer (docs/32 §3.1); null only where no answer was recorded at all (never from the service itself:
+ * with the points off it carries the reason `off`).
  */
 final readonly class AcceptedReview
 {
@@ -30,5 +33,6 @@ final readonly class AcceptedReview
         public bool $showedHook = false,
         public bool $wasLeech = false,
         public ?string $exampleTranslation = null,
+        public ?WordScoreOutcome $score = null,
     ) {}
 }

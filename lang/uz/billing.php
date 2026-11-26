@@ -6,8 +6,8 @@ return [
 
     /* DM after leaving a center (docs/13 §6.5): the discounted buy buttons of /pro follow the text. */
     'offer_dm' => [
-        'text' => "Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
-        'text_generic' => "Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
+        'text' => "Siz «:organization» markazidan chiqdingiz. Shaxsiy Muhrla Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
+        'text_generic' => "Markazdagi joyingiz tugadi. Shaxsiy Muhrla Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
     ],
 
     'pro' => [
@@ -15,12 +15,12 @@ return [
         'rate_limited' => "Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring.",
         'status_free' => "Hozir sizda Free tarif: kuniga :count ta yangi so'z, takrorlash cheklovsiz.",
         'status_free_generic' => "Siz bepul tarifdasiz. Kuniga o'rganiladigan yangi so'zlar soni cheklangan. Avvalgi so'zlarni esa istagancha takrorlashingiz mumkin.",
-        'status_pro_until' => 'Sizda LexiFlow Pro :date gacha.',
-        'status_pro_forever' => 'Sizda LexiFlow Pro muddatsiz.',
+        'status_pro_until' => 'Sizda Muhrla Pro :date gacha.',
+        'status_pro_forever' => 'Sizda Muhrla Pro muddatsiz.',
         'renewal_auto' => "Avtomatik uzaytirish yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi.",
         'renewal_canceled' => "Avtomatik uzaytirish o'chirilgan — Pro to'langan davr oxirigacha amal qiladi.",
-        'soon' => 'LexiFlow Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring.',
-        'contact' => "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: :contact",
+        'soon' => 'Muhrla Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring.',
+        'contact' => "Markazda o'qiysizmi? Markaz administratoridan Muhrla Pro'ni ulashni so'rang: :contact",
         'choose' => "Muddat va to'lov usulini tanlang:",
         'price_line' => ':period — :prices',
         'offer' => "Birinchi to'lovga :pct% chegirma :date gacha amal qiladi.",
@@ -36,7 +36,7 @@ return [
             'provider_disabled' => "Bu to'lov usuli hozir ishlamayapti. Boshqasini tanlang.",
             'provider_not_supported' => "Bu to'lov usulidan foydalana olmaysiz.",
             'checkout_conflict' => "Sizda Telegram Stars orqali obunani avtomatik uzaytirish yoqilgan. Yangi to'lovdan oldin uni /pro orqali o'chiring.",
-            'already_perpetual' => "Sizda LexiFlow Pro muddatsiz faol — hech narsa to'lash shart emas.",
+            'already_perpetual' => "Sizda Muhrla Pro muddatsiz faol — hech narsa to'lash shart emas.",
             'subscribe_too_early' => "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha 3 oylik yoki bir yillik bir martalik to'lovni tanlang.",
             'too_many_pending' => "Sizda yakunlanmagan to'lovlar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
             'offer_not_applicable' => "Chegirma bu xaridga qo'llanilmaydi.",
@@ -52,18 +52,51 @@ return [
         ],
     ],
 
-    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding; `:days` / `:reward` are "7 kun", `:friends` is "3 ta do'stni".
+    // The welcome trial (docs/13 §7.1 "2C.9", docs/36 §4б), DM once after the onboarding; `:days` is "14 kun" (billing.trial.days),
+    // `:reward` is "7 kun" (referrals.milestone_days), `:friends` is "3 ta do'stni", `:benefits` is the lines of `pro_promises` ("• …").
     'trial' => [
-        'welcome' => '🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite',
-        'welcome_plain' => '🎁 Sizga :days Pro bepul ochildi — :date gacha.',
+        'welcome' => "🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits\n\n:friends taklif qiling — yana :reward Pro olasiz: /invite",
+        'welcome_plain' => "🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits",
+    ],
+
+    // The offers after the welcome trial (docs/34 §2д, TrialOfferSender) and the reminder 3 days before its end (RenewalReminderSender).
+    'trial_offer' => [
+        'ended' => 'Pro sinov muddati tugadi. Endi sizda Free — kuniga: :limits.',
+        'ended_generic' => 'Pro sinov muddati tugadi. Endi sizda Free.',
+        'limit_words' => ":count ta yangi so'z",
+        'limit_goal' => 'maqsad :count tagacha kartochka',
+        'limit_games' => ":count ta so'z o'yini",
+        'ended_on' => 'Pro sinov muddati tugadi (:date).',
+        'learned' => "Sinov davrida :words o'rgandingiz.",
+        'words' => ":count ta yangi so'z",
+        'best_streak' => 'Eng uzun ketma-ketlik — :streak.',
+        'back' => "Pro'ni qaytaring — kunlik limitlarsiz o'rganishda davom eting.",
+        'last' => "Pro haqida oxirgi eslatma: sinov muddati tugadi (:date). Bu haqda boshqa yozmaymiz — Pro'ni istalgan vaqtda /pro orqali qaytarishingiz mumkin.",
+        'benefits' => "Pro nima beradi:\n:benefits",
+        'from_month' => 'Muhrla Pro narxi — oyiga :price.',
+        'savings' => 'Uzoq muddatga foydaliroq: :items.',
+        'saving_item' => ':period −:pct %',
+        'opted_out' => "Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi.",
+    ],
+
+    // What Pro gives, short lines of the bot (ProPromises::top(), docs/36 §4б).
+    'pro_promises' => [
+        'new_words' => "Yangi so'zlar — kunlik limitsiz",
+        'practice' => 'Mustahkamlash mashqlari va bellashuvlar — kunlik limitsiz',
+        'practice_solo' => 'Mustahkamlash mashqlari — kunlik limitsiz',
+        'decks' => "O'z so'z to'plamlaringiz",
+        'freezes' => "Zaxira kunlar: bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi",
+        'game' => 'Karvon — kunlik limitsiz',
+        'exercises' => "Yozish va gap to'ldirish mashqlari",
+        'mock_exams' => 'IELTS va SAT sinov imtihonlari',
     ],
 
     'paysupport' => [
-        'with_contact' => "LexiFlow to'lovlar bo'yicha yordam.\n\n".
+        'with_contact' => "Muhrla to'lovlar bo'yicha yordam.\n\n".
             "To'lov va obunani bekor qilish masalalari: :contact\n".
             "Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi: har bir murojaat alohida ko'rib chiqiladi. Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Shartlar ofertada: :offer\n".
             "Stars orqali obunani avtomatik uzaytirishni /pro buyrug'i orqali o'chirish mumkin.",
-        'without_contact' => "LexiFlow to'lovlar bo'yicha yordam.\n\n".
+        'without_contact' => "Muhrla to'lovlar bo'yicha yordam.\n\n".
             "Yordam kontakti hozircha ko'rsatilmagan. Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi, har bir murojaat alohida ko'rib chiqiladi. Shartlar ofertada: :offer\n".
             "Stars orqali obunani avtomatik uzaytirishni /pro buyrug'i orqali o'chirish mumkin.",
     ],
@@ -72,22 +105,22 @@ return [
     'stars' => [
         'invoice' => [
             // Telegram limits: title ≤ 32, label ≤ 32, description ≤ 255 characters.
-            'title' => 'LexiFlow Pro — :period',
-            'label' => 'LexiFlow Pro, :period',
-            'description_month' => "LexiFlow Pro: yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
-            'description_year' => "LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'title' => 'Muhrla Pro — :period',
+            'label' => 'Muhrla Pro, :period',
+            'description_month' => "Muhrla Pro: yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
+            'description_year' => "Muhrla Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
             // The same two with the practice and battles of Pro, chosen by TelegramStarsProvider only while practice is open to everybody
             // (ProPromises::publicPractice()); the limit of Telegram is 255 characters, so the tail of the month text is shorter
             // and the year text does not repeat its length in days ("1 yilga" already says it).
-            'description_month_practice' => "LexiFlow Pro: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
-            'description_year_practice' => "LexiFlow Pro 1 yilga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_month_practice' => "Muhrla Pro: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
+            'description_year_practice' => "Muhrla Pro 1 yilga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
             // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.
-            'description_month_practice_solo' => "LexiFlow Pro: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
-            'description_year_practice_solo' => "LexiFlow Pro 1 yilga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_month_practice_solo' => "Muhrla Pro: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
+            'description_year_practice_solo' => "Muhrla Pro 1 yilga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
             // The one-off quarter (3 months) in the same three variants.
-            'description_quarter' => "LexiFlow Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
-            'description_quarter_practice' => "LexiFlow Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
-            'description_quarter_practice_solo' => "LexiFlow Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_quarter' => "Muhrla Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_quarter_practice' => "Muhrla Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_quarter_practice_solo' => "Muhrla Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
         ],
         'precheckout' => [
             'order_not_found' => 'To\'lov topilmadi. /pro buyrug\'ini yuborib, yangisini yarating.',
@@ -100,10 +133,9 @@ return [
             'already_subscribed' => "Sizda Telegram Stars orqali obunani avtomatik uzaytirish allaqachon yoqilgan — ikkinchi to'lov kerak emas. Uni /pro orqali o'chirishingiz mumkin.",
             'unavailable' => "Xizmat vaqtincha ishlamayapti. Bir daqiqadan keyin urinib ko'ring.",
         ],
-        'paid' => "To'lov qabul qilindi! LexiFlow Pro :date gacha faol.",
-        'renewed' => 'Obuna uzaytirildi: LexiFlow Pro :date gacha faol.',
-        'paid_forever' => "To'lov qabul qilindi! Sizda LexiFlow Pro muddatsiz.",
-        'open_button' => 'LexiFlow\'ni ochish',
+        'paid' => "To'lov qabul qilindi! Muhrla Pro :date gacha faol.",
+        'renewed' => 'Obuna uzaytirildi: Muhrla Pro :date gacha faol.',
+        'paid_forever' => "To'lov qabul qilindi! Sizda Muhrla Pro muddatsiz.",
         'paid_unresolved' => "To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Tekshirib, Pro'ni yoqamiz yoki Stars'ni qaytaramiz. Tezroq hal bo'lishi uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport.",
         'refunded' => ":amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi.",
     ],
@@ -127,19 +159,19 @@ return [
 
     // Renewal reminders (docs/13 §4.4): DM to a learner / an organization's owner, e-mail to owners.
     'renewal' => [
-        'dm' => '{1} LexiFlow Pro ertaga tugaydi (:date).|[2,*] LexiFlow Pro :count kundan keyin tugaydi (:date).',
+        'dm' => '{1} Muhrla Pro ertaga tugaydi (:date).|[2,*] Muhrla Pro :count kundan keyin tugaydi (:date).',
         'org_dm' => '{1} «:organization» markazining obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date).',
         'hint' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun obunani oldindan uzaytiring.',
         'hint_canceled' => 'Avtomatik uzaytirish o\'chirilgan, shuning uchun Pro o\'zi uzaymaydi. Cheklovsiz imkoniyatlarni yo\'qotmaslik uchun oldindan uzaytiring.',
         // The welcome trial (docs/13 §7.1 "2C.9"): not a renewal — the first purchase.
-        'trial_dm' => '{1} LexiFlow Pro sinov muddati ertaga tugaydi (:date).|[2,*] LexiFlow Pro sinov muddati :count kundan keyin tugaydi (:date).',
+        'trial_dm' => '{1} Muhrla Pro sinov muddati ertaga tugaydi (:date).|[2,*] Muhrla Pro sinov muddati :count kundan keyin tugaydi (:date).',
         'hint_trial' => 'Pro\'ni yo\'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do\'stlaringizni taklif qiling (/invite).',
         'org_hint' => 'Obuna tugagach, markaz o\'quvchilari yana Free tarifiga o\'tadi.',
         'button' => "Pro'ni uzaytirish",
         'mail' => [
             'subject' => '{1} «:organization» markazining obunasi ertaga tugaydi|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi',
             'greeting' => 'Assalomu alaykum!',
-            'body' => '{1} «:organization» markazining LexiFlow Pro obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining LexiFlow Pro obunasi :count kundan keyin tugaydi (:date).',
+            'body' => '{1} «:organization» markazining Muhrla Pro obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining Muhrla Pro obunasi :count kundan keyin tugaydi (:date).',
             'keep' => 'Markaz o\'quvchilari Pro\'dan mahrum bo\'lmasligi uchun obunani oldindan uzaytiring. Obuna tugagach, ular yana Free tarifiga o\'tadi.',
             'action' => 'Markaz kabinetini ochish',
             'contact' => 'To\'lov bo\'yicha savollar: :contact',
@@ -148,17 +180,17 @@ return [
 
     // Payme (docs/13 §4.2): the fiscal receipt line of CheckPerformTransaction and the return page `/billing/return`.
     'payme' => [
-        'receipt_item' => 'LexiFlow Pro — :period',
+        'receipt_item' => 'Muhrla Pro — :period',
     ],
 
     'return' => [
         'title' => "To'lov holati",
-        'open_bot' => "LexiFlow'ga qaytish",
+        'open_bot' => "Muhrla'ga qaytish",
         'note' => "Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi.",
         'support' => "To'lov bo'yicha savollar:",
         'paid' => [
             'heading' => "To'lov qabul qilindi",
-            'text' => 'LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — Pro imkoniyatlari allaqachon ochiq.',
+            'text' => 'Muhrla Pro yoqildi. Botga qayting yoki ilovani oching — Pro imkoniyatlari allaqachon ochiq.',
         ],
         'pending' => [
             'heading' => "To'lov tasdiqlanishini kutmoqdamiz",

@@ -9,12 +9,15 @@
  *   the list does not jump.
  * - The clip of `listen` is loaded by the screen as soon as the element is shown (the same URL is not fetched twice); this component asks
  *   when nobody has, and plays it from the tap (a gesture on iOS). Nothing is read aloud by the browser: the word must not be solved by a machine.
+ * - A phrase (docs/35 §3.3 e) or its translation as the question is longer than a word: from `GAME_LONG_TEXT_MIN` characters it is a
+ *   size smaller and wraps by words; the options wrap as they always did (nothing is clipped).
  * Events: `answer` (`{ option_id }`), `skip`.
  */
 import { computed, onMounted, ref } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import { isLongGameText } from '@/composables/phraseText'
 import { useResend } from '@/composables/useResend'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
@@ -44,6 +47,9 @@ const removed = computed((): Set<string> => {
 })
 
 const locked = computed((): boolean => props.disabled === true || lastSent.value !== null)
+
+/** The question is a phrase or its translation (see above). */
+const longPrompt = computed((): boolean => 'prompt' in props.element && isLongGameText(props.element.prompt))
 
 /** The state of `.option`: the pick; the rest once the answer has gone, and an option a hint took away, step back. */
 function stateOf(option: PracticeChoice): 'idle' | 'selected' | 'dimmed' {
@@ -109,7 +115,8 @@ function listen(): void {
       <div class="flex flex-col items-center gap-2.5 text-center short:gap-1.5">
         <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
 
-        <h2 v-if="element.kind === 'translate_fwd'" class="max-w-full text-[40px] leading-[46px] font-semibold tracking-[-0.5px] break-words short:text-[30px] short:leading-9" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-if="element.kind !== 'listen' && longPrompt" class="max-w-full text-[24px] leading-[30px] font-semibold text-balance break-words short:text-[20px] short:leading-[26px]" :lang="element.kind === 'translate_fwd' ? 'en' : undefined" data-long="true" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-else-if="element.kind === 'translate_fwd'" class="max-w-full text-[40px] leading-[46px] font-semibold tracking-[-0.5px] break-words short:text-[30px] short:leading-9" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
         <h2 v-else-if="element.kind === 'translate_back'" class="max-w-full text-[32px] leading-[38px] font-semibold tracking-[-0.4px] break-words short:text-[26px] short:leading-8" data-testid="task-prompt">{{ element.prompt }}</h2>
         <!-- The clip is the question of `listen`: a big round button in a thin frame, framed in the primary colour while it plays. -->
         <button

@@ -4,7 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 import { themeBoot } from './scripts/themeBoot'
 
-// Vite config for the LexiFlow Telegram Web App.
+// The product name (docs/36 §5б): `%VITE_BRAND%` in index.html and `src/brand.ts` read it. Vite leaves an unset
+// `%VITE_…%` in the HTML as it is, so the default is put into the environment before Vite loads it.
+process.env.VITE_BRAND ||= 'Muhrla'
+
+// Vite config for the Muhrla Telegram Web App.
 // Output is emitted to ../../public/twa so Nginx can serve it from /twa/
 // with SPA fallback (see docker/nginx/default.conf).
 export default defineConfig({

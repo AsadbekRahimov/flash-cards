@@ -165,6 +165,8 @@ const round = computed(() => store.currentRound)
 const phase = computed(() => state.value?.phase ?? null)
 const iAnswered = computed(() => state.value?.my_answered === true)
 const opponentName = computed(() => data.value?.opponent.first_name?.trim() || t('battle.opponent'))
+/** The opponent's emoji of Pro after the name (docs/31 §5а); null / absent - none. */
+const opponentEmoji = computed(() => data.value?.opponent.pro_emoji ?? null)
 const roundsTotal = computed(() => data.value?.rounds_total ?? 5)
 const lastRound = computed(() => state.value !== null && state.value.no >= roundsTotal.value)
 
@@ -585,7 +587,7 @@ watch(over, (isOver) => {
       <template v-else-if="status === 'playing'">
         <div class="px-5 pt-3 short:pt-2">
           <!-- The slot is there only while the round runs: the scoreboard lays itself out for the timer when it has one (and for the colon when it has not). -->
-          <BattleScoreboard :me="store.scores.me" :opponent="store.scores.opponent" :opponent-name="opponentName">
+          <BattleScoreboard :me="store.scores.me" :opponent="store.scores.opponent" :opponent-name="opponentName" :opponent-emoji="opponentEmoji">
             <template v-if="phase === 'answering' && state" #default>
               <RoundTimer :deadline="state.deadline_at" :offset-ms="serverOffsetMs" :total-seconds="data.round_seconds" />
             </template>
@@ -611,7 +613,7 @@ watch(over, (isOver) => {
               </h2>
               <p class="text-[15px] leading-5 text-muted">{{ t('battle.round.waiting') }}</p>
               <div class="w-full pt-4">
-                <OpponentStatus :name="opponentName" :state="!store.opponentPresent ? 'absent' : state?.opponent_answered ? 'answered' : 'answering'" />
+                <OpponentStatus :name="opponentName" :emoji="opponentEmoji" :state="!store.opponentPresent ? 'absent' : state?.opponent_answered ? 'answered' : 'answering'" />
               </div>
             </div>
           </section>

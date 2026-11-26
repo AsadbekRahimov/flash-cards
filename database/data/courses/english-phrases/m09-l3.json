@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 9,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Звонки и встречи",
+    "title_uz": "Qo'ng'iroqlar va uchrashuvlar"
+  },
+  "words": [
+    {
+      "word": "get back to someone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ответить позже",
+        "uz": "keyinroq javob bermoq"
+      },
+      "example": "I don't know the price yet. Can I get back to you tomorrow?",
+      "example_translations": {
+        "ru": "Я пока не знаю цену. Можно я отвечу вам завтра?",
+        "uz": "Narxini hali bilmayman. Ertaga sizga javob bersam maylimi?"
+      },
+      "hooks": {
+        "ru": "Обещают ответить или перезвонить, когда будет информация",
+        "uz": "Ma'lumot bo'lganda javob berish yoki qayta qo'ng'iroq qilishga va'da berishadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep me posted",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держи меня в курсе",
+        "uz": "meni xabardor qilib tur"
+      },
+      "example": "Let me know how the interview goes. Keep me posted!",
+      "example_translations": {
+        "ru": "Расскажи, как пройдёт собеседование. Держи меня в курсе!",
+        "uz": "Suhbat qanday o'tganini aytgin. Meni xabardor qilib tur!"
+      },
+      "hooks": {
+        "ru": "Просят сообщать новости о деле, которое ещё идёт",
+        "uz": "Hali davom etayotgan ish haqidagi yangiliklarni aytib turishni so'rashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "posted",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "set up a meeting",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "назначить встречу",
+        "uz": "uchrashuv belgilamoq"
+      },
+      "example": "Could you set up a meeting with the client for next week?",
+      "example_translations": {
+        "ru": "Не могли бы вы назначить встречу с клиентом на следующей неделе?",
+        "uz": "Keyingi haftaga mijoz bilan uchrashuv belgilay olasizmi?"
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы договориться о времени и месте встречи",
+        "uz": "Uchrashuv vaqti va joyini kelishib olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "set",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hold on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подожди",
+        "uz": "kutib tur"
+      },
+      "example": "Hold on, I'll check if she's in the office.",
+      "example_translations": {
+        "ru": "Подожди, я посмотрю, в офисе ли она.",
+        "uz": "Kutib tur, ofisdami-yo'qmi, qarab kelaman."
+      },
+      "hooks": {
+        "ru": "Просят подождать, особенно по телефону",
+        "uz": "Ayniqsa telefonda biroz kutib turishni so'rashadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hold",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I take a message?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что-нибудь передать?",
+        "uz": "biror gap yetkazib qo'yaymi?"
+      },
+      "example": "I'm afraid Mr. Karimov is out. Can I take a message?",
+      "example_translations": {
+        "ru": "К сожалению, господина Каримова нет. Что-нибудь передать?",
+        "uz": "Afsuski, janob Karimov joyida yo'q. Biror gap yetkazib qo'yaymi?"
+      },
+      "hooks": {
+        "ru": "Вежливо предлагают передать сообщение тому, кого нет на месте",
+        "uz": "Joyida yo'q odamga xabar yetkazishni xushmuomalalik bilan taklif qilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "message",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Who's calling?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кто говорит?",
+        "uz": "kim bilan gaplashyapman?"
+      },
+      "example": "Can I speak to Anna, please? — Who's calling?",
+      "example_translations": {
+        "ru": "Можно Анну к телефону? — А кто говорит?",
+        "uz": "Anna bilan gaplashsam bo'ladimi? — Kim bilan gaplashyapman?"
+      },
+      "hooks": {
+        "ru": "Вежливо спрашивают по телефону, кто звонит",
+        "uz": "Telefonda kim qo'ng'iroq qilayotganini xushmuomalalik bilan so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "calling",
+        "literal": {
+          "ru": "кто звонит?",
+          "uz": "kim qo'ng'iroq qilyapti?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You're breaking up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тебя плохо слышно",
+        "uz": "ovozing uzilib qolyapti"
+      },
+      "example": "Sorry, you're breaking up. I'll call you back.",
+      "example_translations": {
+        "ru": "Извини, тебя плохо слышно. Я перезвоню.",
+        "uz": "Kechir, ovozing uzilib qolyapti. O'zim qayta qo'ng'iroq qilaman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда связь плохая и голос пропадает",
+        "uz": "Aloqa yomon bo'lib, ovoz uzilib qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "breaking",
+        "literal": {
+          "ru": "ты разваливаешься",
+          "uz": "sen bo'linib ketyapsan"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the agenda",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на повестке дня",
+        "uz": "kun tartibida"
+      },
+      "example": "What's on the agenda for today's meeting?",
+      "example_translations": {
+        "ru": "Что на повестке дня сегодняшнего совещания?",
+        "uz": "Bugungi yig'ilish kun tartibida nima bor?"
+      },
+      "hooks": {
+        "ru": "Говорят о вопросах, которые обсудят на встрече",
+        "uz": "Uchrashuvda muhokama qilinadigan masalalar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "agenda",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put someone through",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "соединить",
+        "uz": "ulab bermoq"
+      },
+      "example": "Hello, could you put me through to the sales department?",
+      "example_translations": {
+        "ru": "Здравствуйте, не могли бы вы соединить меня с отделом продаж?",
+        "uz": "Assalomu alaykum, meni savdo bo'limiga ulab bera olasizmi?"
+      },
+      "hooks": {
+        "ru": "Просят секретаря или оператора соединить с нужным человеком",
+        "uz": "Kotib yoki operatordan kerakli odamga ulab berishni so'rashadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "through",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Sorry, wrong number",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы ошиблись номером",
+        "uz": "noto'g'ri raqam terdingiz"
+      },
+      "example": "Is this the pizza place? — Sorry, wrong number.",
+      "example_translations": {
+        "ru": "Это пиццерия? — Простите, вы ошиблись номером.",
+        "uz": "Bu pitsaxonami? — Kechirasiz, noto'g'ri raqam terdingiz."
+      },
+      "hooks": {
+        "ru": "Отвечают тому, кто позвонил не туда",
+        "uz": "Adashib qo'ng'iroq qilgan odamga javob berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "number",
+        "literal": {
+          "ru": "извините, неправильный номер",
+          "uz": "kechirasiz, noto'g'ri raqam"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

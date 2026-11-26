@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Learner;
 
 /**
@@ -20,6 +21,7 @@ final class TodayScreen
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly LearnerStatsService $stats,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function send(Learner $learner, int|string $chatId): void
@@ -33,7 +35,7 @@ final class TodayScreen
                 ? trans_choice('onboarding.today.due', $due, ['count' => $due], $locale)
                 : __('onboarding.today.empty', [], $locale),
             buttonText: __('onboarding.today.button', [], $locale),
-            url: rtrim((string) config('twa.base_url'), '/').'/twa/?from=today',
+            url: $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'today']),
         );
     }
 }

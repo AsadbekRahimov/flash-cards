@@ -1,0 +1,285 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 4,
+    "title": "Покупки и деньги",
+    "title_uz": "Xarid va pul"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Оплата",
+    "title_uz": "To'lov"
+  },
+  "words": [
+    {
+      "word": "Keep the change",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдачи не надо",
+        "uz": "qaytimi o'zingizga"
+      },
+      "example": "That's eighteen thousand, please. — Here's twenty. Keep the change.",
+      "example_translations": {
+        "ru": "С вас восемнадцать тысяч. — Вот двадцать. Сдачи не надо.",
+        "uz": "O'n sakkiz ming bo'ldi. — Mana yigirma. Qaytimi o'zingizga."
+      },
+      "hooks": {
+        "ru": "Говорят таксисту, официанту или продавцу, оставляя им сдачу",
+        "uz": "Taksichi, ofitsiant yoki sotuvchiga qaytimni qoldirganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "change",
+        "literal": {
+          "ru": "оставьте сдачу себе",
+          "uz": "qaytimni o'zingizda qoldiring"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Cash or card?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "наличными или картой?",
+        "uz": "naqdmi yoki karta orqalimi?"
+      },
+      "example": "Cash or card? — Card, please.",
+      "example_translations": {
+        "ru": "Наличными или картой? — Картой, пожалуйста.",
+        "uz": "Naqdmi yoki karta orqalimi? — Karta orqali, iltimos."
+      },
+      "hooks": {
+        "ru": "Кассир спрашивает, как вы будете платить",
+        "uz": "Kassir qanday to'lashingizni so'raydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cash",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It's on me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я угощаю",
+        "uz": "hisob mendan"
+      },
+      "example": "Put your money away. It's on me today. — Thanks, next time I'll pay!",
+      "example_translations": {
+        "ru": "Убери деньги. Сегодня я угощаю. — Спасибо, в следующий раз плачу я!",
+        "uz": "Pulingni olib qo'y. Bugun hisob mendan. — Rahmat, keyingi safar men to'layman!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда платят за всех; говорите, только если правда платите",
+        "uz": "Hamma uchun to'laganda aytiladi; faqat rostdan to'lasangiz ayting"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "on",
+        "literal": {
+          "ru": "это на мне",
+          "uz": "bu mening zimmamda"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let's split the bill",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давай заплатим пополам",
+        "uz": "hisobni teng bo'lib to'laylik"
+      },
+      "example": "Dinner was great. Let's split the bill. — OK, that's fair.",
+      "example_translations": {
+        "ru": "Ужин был отличный. Давай заплатим пополам. — Хорошо, это честно.",
+        "uz": "Kechki ovqat zo'r bo'ldi. Hisobni teng bo'lib to'laylik. — Mayli, bu adolatli."
+      },
+      "hooks": {
+        "ru": "Предлагают друзьям разделить оплату поровну",
+        "uz": "Do'stlarga to'lovni teng bo'lishni taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "split",
+        "literal": {
+          "ru": "давай разделим счёт",
+          "uz": "kel, hisobni bo'laylik"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I pay by card?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно оплатить картой?",
+        "uz": "karta bilan to'lasam bo'ladimi?"
+      },
+      "example": "Can I pay by card? — Sorry, cash only.",
+      "example_translations": {
+        "ru": "Можно оплатить картой? — Извините, только наличными.",
+        "uz": "Karta bilan to'lasam bo'ladimi? — Kechirasiz, faqat naqd."
+      },
+      "hooks": {
+        "ru": "Уточняют способ оплаты до покупки",
+        "uz": "Xariddan oldin to'lov usulini aniqlashtirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pay",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Here's your receipt",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вот ваш чек",
+        "uz": "mana chekingiz"
+      },
+      "example": "Here's your receipt. Have a nice day! — Thanks!",
+      "example_translations": {
+        "ru": "Вот ваш чек. Хорошего дня! — Спасибо!",
+        "uz": "Mana chekingiz. Kuningiz yaxshi o'tsin! — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Кассир отдаёт чек после оплаты; чек нужен, чтобы вернуть товар",
+        "uz": "Kassir to'lovdan keyin chek beradi; chek mahsulotni qaytarish uchun kerak"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "receipt",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Enter your PIN",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "введите ПИН-код",
+        "uz": "PIN-kodni kiriting"
+      },
+      "example": "Please enter your PIN and press the green button.",
+      "example_translations": {
+        "ru": "Пожалуйста, введите ПИН-код и нажмите зелёную кнопку.",
+        "uz": "Iltimos, PIN-kodni kiriting va yashil tugmani bosing."
+      },
+      "hooks": {
+        "ru": "Так просит кассир или терминал при оплате картой",
+        "uz": "Karta bilan to'laganda kassir yoki terminal shunday so'raydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "enter",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "My card was declined",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оплата картой не прошла",
+        "uz": "kartadan to'lov o'tmadi"
+      },
+      "example": "Sorry, your card was declined. — Oh no! Can I try again?",
+      "example_translations": {
+        "ru": "Извините, оплата картой не прошла. — Ой! Можно попробовать ещё раз?",
+        "uz": "Kechirasiz, kartangizdan to'lov o'tmadi. — Voy! Yana urinib ko'rsam bo'ladimi?"
+      },
+      "hooks": {
+        "ru": "Неприятная новость на кассе: банк не принял оплату",
+        "uz": "Kassadagi noxush xabar: bank to'lovni qabul qilmadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "declined",
+        "literal": {
+          "ru": "мою карту отклонили",
+          "uz": "kartam rad etildi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "come to",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "составлять в сумме",
+        "uz": "jami bo'lmoq"
+      },
+      "example": "Your total comes to forty thousand sum. — Here you are.",
+      "example_translations": {
+        "ru": "С вас всего сорок тысяч сумов. — Вот, пожалуйста.",
+        "uz": "Hammasi bo'lib qirq ming so'm bo'ladi. — Mana, oling."
+      },
+      "hooks": {
+        "ru": "Кассир или официант называет итоговую сумму",
+        "uz": "Kassir yoki ofitsiant umumiy summani aytadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "come",
+        "literal": {
+          "ru": "прийти к",
+          "uz": "yetib kelmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Is service included?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обслуживание включено в счёт?",
+        "uz": "xizmat haqi hisobga kiritilganmi?"
+      },
+      "example": "Is service included, or should I leave a tip? — It's included.",
+      "example_translations": {
+        "ru": "Обслуживание включено или нужно оставить чаевые? — Включено.",
+        "uz": "Xizmat haqi hisobga kiritilganmi yoki choychaqa qoldiraymi? — Kiritilgan."
+      },
+      "hooks": {
+        "ru": "Спрашивают в кафе, входят ли чаевые в счёт",
+        "uz": "Kafeda choychaqa hisobga kirgan-kirmaganini so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "included",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

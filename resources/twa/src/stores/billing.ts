@@ -114,7 +114,10 @@ async function readMe(store: MeTarget): Promise<void> {
     const me = await api.me.get()
     store.apply(me)
     // `/me` carries the settings too: the language row of the Profile reads them without a second request.
-    if (me.settings) useSettingsStore().adopt(me.settings)
+    const settings = useSettingsStore()
+    if (me.settings) settings.adopt(me.settings)
+    // ... and the emoji next to the name (docs/31 §5а), which the Profile shows.
+    settings.adoptProEmoji(me)
   } catch (err) {
     // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
     store.loadedAt = null

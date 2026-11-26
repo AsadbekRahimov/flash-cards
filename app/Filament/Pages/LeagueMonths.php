@@ -6,6 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Domain\Administration\Services\PendingLeagueMonthsBadge;
 use App\Domain\Engagement\Services\MonthlyRatingReviewService;
+use App\Domain\Engagement\Services\Scoring\ScoreRulesOverview;
 use App\Models\LeagueMonth;
 use App\Models\User;
 use App\Policies\LeagueMonthPolicy;
@@ -14,9 +15,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * «Рейтинг месяца» (docs/13 §7.6): the months of the rating with their status; the month that waits for the review is
- * marked on the menu item. Only an active admin ({@see LeagueMonthPolicy}). The page only shows
+ * «Рейтинг месяца» (docs/13 §7.6): the months of the rating with their status and rules version; the month that waits for the
+ * review is marked on the menu item. Only an active admin ({@see LeagueMonthPolicy}). The page only shows
  * what {@see MonthlyRatingReviewService::months()} returns — the decisions are on the month's page ({@see LeagueMonthReview}).
+ * Above the months — the word-points rules, read only ({@see ScoreRulesOverview}, docs/32 §8.5).
  */
 class LeagueMonths extends Page
 {
@@ -80,5 +82,15 @@ class LeagueMonths extends Page
     public function months(): Collection
     {
         return app(MonthlyRatingReviewService::class)->months()->load('confirmedBy:id,name');
+    }
+
+    /**
+     * The word-points rules (docs/32 §6.1): the configuration and the versions of the current week and month (two reads).
+     *
+     * @return array<string, mixed>
+     */
+    public function scoringRules(): array
+    {
+        return app(ScoreRulesOverview::class)->overview();
     }
 }

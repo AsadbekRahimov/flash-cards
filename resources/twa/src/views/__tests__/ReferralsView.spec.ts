@@ -13,17 +13,24 @@ const state = vi.hoisted(() => ({
   ensure: vi.fn(),
   back: undefined as undefined | (() => void),
   hideBack: vi.fn(),
-  shareUrl: vi.fn(),
   haptic: vi.fn(),
+  share: vi.fn(),
+  pending: { value: false },
 }))
 
 vi.mock('@/api', () => ({ api: { referrals: { get: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
 
+vi.mock('@/composables/useShare', async () => {
+  const { ref } = await import('vue')
+  const pending = ref(false)
+  state.pending = pending
+  return { useShare: () => ({ pending, share: state.share }) }
+})
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
-    shareUrl: state.shareUrl,
     haptic: state.haptic,
     showBackButton: (handler: () => void) => {
       state.back = handler
@@ -97,6 +104,8 @@ describe('ReferralsView', () => {
     vi.clearAllMocks()
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
+    state.pending.value = false
+    state.share.mockResolvedValue('sent')
     useToast().hide()
   })
   afterEach(() => {
@@ -240,14 +249,14 @@ describe('ReferralsView', () => {
       expect(wrapper.text()).not.toMatch(/Вам и другу|оба получаете|Pro получен/)
     })
 
-    it('puts the numbers in accent circles', async () => {
+    it('puts the numbers in white circles on the tinted hero', async () => {
       const { wrapper } = await render()
 
       const circles = wrapper.findAll('[data-testid=rule] li > span:first-child')
       expect(circles.map((c) => c.text())).toEqual(['1', '2', '3'])
       for (const circle of circles) {
-        // the number is text on the soft accent: it takes the ink of the accent, not the bare accent (docs/14 §4.1)
-        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent-ink']))
+        // the number is text in the ink of the accent (docs/14 §4.1) on a white circle: the soft accent would melt into `highlight`
+        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-surface', 'text-accent-ink']))
         expect(circle.attributes('aria-hidden')).toBe('true')
       }
     })
@@ -258,11 +267,12 @@ describe('ReferralsView', () => {
       expect(text(wrapper, 'rule')).toContain('Друг проходит настройку в боте и занимается 5 дн. (от 15 карточек в день) в течение 21 дн. после перехода по ссылке')
     })
 
-    it('has no coloured tile in the hero: the title alone, semibold', async () => {
+    it('is the tinted card of the screen with no coloured tile: the title alone, bold', async () => {
       const { wrapper } = await render()
 
+      expect(wrapper.get('[data-testid=hero]').classes()).toEqual(expect.arrayContaining(['rounded-hero', 'bg-highlight']))
       expect(wrapper.find('[data-testid=hero] .icon-tile').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('font-semibold')
+      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('font-bold')
     })
   })
 
@@ -287,13 +297,33 @@ describe('ReferralsView', () => {
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
 
-    it('opens the Telegram share dialog with the link and the prefilled text', async () => {
+    it('shares the invitation through the bot, with the link and the prefilled text as the fallback', async () => {
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период')
+      expect(state.share).toHaveBeenCalledWith('invite', null, {
+        link: LINK,
+        text: 'Учу английский в Muhrla. Заходи по ссылке — получишь Pro бесплатно на пробный период',
+      })
       expect(state.haptic).toHaveBeenCalled()
+    })
+
+    it('holds the button with a spinner while the share is on its way', async () => {
+      const { wrapper } = await render()
+
+      state.pending.value = true
+      await flushPromises()
+      const share = wrapper.get('[data-testid=share-btn]')
+      expect(share.attributes('disabled')).toBeDefined()
+      expect(share.attributes('aria-busy')).toBe('true')
+      expect(share.find('[data-testid=share-busy]').exists()).toBe(true)
+      expect(share.text()).toBe('Поделиться')
+
+      state.pending.value = false
+      await flushPromises()
+      expect(wrapper.get('[data-testid=share-btn]').attributes('disabled')).toBeUndefined()
+      expect(wrapper.find('[data-testid=share-busy]').exists()).toBe(false)
     })
 
     it('copies the link and says "Скопировано" in a toast', async () => {

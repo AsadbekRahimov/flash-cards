@@ -113,7 +113,7 @@ function battleShape(bool $lesson = true, bool $round = false, bool $result = fa
         'id', 'status', 'end_reason', 'mode', 'role',
         'course' => BATTLE_CONTRACT_COURSE,
         ...($lesson ? ['lesson' => BATTLE_CONTRACT_LESSON] : ['lesson']),
-        'opponent' => ['first_name'],
+        'opponent' => ['first_name', 'pro_emoji'],
         'rounds_total', 'round_seconds', 'countdown_seconds', 'reveal_seconds', 'presence_grace_seconds', 'presence_warn_seconds', 'deadline_grace_ms',
         'invite_expires_at', 'room_expires_at', 'starts_at', 'version', 'server_now',
         'ready' => ['me', 'opponent'], 'opponent_present', 'opponent_absent_since',
@@ -188,7 +188,7 @@ it('keeps the exact JSON of a battle from the invitation to the countdown, for b
         'id' => $id, 'status' => 'invited', 'end_reason' => null, 'mode' => 'dictation', 'role' => 'challenger',
         'course' => ['slug' => 'english-a1', 'title' => 'Английский A1'],
         'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'],
-        'opponent' => ['first_name' => 'Dilnoza'],
+        'opponent' => ['first_name' => 'Dilnoza', 'pro_emoji' => null],
         'rounds_total' => 5, 'round_seconds' => 60, 'countdown_seconds' => 3, 'reveal_seconds' => 4,
         'presence_grace_seconds' => 30, 'presence_warn_seconds' => 10, 'deadline_grace_ms' => 1500,
         'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'room_expires_at' => null, 'starts_at' => null,
@@ -200,7 +200,7 @@ it('keeps the exact JSON of a battle from the invitation to the countdown, for b
 
     // The same battle for the friend: their side, their language; a read is the same body as the 201 (except for the side).
     $theirs = BattleHttp::view($friend, $id)->assertOk()->assertExactJsonStructure(battleShape());
-    expect([$theirs->json('role'), $theirs->json('opponent'), $theirs->json('course.title')])->toBe(['opponent', ['first_name' => 'Bek'], 'Ingliz tili A1']);
+    expect([$theirs->json('role'), $theirs->json('opponent'), $theirs->json('course.title')])->toBe(['opponent', ['first_name' => 'Bek', 'pro_emoji' => null], 'Ingliz tili A1']);
     $mine = BattleHttp::view($me, $id)->assertOk();
     expect(ksorted($mine->json()))->toBe(ksorted(array_diff_key($created->json(), ['limits' => true]))); // `limits` belongs to the creation alone (docs/18 G1)
 
@@ -659,10 +659,10 @@ it('keeps the exact JSON of the options of a battle - both players\' languages, 
     $row = ['mode', 'state', 'available', 'required', 'reason', 'round_seconds'];
 
     $options = BattleHttp::options($me, $friendship, $course, $lesson)->assertOk()->assertExactJsonStructure([
-        'friend' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'modes' => ['*' => $row], 'friend_access',
+        'friend' => ['first_name', 'pro_emoji'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'modes' => ['*' => $row], 'friend_access',
     ]);
     $modes = $options->json('modes');
-    expect($options->json('friend'))->toBe(['first_name' => 'Dilnoza'])
+    expect($options->json('friend'))->toBe(['first_name' => 'Dilnoza', 'pro_emoji' => null])
         ->and($options->json('course'))->toBe(['slug' => 'english-a1', 'title' => 'Английский A1'])
         ->and(array_column($modes, 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation'])
         ->and(array_column($modes, 'state'))->toBe(['available', 'available', 'disabled', 'available'])
@@ -672,9 +672,9 @@ it('keeps the exact JSON of the options of a battle - both players\' languages, 
 
     // The whole course (no lesson) and the other side: the friend is Bek, the course is named in their language.
     $theirs = BattleHttp::options($friend, $friendship, $course)->assertOk()->assertExactJsonStructure([
-        'friend' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson', 'modes' => ['*' => $row], 'friend_access',
+        'friend' => ['first_name', 'pro_emoji'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson', 'modes' => ['*' => $row], 'friend_access',
     ]);
-    expect([$theirs->json('friend'), $theirs->json('course.title'), $theirs->json('lesson')])->toBe([['first_name' => 'Bek'], 'Ingliz tili A1', null]);
+    expect([$theirs->json('friend'), $theirs->json('course.title'), $theirs->json('lesson')])->toBe([['first_name' => 'Bek', 'pro_emoji' => null], 'Ingliz tili A1', null]);
 
     // A friend who cannot practice (the pilot is not open to them) is told, not refused: the setup screen explains it.
     config(['practice.access' => 'pilot']);
@@ -699,9 +699,9 @@ it('keeps the exact JSON of the options of a battle - both players\' languages, 
 
 it('lists the battles with the exact JSON - the one in hand (compact: the seven keys the TWA reads), the invitations to the learner, the last ones that are over', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
-    $compact = ['id', 'status', 'mode', 'role', 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'opponent' => ['first_name']];
-    $incoming = ['id', 'mode', 'from' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'invite_expires_at', 'rematch'];
-    $finished = ['id', 'mode', 'opponent' => ['first_name'], 'outcome', 'scores' => ['me', 'opponent'], 'finished_at'];
+    $compact = ['id', 'status', 'mode', 'role', 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'opponent' => ['first_name', 'pro_emoji']];
+    $incoming = ['id', 'mode', 'from' => ['first_name', 'pro_emoji'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'invite_expires_at', 'rematch'];
+    $finished = ['id', 'mode', 'opponent' => ['first_name', 'pro_emoji'], 'outcome', 'scores' => ['me', 'opponent'], 'finished_at'];
 
     // Nothing yet.
     expect(BattleHttp::get($me, '')->assertOk()->json())->toBe(['active' => null, 'incoming' => [], 'finished' => []]);
@@ -713,11 +713,11 @@ it('lists the battles with the exact JSON - the one in hand (compact: the seven 
     expect($mine->json('active'))->toBe([
         'id' => $id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger',
         'course' => ['slug' => 'english-a1', 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'],
-        'opponent' => ['first_name' => 'Dilnoza'],
+        'opponent' => ['first_name' => 'Dilnoza', 'pro_emoji' => null],
     ])
         ->and($theirs->json('active'))->toBeNull()
         ->and($theirs->json('incoming'))->toBe([[
-            'id' => $id, 'mode' => 'sentence', 'from' => ['first_name' => 'Bek'],
+            'id' => $id, 'mode' => 'sentence', 'from' => ['first_name' => 'Bek', 'pro_emoji' => null],
             'course' => ['slug' => 'english-a1', 'title' => 'Ingliz tili A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'],
             'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'rematch' => false,
         ]]);
@@ -736,7 +736,7 @@ it('lists the battles with the exact JSON - the one in hand (compact: the seven 
     $playing = BattleHttp::get($friend, '')->assertOk()->assertExactJsonStructure(['active' => $compact, 'incoming', 'finished']);
     expect($playing->json('active.status'))->toBe('playing')
         ->and($playing->json('active.role'))->toBe('opponent')
-        ->and($playing->json('active.opponent'))->toBe(['first_name' => 'Bek'])
+        ->and($playing->json('active.opponent'))->toBe(['first_name' => 'Bek', 'pro_emoji' => null])
         ->and(array_keys($playing->json('active')))->toBe(['id', 'status', 'mode', 'role', 'course', 'lesson', 'opponent']);
 
     // Over: nothing in hand, a row of "finished" for each, with the outcome from their side.
@@ -744,9 +744,9 @@ it('lists the battles with the exact JSON - the one in hand (compact: the seven 
     $mineOver = BattleHttp::get($me, '')->assertOk()->assertExactJsonStructure(['active', 'incoming', 'finished' => ['*' => $finished]]);
     $theirsOver = BattleHttp::get($friend, '')->assertOk()->assertExactJsonStructure(['active', 'incoming', 'finished' => ['*' => $finished]]);
     expect($mineOver->json('active'))->toBeNull()
-        ->and($mineOver->json('finished'))->toBe([['id' => $id, 'mode' => 'sentence', 'opponent' => ['first_name' => 'Dilnoza'], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T10:00:03.000Z']])
+        ->and($mineOver->json('finished'))->toBe([['id' => $id, 'mode' => 'sentence', 'opponent' => ['first_name' => 'Dilnoza', 'pro_emoji' => null], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T10:00:03.000Z']])
         ->and($theirsOver->json('finished.0.outcome'))->toBe('lost')
-        ->and($theirsOver->json('finished.0.opponent'))->toBe(['first_name' => 'Bek']);
+        ->and($theirsOver->json('finished.0.opponent'))->toBe(['first_name' => 'Bek', 'pro_emoji' => null]);
 });
 
 it('keeps the poll of a battle under 600 bytes in every state, at its fattest too - the round with both clocks, the opponent gone quiet, a result with a rematch', function (): void {
@@ -865,7 +865,7 @@ it('refuses the second of two rematches that cross - 409 battle_busy with the in
 
     // That is the invitation to open: I am its recipient; the result screen shows it as the friend's offer; I accept it.
     expect(BattleHttp::view($me, $source)->json('rematch'))->toBe(['battle_id' => $first, 'status' => 'invited', 'by_me' => false]);
-    BattleHttp::view($me, $first)->assertOk()->assertJsonPath('role', 'opponent')->assertJsonPath('status', 'invited')->assertJsonPath('opponent', ['first_name' => 'Dilnoza']);
+    BattleHttp::view($me, $first)->assertOk()->assertJsonPath('role', 'opponent')->assertJsonPath('status', 'invited')->assertJsonPath('opponent', ['first_name' => 'Dilnoza', 'pro_emoji' => null]);
     BattleHttp::accept($me, $first)->assertOk()->assertJsonPath('status', 'room');
 
     // The friend is busy with it now too; a third person's invitation to the friend is none of my business, and the friend, asked to accept it, is

@@ -30,7 +30,8 @@ use App\Domain\Practice\Support\TranslationVariants;
  *    skipping what the word cannot do (`listen` without a recording, `gap` without the word in its example, a task with options
  *    without three distractors that do not clash with the word) - a word with no kind at all is skipped; the circle keeps two kinds
  *    from standing side by side whenever there is a choice. The distractors come from the nearest tier first (the words of the run,
- *    then the course, then the public courses), in the order of a hash of the seed and the word;
+ *    then the course, then the public courses - read only when the first two ran short), in the order of a hash of the seed and the word. A phrase (docs/35 §3.3 e) has no `spell`
+ *    (its `gap` is its key word in itself), and the distractors keep to the kind of the word: phrases for a phrase, words for a word;
  * 5. the order of play: a seeded shuffle; the first element is always a task made of a word (the warm-up), never an authored one;
  * 6. one event at most (`events.chance`): a sandstorm (a task to translate, on a word with a recording, becomes `listen`), an oasis or
  *    a bazaar on an element in the middle. Fixed here, in the snapshot.
@@ -169,7 +170,7 @@ final class RunComposer
     {
         switch ($kind) {
             case TaskKind::Spell:
-                return $word->pairs === null ? null : WordTaskHandler::buildSpell($word, $pool->locales, $taken);
+                return $word->pairs === null || $word->word->phrase ? null : WordTaskHandler::buildSpell($word, $pool->locales, $taken);
             case TaskKind::Gap:
                 return $word->gap === null ? null : WordTaskHandler::buildGap($word, $pool->locales, $taken);
             case TaskKind::Listen:
@@ -186,7 +187,10 @@ final class RunComposer
 
     /**
      * Three words that do not clash with the word in any locale: the nearest tier first, within a tier by a hash of the seed and the
-     * candidate (docs/18 §12.3.1). Null when there are not three.
+     * candidate (docs/18 §12.3.1); of the word's own kind - a phrase takes phrases, a word words (docs/35 §3.3 c). Null when there are not three.
+     *
+     * The public courses are the last tier, so they are asked for ({@see RunPool::$public}) only when the words of the run and of the
+     * course did not give three: the answer is the one a single ranked list of every tier would give, and most runs never read them.
      *
      * @return list<RunPoolWord>|null
      */
@@ -198,30 +202,49 @@ final class RunComposer
                 $own[] = new RunPoolWord($candidate->word, $candidate->audioPath, $candidate->gap, $candidate->pairs, $candidate->word->lessonId === $word->word->lessonId ? RunPoolWord::TIER_POOL : RunPoolWord::TIER_COURSE);
             }
         }
-        $candidates = [...$own, ...$pool->distractors];
 
+        $chosen = [];
+        $keys = $word->clashKeys();
+        $seen = [$word->id() => true];
+        if (self::take($word, [...$own, ...$pool->distractors], $seed, $chosen, $keys, $seen)) {
+            return $chosen;
+        }
+        if ($pool->public !== null && self::take($word, $pool->public->all(), $seed, $chosen, $keys, $seen)) {
+            return $chosen;
+        }
+
+        return null;
+    }
+
+    /**
+     * Adds to `$chosen` the candidates that fit, in the order of the tier and of the hash, until there are three; true when there are.
+     *
+     * @param  list<RunPoolWord>  $candidates
+     * @param  list<RunPoolWord>  $chosen
+     * @param  list<string>  $keys  the keys the next candidate must not clash with: the word's and those of the chosen
+     * @param  array<int, true>  $seen
+     */
+    private static function take(RunPoolWord $word, array $candidates, string $seed, array &$chosen, array &$keys, array &$seen): bool
+    {
         $rank = [];
         foreach ($candidates as $index => $candidate) {
             $rank[$index] = [$candidate->tier, hash_hmac('sha256', "distractor|{$word->id()}|{$candidate->id()}", $seed)];
         }
         uksort($candidates, static fn (int $a, int $b): int => $rank[$a] <=> $rank[$b]);
 
-        $chosen = [];
-        $keys = $word->clashKeys();
-        $seen = [$word->id() => true];
         foreach ($candidates as $candidate) {
-            if ($candidate->pairs === null || isset($seen[$candidate->id()]) || TranslationVariants::clash($keys, $candidate->clashKeys())) {
+            if ($candidate->pairs === null || $candidate->word->phrase !== $word->word->phrase || isset($seen[$candidate->id()]) || TranslationVariants::clash($keys, $candidate->clashKeys())) {
                 continue;
             }
             $seen[$candidate->id()] = true;
             $chosen[] = $candidate;
             $keys = [...$keys, ...$candidate->clashKeys()];
             if (count($chosen) === WordTaskHandler::DISTRACTORS) {
-                return $chosen;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     /**

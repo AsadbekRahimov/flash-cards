@@ -55,7 +55,7 @@ final class CardAnswers
 
     /**
      * The right answer of a card that is not self-graded: the English word for reverse / spelling, the form in the
-     * example for gap-fill, the translation (session language `ru`) for meaning / audio / pretest.
+     * example for gap-fill (a phrase: its key word), the translation (session language `ru`) for meaning / audio / pretest.
      *
      * @param  array<string, mixed>  $card
      */
@@ -66,7 +66,8 @@ final class CardAnswers
 
         return match ($type) {
             ExerciseType::Reverse, ExerciseType::Spelling => trim($word->word),
-            ExerciseType::GapFill => app(GapFillBuilder::class)->fromText($word->word, is_string($card['example'] ?? null) ? $card['example'] : $word->example)?->expected ?? trim($word->word),
+            // A phrase: its key word in itself (docs/06 §16); a word: the form in the example of the serve.
+            ExerciseType::GapFill => app(GapFillBuilder::class)->forCard($word, is_string($card['example'] ?? null) ? $card['example'] : null)?->expected ?? trim($word->word),
             default => trim(app(WordTranslationResolver::class)->resolve($word, 'ru')->text),
         };
     }

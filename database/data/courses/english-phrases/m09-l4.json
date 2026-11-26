@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 9,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Коллеги",
+    "title_uz": "Hamkasblar"
+  },
+  "words": [
+    {
+      "word": "a team player",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "командный игрок",
+        "uz": "jamoada ishlay oladigan odam"
+      },
+      "example": "We need a team player, not someone who works alone.",
+      "example_translations": {
+        "ru": "Нам нужен командный игрок, а не тот, кто работает в одиночку.",
+        "uz": "Bizga yolg'iz ishlaydigan emas, jamoada ishlay oladigan odam kerak."
+      },
+      "hooks": {
+        "ru": "Хвалят сотрудника, который хорошо работает с другими",
+        "uz": "Boshqalar bilan yaxshi ishlaydigan xodimni maqtashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "team",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pull your weight",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работать наравне со всеми",
+        "uz": "o'z hissasini qo'shmoq"
+      },
+      "example": "Everyone in this group has to pull their weight.",
+      "example_translations": {
+        "ru": "В этой группе каждый должен работать наравне со всеми.",
+        "uz": "Bu guruhda har kim o'z hissasini qo'shishi kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что каждый должен делать свою часть работы; часто как упрёк",
+        "uz": "Har kim ishning o'z ulushini bajarishi kerakligi haqida, ko'pincha tanbeh sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "weight",
+        "literal": {
+          "ru": "тянуть свой вес",
+          "uz": "o'z og'irligini tortmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in charge",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "главный, ответственный",
+        "uz": "mas'ul"
+      },
+      "example": "Who's in charge of the project? — Malika is.",
+      "example_translations": {
+        "ru": "Кто отвечает за проект? — Малика.",
+        "uz": "Loyihaga kim mas'ul? — Malika."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто руководит и отвечает за дело",
+        "uz": "Ishni boshqaradigan va unga javob beradigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "charge",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a pat on the back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "похвала",
+        "uz": "rag'bat"
+      },
+      "example": "You all worked hard. You deserve a pat on the back.",
+      "example_translations": {
+        "ru": "Вы все хорошо поработали. Вы заслужили похвалу.",
+        "uz": "Hammangiz astoydil ishladingiz. Rag'batga loyiqsiz."
+      },
+      "hooks": {
+        "ru": "Говорят о похвале или одобрении за хорошую работу",
+        "uz": "Yaxshi ish uchun maqtov yoki rag'bat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pat",
+        "literal": {
+          "ru": "похлопывание по спине",
+          "uz": "yelkaga qoqib qo'yish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "cover for someone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подменить кого-то",
+        "uz": "birovning o'rnini bosmoq"
+      },
+      "example": "Can you cover for me on Friday? I have a doctor's appointment.",
+      "example_translations": {
+        "ru": "Можешь подменить меня в пятницу? У меня запись к врачу.",
+        "uz": "Juma kuni o'rnimni bosa olasanmi? Shifokor qabuliga yozilganman."
+      },
+      "hooks": {
+        "ru": "Просят коллегу выполнить вашу работу, пока вас нет",
+        "uz": "Siz yo'qligingizda ishingizni bajarishni hamkasbdan so'rashadi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cover",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pitch in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подключиться к общему делу",
+        "uz": "umumiy ishga qo'shilmoq"
+      },
+      "example": "If everyone pitches in, we'll finish by five.",
+      "example_translations": {
+        "ru": "Если все подключатся, мы закончим к пяти.",
+        "uz": "Agar hamma qo'shilsa, soat beshgacha tugatamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда каждый помогает общему делу",
+        "uz": "Har kim umumiy ishga yordam berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pitch",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Good job!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "молодец!",
+        "uz": "barakalla!"
+      },
+      "example": "I finished the report. — Good job! That was fast.",
+      "example_translations": {
+        "ru": "Я закончил отчёт. — Молодец! Быстро.",
+        "uz": "Hisobotni tugatdim. — Barakalla! Tez bo'libdi."
+      },
+      "hooks": {
+        "ru": "Коротко хвалят за хорошо сделанную работу",
+        "uz": "Yaxshi bajarilgan ish uchun qisqa maqtashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "job",
+        "literal": {
+          "ru": "хорошая работа!",
+          "uz": "yaxshi ish!"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take over",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взять на себя",
+        "uz": "o'z zimmasiga olmoq"
+      },
+      "example": "When Mr. Brown retired, his daughter took over the company.",
+      "example_translations": {
+        "ru": "Когда мистер Браун ушёл на пенсию, компанию взяла на себя его дочь.",
+        "uz": "Janob Braun nafaqaga chiqqach, kompaniyani qizi o'z zimmasiga oldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда кто-то начинает руководить делом вместо другого",
+        "uz": "Kimdir boshqaning o'rniga ishni boshqara boshlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "over",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "team spirit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "командный дух",
+        "uz": "jamoaviy ruh"
+      },
+      "example": "Our football team won because of its great team spirit.",
+      "example_translations": {
+        "ru": "Наша футбольная команда победила благодаря отличному командному духу.",
+        "uz": "Futbol jamoamiz ajoyib jamoaviy ruhi tufayli g'alaba qozondi."
+      },
+      "hooks": {
+        "ru": "Говорят о дружбе и поддержке внутри коллектива",
+        "uz": "Jamoa ichidagi do'stlik va qo'llab-quvvatlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "spirit",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "give someone credit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отдать должное",
+        "uz": "haqini bermoq"
+      },
+      "example": "I don't always agree with her, but I give her credit — she works hard.",
+      "example_translations": {
+        "ru": "Я не всегда с ней согласен, но надо отдать ей должное — она много работает.",
+        "uz": "Har doim ham unga qo'shilmayman, lekin haqini berish kerak — u ko'p ishlaydi."
+      },
+      "hooks": {
+        "ru": "Признают чужие заслуги, даже если человек вам не во всём нравится",
+        "uz": "Odam sizga hamma jihatdan yoqmasa ham, uning xizmatini tan olishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "credit",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

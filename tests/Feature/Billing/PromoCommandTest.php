@@ -38,7 +38,7 @@ it('redeems the code in a DM, replies with the end date and grants Pro', functio
         // A new learner is on the welcome trial (docs/13 §7.1 "2C.9"): the promo days follow its 7 days.
         $until = now()->addDays(37)->setTimezone('Asia/Tashkent')->format('d.m.Y');
 
-        return $chat === 555 && $text === "Готово! LexiFlow Pro активен до {$until}.";
+        return $chat === 555 && $text === "Готово! Muhrla Pro активен до {$until}.";
     });
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo welcome-30'));
@@ -53,7 +53,7 @@ it('answers in the learner Uzbek locale', function (): void {
     PromoCode::factory()->create(['code' => 'UZBEK']);
     Learner::factory()->create(['telegram_user_id' => 555, 'interface_locale' => 'uz']);
     $this->api->shouldReceive('sendMessage')->once()->withArgs(
-        fn (int $chat, string $text): bool => str_starts_with($text, 'Tayyor! LexiFlow Pro ') && str_ends_with($text, ' gacha faol.'),
+        fn (int $chat, string $text): bool => str_starts_with($text, 'Tayyor! Muhrla Pro ') && str_ends_with($text, ' gacha faol.'),
     );
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo UZBEK', lang: 'uz'));
@@ -149,4 +149,23 @@ it('stays silent in a group that is not active (Group Lock)', function (): void 
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo X', 'supergroup', -100888));
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo X', 'group', -100999));
+});
+
+it('puts "Start a lesson" under the success, and no button under a refusal (docs/36 §3а, N4)', function (): void {
+    config(['twa.base_url' => 'https://twa.test']);
+    PromoCode::factory()->create(['code' => 'BUTTON']);
+    $markups = [];
+    $this->api->shouldReceive('sendMessage')->twice()->withArgs(function (int $chat, string $text, ?string $parseMode = null, ?array $markup = null) use (&$markups): bool {
+        $markups[] = $markup;
+
+        return $chat === 555;
+    });
+
+    app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo BUTTON'));
+    app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo NOSUCHCODE'));
+
+    expect($markups[0])->toBe(['inline_keyboard' => [[
+        ['text' => '▶️ Начать занятие', 'web_app' => ['url' => 'https://twa.test/twa/?from=promo']],
+    ]]])
+        ->and($markups[1])->toBeNull();
 });

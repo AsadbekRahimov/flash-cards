@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Content\Support\Phrase;
 use App\Observers\CourseTreeObserver;
 use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -111,6 +112,23 @@ class Course extends Model
         $query->where('courses.status', 'published')
             ->where('courses.visibility', 'public')
             ->where('courses.owner_type', 'platform');
+    }
+
+    /**
+     * The courses of one kind of card (docs/35 §3.3 c): the phrase courses (`exam_tag = phrases`) for the distractors of a phrase, every
+     * other course for those of a word - a phrase and a single word never stand side by side among the options.
+     *
+     * @param  Builder<Course>  $query
+     */
+    public function scopeOfCardKind(Builder $query, bool $phrases): void
+    {
+        if ($phrases) {
+            $query->where('courses.exam_tag', Phrase::EXAM_TAG);
+
+            return;
+        }
+
+        $query->where(fn (Builder $q) => $q->whereNull('courses.exam_tag')->orWhere('courses.exam_tag', '<>', Phrase::EXAM_TAG));
     }
 
     /** A learner's own private deck (docs/13 §8.1). */

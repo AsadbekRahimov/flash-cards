@@ -16,8 +16,9 @@ use Filament\Widgets\TableWidget;
 use Illuminate\Pagination\Paginator;
 
 /**
- * Groups of the current league week (docs/13 §7.3): tier, members / capacity, status. The heading
- * carries the week's dates and totals. Admin only; empty until the first placement of the week.
+ * Groups of the current league week (docs/13 §7.3): tier, category (Free / Pro — the pool of rivals of a v2 week, docs/32 §5.1),
+ * members / capacity, status. The heading carries the week's dates, rules version and totals (by category in a v2 week). Admin only;
+ * empty until the first placement of the week.
  *
  * The heading and each page of rows come from the cached arrays of {@see AdminDashboardStats} (docs/20 §1.11, `->records()`
  * with the page the viewer asked for), so an open of the dashboard runs no query. The page sizes are the ones the service serves
@@ -58,6 +59,11 @@ class LeagueGroupsTableWidget extends TableWidget
                     ->label(__('admin.widgets.league_groups.tier'))
                     // Tier names are the learner-facing ones (lang/ru/leagues.php), the number is the tier index.
                     ->formatStateUsing(fn (int $state): string => AdminLabels::from('leagues.tiers', $tiers[$state] ?? $state).' ('.$state.')'),
+                Tables\Columns\TextColumn::make('category')
+                    ->label(__('admin.widgets.league_groups.category'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('learners.score_days.category', $state))
+                    ->color(fn (string $state): string => $state === 'pro' ? 'warning' : 'gray'),
                 Tables\Columns\TextColumn::make('members_count')
                     ->label(__('admin.widgets.league_groups.members'))
                     ->formatStateUsing(fn (int $state, array $record): string => "{$state} / {$record['capacity']}")
@@ -69,7 +75,7 @@ class LeagueGroupsTableWidget extends TableWidget
             ->enforcePaginationPageOptions();
     }
 
-    /** @param  array{enabled: bool, week: array{id: int, from: string, to: string, status: string, groups: int, members: int}|null}  $league */
+    /** @param  array{enabled: bool, week: array{id: int, from: string, to: string, status: string, rules_version: int, groups: int, members: int, categories: array<string, array{groups: int, members: int}>}|null}  $league */
     private function headingFor(array $league): string
     {
         if (! $league['enabled']) {
@@ -82,12 +88,28 @@ class LeagueGroupsTableWidget extends TableWidget
             return __('admin.widgets.league_groups.heading_empty');
         }
 
-        return __('admin.widgets.league_groups.heading', [
+        $heading = __('admin.widgets.league_groups.heading', [
             'from' => AdminDates::date(CarbonImmutable::parse($week['from'])),
             'to' => AdminDates::date(CarbonImmutable::parse($week['to'])),
             'status' => AdminLabels::value('widgets.league_groups.week_status', $week['status']),
             'groups' => $week['groups'],
             'members' => $week['members'],
         ]);
+
+        // A v2 week: the two pools of rivals apart («Free: 4 группы, 90 участников · Pro: …»).
+        if ($week['rules_version'] >= 2) {
+            $parts = [];
+            foreach (['free', 'pro'] as $category) {
+                $totals = $week['categories'][$category] ?? ['groups' => 0, 'members' => 0];
+                $parts[] = __('admin.widgets.league_groups.heading_category', [
+                    'category' => AdminLabels::value('learners.score_days.category', $category),
+                    'groups' => $totals['groups'],
+                    'members' => $totals['members'],
+                ]);
+            }
+            $heading .= ' · '.__('admin.widgets.league_groups.heading_v2', ['version' => $week['rules_version'], 'categories' => implode(', ', $parts)]);
+        }
+
+        return $heading;
     }
 }

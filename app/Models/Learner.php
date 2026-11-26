@@ -28,9 +28,11 @@ use Illuminate\Support\Carbon;
  * @property string|null $level
  * @property int|null $active_course_id
  * @property int $daily_goal
+ * @property int|null $daily_goal_before_limit the goal chosen before DailyGoalLimiter lowered it to the Free limit (docs/34 §2б.2)
  * @property string|null $reminder_time
  * @property Carbon|null $next_reminder_at
  * @property Carbon|null $dm_blocked_at
+ * @property string|null $dm_blocked_reason why the DM is closed (docs/34 §4в п. 3); written only by DmReachability
  * @property string $onboarding_state
  * @property Carbon|null $onboarding_completed_at
  * @property string|null $acquisition_source
@@ -46,6 +48,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $blocked_at
  * @property Carbon|null $practice_pilot_at in the pilot of the practice (`PRACTICE_ACCESS=pilot`, docs/16 §3.2); NULL = not in it
+ * @property string|null $region_code an ISO 3166-2:UZ code or `other` (docs/35 §2.3); NULL = not given. Written only by LearnerRegionService
+ * @property Carbon|null $region_changed_at the last accepted choice of a region (the 30-day rule of LearnerRegionService)
+ * @property string|null $pro_emoji the code of the emoji of Pro (docs/31 §5а, config/pro_emoji.php); kept without Pro, shown only with it
  * @property array<string, mixed> $meta
  */
 class Learner extends Model
@@ -71,6 +76,7 @@ class Learner extends Model
         'reminder_time',
         'next_reminder_at',
         'dm_blocked_at',
+        'dm_blocked_reason',
         'onboarding_state',
         'onboarding_completed_at',
         'acquisition_source',
@@ -96,6 +102,7 @@ class Learner extends Model
             'telegram_user_id' => 'integer',
             'active_course_id' => 'integer',
             'daily_goal' => 'integer',
+            'daily_goal_before_limit' => 'integer',
             'next_reminder_at' => 'datetime',
             'dm_blocked_at' => 'datetime',
             'onboarding_completed_at' => 'datetime',
@@ -108,6 +115,7 @@ class Learner extends Model
             'last_seen_at' => 'datetime',
             'blocked_at' => 'datetime',
             'practice_pilot_at' => 'datetime',
+            'region_changed_at' => 'datetime',
             'meta' => 'array',
         ];
     }
@@ -214,6 +222,12 @@ class Learner extends Model
     public function dailyStats(): HasMany
     {
         return $this->hasMany(LearnerDailyStats::class);
+    }
+
+    /** @return HasMany<LearnerScoreDay, $this> the word points by rating day (docs/32 §2.4); the "Очки по дням" tab of /admin */
+    public function scoreDays(): HasMany
+    {
+        return $this->hasMany(LearnerScoreDay::class);
     }
 
     /** @return HasMany<GameCoinLedgerEntry, $this> */

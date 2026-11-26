@@ -91,7 +91,7 @@ function eaVoice(Word $word): string
     Storage::disk('public')->put($path, 'mp3');
     $word->forceFill(['example_audio_path' => $path])->save();
 
-    return Storage::disk('public')->url($path);
+    return config('twa.tts.public_disk_audio_url').'/'.$path; // `/audio/` of the main domain (docs/31 §5д)
 }
 
 function eaRepeat(array $s, int $repetitions, int $intervalDays = 15): void
@@ -119,7 +119,7 @@ it('gives the flash card the URL of its voiced anchor example', function (): voi
         ->and($card['example_audio_url'])->toBeNull();
 
     $url = eaVoice($s['word']);
-    expect(eaCard($s)['example_audio_url'])->toBe($url)->toEndWith('/storage/'.$s['word']->example_audio_path);
+    expect(eaCard($s)['example_audio_url'])->toBe($url)->toEndWith('/audio/'.basename((string) $s['word']->example_audio_path))->not->toContain('/storage/');
 
     // The start response carries the same card.
     $this->withHeaders($s['headers'])->postJson("{$s['url']}/start")->assertOk()->assertJsonPath('card.example_audio_url', $url);

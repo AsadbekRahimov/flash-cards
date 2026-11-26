@@ -23,6 +23,7 @@ use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\RegionDistributionWidget;
 use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\SchedulerComparisonWidget;
@@ -57,7 +58,7 @@ class AdminPanelProvider extends PanelProvider
             // Filament layouts) must stay full page loads.
             ->spa(hasPrefetching: true)
             ->spaUrlExceptions(['*/2fa/*'])
-            ->brandName('LexiFlow Pro')
+            ->brandName((string) config('app.brand_pro'))
             ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -90,6 +91,7 @@ class AdminPanelProvider extends PanelProvider
                 GameActivityWidget::class,
                 OrgActivationTableWidget::class,
                 ExerciseMixTableWidget::class,
+                RegionDistributionWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

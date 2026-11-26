@@ -17,7 +17,7 @@ return [
 
     'back' => 'Bosh sahifaga',
 
-    'contact_fallback' => 'LexiFlow botidagi /paysupport buyrug\'i',
+    'contact_fallback' => 'Muhrla botidagi /paysupport buyrug\'i',
 
     'requisites_missing' => '[Xizmat egasi: ijrochi rekvizitlarini kiriting - nomi, STIR, manzil, bank rekvizitlari, telefon, e-mail]',
 
@@ -38,7 +38,7 @@ return [
             [
                 'title' => 'Umumiy qoidalar',
                 'text' => <<<'TXT'
-                    Ushbu hujjat LexiFlow xizmatidan («Xizmat») foydalanish bo'yicha ommaviy oferta (shartnoma tuzish taklifi) hisoblanadi. Ijrochi — rekvizitlari oxirgi bo'limda ko'rsatilgan shaxs.
+                    Ushbu hujjat Muhrla xizmatidan («Xizmat») foydalanish bo'yicha ommaviy oferta (shartnoma tuzish taklifi) hisoblanadi. Ijrochi — rekvizitlari oxirgi bo'limda ko'rsatilgan shaxs.
 
                     Xizmat ingliz tilidagi so'zlarni o'rganish uchun Telegram-bot va Telegram Mini App'dan, shuningdek o'quv markazlari va o'qituvchilar kabinetidan iborat. Foydalanuvchi («Siz») botdan yoki Mini App'dan foydalanishni boshlash yoki pullik tarif uchun to'lash bilan ofertani qabul qiladi.
 
@@ -142,7 +142,7 @@ return [
             [
                 'title' => 'Umumiy qoidalar',
                 'text' => <<<'TXT'
-                    Ushbu siyosat LexiFlow xizmati (Telegram-bot, Mini App va /org markazlar kabineti) qanday ma'lumotlarni to'plashi, nima uchun va ularni qanday himoya qilishimizni tavsiflaydi. Ma'lumotlar operatori — rekvizitlari ommaviy ofertada ko'rsatilgan Ijrochi.
+                    Ushbu siyosat Muhrla xizmati (Telegram-bot, Mini App va /org markazlar kabineti) qanday ma'lumotlarni to'plashi, nima uchun va ularni qanday himoya qilishimizni tavsiflaydi. Ma'lumotlar operatori — rekvizitlari ommaviy ofertada ko'rsatilgan Ijrochi.
 
                     Biz o'qish va to'lov uchun zarur bo'lgan minimal ma'lumotni to'playmiz. Reklama ko'rsatmaymiz va ma'lumotlarni reklama tarmoqlariga bermaymiz.
                     TXT,

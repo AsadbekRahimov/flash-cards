@@ -6,12 +6,19 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Cup\Services\CupProEmoji;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
+use App\Domain\Learners\Exceptions\DailyGoalLimitException;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
+use App\Domain\Learners\Exceptions\ProEmojiProRequiredException;
+use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Support\LadderPolicy;
@@ -39,7 +46,10 @@ use Throwable;
  *                        (owner's decision of 16.11.2026: new learners get `learners.default_timezone`); the rule
  *                        and the machinery below stay for the code that still calls it (undo, operations);
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
- *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
+ *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40), and not above the limit of the plan
+ *                        (docs/34 §2б.3; Free: 10) - else {@see DailyGoalLimitException} (403 `daily_goal_pro_required`) and nothing
+ *                        of the update is applied. Any accepted value (even the current one) clears `daily_goal_before_limit`: a goal
+ *                        chosen by hand is not replaced by the one remembered before the automatic lowering ({@see DailyGoalLimiter});
  *  - `goal`, `level`     the onboarding whitelists (`goal`: the goals enabled in `learners.goals`);
  *  - `leagues_opt_out`   bool, kept in `learners.meta` (docs/13 §7.3): `true` = not placed in league groups any more.
  *  - `exercises`         `{meaning, reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
@@ -47,6 +57,11 @@ use Throwable;
  *                        cannot be switched off.
  *  - `retention_mode`    `calm` / `normal` / `intense` — the FSRS target retention (docs/06 §12.8), kept in
  *                        `learners.meta.retention_mode`; accepted for every learner, applied only to those scheduled by FSRS.
+ *  - `region_code`       a code of {@see Regions} or null ("not given"); the rules (30 days between choices, the reset, the undo)
+ *                        are {@see LearnerRegionService::applyLocked()} - {@see RegionChangeTooSoonException} (422 `region_change_too_soon`)
+ *                        and nothing of the update is applied; `region.set` after the commit (`$regionVia`: settings / prompt).
+ *  - `pro_emoji`         a code of `config/pro_emoji.php` or null (docs/31 §5а); a code needs a live Pro - else
+ *                        {@see ProEmojiProRequiredException} (403 `pro_emoji_pro_required`) and nothing is applied; null is always accepted.
  * Values are checked here again whatever the caller validated: strict types, no coercion.
  *
  * `update()` locks the learner row, writes everything in one transaction and recomputes
@@ -89,11 +104,20 @@ use Throwable;
  *   exercises: array{meaning: bool, reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
  *   scheduler: string,
  *   retention_mode: string,
+ *   region_code: string|null,
+ *   region_change_available_at: string|null,
+ *   region_undo_available_until: string|null,
+ *   region_prompt: bool,
+ *   pro_emoji_choice: string|null,
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
  *     reminder_times: list<string>,
  *     daily_goals: list<int>,
- *     retention_modes: list<string>
+ *     daily_goal_max: int|null,
+ *     retention_modes: list<string>,
+ *     regions: list<array{code: string, name: string}>,
+ *     pro_emojis: list<array{code: string, emoji: string}>,
+ *     pro_emoji_locked: bool
  *   }
  * }
  *
@@ -130,25 +154,49 @@ final class LearnerSettingsService
         private readonly ProductEventRecorder $events,
         private readonly SchedulerResolver $schedulers,
         private readonly MonthlyRatingService $monthly,
+        private readonly EntitlementResolver $entitlements,
+        private readonly DailyGoalLimiter $goals,
+        private readonly LearnerRegionService $regions,
+        private readonly ProEmojiService $emoji,
+        private readonly LeagueService $leagues,
+        private readonly CupProEmoji $cupEmoji,
     ) {}
 
     /**
      * @param  array<string, mixed>  $changes  field => new value (a partial update; only the keys present are touched)
+     * @param  string  $regionVia  where a change of `region_code` comes from, for `region.set`: `settings` or `prompt`
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
      * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
+     * @throws DailyGoalLimitException when `daily_goal` is above the limit of the learner's plan (Free: 10)
+     * @throws RegionChangeTooSoonException when `region_code` changes before 30 days have passed since the last choice
+     * @throws ProEmojiProRequiredException when a learner without Pro chooses `pro_emoji`
      */
-    public function update(Learner $learner, array $changes): Learner
+    public function update(Learner $learner, array $changes, string $regionVia = LearnerRegionService::VIA_SETTINGS): Learner
     {
         $values = $this->normalize($changes);
         if ($values === []) {
             return $learner;
         }
 
+        // The plan is resolved before the transaction and only when the goal or an emoji is part of the change (docs/34 §2б.3,
+        // docs/31 §5а). A plan that ends between this check and the write leaves a goal above the limit - the next enforce() lowers
+        // it - or an emoji that is simply not shown.
+        if (is_int($values['daily_goal'] ?? null) || is_string($values['pro_emoji'] ?? null)) {
+            $entitlement = $this->entitlements->for($learner);
+            if (is_int($values['daily_goal'] ?? null)) {
+                $this->goals->assertAllowed($values['daily_goal'], $entitlement);
+            }
+            if (is_string($values['pro_emoji'] ?? null)) {
+                $this->emoji->assertAllowed($values['pro_emoji'], $entitlement);
+            }
+        }
+
         $changed = [];
         $remindersDisabled = false;
+        $regionChange = null;
 
-        DB::transaction(function () use ($learner, $values, &$changed, &$remindersDisabled): void {
+        DB::transaction(function () use ($learner, $values, &$changed, &$remindersDisabled, &$regionChange): void {
             // `FOR NO KEY UPDATE` on PostgreSQL (as in CardPicker): the row is rewritten, but rows that
             // reference `learners` (daily stats, events, ...) can keep being inserted meanwhile.
             $lock = Learner::query()->whereKey($learner->id);
@@ -196,12 +244,28 @@ final class LearnerSettingsService
                 $this->changeTimezone($fresh, CarbonImmutable::now());
             }
 
+            if (array_key_exists('region_code', $values)) {
+                $region = $values['region_code'];
+                $regionChange = $this->regions->applyLocked($fresh, is_string($region) ? $region : null, CarbonImmutable::now());
+                unset($values['region_code']);
+            }
+
+            if (array_key_exists('pro_emoji', $values)) {
+                $emoji = $values['pro_emoji'];
+                $fresh->pro_emoji = is_string($emoji) ? $emoji : null;
+                unset($values['pro_emoji']);
+            }
+
             $fresh->fill($values);
             if ($exercises !== null) {
                 $fresh->meta = [...$fresh->meta, LearnerExerciseSettings::META_KEY => $exercises];
             }
             if (array_key_exists('interface_locale', $values)) {
                 $fresh->meta = [...$fresh->meta, self::LOCALE_CHOSEN => true];
+            }
+            if (array_key_exists('daily_goal', $values)) {
+                // A goal chosen by hand: the one remembered before the automatic lowering does not come back with Pro.
+                $fresh->daily_goal_before_limit = null;
             }
             if (array_key_exists('timezone', $values) || array_key_exists('reminder_time', $values)) {
                 $this->scheduleReminder($fresh);
@@ -215,9 +279,23 @@ final class LearnerSettingsService
         if (in_array('leagues_opt_out', $changed, true)) {
             $this->monthly->participationChanged($learner);
         }
+        if (in_array('pro_emoji', $changed, true)) {
+            // The cached tables that show the emoji next to the name (the group of the week, the tops of the month, the tables of the open
+            // cups) drop it at once, docs/31 §5а; committed already - a failure of the cache is only reported.
+            try {
+                $this->leagues->proEmojiChanged($learner, CarbonImmutable::now());
+                $this->monthly->proEmojiChanged(CarbonImmutable::now());
+                $this->cupEmoji->learnerChanged($learner);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
 
         if ($changed !== []) {
             $this->events->record(ProductEventName::SettingsChanged, ['fields' => implode(',', $changed)], learner: $learner);
+        }
+        if ($regionChange !== null) {
+            $this->regions->recordChange($learner, $regionChange, $regionVia);
         }
         if ($remindersDisabled) {
             $this->events->record(ProductEventName::RemindersDisabled, ['via' => 'settings'], learner: $learner);
@@ -245,11 +323,18 @@ final class LearnerSettingsService
      * `$activeCourse` - the `active_course` block when the caller already has it (the `/me` snapshot, docs/19 K9): the
      * course is not read then. Pass `null` only through the snapshot; without the argument the course is read here.
      *
+     * `$entitlement` - the learner's plan when the caller has it (the `/me` snapshot); resolved here otherwise. With it the goal is
+     * brought in line with the plan first ({@see DailyGoalLimiter::enforce()}: no statement when nothing is to change), and
+     * `options.daily_goal_max` tells the screen which goals to lock (null = none).
+     *
      * @param  array{slug: string, title: string}|null  $activeCourse
      * @return SettingsPayload
      */
-    public function describe(Learner $learner, array|null|false $activeCourse = false): array
+    public function describe(Learner $learner, array|null|false $activeCourse = false, ?Entitlement $entitlement = null): array
     {
+        $entitlement ??= $this->entitlements->for($learner);
+        $this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_SETTINGS);
+
         $locale = $this->locales->forLearner($learner);
         $reminder = $this->shortTime($learner->reminder_time);
 
@@ -274,6 +359,14 @@ final class LearnerSettingsService
             // The SRS arm of the learner and the FSRS retention mode (docs/06 §12.8): the screen shows the dial on FSRS only.
             'scheduler' => $this->schedulers->kindFor($learner)->value,
             'retention_mode' => SchedulerResolver::retentionMode($learner) ?? 'normal',
+            // The region (docs/35 §2.3): when another one can be chosen, until when the last change can be taken back, and whether the
+            // card "Choose your region" of the Rating tab is shown.
+            'region_code' => $learner->region_code,
+            'region_change_available_at' => $this->regions->changeAvailableAt($learner)?->utc()->toIso8601String(),
+            'region_undo_available_until' => $this->regions->undoAvailableUntil($learner)?->utc()->toIso8601String(),
+            'region_prompt' => $this->regions->promptVisible($learner),
+            // The emoji of Pro (docs/31 §5а): the stored choice, Pro or not - a Free learner sees it as a plus of Pro.
+            'pro_emoji_choice' => $this->emoji->choice($learner),
             'options' => [
                 'locales' => array_map(
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
@@ -281,7 +374,15 @@ final class LearnerSettingsService
                 ),
                 'reminder_times' => $times,
                 'daily_goals' => $this->dailyGoals(),
+                'daily_goal_max' => $this->goals->cap($entitlement),
                 'retention_modes' => LadderPolicy::RETENTION_MODES,
+                // The 14 regions of Uzbekistan in the order of the language, then `other`.
+                'regions' => array_map(
+                    static fn (string $code): array => ['code' => $code, 'name' => Regions::name($code, $locale)],
+                    [...Regions::ordered($locale), Regions::OTHER],
+                ),
+                'pro_emojis' => $this->emoji->options(),
+                'pro_emoji_locked' => ! $this->emoji->isAllowed($entitlement),
             ],
         ];
     }
@@ -440,6 +541,8 @@ final class LearnerSettingsService
                 'level' => is_string($value) && in_array($value, OnboardingService::LEVELS, true) ? $value : throw InvalidSettingException::invalid($field),
                 'leagues_opt_out' => is_bool($value) ? $value : throw InvalidSettingException::invalid($field),
                 'retention_mode' => is_string($value) && in_array($value, LadderPolicy::RETENTION_MODES, true) ? $value : throw InvalidSettingException::invalid($field),
+                'region_code' => $value === null || (is_string($value) && Regions::isValid($value)) ? $value : throw InvalidSettingException::invalid($field),
+                'pro_emoji' => $value === null || (is_string($value) && $this->emoji->isValid($value)) ? $value : throw InvalidSettingException::invalid($field),
                 default => throw InvalidSettingException::unknown((string) $field),
             };
         }

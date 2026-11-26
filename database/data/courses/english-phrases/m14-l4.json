@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 14,
+    "title": "Идиомы: еда",
+    "title_uz": "Iboralar: ovqat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Работа и деньги",
+    "title_uz": "Ish va pul"
+  },
+  "words": [
+    {
+      "word": "bread and butter",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "основной заработок",
+        "uz": "asosiy daromad manbai"
+      },
+      "example": "Weddings are the bread and butter of our restaurant.",
+      "example_translations": {
+        "ru": "Свадьбы — основной заработок нашего ресторана.",
+        "uz": "To'ylar — restoranimizning asosiy daromad manbai."
+      },
+      "hooks": {
+        "ru": "Говорят о главной, привычной работе, которая кормит человека или компанию",
+        "uz": "Odamni yoki kompaniyani boqadigan asosiy, odatiy ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bread",
+        "literal": {
+          "ru": "хлеб с маслом",
+          "uz": "non va sariyog'"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a lot on your plate",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дел по горло",
+        "uz": "ishi boshidan oshib yotmoq"
+      },
+      "example": "I'd love to help, but I have a lot on my plate this week.",
+      "example_translations": {
+        "ru": "С радостью помог бы, но на этой неделе у меня дел по горло.",
+        "uz": "Yordam berishni juda istardim, lekin bu hafta ishim boshimdan oshib yotibdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда у человека слишком много дел и забот",
+        "uz": "Odamda ish va tashvish haddan ziyod ko'p bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "plate",
+        "literal": {
+          "ru": "иметь много на тарелке",
+          "uz": "likopchasida ko'p narsa bo'lmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sell like hot cakes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разлетаться как горячие пирожки",
+        "uz": "qo'lma-qo'l bo'lib ketmoq"
+      },
+      "example": "These new phone cases are selling like hot cakes.",
+      "example_translations": {
+        "ru": "Эти новые чехлы для телефонов разлетаются как горячие пирожки.",
+        "uz": "Bu yangi telefon g'iloflari qo'lma-qo'l bo'lib ketyapti."
+      },
+      "hooks": {
+        "ru": "Говорят о товаре, который очень быстро раскупают",
+        "uz": "Juda tez sotilib ketayotgan mol haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cakes",
+        "literal": {
+          "ru": "продаваться как горячие лепёшки",
+          "uz": "issiq kulchadek sotilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the icing on the cake",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вишенка на торте",
+        "uz": "nur ustiga nur"
+      },
+      "example": "I got the job, and the icing on the cake is that it's near my home.",
+      "example_translations": {
+        "ru": "Меня взяли на работу, а вишенка на торте — она рядом с домом.",
+        "uz": "Meni ishga olishdi, nur ustiga nur, ish uyimga yaqin ekan."
+      },
+      "hooks": {
+        "ru": "Говорят о приятной мелочи, которая делает хорошее ещё лучше",
+        "uz": "Yaxshi narsani yanada yaxshiroq qiladigan yoqimli qo'shimcha haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "icing",
+        "literal": {
+          "ru": "глазурь на торте",
+          "uz": "tort ustidagi shirin qoplama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have bigger fish to fry",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "есть дела поважнее",
+        "uz": "bundan muhimroq ishlari bor"
+      },
+      "example": "Forget about the small mistakes. We have bigger fish to fry.",
+      "example_translations": {
+        "ru": "Забудь про мелкие ошибки. У нас есть дела поважнее.",
+        "uz": "Mayda xatolarni unut. Bizning bundan muhimroq ishlarimiz bor."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не хотят тратить время на мелочи, потому что есть важные задачи",
+        "uz": "Muhim vazifalar borligi sababli mayda-chuyda narsalarga vaqt sarflashni istamaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fry",
+        "literal": {
+          "ru": "надо пожарить рыбу покрупнее",
+          "uz": "qovuriladigan kattaroq baliqlari bor"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go pear-shaped",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти наперекосяк",
+        "uz": "chippakka chiqmoq"
+      },
+      "example": "Everything went pear-shaped when the main speaker didn't arrive.",
+      "example_translations": {
+        "ru": "Всё пошло наперекосяк, когда не приехал главный докладчик.",
+        "uz": "Asosiy ma'ruzachi kelmagach, hammasi chippakka chiqdi."
+      },
+      "hooks": {
+        "ru": "Разговорно говорят, когда план или дело провалилось; так говорят в Британии",
+        "uz": "Reja yoki ish barbod bo'lganda so'zlashuvda aytiladi; Britaniyada shunday deyishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "pear",
+        "literal": {
+          "ru": "принять форму груши",
+          "uz": "nok shakliga kirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put food on the table",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прокормить семью",
+        "uz": "oilani boqmoq"
+      },
+      "example": "He works two jobs to put food on the table.",
+      "example_translations": {
+        "ru": "Он работает на двух работах, чтобы прокормить семью.",
+        "uz": "U oilasini boqish uchun ikki joyda ishlaydi."
+      },
+      "hooks": {
+        "ru": "Говорят о заработке, которого хватает, чтобы кормить семью",
+        "uz": "Oilani boqishga yetadigan daromad haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "table",
+        "literal": {
+          "ru": "ставить еду на стол",
+          "uz": "dasturxonga ovqat qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "sweeten the deal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать предложение заманчивее",
+        "uz": "taklifni yanada jozibali qilmoq"
+      },
+      "example": "To sweeten the deal, the shop offered free delivery.",
+      "example_translations": {
+        "ru": "Чтобы сделать предложение заманчивее, магазин предложил бесплатную доставку.",
+        "uz": "Taklifni yanada jozibali qilish uchun do'kon bepul yetkazib berishni taklif qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о бонусе или скидке, которые добавляют, чтобы клиент согласился",
+        "uz": "Mijoz rozi bo'lishi uchun qo'shiladigan bonus yoki chegirma haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sweeten",
+        "literal": {
+          "ru": "подсластить сделку",
+          "uz": "bitimni shirinroq qilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "eat into something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "съедать (деньги, время)",
+        "uz": "yeb qo'ymoq (pul, vaqtni)"
+      },
+      "example": "Rising prices are eating into our savings.",
+      "example_translations": {
+        "ru": "Растущие цены съедают наши сбережения.",
+        "uz": "Narxlarning oshishi jamg'armamizni yeb qo'yyapti."
+      },
+      "hooks": {
+        "ru": "Говорят, когда что-то понемногу уменьшает деньги, время или силы",
+        "uz": "Biror narsa pul, vaqt yoki kuchni asta-sekin kamaytirayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eat",
+        "literal": {
+          "ru": "въедаться во что-то",
+          "uz": "biror narsaga yeb kirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "spoon-feed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё разжёвывать (кому-то)",
+        "uz": "chaynab og'ziga solib bermoq"
+      },
+      "example": "Good teachers don't spoon-feed students; they teach them to think.",
+      "example_translations": {
+        "ru": "Хорошие учителя не разжёвывают всё ученикам, а учат их думать.",
+        "uz": "Yaxshi o'qituvchilar o'quvchilarga hamma narsani chaynab og'ziga solib bermaydi, balki fikrlashga o'rgatadi."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о том, кто даёт всё готовым и не даёт думать самому",
+        "uz": "Hamma narsani tayyor holda berib, mustaqil o'ylashga yo'l qo'ymaslik haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "spoon",
+        "literal": {
+          "ru": "кормить с ложки",
+          "uz": "qoshiqda ovqatlantirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -38,6 +38,13 @@ uses(RefreshDatabase::class);
  * A `config([...])` must come BEFORE the first request of a test (the router keeps the controller it built first).
  */
 
+// The rounds below are counted against a Free quota of 20 new words (a two-lesson course fits in one day), not the launch default.
+beforeEach(function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 20);
+    // The goal of 20 of the factory stays: the points below have no goal bonus (the limit of the goal on Free is DailyGoalLimiterTest's).
+    config()->set('billing.plans.free.limits.daily_goal_max', null);
+});
+
 function spHeaders(Learner $learner): array
 {
     return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
@@ -59,7 +66,8 @@ function spCourse(int $lessons = 2): array
         if ($n === 1) {
             /** @var array{words: list<array{word: string, translation: string, example: string}>} $data */
             $data = json_decode((string) file_get_contents(base_path('database/data/courses/english-a1-a2/m01-l1.json')), true, 512, JSON_THROW_ON_ERROR);
-            foreach ($data['words'] as $w) {
+            // The first ten of them: the rounds below are counted for a lesson of ten words (the delivered lesson grows).
+            foreach (array_slice($data['words'], 0, 10) as $w) {
                 Word::factory()->for($lesson)->create(['word' => $w['word'], 'translation' => $w['translation'], 'example' => $w['example']]);
             }
         } else {

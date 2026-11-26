@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 18,
+    "title": "Деловое общение",
+    "title_uz": "Ishbilarmonlik muloqoti"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Решения и ответственность",
+    "title_uz": "Qarorlar va mas'uliyat"
+  },
+  "words": [
+    {
+      "word": "call the shots",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "решать, что делать",
+        "uz": "qarorlarni o'zi chiqarmoq"
+      },
+      "example": "It's her company, so she calls the shots.",
+      "example_translations": {
+        "ru": "Это её компания, поэтому решает она.",
+        "uz": "Bu uning kompaniyasi, shuning uchun qarorlarni o'zi chiqaradi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто главный и принимает решения",
+        "uz": "Bosh bo'lib, qarorlarni qabul qiladigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "shots",
+        "literal": {
+          "ru": "объявлять удары",
+          "uz": "zarbalarni e'lon qilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "at short notice",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без долгого предупреждения",
+        "uz": "oldindan ogohlantirmasdan"
+      },
+      "example": "Thank you for coming in at short notice.",
+      "example_translations": {
+        "ru": "Спасибо, что пришли, хотя мы предупредили вас в последний момент.",
+        "uz": "Oldindan ogohlantirilmagan bo'lsangiz ham, kelganingiz uchun rahmat."
+      },
+      "hooks": {
+        "ru": "Говорят о просьбе, встрече или изменении, о которых сообщили почти в последний момент",
+        "uz": "So'nggi daqiqada xabar qilingan iltimos, uchrashuv yoki o'zgarish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "short",
+        "literal": {
+          "ru": "при коротком уведомлении",
+          "uz": "qisqa ogohlantirish bilan"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take something on board",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "принять к сведению",
+        "uz": "inobatga olmoq"
+      },
+      "example": "Thank you for your comments — we'll take them on board.",
+      "example_translations": {
+        "ru": "Спасибо за замечания — мы примем их к сведению.",
+        "uz": "Fikrlaringiz uchun rahmat — ularni inobatga olamiz."
+      },
+      "hooks": {
+        "ru": "Говорят о советах и замечаниях, которые обещают учесть",
+        "uz": "Inobatga olishga va'da berilgan maslahat va fikrlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "board",
+        "literal": {
+          "ru": "взять что-то на борт",
+          "uz": "nimanidir bortga olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "The buck stops here",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ответственность на мне",
+        "uz": "javobgarlik menda"
+      },
+      "example": "I'm the manager, so the buck stops here — I'll explain the mistake to the client.",
+      "example_translations": {
+        "ru": "Я менеджер, так что ответственность на мне — я сам объясню клиенту ошибку.",
+        "uz": "Men menejerman, demak, javobgarlik menda — xatoni mijozga o'zim tushuntiraman."
+      },
+      "hooks": {
+        "ru": "Говорит руководитель, который берёт ответственность на себя и не ищет виноватых",
+        "uz": "Aybdor izlamay, javobgarlikni o'z zimmasiga olgan rahbar aytadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stops",
+        "literal": {
+          "ru": "фишка останавливается здесь",
+          "uz": "navbat shu yerda to'xtaydi"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pass the buck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "перекладывать ответственность",
+        "uz": "mas'uliyatni boshqaga yuklamoq"
+      },
+      "example": "Stop passing the buck and admit it was your idea.",
+      "example_translations": {
+        "ru": "Хватит перекладывать ответственность — признай, что это была твоя идея.",
+        "uz": "Mas'uliyatni boshqaga yuklashni bas qil, bu sening g'oyang ekanini tan ol."
+      },
+      "hooks": {
+        "ru": "Осуждают того, кто сваливает вину или работу на других",
+        "uz": "Aybni yoki ishni boshqalarga ag'darayotgan odamni qoralab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pass",
+        "literal": {
+          "ru": "передать фишку",
+          "uz": "navbatni boshqaga uzatmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have the final say",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "иметь последнее слово",
+        "uz": "so'nggi so'z kimdadir bo'lmoq"
+      },
+      "example": "We can suggest ideas, but the director has the final say.",
+      "example_translations": {
+        "ru": "Мы можем предлагать идеи, но последнее слово за директором.",
+        "uz": "Biz g'oyalar taklif qilishimiz mumkin, lekin so'nggi so'z direktorda."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто принимает окончательное решение",
+        "uz": "Yakuniy qarorni qabul qiladigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "final",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sign off on something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "утвердить что-то",
+        "uz": "biror narsani tasdiqlamoq"
+      },
+      "example": "The finance team has to sign off on the budget first.",
+      "example_translations": {
+        "ru": "Сначала финансовый отдел должен утвердить бюджет.",
+        "uz": "Avval moliya bo'limi byudjetni tasdiqlashi kerak."
+      },
+      "hooks": {
+        "ru": "Говорят об официальном одобрении плана, бюджета или документа",
+        "uz": "Reja, byudjet yoki hujjatning rasmiy ma'qullanishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sign",
+        "literal": {
+          "ru": "подписаться под чем-то",
+          "uz": "nimadir ostiga imzo chekmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "make the call",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "принять решение",
+        "uz": "qaror qabul qilmoq"
+      },
+      "example": "We can wait or start now — you're the boss, you make the call.",
+      "example_translations": {
+        "ru": "Можем подождать или начать сейчас — ты начальник, тебе решать.",
+        "uz": "Kutishimiz yoki hozir boshlashimiz mumkin — sen boshliqsan, qarorni sen qabul qil."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто должен сделать выбор, когда есть несколько вариантов",
+        "uz": "Bir nechta variant bo'lganda tanlovni kim qilishi kerakligi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "call",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take the lead",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взять инициативу на себя",
+        "uz": "tashabbusni o'z qo'liga olmoq"
+      },
+      "example": "Anna took the lead and organised the whole conference.",
+      "example_translations": {
+        "ru": "Анна взяла инициативу на себя и организовала всю конференцию.",
+        "uz": "Anna tashabbusni o'z qo'liga olib, butun konferensiyani tashkil qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто первым начал действовать и повёл за собой других",
+        "uz": "Birinchi bo'lib harakat qilib, boshqalarni ergashtirgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lead",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hold someone accountable",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "привлечь кого-то к ответственности",
+        "uz": "birovni javobgarlikka tortmoq"
+      },
+      "example": "If the order is late again, we will hold the supplier accountable.",
+      "example_translations": {
+        "ru": "Если заказ снова опоздает, мы привлечём поставщика к ответственности.",
+        "uz": "Agar buyurtma yana kechiksa, yetkazib beruvchini javobgarlikka tortamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, что человек или компания должны ответить за результат или ошибку; звучит строго",
+        "uz": "Odam yoki kompaniya natija yoki xato uchun javob berishi kerakligi aytiladi; qat'iy ohangda"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "formal",
+        "variant": "both",
+        "gap": "accountable",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

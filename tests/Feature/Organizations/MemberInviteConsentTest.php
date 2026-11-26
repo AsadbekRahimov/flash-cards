@@ -32,7 +32,7 @@ use Tests\Support\FakeTelegramClient;
  * `organization_member_invitations` for EVERY attempt, a DM "Join / Decline" to the learner when there is one to message, and
  * a membership only on "Join". Whatever the staff can read of the row is the same for a handle that matched nobody, a learner who
  * never answered, a learner who declined and a learner the bot could not reach — the cabinet cannot be used to find out who uses
- * LexiFlow or what they answered. W7: one DM per learner per center per cooldown window, whatever the staff do in between.
+ * Muhrla or what they answered. W7: one DM per learner per center per cooldown window, whatever the staff do in between.
  */
 
 uses(RefreshDatabase::class);
@@ -105,7 +105,7 @@ it('writes an invitation with the normalised handle, audits it, and DMs the lear
 
     $dm = end($this->tg->sent);
     expect($dm['chat_id'])->toBe(9001)
-        ->and($dm['text'])->toBe('Учебный центр «Bright Center» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в LexiFlow. Вступить?')
+        ->and($dm['text'])->toBe('Учебный центр «Bright Center» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в Muhrla. Вступить?')
         ->and($this->tg->lastCallbackData())->toBe(['org1:accept:'.$invitation->id, 'org1:decline:'.$invitation->id]);
 
     expect(AuditLog::query()->where('action', OrganizationMembershipService::AUDIT_MEMBER_INVITED)->sole()->user_id)->toBe($this->owner->id)

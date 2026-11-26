@@ -329,9 +329,9 @@ it('pays a Stars quarter end to end: order, one-off invoice, pre_checkout, succe
         ->and($response->json('checkout.url'))->toBe($order->provider_ref)
         ->and($this->telegram->invoiceLinks)->toHaveCount(1)
         ->and($this->telegram->invoiceLinks[0]['subscription_period'])->toBeNull()
-        ->and($this->telegram->invoiceLinks[0]['prices'])->toBe([['label' => 'LexiFlow Pro, 3 месяца', 'amount' => 390]])
-        ->and($this->telegram->invoiceLinks[0]['title'])->toBe('LexiFlow Pro — 3 месяца')
-        ->and($this->telegram->invoiceLinks[0]['description'])->toStartWith('LexiFlow Pro на 3 месяца (90 дней)')
+        ->and($this->telegram->invoiceLinks[0]['prices'])->toBe([['label' => 'Muhrla Pro, 3 месяца', 'amount' => 390]])
+        ->and($this->telegram->invoiceLinks[0]['title'])->toBe('Muhrla Pro — 3 месяца')
+        ->and($this->telegram->invoiceLinks[0]['description'])->toStartWith('Muhrla Pro на 3 месяца (90 дней)')
         ->and(ProductEvent::query()->where('name', 'checkout.started')->sole()->props['period'])->toBe('quarter');
 
     // pre_checkout: the amount of the order (= the configured price) passes, any other is refused.
@@ -454,8 +454,8 @@ it('pays a quarter through Payme end to end: order in sums, link, Check / Create
         ->and(Payment::query()->count())->toBe(1)
         ->and(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String());
 })->with([
-    'ru' => ['ru', 'LexiFlow Pro — 3 месяца'],
-    'uz' => ['uz', 'LexiFlow Pro — 3 oy'],
+    'ru' => ['ru', 'Muhrla Pro — 3 месяца'],
+    'uz' => ['uz', 'Muhrla Pro — 3 oy'],
 ]);
 
 it('refuses a Payme quarter paid with the month amount (-31001) and credits nothing', function (): void {

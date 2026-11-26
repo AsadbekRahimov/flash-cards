@@ -132,18 +132,19 @@ describe('FlashCard', () => {
     })
   })
 
-  it('has a quiet 44 px speaker button after the transcription, as on the mock-up of the question', () => {
+  it('has a 44 px round speaker of the soft accent after the transcription, as on the mock-up of the question', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })
     const speaker = w.get('[data-testid=speak-btn]')
 
     expect(speaker.attributes('aria-label')).toBe('Произнести')
-    expect(speaker.classes()).toEqual(expect.arrayContaining(['size-11', 'text-accent', 'rounded-full']))
+    expect(speaker.classes()).toEqual(expect.arrayContaining(['size-11', 'bg-accent-soft', 'text-accent', 'rounded-full']))
     expect(speaker.classes()).not.toContain('btn-tinted')
     expect(speaker.findComponent(AppIcon).props('name')).toBe('speaker-wave')
     expect(speaker.element.previousElementSibling?.getAttribute('data-testid')).toBe('transcription')
     // The word stands on the white screen of the lesson, with no box of its own.
     expect(w.find('.card').exists()).toBe(false)
-    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['font-semibold', 'break-words']))
+    // docs/design/2026-11-25-redesign Question: the word 52 px extrabold.
+    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['text-[52px]', 'font-extrabold', 'break-words']))
   })
 
   it('shows the word, transcription and hides translation by default', () => {

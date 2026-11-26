@@ -10,6 +10,7 @@ use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -93,7 +94,7 @@ it('sends the reminder as a question with four answer buttons and the app button
 
     // Nothing in a button gives the right option away: the data only differs by the index.
     expect(array_map(static fn (array $row): string => substr($row[0]['callback_data'], 0, -1), array_slice($rows, 0, 4)))->each->toBe("rq1:{$state['token']}:")
-        ->and($rows[4])->toBe([['text' => 'Открыть LexiFlow', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder']]]);
+        ->and($rows[4])->toBe([['text' => 'Открыть Muhrla', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder']]]);
 });
 
 it('words the question in the learner language (uz)', function (): void {
@@ -102,10 +103,10 @@ it('words the question in the learner language (uz)', function (): void {
     reminderQuizSend($learner);
 
     $sent = $this->tg->sent[0];
-    expect($sent['text'])->toStartWith("LexiFlow'da 2 ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz.\n\n«quizword")
+    expect($sent['text'])->toStartWith("Muhrla'da 2 ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz.\n\n«quizword")
         ->and($sent['text'])->toContain(" nima degani?\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and($sent['markup']['inline_keyboard'][0][0]['text'])->toStartWith('tarjimaquizword')
-        ->and($sent['markup']['inline_keyboard'][4][0]['text'])->toBe("LexiFlow'ni ochish");
+        ->and($sent['markup']['inline_keyboard'][4][0]['text'])->toBe("Muhrla'ni ochish");
 });
 
 it('asks reverse in the English words when the learner switched meaning off', function (): void {
@@ -166,19 +167,35 @@ it('removes both the log row and the stored question on a 403', function (): voi
 it('keeps the question and the log row on an ambiguous failure (the message may have been delivered)', function (): void {
     $learner = reminderQuizDueLearner(3);
     $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => reminderQuizSend($learner))->toThrow(TelegramApiException::class)
         ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeTrue()
         ->and(NotificationLog::count())->toBe(1);
 });
 
-it('sends the old text and button, byte for byte, when the flag is off', function (): void {
+it('drops the question and the log row on a 429 (certainly not delivered) so the retry asks again', function (): void {
+    $learner = reminderQuizDueLearner(3);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 5;
+
+    expect(fn () => reminderQuizSend($learner))->toThrow(TelegramRateLimitedException::class)
+        ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
+        ->and(NotificationLog::count())->toBe(0);
+
+    expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeTrue()
+        ->and(NotificationLog::count())->toBe(1);
+});
+
+it('sends the plain text and its button when the flag is off', function (): void {
     config(['learning.reminders.quiz.enabled' => false]);
     $learner = reminderQuizDueLearner(5);
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=reminder')
         ->and($this->tg->sent[0]['markup'])->toBeNull()
         ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
@@ -201,7 +218,9 @@ it('keeps the text for a learner who never started, one without a course, and a 
     }
 
     expect($this->tg->sent)->toHaveCount(3)
-        ->and(array_column($this->tg->sent, 'button'))->each->toBe('Открыть LexiFlow')
+        // The button says what to do (docs/36 §3а): the first lesson, the catalogue of courses, a lesson.
+        ->and(array_column($this->tg->sent, 'button'))->toBe(['▶️ Первое занятие', '📚 Выбрать курс', '▶️ Начать занятие'])
+        ->and($this->tg->sent[1]['url'])->toBe('https://twa.test/twa/courses?from=reminder')
         ->and($this->tg->sent[0]['text'])->toStartWith('Вы ещё не начали')
         ->and($this->tg->sent[1]['text'])->toStartWith('Выберите курс')
         ->and($this->tg->sent[2]['text'])->toStartWith('Вы 10 дней не занимались')
@@ -226,8 +245,8 @@ it('falls back to the old text and reports when the choice of the question fails
     });
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
-        ->and($this->tg->sent[0]['text'])->toStartWith('Пора повторить 3 слова в LexiFlow.');
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
+        ->and($this->tg->sent[0]['text'])->toStartWith('Пора повторить 3 слова в Muhrla.');
 
     Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'no question today');
 });
@@ -251,7 +270,7 @@ it('falls back to the old text, with no buttons that could only say "outdated", 
     Cache::forgetDriver();
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and($this->tg->sent[0]['markup'])->toBeNull()
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->sole()->payload['quiz'])->toBeNull();
 
@@ -326,7 +345,7 @@ it('has every quiz text in ru and uz, and the three plural forms in ru', functio
 
     expect(array_keys($uzQuiz))->toEqualCanonicalizing(array_keys($ruQuiz))
         ->and(array_keys($ruQuiz))->toEqualCanonicalizing([
-            'lead.review', 'lead.streak_at_risk', 'lead.inactive', 'lead.new_words', 'question.meaning', 'question.reverse',
+            'lead.review', 'lead.streak_at_risk', 'lead.inactive', 'lead.new_words', 'lead.score_due', 'question.meaning', 'question.reverse',
             'footer', 'correct', 'wrong', 'after_due', 'after_none', 'open_more', 'expired',
         ]);
 
@@ -410,8 +429,8 @@ it('never builds a question in the plain arm and sends the old text', function (
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
         ->and($reads())->toBe(0)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
         ->and(ProductEvent::query()->where('name', ProductEventName::ReminderQuizSent->value)->count())->toBe(0)
         ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
@@ -440,7 +459,7 @@ it('keeps a learner whose question could not be built in the quiz arm (intent to
     });
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
         ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test', 'quiz_built' => false]))
         ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['quiz' => null, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test']);

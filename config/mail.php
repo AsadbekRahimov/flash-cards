@@ -114,7 +114,8 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        // The sender people see is the product name (docs/36 §5б), not the technical APP_NAME.
+        'name' => env('MAIL_FROM_NAME', env('APP_BRAND', 'Muhrla')),
     ],
 
 ];

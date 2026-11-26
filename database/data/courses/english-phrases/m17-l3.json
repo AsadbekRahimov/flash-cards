@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 17,
+    "title": "Успех и неудача",
+    "title_uz": "Muvaffaqiyat va omadsizlik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Начинать и расти",
+    "title_uz": "Boshlash va o'sish"
+  },
+  "words": [
+    {
+      "word": "learn the ropes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "войти в курс дела",
+        "uz": "ishning ko'zini o'rganmoq"
+      },
+      "example": "I spent my first month at the hotel learning the ropes.",
+      "example_translations": {
+        "ru": "Первый месяц в гостинице я входил в курс дела.",
+        "uz": "Mehmonxonadagi birinchi oyimda ishning ko'zini o'rgandim."
+      },
+      "hooks": {
+        "ru": "Говорят о новичке, который осваивает правила и приёмы новой работы",
+        "uz": "Yangi ishning qoida va usullarini o'rganayotgan yangi xodim haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ropes",
+        "literal": {
+          "ru": "выучить канаты",
+          "uz": "arqonlarni o'rganmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get your foot in the door",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зацепиться (в компании)",
+        "uz": "kirib olish imkonini topmoq"
+      },
+      "example": "An internship is a great way to get your foot in the door.",
+      "example_translations": {
+        "ru": "Стажировка — отличный способ зацепиться в компании.",
+        "uz": "Amaliyot — kompaniyaga kirib olishning ajoyib yo'li."
+      },
+      "hooks": {
+        "ru": "Говорят о первом, пусть скромном шаге в компанию или профессию",
+        "uz": "Kompaniya yoki kasbga qo'yilgan birinchi, kichik bo'lsa ham, qadam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "door",
+        "literal": {
+          "ru": "просунуть ногу в дверь",
+          "uz": "oyoqni eshikka qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "climb the ladder",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подниматься по карьерной лестнице",
+        "uz": "martaba zinapoyasidan ko'tarilmoq"
+      },
+      "example": "She started as a receptionist and climbed the ladder to become a director.",
+      "example_translations": {
+        "ru": "Она начинала секретарём на ресепшене и поднялась по карьерной лестнице до директора.",
+        "uz": "U qabulxonada ishlashdan boshlab, martaba zinapoyasidan direktorgacha ko'tarildi."
+      },
+      "hooks": {
+        "ru": "Говорят о постепенном продвижении по службе; часто climb the career ladder",
+        "uz": "Ishda asta-sekin yuqori lavozimga ko'tarilish haqida aytiladi; ko'pincha climb the career ladder"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ladder",
+        "literal": {
+          "ru": "взбираться по лестнице",
+          "uz": "narvondan ko'tarilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a steep learning curve",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пришлось быстро многому учиться",
+        "uz": "qisqa vaqtda ko'p narsani o'rganish"
+      },
+      "example": "Moving from teaching to programming was a steep learning curve for me.",
+      "example_translations": {
+        "ru": "Когда я перешёл из преподавания в программирование, пришлось быстро многому учиться.",
+        "uz": "O'qituvchilikdan dasturlashga o'tganimda, qisqa vaqtda ko'p narsani o'rganishga to'g'ri keldi."
+      },
+      "hooks": {
+        "ru": "Говорят о новом деле, где нужно очень быстро и с трудом освоить много нового",
+        "uz": "Juda tez va qiyinchilik bilan ko'p narsani o'zlashtirish kerak bo'lgan yangi ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "steep",
+        "literal": {
+          "ru": "крутая кривая обучения",
+          "uz": "tik o'rganish chizig'i"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "start from scratch",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "начать с нуля",
+        "uz": "hammasini boshidan boshlamoq"
+      },
+      "example": "I lost all my notes, so I had to start from scratch.",
+      "example_translations": {
+        "ru": "Я потерял все свои записи, и мне пришлось начать с нуля.",
+        "uz": "Barcha yozuvlarimni yo'qotib qo'ydim, shuning uchun hammasini boshidan boshlashga to'g'ri keldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда начинают дело совсем без подготовки или заново",
+        "uz": "Ishni hech qanday tayyorgarliksiz yoki qaytadan boshlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "scratch",
+        "literal": {
+          "ru": "начать с черты",
+          "uz": "chiziqdan boshlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get off the ground",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдвинуться с мёртвой точки",
+        "uz": "yo'lga qo'yilmoq"
+      },
+      "example": "Our online shop finally got off the ground last spring.",
+      "example_translations": {
+        "ru": "Наш интернет-магазин наконец заработал прошлой весной.",
+        "uz": "Onlayn do'konimiz o'tgan bahorda nihoyat yo'lga qo'yildi."
+      },
+      "hooks": {
+        "ru": "Говорят о проекте или бизнесе, который наконец успешно начался",
+        "uz": "Nihoyat muvaffaqiyatli boshlangan loyiha yoki biznes haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ground",
+        "literal": {
+          "ru": "оторваться от земли",
+          "uz": "yerdan ko'tarilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "резко пойти в гору",
+        "uz": "tez rivojlanib ketmoq"
+      },
+      "example": "Her baking business really took off after a video about it went viral.",
+      "example_translations": {
+        "ru": "Её бизнес по выпечке резко пошёл в гору после того, как видео о нём разлетелось по сети.",
+        "uz": "U haqidagi video mashhur bo'lgach, uning pishiriqlar biznesi tez rivojlanib ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят о деле, карьере или идее, которые вдруг стали очень успешными",
+        "uz": "To'satdan katta muvaffaqiyat qozongan ish, martaba yoki g'oya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "off",
+        "literal": {
+          "ru": "взлететь",
+          "uz": "havoga ko'tarilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "work your way up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пройти путь с самых низов",
+        "uz": "pastdan yuqoriga ko'tarilmoq"
+      },
+      "example": "Mr. Brown worked his way up from waiter to restaurant owner.",
+      "example_translations": {
+        "ru": "Мистер Браун прошёл путь от официанта до владельца ресторана.",
+        "uz": "Janob Braun ofitsiantlikdan restoran egasigacha ko'tarildi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто своим трудом поднялся от простой должности до высокой",
+        "uz": "O'z mehnati bilan oddiy lavozimdan yuqori lavozimga ko'tarilgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "come a long way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сильно продвинуться",
+        "uz": "ancha rivojlanmoq"
+      },
+      "example": "Your English has come a long way since last year!",
+      "example_translations": {
+        "ru": "Твой английский сильно продвинулся с прошлого года!",
+        "uz": "O'tgan yildan beri ingliz tiling ancha rivojlandi!"
+      },
+      "hooks": {
+        "ru": "Хвалят большой прогресс человека, навыка или дела за какое-то время",
+        "uz": "Odam, mahorat yoki ishning ma'lum vaqtdagi katta o'sishini maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "long",
+        "literal": {
+          "ru": "пройти долгий путь",
+          "uz": "uzoq yo'l bosib o'tmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a stepping stone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ступенька к большему",
+        "uz": "katta maqsad sari bir pog'ona"
+      },
+      "example": "This small job is a stepping stone to a career in film.",
+      "example_translations": {
+        "ru": "Эта небольшая работа — ступенька к карьере в кино.",
+        "uz": "Bu kichik ish — kino sohasidagi martaba sari bir pog'ona."
+      },
+      "hooks": {
+        "ru": "Говорят о скромном этапе, который помогает дойти до большой цели",
+        "uz": "Katta maqsadga yetishga yordam beradigan kichik bosqich haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stone",
+        "literal": {
+          "ru": "камень, на который ступают",
+          "uz": "ustidan bosib o'tiladigan tosh"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

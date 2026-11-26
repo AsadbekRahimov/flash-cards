@@ -222,3 +222,20 @@ it('other commands do not spend the marker', function (): void {
 
     expect(app(AccountRestoreNotice::class)->isPending(Learner::query()->findOrFail($learner->id)))->toBeTrue();
 });
+
+it('/start puts "Open the app" under "the account is restored" (docs/36 §3а, N4)', function (): void {
+    config(['twa.base_url' => 'https://twa.test']);
+    deletedLearner(881_020);
+    deletedLearner(881_021, 'uz');
+
+    restoreStart(881_020);
+    $ru = $this->tg->sent[0];
+    $this->tg->sent = [];
+    restoreStart(881_021, 'uz');
+
+    expect($ru['text'])->toContain('Аккаунт восстановлен')
+        ->and($ru['markup'])->toBe(['inline_keyboard' => [[
+            ['text' => '▶️ Открыть приложение', 'web_app' => ['url' => 'https://twa.test/twa/?from=restored']],
+        ]]])
+        ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('▶️ Ilovani ochish');
+});

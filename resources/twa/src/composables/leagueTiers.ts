@@ -25,3 +25,13 @@ export function tierLabelKey(key: string): StringKey {
   return own(LABEL_KEYS, key) ?? 'league.tier.bronze'
 }
 
+/**
+ * How many best days of a week count in a week of the word points v2 (docs/32 §3.5, `leagues.scoring.versions.2.best_days`): the
+ * fallback for an older server, whose `GET /league` has no `best_days` yet.
+ */
+export const WEEK_BEST_DAYS = 5
+
+/** The number of best days the server sends (`best_days`); anything but a positive whole number gives `WEEK_BEST_DAYS`. */
+export function weekBestDays(value: unknown): number {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : WEEK_BEST_DAYS
+}

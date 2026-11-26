@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 19,
+    "title": "Разговорный английский",
+    "title_uz": "So'zlashuv ingliz tili"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Деньги в разговоре",
+    "title_uz": "So'zlashuvda pul"
+  },
+  "words": [
+    {
+      "word": "flat broke",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "совсем на мели",
+        "uz": "bir tiyin ham puli yo'q"
+      },
+      "example": "I can't come to the cinema — I'm flat broke until payday.",
+      "example_translations": {
+        "ru": "Не могу пойти в кино — я совсем на мели до зарплаты.",
+        "uz": "Kinoga borolmayman — maoshgacha bir tiyin ham pulim yo'q."
+      },
+      "hooks": {
+        "ru": "Говорят о себе или другом, когда денег совсем не осталось",
+        "uz": "O'zida yoki boshqada umuman pul qolmaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "broke",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "shell out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выложить кругленькую сумму",
+        "uz": "ancha pul sarflamoq"
+      },
+      "example": "We had to shell out two hundred dollars to fix the washing machine.",
+      "example_translations": {
+        "ru": "Нам пришлось выложить двести долларов за ремонт стиральной машины.",
+        "uz": "Kir yuvish mashinasini tuzatish uchun ikki yuz dollar sarflashga to'g'ri keldi."
+      },
+      "hooks": {
+        "ru": "Говорят о трате, которую делают неохотно, потому что она большая",
+        "uz": "Katta bo'lgani uchun istamay qilingan xarajat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "shell",
+        "literal": {
+          "ru": "вылущить",
+          "uz": "po'chog'idan chiqarmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pay through the nose",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заплатить втридорога",
+        "uz": "haddan tashqari qimmat to'lamoq"
+      },
+      "example": "If you buy tickets at the airport, you'll pay through the nose.",
+      "example_translations": {
+        "ru": "Если покупать билеты в аэропорту, заплатишь втридорога.",
+        "uz": "Chiptani aeroportda olsang, haddan tashqari qimmat to'laysan."
+      },
+      "hooks": {
+        "ru": "Говорят, когда за что-то пришлось заплатить гораздо больше, чем оно стоит",
+        "uz": "Biror narsa uchun uning narxidan ancha ko'p to'lashga to'g'ri kelganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "nose",
+        "literal": {
+          "ru": "платить через нос",
+          "uz": "burun orqali to'lamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "cheap as chips",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дешевле некуда",
+        "uz": "suvtekin"
+      },
+      "example": "These T-shirts were cheap as chips at the market.",
+      "example_translations": {
+        "ru": "Эти футболки на рынке стоили сущие копейки.",
+        "uz": "Bu futbolkalar bozorda suvtekin edi."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о вещи, которая стоит очень дёшево",
+        "uz": "Juda arzon turadigan narsa haqida hazil bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "chips",
+        "literal": {
+          "ru": "дёшево, как картошка фри",
+          "uz": "kartoshka fri kabi arzon"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "make ends meet",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сводить концы с концами",
+        "uz": "amallab kun ko'rmoq"
+      },
+      "example": "Many students work at weekends to make ends meet.",
+      "example_translations": {
+        "ru": "Многие студенты работают по выходным, чтобы сводить концы с концами.",
+        "uz": "Ko'p talabalar amallab kun ko'rish uchun dam olish kunlari ishlaydi."
+      },
+      "hooks": {
+        "ru": "Говорят о трудной жизни, когда денег едва хватает на самое нужное",
+        "uz": "Pul zo'rg'a eng zarur narsalarga yetadigan og'ir hayot haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ends",
+        "literal": {
+          "ru": "заставить концы встретиться",
+          "uz": "uchlarni uchrashtirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "tighten your belt",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "затянуть пояс",
+        "uz": "tejab-tergab yashamoq"
+      },
+      "example": "Prices have gone up, so we all have to tighten our belts.",
+      "example_translations": {
+        "ru": "Цены выросли, так что всем нам придётся затянуть пояса.",
+        "uz": "Narxlar oshdi, shuning uchun hammamiz tejab-tergab yashashimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о вынужденной экономии, когда денег стало меньше",
+        "uz": "Pul kamaygani sababli majburan tejash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "belt",
+        "literal": {
+          "ru": "затянуть свой ремень",
+          "uz": "kamarini tortib bog'lamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "break the bank",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разорить",
+        "uz": "cho'ntakka qattiq urmoq"
+      },
+      "example": "A weekend in Samarkand won't break the bank.",
+      "example_translations": {
+        "ru": "Выходные в Самарканде вас не разорят.",
+        "uz": "Samarqandda o'tkazilgan dam olish kunlari cho'ntagingizga qattiq urmaydi."
+      },
+      "hooks": {
+        "ru": "Обычно с отрицанием: покупка или поездка вполне по карману",
+        "uz": "Odatda inkor bilan: xarid yoki sayohat cho'ntakka bemalol to'g'ri keladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bank",
+        "literal": {
+          "ru": "сломать банк",
+          "uz": "bankni sindirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "splash out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "шикануть",
+        "uz": "pulni ayamay sarflamoq"
+      },
+      "example": "For our anniversary, we splashed out on dinner at a nice restaurant.",
+      "example_translations": {
+        "ru": "На годовщину мы шиканули и поужинали в хорошем ресторане.",
+        "uz": "Yubileyimizda pulni ayamay, yaxshi restoranda kechki ovqat qildik."
+      },
+      "hooks": {
+        "ru": "Говорят о щедрой трате на что-то приятное по особому случаю",
+        "uz": "Alohida munosabat bilan yoqimli narsaga saxiylik bilan pul sarflash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "splash",
+        "literal": {
+          "ru": "выплеснуть",
+          "uz": "sachratib yubormoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "chip in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "скинуться",
+        "uz": "pul qo'shmoq"
+      },
+      "example": "Let's all chip in and buy Anna a present.",
+      "example_translations": {
+        "ru": "Давайте все скинемся и купим Анне подарок.",
+        "uz": "Keling, hammamiz pul qo'shib, Annaga sovg'a olaylik."
+      },
+      "hooks": {
+        "ru": "Предлагают каждому дать немного денег на общий подарок или покупку",
+        "uz": "Umumiy sovg'a yoki xarid uchun har kim ozroq pul qo'shishni taklif qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chip",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on a shoestring",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с минимальными затратами",
+        "uz": "juda oz pul bilan"
+      },
+      "example": "They started the business on a shoestring in their garage.",
+      "example_translations": {
+        "ru": "Они начали бизнес в своём гараже почти без денег.",
+        "uz": "Ular biznesni o'z garajlarida juda oz pul bilan boshlashgan."
+      },
+      "hooks": {
+        "ru": "Говорят о деле или поездке, на которые потратили очень мало денег",
+        "uz": "Juda kam pul sarflangan ish yoki sayohat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "shoestring",
+        "literal": {
+          "ru": "на шнурке",
+          "uz": "poyabzal ipida"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    }
+  ]
+}

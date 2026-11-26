@@ -53,6 +53,13 @@ describe('design system sources', () => {
     expect(found).toEqual([])
   })
 
+  it('sets no text in a serif: Inter is the one face of the interface (redesign 2026-11-25)', () => {
+    const serif = [...sources].filter(([, code]) => /\bfont-serif\b|Source Serif|\bserif\b/.test(code)).map(([file]) => file)
+
+    expect(serif).toEqual([])
+    expect(css).not.toMatch(/--font-serif|Source Serif/)
+  })
+
   it('draws every inline message with InlineAlert: only ErrorState (a whole screen) writes role="alert" itself', () => {
     const own = [...sources].filter(([, code]) => /\brole="alert"/.test(code)).map(([file]) => file)
 
@@ -175,7 +182,7 @@ describe('style.css: the toast stands on what covers the bottom edge', () => {
 })
 
 /**
- * The app's own palette (docs/14 §4.1, redesign 2026-11): a light and a dark set of hex values in `style.css`, picked by
+ * The app's own palette (docs/14 §4.1, redesign 2026-11-25): a light and a dark set of hex values in `style.css`, picked by
  * <html data-theme>. The test reads both sets and checks every pair of text and background the components use against WCAG:
  * 4.5:1 for text, 3:1 for what is not text (an icon, a dot, the frame of a selected item). A change of a value in the stylesheet
  * that drops a pair under the bar fails here. The CSS variables cannot be computed in happy-dom, so the arithmetic is done here.
@@ -206,11 +213,11 @@ describe('style.css: the palette, light and dark', () => {
   const PALETTES = { light: paletteOf(':root'), dark: paletteOf(":root[data-theme='dark']") }
 
   const KINDS = ['accent', 'success', 'warning', 'danger'] as const
-  const BACKGROUNDS = ['page', 'surface', 'fill', 'accent-soft'] as const
+  const BACKGROUNDS = ['page', 'surface', 'fill', 'accent-soft', 'highlight'] as const
 
   /** [text, background] pairs that must reach 4.5:1. */
   const TEXT_PAIRS: [string, string][] = [
-    // body and secondary text on every neutral background, and on the selected row
+    // body and secondary text on every neutral background, on the selected row and on the big tinted card
     ...BACKGROUNDS.flatMap((bg): [string, string][] => [
       ['text', bg],
       ['muted', bg],
@@ -218,6 +225,10 @@ describe('style.css: the palette, light and dark', () => {
     // links and text buttons; danger is a title colour too (a destructive list row)
     ['accent', 'page'],
     ['accent', 'surface'],
+    ['accent', 'highlight'],
+    ['accent', 'accent-soft'],
+    // the label of the active tab on its pill
+    ['accent', 'nav-active'],
     ['danger', 'surface'],
     ['danger', 'page'],
     // the main button; on-primary also sits on the accent (the "Listen" circle)
@@ -243,7 +254,10 @@ describe('style.css: the palette, light and dark', () => {
     ['primary', 'page'],
     ['primary', 'surface'],
     ['primary', 'accent-soft'],
+    ['primary', 'highlight'],
     ['accent', 'track'],
+    // a step done of the plan, a segment of the goal: white tick on the green
+    ['on-primary', 'success'],
   ]
 
   it('reads the same set of tokens for both palettes, all of them hex', () => {
@@ -257,18 +271,25 @@ describe('style.css: the palette, light and dark', () => {
     for (const kind of KINDS) for (const part of ['soft', 'ink', 'line']) expect(names).toContain(`${kind}-${part}`)
   })
 
-  it('uses the learner interface light palette', () => {
+  it('uses the light palette of the mock-ups (docs/design/2026-11-25-redesign)', () => {
     expect(PALETTES.light).toMatchObject({
-      page: '#f6f7f9',
+      page: '#f4f6fb',
       surface: '#ffffff',
-      hairline: '#e4e7ec',
-      divider: '#eef0f4',
-      text: '#1d2130',
-      muted: '#5f6677',
-      accent: '#2854a8',
+      fill: '#e7ecf4',
+      hairline: '#e1e6ef',
+      divider: '#edf0f5',
+      track: '#d9dfe9',
+      text: '#151a28',
+      muted: '#5a6275',
+      accent: '#234fb1',
       primary: '#234fb1',
+      'on-primary': '#ffffff',
       'accent-soft': '#edf3ff',
-      success: '#2f7d5b',
+      'accent-line': '#c9dafb',
+      highlight: '#e1ebff',
+      'nav-active': '#dce8ff',
+      // #2fa862 of the mock-ups a shade darker: 3:1 on the page and on its soft fill
+      success: '#2da05d',
       'success-ink': '#1f5a40',
       'success-soft': '#eef6f1',
       'success-line': '#bfdccd',
@@ -278,6 +299,27 @@ describe('style.css: the palette, light and dark', () => {
       warning: '#b4741a',
       'warning-ink': '#8a5510',
       'warning-soft': '#f7eedd',
+    })
+  })
+
+  it('uses the dark palette of the mock-ups (MainDark, PathDark, LeagueDark, ProfileDark)', () => {
+    expect(PALETTES.dark).toMatchObject({
+      page: '#0f1420',
+      surface: '#181d2a',
+      fill: '#262d3d',
+      hairline: '#2a3142',
+      divider: '#232a39',
+      track: '#454c5e',
+      text: '#f0f2f7',
+      muted: '#a8aebd',
+      accent: '#a1c4ff',
+      primary: '#94baff',
+      'on-primary': '#102444',
+      'accent-soft': '#1b2538',
+      'accent-line': '#2f456b',
+      highlight: '#1d2d4a',
+      'nav-active': '#1e3052',
+      success: '#3ccb79',
     })
   })
 
@@ -360,11 +402,18 @@ describe('style.css: the palette, light and dark', () => {
 describe('style.css: fonts', () => {
   const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1] ?? '')
 
-  it('declares Source Serif 4 (latin, latin-ext, cyrillic, latin italic) and IBM Plex Mono 400 / 500', () => {
+  it('declares Inter (latin, latin-ext, cyrillic; variable 400-800) and IBM Plex Mono 400 / 500, nothing else', () => {
     const families = faces.map((body) => /font-family:\s*'([^']+)'/.exec(body)?.[1])
+    const inter = faces.filter((body) => /font-family:\s*'Inter'/.test(body))
 
-    expect(families.filter((f) => f === 'Source Serif 4')).toHaveLength(4)
+    expect(families.filter((f) => f === 'Inter')).toHaveLength(3)
     expect(families.filter((f) => f === 'IBM Plex Mono')).toHaveLength(2)
+    expect(families).toHaveLength(5)
+    for (const body of inter) {
+      expect(body).toMatch(/font-weight:\s*400 800;/)
+      expect(body).toMatch(/font-style:\s*normal;/)
+    }
+    expect(inter.map((body) => /fonts\/(inter-[a-z-]+)-wght-normal\.woff2/.exec(body)?.[1]).sort()).toEqual(['inter-cyrillic', 'inter-latin', 'inter-latin-ext'])
   })
 
   it('loads every face from assets/fonts, as woff2, with font-display: swap and a unicode-range', () => {
@@ -376,14 +425,17 @@ describe('style.css: fonts', () => {
     expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|@import\s+url/)
   })
 
-  it('puts the Uzbek apostrophes ʻ (U+02BB) and ʼ (U+02BC) in the latin face of Source Serif 4', () => {
-    const latin = faces.find((body) => body.includes('source-serif-4-latin-wght-normal')) ?? ''
+  it('puts the Uzbek apostrophes ʻ (U+02BB) and ʼ (U+02BC) in the latin face of Inter, and the Russian letters in the cyrillic one', () => {
+    const latin = faces.find((body) => body.includes('inter-latin-wght-normal')) ?? ''
+    const cyrillic = faces.find((body) => body.includes('inter-cyrillic-wght-normal')) ?? ''
 
     expect(latin).toMatch(/U\+02BB-02BC/)
+    expect(latin).toMatch(/U\+0000-00FF/)
+    expect(cyrillic).toMatch(/U\+0400-045F/)
   })
 
-  it('makes the serif the text of the app and sets numbers in Plex Mono, transcription in the system monospace', () => {
-    expect(css).toMatch(/--font-serif:\s*'Source Serif 4',/)
+  it('makes Inter the text of the app and sets numbers in Plex Mono, transcription in the system monospace', () => {
+    expect(css).toMatch(/--font-sans:\s*'Inter',/)
     expect(css).toMatch(/--font-mono:\s*'IBM Plex Mono',/)
     expect(css).toMatch(/--default-font-family:\s*var\(--font-sans\);/)
     expect(css).toMatch(/--font-ipa:\s*(?!'IBM Plex Mono')/)
@@ -397,7 +449,10 @@ describe('style.css: fonts', () => {
       const file = /url\('\.\/assets\/fonts\/([^']+)'\)/.exec(body)?.[1] ?? ''
       expect(files, file).toContain(file)
     }
-    expect(files).toEqual(expect.arrayContaining(['OFL-SourceSerif4.txt', 'OFL-IBMPlexMono.txt']))
+    expect(files).toEqual(expect.arrayContaining(['OFL-Inter.txt', 'OFL-IBMPlexMono.txt']))
+    expect(files.filter((file) => file.endsWith('.woff2')).sort()).toEqual(
+      faces.map((body) => /url\('\.\/assets\/fonts\/([^']+)'\)/.exec(body)?.[1] ?? '').sort(),
+    )
   })
 })
 

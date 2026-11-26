@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import ActiveSessionSheet from '@/components/practice/ActiveSessionSheet.vue'
 import FriendPickerSheet from '@/components/practice/FriendPickerSheet.vue'
 import ModeCard from '@/components/practice/ModeCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
@@ -15,7 +16,8 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { isKnownPracticeMode, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
+import { dayPlanStepPosition, gameStepExpected } from '@/composables/dayPlan'
+import { estimateMinutes, isKnownPracticeMode, lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -24,21 +26,37 @@ import { useBattleStore } from '@/stores/battle'
 import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { usePracticeStore } from '@/stores/practice'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { useI18n } from '@/i18n'
 import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, PracticeModeInfo, PracticeSource } from '@/api/types'
 
 /**
- * The practice hub of a course or of one lesson (docs/16 §11.2, docs/14, docs/design Practice): the link back to the course, the
- * heading with the course and the lesson, the "Continue" card of the unfinished session (the one main button of the screen), and
- * one card "All modes": a row per mode and the battle with a friend as the last row. The mock-up's "Advised today" card needs a rule
- * of choice the hub does not have: its place is taken by the "Continue" card, which is there only with an unfinished session.
+ * "Word games": the practice hub of a course or of one lesson (docs/16 §11.2, docs/14, docs/design/2026-11-25-redesign Practice): the link
+ * back to Today, the heading "Word games" with the place (the lesson or the course) above it and the number of learned words under it (from
+ * `/today` when its course is this one: the hub does not count them), the "Continue" card of the unfinished session, the card of step 3 of
+ * the day plan on the hub of a lesson ("Timed pairs on the words of the lesson", the one main button unless "Continue" has it), and one
+ * card "All games": a row per mode, then "Caravan of the day" (when the game is open to the learner, `/me`) and the battle with a friend.
+ * The mock-up's "online" of a friend has no data behind it and is not shown.
+ *
+ * Step 3 of the day plan (docs/31 §5б): `?lesson=<id>&play=pairs_timed` opens the timed pairs on the words of the lesson at once (`source =
+ * deeplink`, the button of the finish screen and of Today) and takes `play` out of the address first, so that "Back" from the game does not
+ * start it again. The hub of a short lesson shows the mode as short of words (`no_words`), but the server tops a short lesson up with learned
+ * words of the course when the game is opened: the step card and the start by the address do not trust that state and ask the server; a
+ * refusal (422 no material, 403 the limit of Free or Pro only, 409 an unfinished session) leaves the learner on the hub, told as any other.
  *
  * States: loading, error (Retry), "practice is not available yet" (`practice_unavailable`), the hub. A card is playable
  * (the whole card is the button), short of material ("Learn the lesson"), switched off, or behind Pro (the paywall).
  * The one unfinished session of a learner: a mode pressed while there is one asks what to do (`ActiveSessionSheet`).
- * A mode that lacks only recordings (the dictation without audio files) is not shown. "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
- * "Practice of the lesson / of the course") starts its sessions with `source = after_training` instead of `hub`.
+ * A mode that lacks only recordings (the dictation without audio files) is not shown. "Back" (the system button and the link above the
+ * heading) leads to "Today" when the hub was opened from the day plan - `?play=`, `?from=finished` / `plan` / `lesson_nudge` (the finish
+ * screen, "Today", the bot's reminder) - and to the course otherwise (the hub opened from the course screen). A hub opened from the finish
+ * screen of a training session (`?from=finished`, the button "Practice of the lesson / of the course") starts its sessions with
+ * `source = after_training` instead of `hub`.
+ *
+ * The card of the timed pairs of a lesson says "Step N of M" (N, M - `dayPlanStepPosition` over `/today.plan`; "recommended now" without
+ * a plan at hand) only when it is the step of the plan: the hub came from the plan (as above) or its lesson is `plan.game.lesson_id`. On the
+ * hub of an older lesson opened from the course it is the plain card of the game.
  *
  * Free has a few sessions of practice a day (docs/18 §3): under "Choose a mode" a quiet line says how many are left ("Free today: 1 of 2
  * left"; Pro sees nothing). The cards stay as they are when none is left - a press opens the paywall of the limit at once, without a request
@@ -50,26 +68,46 @@ const props = withDefaults(
     slug: string
     /** The lesson of the hub (`?lesson=`); null: the whole course. */
     lessonId: number | null
-    /** `?from=finished`: the hub was opened from the finish screen of a training session (its sessions are "after training"). */
-    from?: 'finished' | null
+    /**
+     * `?from=finished`: the hub was opened from the finish screen of a training session (its sessions are "after training"); `plan`: from the
+     * plan of "Today"; `lesson_nudge`: from the bot's reminder after a lesson.
+     */
+    from?: 'finished' | 'plan' | 'lesson_nudge' | null
+    /** `?play=pairs_timed`: open the game on the words of the lesson at once (only with `lessonId`). */
+    play?: 'pairs_timed' | null
   }>(),
-  { from: null },
+  { from: null, play: null },
 )
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const practice = usePracticeStore()
 const battle = useBattleStore()
 const billing = useBillingStore()
 const friends = useFriendsStore()
 const training = useTrainingStore()
+const today = useTodayStore()
 const { haptic } = useTelegram()
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const { hub, hubStatus, hubError, opening, openError, conflict, paywall, limitHit } = storeToRefs(practice)
 const { sessionLimit } = storeToRefs(billing)
 
-useBackButton({ name: 'course', params: { slug: props.slug } })
+/**
+ * Opened from the day plan (the finish screen, "Today", the bot): `play` is taken out of the address by the autoplay, so it is read once,
+ * when the screen is set up; `from` stays in the address.
+ */
+const openedWithPlay = props.play !== null
+const fromPlan = computed(() => openedWithPlay || props.from !== null)
+/** Where "Back" leads: "Today" for a hub of the plan, the course otherwise. */
+const backTarget = computed(() => (fromPlan.value ? { name: 'today' } : { name: 'course', params: { slug: props.slug } }))
+
+useBackButton(() => {
+  const target = backTarget.value
+  if (router.options.history.state.back === router.resolve(target).fullPath) router.back()
+  else void router.push(target)
+})
 
 /** Set when the learner leaves: an answer that comes back after it must not carry them anywhere. */
 let left = false
@@ -90,23 +128,24 @@ function closePaywall(): void {
 const { reviewFromPaywall } = useReviewFromPaywall(closePaywall, { toastErrors: true })
 
 /**
- * The heading names the place: the name of the lesson ("Food"; "Module 2 · Lesson 4" when it has none) or the course;
- * until the hub is there, the screen. Under it: what the screen is and where the lesson is.
+ * The place above the heading: the lesson ("Module 2 · Lesson 4 · Food"; a lesson with neither a name nor a number - the server does not know
+ * them - is named by its course) or the course; nothing until the hub is there.
  */
-const title = computed((): string => {
-  const current = hub.value
-  if (current === null) return t('practice.hub.title')
-  if (current.lesson === null) return current.course.title
-  // A lesson with neither a name nor a number (the server does not know them) is headed by its course.
-  return current.lesson.title || lessonNumber(current.lesson) || current.course.title
-})
-
-const subtitle = computed((): string => {
+const place = computed((): string => {
   const current = hub.value
   if (current === null) return ''
-  if (current.lesson === null) return t('practice.hub.title')
-  const place = (current.lesson.title ? lessonNumber(current.lesson) : '') || current.course.title
-  return `${t('practice.hub.title')} · ${place}`
+  if (current.lesson === null) return current.course.title
+  return lessonHeader(current.lesson) || current.course.title
+})
+
+/**
+ * "Play on 120 learned words": the number is the one of `/today` (`active_course.progress.learned`), only when its course is the course of
+ * the hub - the hub itself does not count the words; without it the line has no number.
+ */
+const learnedLine = computed((): string => {
+  const course = today.data?.active_course ?? null
+  if (course !== null && course.slug === props.slug && course.progress.learned > 0) return tn('practice.hub.learned', course.progress.learned)
+  return t('practice.hub.learned_unknown')
 })
 
 /** The unfinished session of the mode, when it is this very course / lesson: the card leads straight back into it. */
@@ -165,6 +204,7 @@ async function load(): Promise<void> {
     return
   }
   await practice.loadHub(props.slug, props.lessonId)
+  if (!left) await autoplay()
   // The invitations to me are in the list (the hub has only their number); it is asked for only when there are some.
   const state = hub.value?.battle
   if (!left && state?.enabled && state.incoming_count > 0) void battle.loadList()
@@ -174,11 +214,16 @@ function openSession(id: number): Promise<unknown> {
   return router.push({ name: 'practice-session', params: { id } })
 }
 
-async function start(mode: PracticeMode, replaceActive: boolean): Promise<void> {
+/** Where the sessions of a card come from: the hub, or the hub opened from the finish screen. */
+const cardSource = computed((): PracticeSource => (props.from === 'finished' ? 'after_training' : 'hub'))
+/** The source of the session the learner pressed last, for "Start a new one" after the unfinished session has been offered. */
+let pressedSource: PracticeSource = 'hub'
+
+async function start(mode: PracticeMode, replaceActive: boolean, source: PracticeSource = cardSource.value): Promise<void> {
   // One session is being opened at a time; a second card pressed meanwhile must not become "the mode that was pressed".
   if (opening.value !== null) return
   pressed.value = mode
-  const source: PracticeSource = props.from === 'finished' ? 'after_training' : 'hub'
+  pressedSource = source
   // The unfinished session is the one the learner has just walked out of on purpose ("No sound for now" on a dictation): the mode
   // they chose takes its place at once, with no "Continue or start a new one" about it.
   const replace = replaceActive || practice.isAbandoned(hub.value?.active_session?.id ?? null)
@@ -211,8 +256,71 @@ function continueActive(): void {
 function startNew(): void {
   const mode = pressed.value
   practice.clearConflict()
-  if (mode !== null) void start(mode, true)
+  if (mode !== null) void start(mode, true, pressedSource)
 }
+
+// ---- step 3 of the day plan: the timed pairs on the words of the lesson ----
+
+/** The card of the timed pairs as the hub states it; null on the hub of a course, or when the server has none. */
+const lessonGame = computed((): PracticeModeInfo | null => {
+  if (props.lessonId === null || hub.value?.lesson == null) return null
+  return hub.value.modes.find((info) => info.mode === 'pairs_timed') ?? null
+})
+/**
+ * The card of step 3 is there on the hub of a lesson whose timed pairs are not switched off. A short lesson (`not_enough`, `no_words`) keeps
+ * it: the server tops the lesson up with learned words of the course when the game is opened.
+ */
+const showLessonGame = computed(() => lessonGame.value !== null && lessonGame.value.state !== 'disabled')
+/** The card is the step of the plan: the hub came from the plan, or its lesson is the lesson of the game of today's plan. */
+const isPlanStep = computed(() => fromPlan.value || (props.lessonId !== null && today.data?.plan?.game?.lesson_id === props.lessonId))
+/** "Step 2 of 2 · recommended now": the place of the game among the steps the plan has; "recommended now" without a plan at hand. */
+const lessonGameEyebrow = computed((): string => {
+  if (!isPlanStep.value) return ''
+  const position = dayPlanStepPosition(today.data?.plan, gameStepExpected(today.data?.practice), 'game')
+  return position === null ? t('practice.hub.step.now') : t('practice.hub.step.eyebrow', position)
+})
+const lessonGameText = computed((): string => {
+  const minutes = estimateMinutes(lessonGame.value?.estimate_seconds ?? 60)
+  const title = hub.value?.lesson?.title ?? null
+  return title ? t('practice.hub.step.text', { lesson: title, minutes }) : t('practice.hub.step.text_plain', { minutes })
+})
+
+/**
+ * "Play" of the card of step 3, and the start by the address: Pro only - the paywall at once; the unfinished game of this lesson - back
+ * into it; else a new game (`deeplink`), whatever the hub says about the words of the lesson (the server tops a short lesson up).
+ */
+function playLessonGame(): void {
+  const info = lessonGame.value
+  haptic('light')
+  if (info?.state === 'pro_required') {
+    proSheet.value = true
+    return
+  }
+  const resume = info === null ? null : resumeFor(info)
+  if (resume) void openSession(resume.id)
+  else void start('pairs_timed', false, 'deeplink')
+}
+
+/**
+ * `?play=pairs_timed`: the address loses `play` first (`replace`: "Back" from the game then lands on the hub, not on a new game), then the
+ * game opens. Without a lesson, or on a hub that is closed to the learner, nothing is started.
+ */
+let autoplayed = false
+async function autoplay(): Promise<void> {
+  // Once per visit: the hub is read again (another plan, another lesson) without the learner asking for the game again.
+  if (props.play === null || autoplayed) return
+  autoplayed = true
+  const { play: _play, ...query } = route.query
+  await router.replace({ query })
+  // A hub that failed to load (the error with "Retry") starts nothing either: the learner sees why, the game would hide it.
+  if (left || props.lessonId === null || hubStatus.value === 'unavailable' || hubStatus.value === 'error') return
+  playLessonGame()
+}
+
+// ---- the caravan of the day ----
+
+/** "Caravan of the day": the game is open to the learner (`/me`, asked best effort). */
+const caravanOn = computed(() => billing.gameAccess.available)
 
 async function learn(): Promise<void> {
   const lesson = hub.value?.lesson
@@ -290,6 +398,8 @@ watch(
 
 onMounted(() => {
   void load()
+  // What the learner may play beyond practice (the caravan): best effort, the hub never waits for it.
+  void billing.load()
 })
 
 onBeforeUnmount(() => {
@@ -305,14 +415,14 @@ onBeforeUnmount(() => {
   <div class="page" data-testid="practice-hub-view">
     <!-- The way back is on the screen too (the system button of Telegram says nothing about where it leads). -->
     <RouterLink
-      :to="{ name: 'course', params: { slug } }"
-      class="-mb-3.5 flex min-h-11 items-center self-start text-sm text-accent"
+      :to="backTarget"
+      class="-mb-3.5 flex min-h-11 items-center gap-1 self-start text-[15px] font-semibold text-accent"
       data-testid="hub-back"
     >
-      <span aria-hidden="true">←&nbsp;</span>{{ t('practice.hub.to_course') }}
+      <AppIcon name="chevron-left" :size="18" />{{ fromPlan ? t('nav.today') : t('nav.courses') }}
     </RouterLink>
 
-    <PageHeader :title="title" :subtitle="subtitle" large />
+    <PageHeader :eyebrow="place" :title="t('practice.hub.games_title')" :subtitle="learnedLine" large />
 
     <LoadingState v-if="hubStatus === 'idle' || hubStatus === 'loading'" variant="cards" />
 
@@ -344,6 +454,27 @@ onBeforeUnmount(() => {
         />
       </ListGroup>
 
+      <!-- Step 3 of the day plan (hub of a lesson): the timed pairs on its words. Its button is the main one unless "Continue" has it. -->
+      <section v-if="showLessonGame" class="mb-3.5 flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="lesson-game-card">
+        <div class="flex flex-col gap-1">
+          <p v-if="lessonGameEyebrow" class="text-[13px] leading-[18px] font-bold text-accent" data-testid="lesson-game-step">{{ lessonGameEyebrow }}</p>
+          <h2 class="text-2xl leading-[30px] font-extrabold tracking-[-0.4px]">{{ modeTitle('pairs_timed') }}</h2>
+          <p class="text-sm leading-5" data-testid="lesson-game-text">{{ lessonGameText }}</p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-lg btn-block"
+          :class="activeSession ? 'btn-tinted' : 'btn-primary'"
+          :disabled="opening !== null"
+          :aria-busy="opening === 'pairs_timed' ? 'true' : undefined"
+          data-testid="lesson-game-play"
+          @click="playLessonGame"
+        >
+          {{ t('practice.hub.step.play') }}
+          <AppIcon name="arrow-right" :size="22" />
+        </button>
+      </section>
+
       <!-- The unfinished session: one tap back into it. The whole card is the link; the button inside it is its look. -->
       <RouterLink
         v-if="activeSession"
@@ -365,12 +496,12 @@ onBeforeUnmount(() => {
       </RouterLink>
 
       <section class="overflow-hidden rounded-card border border-hairline bg-surface" data-testid="modes-list">
-        <h2 class="px-[18px] pt-3.5 pb-2.5 text-base leading-[22px] font-semibold">{{ t('practice.hub.all_modes') }}</h2>
+        <h2 class="px-3.5 pt-3.5 pb-2 text-lg leading-6 font-extrabold">{{ t('practice.hub.all_modes') }}</h2>
         <!-- Free only: the sessions left today. Quiet on purpose - the rows below are the screen. -->
-        <p v-if="sessionLimit" class="-mt-1.5 px-[18px] pb-2.5 text-[13px] leading-[18px] text-muted" data-testid="practice-limit">
+        <p v-if="sessionLimit" class="-mt-1 px-3.5 pb-2 text-[13px] leading-[18px] text-muted" data-testid="practice-limit">
           {{ t('practice.limit.sessions', { remaining: Math.max(0, sessionLimit.remaining), limit: sessionLimit.limit }) }}
         </p>
-        <div data-testid="mode-cards">
+        <div class="divide-y divide-divider" data-testid="mode-cards">
           <ModeCard
             v-for="info in modes"
             :key="info.mode"
@@ -383,14 +514,41 @@ onBeforeUnmount(() => {
           />
         </div>
 
-        <!-- The battle with a friend: the last row, with its own button (a new battle, or back into the one under way). -->
-        <div v-if="battleOn" class="flex items-center gap-3 border-t border-divider px-[18px] py-3" data-testid="battle-card">
-          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="text-[15px] leading-5 font-semibold">{{ t('practice.hub.battle.title') }}</span>
-            <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.battle.text') }}</span>
+        <!-- The caravan of the day (docs/05 §5b.4): a link to its screen, on the words of this course. -->
+        <RouterLink
+          v-if="caravanOn"
+          :to="{ name: 'game-daily', query: { course: slug } }"
+          class="flex min-h-[60px] items-center gap-3 border-t border-divider px-3.5 py-2.5 active:bg-fill"
+          data-testid="caravan-row"
+        >
+          <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent" aria-hidden="true">
+            <AppIcon name="globe-alt" :size="22" />
           </span>
-          <button type="button" class="btn btn-tinted btn-sm shrink-0" data-testid="battle-play-btn" @click="playWithFriend">
-            {{ activeBattleId !== null ? t('practice.hub.battle.resume') : t('practice.hub.battle.play') }}
+          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span class="text-base leading-5 font-bold">{{ t('practice.hub.caravan.title') }}</span>
+            <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.caravan.text') }}</span>
+          </span>
+          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+        </RouterLink>
+
+        <!-- The battle with a friend: the last row, the whole row is its button (a new battle, or back into the one under way). -->
+        <div v-if="battleOn" class="border-t border-divider" data-testid="battle-card">
+          <button
+            type="button"
+            class="flex min-h-[60px] w-full items-center gap-3 px-3.5 py-2.5 text-left active:bg-fill"
+            :aria-label="activeBattleId !== null ? t('practice.hub.battle.resume') : `${t('practice.hub.battle.title')}. ${t('practice.hub.battle.text')}`"
+            data-testid="battle-play-btn"
+            @click="playWithFriend"
+          >
+            <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent" aria-hidden="true">
+              <AppIcon name="users" :size="22" />
+            </span>
+            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="text-base leading-5 font-bold">{{ t('practice.hub.battle.title') }}</span>
+              <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.battle.text') }}</span>
+            </span>
+            <span v-if="activeBattleId !== null" class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="battle-resume">{{ t('practice.hub.battle.resume') }}</span>
+            <AppIcon v-else name="chevron-right" :size="16" class="shrink-0 text-muted" />
           </button>
         </div>
       </section>

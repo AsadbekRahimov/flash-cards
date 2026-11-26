@@ -9,7 +9,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
 import { profile as gameProfile } from '@/api/__tests__/gameShopFixtures'
-import type { Entitlement, MeResponse } from '@/api/types'
+import type { Entitlement, LearnerSettings, MeResponse } from '@/api/types'
 
 const mocks = vi.hoisted(() => ({
   ensure: vi.fn(),
@@ -18,7 +18,9 @@ const mocks = vi.hoisted(() => ({
   showBack: vi.fn(),
 }))
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, gameShop: { profile: vi.fn() } } }))
+vi.mock('@/api', () => ({
+  api: { me: { get: vi.fn() }, gameShop: { profile: vi.fn() }, billing: { catalog: vi.fn(), offerViewed: vi.fn() } },
+}))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({
@@ -43,6 +45,22 @@ const me = (entitlement: Partial<Entitlement> = {}, contact: string | null = '@l
 })
 
 const gameOpen = (): MeResponse => ({ ...me(), game: { available: true, limits: null, pro_promise: 'none', coins: 0, tickets: 0 } })
+
+const EMOJIS = [
+  { code: 'fire', emoji: '🔥' },
+  { code: 'star', emoji: '⭐' },
+]
+
+/** The settings of `/me` with the set of the emoji of Pro: `locked` as the server says it for Free. */
+const emojiSettings = (choice: string | null, locked: boolean): LearnerSettings =>
+  settingsFixture({ pro_emoji_choice: choice, options: { ...settingsFixture().options, pro_emojis: EMOJIS, pro_emoji_locked: locked } })
+
+/** A `/me` with the emoji next to the name (`learner.pro_emoji`, only while Pro lasts) and the settings of the set. */
+const withEmoji = (base: MeResponse, proEmoji: string | null, settings: LearnerSettings): MeResponse => ({
+  ...base,
+  learner: { ...base.learner, pro_emoji: proEmoji },
+  settings,
+})
 
 const PRO = { plan: 'pro', source: 'subscription', new_words_per_day: null } as const
 
@@ -77,16 +95,34 @@ describe('ProfileView', () => {
   })
 
   describe('Free learner', () => {
-    it('shows the name with an initial avatar, the Free chip and the daily limit', async () => {
+    it('shows the brand row, the title and the big tinted card: the initial, the name, the Free chip and the daily limit of /me', async () => {
       const w = await render()
 
       expect(mocks.ensure).toHaveBeenCalledTimes(1)
       expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(w.find('[data-testid=brand-row]').exists()).toBe(true)
+      expect(w.get('h1').text()).toBe('Профиль')
+      expect(w.get('[data-testid=profile-header]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
       expect(w.get('[data-testid=profile-name]').text()).toBe('Асадбек')
       expect(w.get('[data-testid=profile-avatar]').text()).toBe('А')
       expect(w.get('[data-testid=profile-chip]').text()).toBe('Free')
-      expect(w.get('[data-testid=profile-chip]').classes()).toContain('chip-neutral')
-      expect(w.get('[data-testid=profile-plan]').text()).toBe('Бесплатный тариф: 20 новых слов в день')
+      expect(w.get('[data-testid=profile-chip]').attributes('data-plan')).toBe('free')
+      expect(w.get('[data-testid=profile-plan]').text()).toBe('20 новых слов в день')
+    })
+
+    it('takes the limit from /me, never a number of its own (Free = 10 today)', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me({ new_words_per_day: 10 }))
+
+      const w = await render()
+
+      expect(w.get('[data-testid=profile-plan]').text()).toBe('10 новых слов в день')
+    })
+
+    it('has one language control in the brand row, and the language row of the account group', async () => {
+      const w = await render()
+
+      expect(w.findAll('[data-testid=lang-btn]')).toHaveLength(1)
+      expect(w.findAll('[data-testid=row-language]')).toHaveLength(1)
     })
 
     it('has the bilingual "Til · Язык" row with the current language by its own name, right before "Настройки"', async () => {
@@ -153,9 +189,9 @@ describe('ProfileView', () => {
 
     it('inflects the daily limit by the number', async () => {
       for (const [count, text] of [
-        [1, 'Бесплатный тариф: 1 новое слово в день'],
-        [3, 'Бесплатный тариф: 3 новых слова в день'],
-        [5, 'Бесплатный тариф: 5 новых слов в день'],
+        [1, '1 новое слово в день'],
+        [3, '3 новых слова в день'],
+        [5, '5 новых слов в день'],
       ] as const) {
         setActivePinia(createPinia())
         vi.mocked(api.me.get).mockResolvedValue(me({ new_words_per_day: count }))
@@ -183,7 +219,7 @@ describe('ProfileView', () => {
 
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Pro до 1 декабря 2026 г.')
       expect(w.get('[data-testid=profile-chip]').text()).toBe('Pro')
-      expect(w.get('[data-testid=profile-chip]').classes()).toContain('chip-accent')
+      expect(w.get('[data-testid=profile-chip]').attributes('data-plan')).toBe('pro')
       expect(w.find('[data-testid=profile-pro-cta]').exists()).toBe(false)
       expect(w.find('[data-testid=profile-pro-card]').exists()).toBe(false)
       expect(w.get('[data-testid=row-billing]').text()).toContain('Pro')
@@ -264,7 +300,7 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-achievements]').text()).toBe('Достижения')
       expect(w.get('[data-testid=row-referrals]').text()).toContain('Пригласить друга')
       expect(w.get('[data-testid=row-referrals]').text()).toContain('Приглашайте друзей — получайте Pro')
-      expect(w.get('[data-testid=row-friends]').text()).toBe('Друзья и вызовы')
+      expect(w.get('[data-testid=row-friends]').text()).toBe('Друзья и соревнования')
       expect(w.get('[data-testid=row-billing]').text()).toBe('ПодпискаFree')
       expect(w.get('[data-testid=row-settings]').text()).toBe('Настройки')
     })
@@ -275,10 +311,41 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-referrals]').text()).not.toContain('Вам и другу')
     })
 
-    it('groups learning and account links before the Pro offer', async () => {
+    it('groups "My results" and "My account" as in the mock-up, then what the mock-up does not have, then the Pro offer', async () => {
       const w = await render()
 
-      expect(w.findAll('h2').map(heading => heading.text())).toEqual(['Моё обучение', 'Аккаунт', 'Учитесь без дневного лимита'])
+      expect(w.findAll('h2').map(heading => heading.text())).toEqual([
+        'Асадбек',
+        'Мои результаты',
+        'Мой аккаунт',
+        'Ещё',
+        'Учитесь без дневного лимита',
+      ])
+    })
+
+    it('puts achievements, readiness and friends in "My results", language, settings and subscription in "My account"', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ active_course: { slug: 'a1', title: 'A1' } }) })
+      const w = await render()
+
+      const ids = (group: string) => w.findAll(`[data-testid=${group}] [data-testid^=row-]`).map((row) => row.attributes('data-testid'))
+      expect(ids('group-results')).toEqual(['row-achievements', 'row-readiness', 'row-friends'])
+      expect(ids('group-account')).toEqual(['row-language', 'row-settings', 'row-billing'])
+      expect(ids('group-more')).toEqual(['row-referrals', 'row-intro'])
+      for (const group of ['group-results', 'group-account', 'group-more']) {
+        const plate = w.get(`[data-testid=${group}]`)
+        expect(plate.classes(), group).toContain('bg-highlight')
+        expect(plate.get('h2').classes(), group).toEqual(expect.arrayContaining(['text-lg', 'font-extrabold']))
+      }
+    })
+
+    it('keeps below the groups what the mock-up does not have: invitations, "How it works", the Pro card, the support', async () => {
+      const w = await render()
+
+      const html = w.html()
+      const account = html.indexOf('data-testid="group-account"')
+      for (const id of ['row-referrals', 'row-intro', 'profile-pro-card', 'profile-support']) {
+        expect(html.indexOf(`data-testid="${id}"`), id).toBeGreaterThan(account)
+      }
     })
   })
 
@@ -476,7 +543,7 @@ describe('ProfileView', () => {
 
       const w = await render()
 
-      expect(w.get('[data-testid=profile-plan]').text()).toBe("Bepul tarif: kuniga 20 ta yangi so'z")
+      expect(w.get('[data-testid=profile-plan]').text()).toBe("kuniga 20 ta yangi so'z")
       expect(w.get('[data-testid=profile-pro-cta]').text()).toBe('Pro haqida batafsil')
       expect(w.get('[data-testid=row-achievements]').text()).toBe('Yutuqlar')
       expect(w.get('[data-testid=row-friends]').text()).toBe("Do'stlar va musobaqalar")
@@ -557,6 +624,91 @@ describe('ProfileView', () => {
 
       expect(w.get('[data-testid=profile-caravan]').text()).toContain('Mening karvonim')
       expect(w.get('[data-testid=profile-caravan-open]').text()).toBe('Karvonni ochish')
+    })
+  })
+
+  describe('the emoji of Pro (docs/31 §5а)', () => {
+    it('shows the emoji of /me next to the name of a Pro learner', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me({ ...PRO, until: null }), '🔥', emojiSettings('fire', false)))
+
+      const w = await render()
+
+      expect(w.get('[data-testid=profile-emoji]').text()).toBe('🔥')
+      expect(w.get('[data-testid=profile-name]').text()).toBe('Асадбек')
+    })
+
+    it.each([
+      ['null', null],
+      ['an empty string', ''],
+    ])('shows no emoji when /me sends %s (no Pro, or none chosen)', async (_label, value) => {
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me(), value, emojiSettings('fire', true)))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-emoji]').exists()).toBe(false)
+    })
+
+    it('shows no emoji for an older server that sends no such field', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-emoji]').exists()).toBe(false)
+    })
+
+    it('Pro: the row "Эмодзи Pro" in "My account" shows the symbol chosen and leads to the picker of the Settings', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me({ ...PRO, until: null }), '⭐', emojiSettings('star', false)))
+
+      const w = await render()
+
+      const row = w.get('[data-testid=group-account] [data-testid=row-pro-emoji]')
+      expect(row.attributes('data-locked')).toBe('false')
+      expect(row.text()).toBe('Эмодзи Pro⭐')
+      expect(row.element.tagName).toBe('A')
+      expect(row.attributes('href')).toBe('/settings')
+    })
+
+    it('Pro without a choice: "не выбран"', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me({ ...PRO, until: null }), null, emojiSettings(null, false)))
+
+      const w = await render()
+
+      expect(w.get('[data-testid=row-pro-emoji]').text()).toBe('Эмодзи Proне выбран')
+    })
+
+    it('Free: a lock and "в Pro"; a tap opens the paywall and leaves the screen where it is', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me(), null, emojiSettings('fire', true)))
+
+      const w = await render()
+
+      const row = w.get('[data-testid=row-pro-emoji]')
+      expect(row.attributes('data-locked')).toBe('true')
+      expect(row.element.tagName).toBe('BUTTON')
+      expect(row.get('[data-testid=pro-emoji-locked]').text()).toBe('в Pro')
+      expect(row.find('[data-testid=pro-emoji-locked] svg').exists()).toBe(true)
+      expect(row.text()).not.toContain('🔥') // the choice is kept, but it is not shown without Pro
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+
+      await row.trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+      await w.get('[data-testid=paywall-x]').trigger('click')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+
+    it('has no row when the server sends no set of emoji', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=row-pro-emoji]').exists()).toBe(false)
+    })
+
+    it('speaks Uzbek', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue(withEmoji(me(), null, emojiSettings(null, true)))
+
+      const w = await render()
+
+      expect(w.get('[data-testid=row-pro-emoji]').text()).toContain('Pro emojisi')
+      expect(w.get('[data-testid=pro-emoji-locked]').text()).toBe("Pro'da")
     })
   })
 

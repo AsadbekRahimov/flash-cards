@@ -1,6 +1,6 @@
 # Тарифы после пробного Pro, лимиты Free, месячный рейтинг и бот без падений
 
-Статус: **проект, код не написан** (25.11.2026). Автор — architect, по запросу владельца от 25.11.2026.
+Статус: **проект; выпуски A и B сделаны, в выпуске C — серверное ядро P0–P3 и покупка с первого дня пробного (25.11.2026)**. Автор — architect, по запросу владельца от 25.11.2026.
 Продукт в бета-режиме, боевых учеников нет. Документ не противоречит [docs/31](31_COMPETITION_PLAN_RU.md) и встраивает четыре темы в его выпуски (§5).
 
 | № | Тема | Главное по коду | Что делаем |
@@ -137,18 +137,18 @@ public function cap(Entitlement $e): ?int;                       // null = бе�
 /** @return list<array{value: int, locked: bool}> */
 public function options(Entitlement $e): array;
 public function assertAllowed(int $goal, Entitlement $e): void; // DailyGoalLimitException (403 daily_goal_pro_required)
-public function enforce(Learner $learner, Entitlement $e, CarbonImmutable $now): ?DailyGoalChange; // null = ничего не менялось
+public function enforce(Learner $learner, Entitlement $e, string $via, ?CarbonImmutable $now = null): ?DailyGoalChange; // null = ничего не менялось; $via — today | settings | training | command
 ```
 
 Правила `enforce()`:
 
-1. **Проверка в памяти:** нужно снизить (`cap !== null && daily_goal > cap`) или нужно вернуть (`cap === null` и в `meta` есть `daily_goal_before_limit`). Если ни то ни другое — выход без запросов. Это обычный случай, так что бюджет запросов `/today` не меняется.
+1. **Проверка в памяти:** нужно снизить (`cap !== null && daily_goal > cap`) или нужно вернуть (`cap === null` и `daily_goal_before_limit` не пуст). Если ни то ни другое — выход без запросов. Это обычный случай, так что бюджет запросов `/today` не меняется.
 2. **Транзакция:** строка `learners` `FOR UPDATE`, повторная проверка на свежих данных — это и есть идемпотентность: два параллельных вызова, второй ничего не делает.
-   - Снижение: `daily_goal = cap`, `meta.daily_goal_before_limit = <прежняя цель>`. Ключ пишем, только если его нет, чтобы второе снижение не затёрло исходный выбор.
-   - Возврат: `daily_goal = meta.daily_goal_before_limit` (если значение есть в `daily_goal_options`, иначе ближайшее меньшее), ключ удаляем.
+   - Снижение: `daily_goal = cap`, `learners.daily_goal_before_limit = <прежняя цель>` (колонка `smallint null`, а не ключ `meta`: типизирована, не участвует в перезаписи `meta` другими писателями). Пишем, только если колонка пуста, чтобы второе снижение не затёрло исходный выбор.
+   - Возврат: `daily_goal = daily_goal_before_limit` (если значение есть в `daily_goal_options`, иначе ближайшее меньшее), колонку очищаем.
 3. После фиксации — `DailyStatsService::reconcileGoal($learner)` в отдельной транзакции, в том же порядке, что и при ручном снижении (сначала `learners`, потом `learner_daily_stats`, никогда вместе). Ошибку сверки отправляем в `report()` и не пробрасываем: так уже сделано в `LearnerSettingsService::update`.
 4. Продуктовые события `daily_goal.limited {from, to}` и `daily_goal.restored {to}`.
-5. Если ученик сам сменил цель в настройках, `daily_goal_before_limit` удаляется: ручной выбор важнее автоматики.
+5. Если ученик сам сменил цель в настройках (любой принятый `daily_goal`, даже равный текущему), `daily_goal_before_limit` очищается: ручной выбор важнее автоматики.
 
 **Где вызывается:**
 - `TodayService::summary()` — сразу после `$this->entitlements->for()`.
@@ -199,19 +199,62 @@ Mini App: при первом открытии после `T`, если в `/me.
 - Команда `billing:trial-offers` раз в час: выбирает подписки `provider = trial`, `subscriber_type = learner`, у которых `current_period_ends_at` попал в окно шага, проверяет местное время ученика и ставит задания.
 - Настройка шагов: `billing.trial_offers.after_days = [0, 3, 10]` (env `BILLING_TRIAL_OFFERS_AFTER_DAYS`), пустой список — выключено. Для −1 нужна отдельная настройка напоминаний пробного периода: `billing.trial.remind_days = [3]`, `RenewalReminderSender` и `SubscriptionService::remindExpiring` читают её для `provider = trial`.
 
+#### 2б.5. Реализация P0–P3 и покупки во время пробного (architect, 25.11.2026)
+
+- **P1.** `billing.plans.free.limits.daily_goal_max` (`BILLING_FREE_DAILY_GOAL_MAX`, 10), у `pro` — `null`; `Plan::dailyGoalMax()`; `Entitlement::$dailyGoalMax` (из плана, в снимок кэша не пишется — версия кэша прежняя). Тест согласованности — `tests/Unit/DailyGoalConfigTest.php`.
+- **P2.** `App\Domain\Learners\Services\DailyGoalLimiter` (`cap`, `options`, `assertAllowed`, `enforce`), DTO `DailyGoalChange {from, to, kind: limited|restored, goalMet}`, исключение `DailyGoalLimitException` (403 `daily_goal_pro_required`, `details.max`). Колонка `learners.daily_goal_before_limit` (миграция `2026_11_25_100003_add_daily_goal_before_limit_to_learners_table`). Снижение берёт наибольшее значение `daily_goal_options` не выше лимита (лимит не из списка не создаёт «чужую» цель). События `daily_goal.limited {from, to, via}` / `daily_goal.restored {from, to, via}`, `via` ∈ `today | settings | training | command`. Команда `learners:enforce-goal-limits` (ежедневно 03:00 UTC, `withoutOverlapping`): ученики с `daily_goal >` наименьшего лимита среди планов, пачками по id, тариф — `EntitlementResolver::for`, только снижение. Тесты: `tests/Feature/Learners/DailyGoalLimiterTest.php`, гонки — `DailyGoalLimiterConcurrencyTest.php` (fork, PG).
+- **P3.** `TodayService::summary` (после `for()`; если снижение засчитало день — строки дня перечитываются), `LearnerSettingsService::describe` (`options.daily_goal_max`, тариф из снимка `/me`) и `update` (тариф — до транзакции и только когда в запросе есть `daily_goal`; 403 до любых записей; ручной выбор очищает колонку), `TrainingFlowService::start` (дневной раунд: тариф один раз на запрос, передаётся в `nextStep`). `SettingsController` → `ApiErrorResource::respond(403, …, details)`.
+- **Покупка с первого дня пробного.** Окно `subscribe_too_early` осталось только поверх оплаченного периода; поверх выдачи без денег Stars-месяц разрешён, подаренный остаток прибавляется к каждому сроку этой подписки Telegram (`meta.stars.grant_carry_seconds`, docs/13 §7.1 «После пробного Pro»). Payme / Click не менялись: они и раньше продлевали от конца периода. Тесты — `tests/Feature/Billing/TrialPurchaseTest.php`.
+
+### 2д. Спецификация P5 для coder: цепочка предложений после пробного Pro
+
+Решение владельца (docs/31 §5г): 4 сообщения — за 3 дня (P6, через `RenewalReminderSender`), в день окончания, через 3 и через 10 дней; **без скидки**. Ниже — шаги 0, +3, +10 (P5).
+
+**Конфиг** (`config/billing.php`, блок `trial_offers`): `after_days` = список из env `BILLING_TRIAL_OFFERS_AFTER_DAYS` (по умолчанию `0,3,10`; пусто — выключено), `window_from_hour` 11, `window_to_hour` 19 (локальное время ученика, `[11:00, 19:00)`), `min_delay_minutes` 60 (шаг 0 — не раньше часа после `T`), `max_age_hours` 24 (шаг старше суток не досылаем).
+
+**Выбор (команда `billing:trial-offers`, ежечасно, `withoutOverlapping`).** Для каждого шага `k` из `after_days`: строки `subscriptions` с `provider = 'trial'`, `subscriber_type = 'learner'`, `current_period_ends_at` (это `T`) в полуинтервале `(now − k дн − max_age_hours, now − k дн − (k = 0 ? min_delay : 0)]`. Купивший во время пробного сюда не попадёт: оплата переводит строку на провайдера платежа. Ученик — `deleted_at IS NULL`, `blocked_at IS NULL`, `dm_blocked_at IS NULL`, `meta->billing_offers_opt_out` не `true` (фильтр в SQL ради объёма; окончательная проверка — в отправителе). Местный час — `LearnerClock::timezone($learner)`: `window_from_hour ≤ час < window_to_hour`, иначе пропускаем до следующего прогона (окно 8 ч всегда попадает в сутки шага). Ставим `SendTrialOfferJob(subscriptionId, step, endsAtIso)`; повторная постановка безвредна (маркер ниже).
+
+**Отправитель `App\Domain\Billing\Services\TrialOfferSender::send(int $subscriptionId, int $step, CarbonImmutable $endsAt, ?CarbonImmutable $now): bool`.** Всё перечитывается в момент отправки:
+1. Подписка всё ещё `provider = trial` и `current_period_ends_at = $endsAt` (её не продлили и не перевели в промо или награду); шаг не устарел (`now < T + k дн + max_age_hours`).
+2. Ученик есть, не удалён, не заблокирован, `dm_blocked_at IS NULL`, `meta.billing_offers_opt_out !== true`.
+3. **Тариф снова Pro — стоп.** `EntitlementResolver::resolve($learner, $now)` (без кэша: снимок может отстать на TTL после покупки или выдачи места в центре) — если план не Free, ничего не шлём и маркер не пишем.
+4. **Не больше одного сообщения о Pro в локальные сутки.** Под `Cache::lock('billing:pro-dm:learner:{id}', 60)->block(10)` (тот же замок обязан взять `RenewalReminderSender::dm` в P6): если у ученика есть строка `notifications_log` с `type IN ('trial_offer', 'renewal_reminder')` и `sent_at` в `LearnerClock::dayBoundsUtc()` — выход без маркера (следующий прогон попробует снова; устареет — шаг пропущен). Учебные напоминания (`reminders:dispatch`) в счёт не входят.
+   **Приоритет напоминания о подписке (решение владельца 26.11.2026).** Напоминание о конце подписки (`renewal_reminder`, в т. ч. «пробный Pro заканчивается через 3 дня») важнее предложения: `RenewalReminderSender` больше **не молчит**, если предложение уже ушло в эти сутки (раньше напоминание в этом случае терялось). Предложение, которое в свои сутки встретило `renewal_reminder`, **переносится на следующий день**: под тем же замком пишется строка `notifications_log` `type = trial_offer_deferred` (тот же `payload.key`, `{subscription_id, step}`; не сообщение, одна на ключ), и шаг живёт на `TrialOfferSender::DEFERRAL_HOURS = 24` ч дольше `max_age_hours` — выбор `billing:trial-offers` берёт такие шаги **тем же оператором** (ветка `OR EXISTS` по `trial_offer_deferred` после `T` с тем же `step`; бюджет: по-прежнему один оператор на шаг + один на пачку с подходящими строками), отправитель в продлённые сутки проверяет строку переноса одним запросом. На следующий день правила 1–3 и 5 проверяются заново: купил Pro, продлил пробный, отписался — перенесённое предложение **не уходит** (правило 3 «тариф снова Pro — стоп» docs не отменяют); маркер шага защищает от дубля. Перенос — один раз: если и в следующие сутки было напоминание, шаг устаревает. Если предложение ушло раньше напоминания в те же сутки (новая подписка появилась после него), уходят оба — отозвать отправленное нельзя, а напоминание терять нельзя. Тесты — `TrialOfferTest` (блок «the renewal reminder first»), `RenewalReminderTest`.
+5. **Маркер идемпотентности шага** — там же, под замком: строки `notifications_log` с `learner_id`, `type = 'trial_offer'`, `payload->key = "{subscription_id}:{step}@{T ISO}"` нет → вставляем (`payload = {key, subscription_id, step}`) **до** отправки. Есть — выход.
+6. Каталог в момент отправки: `CheckoutService::catalog($learner)` и `LearnerBillingService::paywall()`. Пусто или `mode != purchase`: шаг 0 уходит без цен (текст «Pro скоро» + подсказка про друзей), шаги 3 и 10 **не уходят** (маркер удалить, вернуть false).
+7. Отправка `sendMessage` с `reply_markup` из `BotButtons::keyboard()`:
+   - текст `lang/{ru,uz}/billing.php` → `trial_offer.step0 | step3 | step10` (`:date` — `ProScreen::date($endsAt, $learner)`), строки плюсов — `ProPromises::top(4, $locale, practiceOpen, gameOpen)` (открытость практики и игры — для этого ученика, как в `TrialWelcomeMessenger`), строка цен «от :price в месяц» и `−N %` по `saving_pct` из каталога. Шаг 0 — «Пробный Pro закончился. Теперь у вас Free: :words новых слов и цель до :goal карточек в день, :games игры со словами» (числа из `Plan::Free->newWordsPerDay()`, `Plan::Free->dailyGoalMax()`, `practice.free_limits.sessions_per_day`, не текстом). Шаг 3 — итоги пробного: выучено слов `SUM(learner_daily_stats.new_words_count)` за локальные дни `[starts_at, T]`, лучшая серия `learners.streak_best`. Шаг 10 — последнее напоминание, **без скидки** (`OfferService` не трогаем);
+   - кнопки: строки покупки `ProScreen::buyRows($learner)` (`pro1:buy:<period>:<provider>`), затем `BotButtons::open(__('buttons.invite'), TwaScreen::Referrals, query: ['from' => 'trial_offer'])`, последней строкой `BotButtons::callback(__('buttons.offers_off'), 'bill1:offers_off')`. Новых ключей `TwaScreen` не нужно.
+8. **Ошибки — по docs/34 §4в п. 8:** `TelegramForbiddenException` → удалить маркер, `DmReachability::markUnreachable($tgId, <reason из исключения>)`, вернуть false без ошибки; `TelegramApiException` (сюда же `TelegramRateLimitedException`) → при `isApiResponse()` удалить маркер, затем пробросить (429 отложит `ThrottleTelegramOutbound` на `retry_after`); таймаут / 5xx — маркер остаётся (лучше пропустить, чем отправить дважды).
+9. После успеха — событие `trial_offer.sent {step, subscription_id, priced: bool}` (P8).
+
+**Задание `App\Jobs\SendTrialOfferJob`:** посредник `ThrottleTelegramOutbound`, `tries = 0`, `maxExceptions = 3`, `retryUntil()` = +12 ч от постановки (и всё равно отсекается правилом устаревания в п. 1).
+
+**Отписка `bill1:offers_off`.** Обработчик рядом с `ProCallbackHandler` (`App\Domain\Telegram\Handlers\BillingOffersCallbackHandler`, регистрация как у остальных `*1:` префиксов). В транзакции: `learners` `FOR NO KEY UPDATE` (pgsql) / `FOR UPDATE`, `meta.billing_offers_opt_out = true` (перезапись `meta` только под замком), событие `trial_offer.opted_out` — только при переходе `false → true`. Ответ `answerCallbackQuery` с текстом `billing.trial_offer.opted_out`; повторное нажатие — тот же ответ, без записи. Отписка не трогает служебные сообщения о платной подписке (продление, оплата, возврат) и учебные напоминания.
+
+**Тесты P5 (Pest, `FakeTelegramClient`):** каждый шаг один раз (двойной прогон команды и повтор задания); вне окна 11–19 по поясу ученика (`Asia/Tashkent` и, например, `America/New_York`) — не ставится; шаг старше 24 ч — не уходит; остановка при Pro (покупка, промокод, место в центре, награда за друзей — `resolve` без кэша), при `dm_blocked_at`, `blocked_at`, удалении, отписке; второе сообщение о Pro в те же локальные сутки (вместе с `renewal_reminder`) не уходит; пустой каталог — шаг 0 без цен, 3 и 10 не уходят; 403 → флаг недоступности и нет маркера; 429 (`failSends = 1`, `failSendsRetryAfter = N`) → `TelegramRateLimitedException`, маркера нет, повтор доставляет ровно одно; таймаут (`failSendsAsTransport`) → маркер остаётся, повтор молчит; `bill1:offers_off` дважды — одно событие.
+
+#### 2д.1. Реализация P4–P8 (coder, 25.11.2026)
+
+- **P4.** `settings.options.daily_goal_max` в `types.ts` (обязательное поле, `null` = без лимита). `SegmentedControl` получил `locked` у варианта (иконка `lock-closed`, `aria-disabled`, не `disabled`); в `select` (больше четырёх целей) запертый вариант подписан «40 — в Pro». `SettingsView`: нажатие на запертую цель `PATCH` не шлёт, открывает `PaywallSheet reason="daily_goal"`; 403 `daily_goal_pro_required` — стор `settings` ставит `goalProRequired`, берёт `details.max` в `options.daily_goal_max` и не пишет ошибку (без тоста), экран открывает тот же пейвол. Заголовок «Цель больше {max} — в Pro», строка «На бесплатном тарифе цель дня — до {max} карточек» (`max` — из `options.daily_goal_max` стора настроек). `OfferPlacement::PaywallDailyGoal` и `PaywallTrialEnded` + зеркало в `offerViewed.ts`. Подпись «карточек в день» / «kuniga nechta kartochka». Stars-месяц у пробного клиент и раньше не прятал — менять нечего. Тесты: `SettingsGoalLock.spec.ts`.
+- **P5.** `TrialOfferSender` (`queueDue` — выбор команды, `send` — отправка, `optOut`), `SendTrialOfferJob`, `billing:trial-offers` (ежечасно), `BillingOffersCallbackHandler` (`bill1:offers_off`, ответ — алерт `billing.trial_offer.opted_out`, неизвестный аккаунт не регистрируется). Общие части сообщения — `App\Domain\Telegram\Services\ProPitch` (плюсы `ProPromises::top(4)`, строка цен «от … в месяц» + «−N %» по `saving_pct` каталога, клавиатура `buyRows` + «Пригласить друзей» + «Не присылать предложения»). Текст шага 0 собран из частей: «Теперь у вас Free — в день: 10 новых слов, цель до 10 карточек, 3 игры со словами» — каждое число из плана / конфига, часть без лимита (или игры, закрытые для ученика) выпадает. Шаг «последний» — наибольший из `after_days`, промежуточные — итоги пробного. Тесты: `tests/Feature/Billing/TrialOfferTest.php`.
+- **P6.** `billing.trial.remind_days = [3]`; `SubscriptionService::remindExpiring` берёт для `provider = trial` эти дни, для остальных — `checkout.renewal_reminder_days`. `RenewalReminderSender` для пробного шлёт `sendMessage` с плюсами, ценами и кнопками `ProPitch` (без «Не присылать предложения»), без каталога — `hint_trial`; маркер и отправка ученику — под замком `billing:pro-dm:learner:{id}`. Тесты — `ProTrialServiceTest`.
+- **P7.** `composables/trialEnded.ts` (`trial_ended_seen:<ended_at>` через `seenFlag`), `TodayView` открывает `PaywallSheet reason="trial_ended"` у Free с `lapsed.provider = trial`, не поверх вводного листа. Строка «Цель дня теперь {max} карточек — это максимум на Free» (без лимита — общая строка). Тесты: `TodayTrialEnded.spec.ts`.
+- **P8.** `trial_offer.sent {step, subscription_id, priced}`, `trial_offer.opted_out`. `BillingFunnelService::report()['trial_offers'] = {steps: [{step, sent, paid}], opted_out}`: оплата (`payment.succeeded`, `kind = charge`) засчитывается последнему шагу перед первым платежом после предложения; ключ кэша `v3`; таблица «Предложения после пробного Pro» в виджете воронки. Тесты: `BillingFunnelServiceTest`, `BillingFunnelWidgetTest`.
+
 ### 2в. Задачи
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| P0 | Docs до кода: docs/12 §5.3–5.4 (лимит цели Free), docs/13 §7.1 (новый подраздел «После пробного Pro»), docs/04 (поле `daily_goal_max`, код 403 `daily_goal_pro_required`, причины пейвола), docs/05 (экран настроек), docs/06 §4.2 (автоснижение цели и сверка) | координатор | T1 | docs согласованы |
-| P1 | `billing.plans.*.limits.daily_goal_max`, `Plan::dailyGoalMax()`, `Entitlement::$dailyGoalMax`, проверка конфига | coder | P0 | `BillingPlanTest`, тест согласованности конфига (лимит в списке, умолчание ≤ лимита) |
-| P2 | **Ядро `DailyGoalLimiter`** (`enforce`, `assertAllowed`, `options`) + команда `learners:enforce-goal-limits` + расписание | **architect** | P1 | Снижение 40 → 10 и возврат 10 → 40; повторный вызов ничего не меняет; ручная смена убирает `daily_goal_before_limit`; снижение засчитывает день, если сделано ≥ 10 (серия +1 один раз); **гонки на PG:** два `enforce` параллельно, `enforce` вместе с `PATCH settings`, `enforce` вместе с оценкой карточки (без взаимной блокировки, день засчитан ровно один раз); 0 лишних запросов, когда менять нечего |
-| P3 | Подключение: `TodayService`, `LearnerSettingsService::describe/update` (403), `TrainingFlowService`; поле `options.daily_goal_max` в ресурсе | coder | P2 | Тесты бюджета запросов `/today` и `/me` не растут; 403 `daily_goal_pro_required` у Free; 200 у Pro и у ученика центра; 422 для значения не из списка |
-| P4 | Mini App: замки в выборе цели, `PaywallSheet` с причиной `daily_goal`, `OfferPlacement::PaywallDailyGoal`, i18n ru/uz, подпись единицы | coder | P3 | vitest: замок, нажатие открывает пейвол, PATCH не уходит; ответ 403 тоже открывает пейвол |
-| P5 | Цепочка: `TrialOfferSender`, `SendTrialOfferJob`, `billing:trial-offers`, тексты ru/uz с ценами из каталога и плюсами из `ProPromises`, кнопка `bill1:offers_off` (обработчик рядом с `ProCallbackHandler`) | coder (ревью architect — выбор окна и маркер) | P1 | Каждый шаг один раз; остановка при Pro / блокировке / отписке; окно 11–19 по поясу ученика; не больше 1 сообщения в сутки вместе с напоминаниями о продлении; при пустом каталоге шаг 0 без цен, +3 и +10 не уходят; 403 ставит флаг (тема 4) и удаляет маркер |
-| P6 | Напоминание −3 для пробного: плюсы и цены, `billing.trial.remind_days`, без −1 | coder | P5 | Тест текста с ценами; для платных подписок −3 и −1 не изменились |
-| P7 | Mini App: разовый пейвол `trial_ended`, `localStorage`, место показа | coder | P4 | vitest: открывается один раз на одно `ended_at` |
-| P8 | Аналитика: события `trial_offer.sent {step}` и `trial_offer.opted_out`, переход «шаг → оплата» в `BillingFunnelService` | coder | P5 | Тест отчёта |
+| P0 ✔ | Docs до кода: docs/12 §5.3–5.4 (лимит цели Free), docs/13 §7.1 (новый подраздел «После пробного Pro»), docs/04 (поле `daily_goal_max`, код 403 `daily_goal_pro_required`, причины пейвола), docs/05 (экран настроек), docs/06 §4.2 (автоснижение цели и сверка) | координатор | T1 | docs согласованы |
+| P1 ✔ | `billing.plans.*.limits.daily_goal_max`, `Plan::dailyGoalMax()`, `Entitlement::$dailyGoalMax`, проверка конфига | coder | P0 | `BillingPlanTest`, тест согласованности конфига (лимит в списке, умолчание ≤ лимита) |
+| P2 ✔ | **Ядро `DailyGoalLimiter`** (`enforce`, `assertAllowed`, `options`) + команда `learners:enforce-goal-limits` + расписание | **architect** | P1 | Снижение 40 → 10 и возврат 10 → 40; повторный вызов ничего не меняет; ручная смена убирает `daily_goal_before_limit`; снижение засчитывает день, если сделано ≥ 10 (серия +1 один раз); **гонки на PG:** два `enforce` параллельно, `enforce` вместе с `PATCH settings`, `enforce` вместе с оценкой карточки (без взаимной блокировки, день засчитан ровно один раз); 0 лишних запросов, когда менять нечего |
+| P3 ✔ | Подключение: `TodayService`, `LearnerSettingsService::describe/update` (403), `TrainingFlowService`; поле `options.daily_goal_max` в ресурсе | coder | P2 | Тесты бюджета запросов `/today` и `/me` не растут; 403 `daily_goal_pro_required` у Free; 200 у Pro и у ученика центра; 422 для значения не из списка |
+| P4 ✔ | Mini App: замки в выборе цели, `PaywallSheet` с причиной `daily_goal`, `OfferPlacement::PaywallDailyGoal`, i18n ru/uz, подпись единицы | coder | P3 | vitest: замок, нажатие открывает пейвол, PATCH не уходит; ответ 403 тоже открывает пейвол |
+| P5 ✔ | Цепочка (спецификация — §2д): `TrialOfferSender`, `SendTrialOfferJob`, `billing:trial-offers`, тексты ru/uz с ценами из каталога и плюсами из `ProPromises`, кнопка `bill1:offers_off` (обработчик рядом с `ProCallbackHandler`) | coder (ревью architect — выбор окна и маркер) | P1 | Каждый шаг один раз; остановка при Pro / блокировке / отписке; окно 11–19 по поясу ученика; не больше 1 сообщения в сутки вместе с напоминаниями о продлении; при пустом каталоге шаг 0 без цен, +3 и +10 не уходят; 403 ставит флаг (тема 4) и удаляет маркер |
+| P6 ✔ | Напоминание −3 для пробного: плюсы и цены, `billing.trial.remind_days`, без −1 | coder | P5 | Тест текста с ценами; для платных подписок −3 и −1 не изменились |
+| P7 ✔ | Mini App: разовый пейвол `trial_ended`, `localStorage`, место показа | coder | P4 | vitest: открывается один раз на одно `ended_at` |
+| P8 ✔ | Аналитика: события `trial_offer.sent {step}` и `trial_offer.opted_out`, переход «шаг → оплата» в `BillingFunnelService` | coder | P5 | Тест отчёта |
 
 ### 2г. Вопросы владельцу
 
@@ -324,7 +367,7 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 ### 4б. Лимиты Telegram Bot API
 
-**Перепроверить по официальной документации (core.telegram.org/bots/faq, раздел «My bot is hitting limits», и core.telegram.org/bots/api, `sendMessage` → `allow_paid_broadcast`) перед реализацией.** Цифры ниже — по памяти.
+**Сверено с официальной документацией 25.11.2026** (core.telegram.org/bots/faq, «My bot is hitting limits, how do I avoid this?»; core.telegram.org/bots/api, `ResponseParameters`, `sendMessage.allow_paid_broadcast`): цифры ниже подтверждены. Уточнения: платные рассылки требуют не меньше 100 000 ⭐ на балансе и 100 000 активных пользователей в месяц, плата берётся только за успешно доставленные сообщения сверх бесплатных 30/с. Сам формат ответа 429 в документации описан общо: `error_code` + `parameters.retry_after` («сколько секунд ждать до повтора»); что повторное нарушение удлиняет ожидание, в документации **не** написано — это практика, на неё код не опирается.
 
 | Лимит | Значение | У нас |
 |---|---|---|
@@ -351,7 +394,7 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 **2. Обработка 429 без потери сообщений:**
 
-- Клиент при 429 ставит паузу `telegram:outbound:pause_until` (Redis, TTL = `min(retry_after, 60)` с) и паузу этого чата `telegram:outbound:pause:{sha256(chat)}`.
+- Клиент при 429 ставит паузу этого чата `telegram:outbound:pause:{sha256(chat)}` (Redis, TTL = `min(retry_after, 60)` с) и общую паузу `telegram:outbound:pause_until` — общую только при 429 в личный чат (`chatId > 0`) или в запросе без чата. 429 в группу (`chatId < 0`) ставит лишь паузу этой группы: у группы свой лимит (20/мин), и одна занятая группа не должна останавливать личные сообщения всего бота (ревью выпуска B, 25.11.2026).
 - `reserveGlobal()` возвращает false, пока действует общая пауза, `reserve($chatId)` — пока действует пауза чата. Тогда все фоновые отправки сами ждут, и задания откладываются через существующий `release()`.
 - `ThrottleTelegramOutbound` ловит `TelegramRateLimitedException` от обработчика и делает `$job->release(retryAfter + random_int(0, 3))`, то есть исключение не съедает `maxExceptions`.
 - `LeagueResultSender::sendBatch`: при 429 удалить маркер текущего ученика, вернуть его и остальных в `remaining` и остановить пачку; задание поставит остаток с задержкой `retryAfter`.
@@ -383,6 +426,41 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 **7. Mini App (по желанию):** если `/me.dm_reachable = false`, на экране «Сегодня» показать баннер «Напоминания не приходят: бот заблокирован» с кнопкой-ссылкой `t.me/<bot>`.
 
+**8. Спецификация для отправителей (B3, B4) — по итогам B1.** Сделано в B1 (architect, 25.11.2026): классы ошибок (docs/04 B.7a), пауза после 429 и `consumeGlobal` (docs/13 §9, 2R.3b), перехват 429 в `ThrottleTelegramOutbound`, перенос группы при `migrate_to_chat_id` (клиент повторяет отправку сам, отправителю делать ничего не нужно), `FakeTelegramClient::$failSendsRetryAfter` для тестов. Лимиты Telegram сверены с core.telegram.org/bots/faq и /bots/api 25.11.2026: §4б верна (1 сообщение/с в личный чат с допуском всплесков, 20/мин в группу, ~30/с всего; платные рассылки — до 1000/с за 0,1 ⭐, требуют 100 000 ⭐ на балансе и 100 000 активных пользователей в месяц; `ResponseParameters.retry_after` и `migrate_to_chat_id`).
+
+Общее правило для каждого отправителя с маркером идемпотентности (строка `notifications_log`, ключ кэша, колонка `*_posted_at`):
+
+```php
+try {
+    $this->telegram->sendMessage(...);            // или sendWebAppButton / sendPhoto
+} catch (TelegramForbiddenException $e) {
+    // как сейчас: маркер удалить, адресата отметить недоступным (после B2 — DmReachability::markUnreachable), вернуть без ошибки
+} catch (TelegramApiException $e) {           // ловит и TelegramRateLimitedException, и TelegramChatMigratedException
+    if ($e->isApiResponse()) {
+        $log->delete();                        // точно не доставлено: повтор должен отправить
+    }                                          // таймаут / 5xx — маркер остаётся (не больше одного раза)
+    throw $e;                                  // 429: ThrottleTelegramOutbound отложит задание на retry_after
+}
+```
+
+Эталон — `ReminderSender` (сделан в B1 вместе с вопросом-напоминанием: при отказе удаляется и состояние вопроса; тесты `ReviewReminderTest` «deletes the log row on a 429…», «…another 4xx…» и `ReminderQuizSendTest` «drops the question… on a 429»). Тест на каждого отправителя — тот же: `$tg->failSends = 1; $tg->failSendsRetryAfter = N` → исключение `TelegramRateLimitedException`, маркера нет; повторный вызов доставляет ровно одно сообщение; `failSendsAsTransport = true` → маркер остаётся, повтор молчит.
+
+| Отправитель | Маркер | Что сделать |
+|---|---|---|
+| `AchievementSender`, `GameCardSender` (`sendPhoto`) | `notifications_log` | Добавить ветку `TelegramApiException` по образцу выше |
+| `FriendsMessenger::deliver`, `BattleMessenger::deliver` | `notifications_log` | То же внутри `deliver()` |
+| `RenewalReminderSender::dm` | `notifications_log` у ученика или ключ `billing:renewal-reminder:dm:{key}` без ученика | При `isApiResponse()` — `$log?->delete()` и `Cache::forget('billing:renewal-reminder:dm:'.$key)` (только если ставили его). В циклах `notifyOwners` / по ученикам: `TelegramRateLimitedException` пробрасывать **сразу** (не копить «первую ошибку» и не слать остальным — они тоже получат 429) |
+| `MonthWinnerSender`, `ReferralMilestoneSender` | `notifications_log` | Маркер уже удаляется по `isApiResponse()` — 429 покрыт. В цикле победителей `MonthWinnerSender` — `TelegramRateLimitedException` пробрасывать сразу, как выше |
+| `OfferMessenger`, `OrganizationMessenger` (+ слушатели через `RunsDmWithoutRetryOnSyncQueue`) | после отправки (`markAnnounced`) или нет | Код не менять: исключение и так выходит наружу и откладывается посредником. Нужен только тест «429 → повтор доставляет один раз» |
+| `LeagueResultSender::sendBatch` | `notifications_log` в `deliver()` | В `deliver()` — ветка `TelegramApiException` по образцу. В цикле `sendBatch`: `catch (TelegramRateLimitedException)` **перед** `catch (TelegramApiException)` → `$outcome['remaining'] = array_slice($memberIds, $i); break;` (текущий участник тоже в остатке; без `report()`). Задание поставит остаток с `globalRetryDelay()` — во время паузы это остаток паузы + 0–3 с, отдельная задержка не нужна. Прочие ошибки — как сейчас (`failed++`, `report()`), но маркер при `isApiResponse()` уже удалён в `deliver()` |
+| `SendTelegramMessageJob` | нет | 429 уже работает (исключение → посредник). 403 при `chatId > 0` → `DmReachability::markUnreachable` (после B2), при `chatId < 0` — группа, см. B4 |
+| `PostLeaderboardJob`, `PostClassCaravanSummaryJob` (группа) | колонка `*_posted_at` пишется **после** отправки | 429 уже работает. B4: `catch (TelegramForbiddenException)` → `TelegramGroup::query()->whereKey($group->id)->first()?->update(['status' => 'disabled'])` (через Eloquent — наблюдатель), лог, задание завершается без ошибки, маркер не ставится |
+| `ClassCaravanMessenger::send` | нет (ответ на команду) | B4: 403 → `disabled` как выше; 429 — только лог (это ответ на команду в вебхуке, не ждём) |
+| `GroupSessionAnnouncer::announce` | нет (сессия отменяется через `$cancel`) | B4: `TelegramRateLimitedException` с `retryAfter ≤ 3` → `sleep(retryAfter)` и один повтор той же отправки; иначе (или повтор снова 429) — `$cancel()`, но **без** `sendMessage($failureText)` в этот чат. `TelegramForbiddenException` → `$cancel()` и группа `disabled` |
+| `AssignmentService::post` | колонка-захват `announced_at` / `reminded_at` | B4: `catch (TelegramRateLimitedException)` перед общей веткой → снять захват (`$column => null`) **без** `*_failures + 1`, `$this->slotDenied = true` (прогон `assignments:refresh` остановится), `return false`. 403 → группа `disabled` и снять захват |
+
+`TelegramChatMigratedException` до отправителя доходит только из правок сообщения или при двух переносах подряд — это обычная «определённая» ошибка по таблице выше. Ловить его отдельно не нужно.
+
 **Сводка: сделано / не хватает / риск**
 
 | Что | Сделано | Не хватает | Риск |
@@ -401,15 +479,17 @@ Mini App: при первом открытии после `T`, если в `/me.
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
 | B0 | Docs: docs/04 (бот: классификация ошибок, снятие флага), docs/13 §9 (исходящие: пауза 429, учёт ответов), docs/03 (`dm_blocked_reason`), ADMIN_GUIDE (счётчик), DEVOPS_GUIDE (что значит запись в `failed_jobs`) | координатор | — | docs согласованы |
-| B1 | **Классификация в клиенте:** `TelegramRateLimitedException`, `TelegramChatMigratedException` (совместно с K1), паузы в `TelegramMessageRateLimiter`, перехват 429 в `ThrottleTelegramOutbound` | **architect** | B0 | Поддельные ответы SDK 429 / 403 / 400 migrate / 400 other / 5xx / таймаут → нужный класс; токен не утекает; пауза блокирует `reserveGlobal` и `reserve`; задание после 429 откладывается на `retry_after`, `maxExceptions` не тратится; два воркера на Redis видят одну паузу |
-| B2 | Миграция `dm_blocked_reason`, сервис `DmReachability`, перевод всех мест на него, события `bot.dm_closed` / `bot.dm_reopened`, тест-страж | coder | B0 | Переходы закрыт ↔ открыт: событие один раз; повторный `kicked` не сдвигает дату; `/start` снимает; `DmReachabilityTest` и `ReminderDispatcher` зелёные |
-| B3 | Отправители: при 429 удалить маркер и пробросить (`ReminderSender`, `AchievementSender`, `GameCardSender`, `FriendsMessenger`, `BattleMessenger`, `OfferMessenger`, `OrganizationMessenger`, `RenewalReminderSender`, `MonthWinnerSender`, `ReferralMilestoneSender`), `LeagueResultSender::sendBatch` — остановка пачки, `SendTelegramMessageJob` — флаг при 403 | coder по спецификации B1 | B1, B2 | По тесту на каждого отправителя: 429 → маркер удалён, повтор доставляет ровно один раз; таймаут → маркер остаётся (как сейчас) |
-| B4 | Группы: 403 → `disabled` через Eloquent, задание без ошибки; 429 в `GroupSessionAnnouncer` и `AssignmentService` по §4в п. 2 | coder (ревью architect) | B1 | `PostLeaderboardJob` с 403 не попадает в `failed_jobs`, группа `disabled`, наблюдатель сбросил тариф участников; урок не отменяется при 429 с `retry_after ≤ 3` |
-| B5 | `/admin`: счётчик на дашборде, фильтр и колонка в `LearnerResource` | coder | B2 | Тест бюджета запросов страницы (docs/20 §1), переводы ru/uz |
-| B6 | `consumeGlobal()` для `HandleTelegramUpdate` | coder | B1 | Ответ на обновление никогда не ждёт; счётчик секунды растёт |
-| B7 | `ReminderDispatcher`: не вести `next_reminder_at` для `user_deactivated` / `chat_not_found` | coder | B2 | Тест выборки |
+| B1 ✔ | **Классификация в клиенте:** `TelegramRateLimitedException`, `TelegramChatMigratedException` (совместно с K1), паузы в `TelegramMessageRateLimiter`, перехват 429 в `ThrottleTelegramOutbound` | **architect** | B0 | Поддельные ответы SDK 429 / 403 / 400 migrate / 400 other / 5xx / таймаут → нужный класс; токен не утекает; пауза блокирует `reserveGlobal` и `reserve`; задание после 429 откладывается на `retry_after`, `maxExceptions` не тратится; два воркера на Redis видят одну паузу |
+| B2 ✔ | Миграция `dm_blocked_reason`, сервис `DmReachability`, перевод всех мест на него, события `bot.dm_closed` / `bot.dm_reopened`, тест-страж | coder | B0 | Переходы закрыт ↔ открыт: событие один раз; повторный `kicked` не сдвигает дату; `/start` снимает; `DmReachabilityTest` и `ReminderDispatcher` зелёные |
+| B3 ✔ | Отправители: при 429 удалить маркер и пробросить (`ReminderSender`, `AchievementSender`, `GameCardSender`, `FriendsMessenger`, `BattleMessenger`, `OfferMessenger`, `OrganizationMessenger`, `RenewalReminderSender`, `MonthWinnerSender`, `ReferralMilestoneSender`), `LeagueResultSender::sendBatch` — остановка пачки, `SendTelegramMessageJob` — флаг при 403 | coder по спецификации B1 | B1, B2 | По тесту на каждого отправителя: 429 → маркер удалён, повтор доставляет ровно один раз; таймаут → маркер остаётся (как сейчас) |
+| B4 ✔ | Группы: 403 → `disabled` через Eloquent, задание без ошибки; 429 в `GroupSessionAnnouncer` и `AssignmentService` по §4в п. 2 | coder (ревью architect) | B1 | `PostLeaderboardJob` с 403 не попадает в `failed_jobs`, группа `disabled`, наблюдатель сбросил тариф участников; урок не отменяется при 429 с `retry_after ≤ 3` |
+| B5 ✔ | `/admin`: счётчик на дашборде, фильтр и колонка в `LearnerResource` | coder | B2 | Тест бюджета запросов страницы (docs/20 §1), переводы ru/uz |
+| B6 ✔ | `consumeGlobal()` для `HandleTelegramUpdate` (сделал architect вместе с B1) | coder | B1 | Ответ на обновление никогда не ждёт; счётчик секунды растёт |
+| B7 ✔ | `ReminderDispatcher`: не вести `next_reminder_at` для `user_deactivated` / `chat_not_found` | coder | B2 | Тест выборки |
 | B8 | Mini App: баннер «бот заблокирован» (`/me.dm_reachable`) | coder | B2, выпуск 1 | vitest |
 | B9 | Проверка на живом боте (стенд): заблокировать бота → напоминание → флаг; разблокировать → `/start` снимает; удалить бота из группы → итоги экзамена не в `failed_jobs`; искусственный всплеск в один чат → 429 обработан | владелец / devops | B1–B4 | Чек-лист в STAGING-документе |
+
+**Сделано в B2–B5, B7 (coder, 25.11.2026).** `DmReachability` (`markUnreachable($tgId, $reason, ?$at, $via = 'send')`, `markReachable($tgId, $via)`; `via` закрытия — `send` / `my_chat_member`, открытия — `dm` / `start` / `my_chat_member`), миграция `dm_blocked_reason` + частичный индекс `learners_dm_blocked_at_idx` (под счётчик и фильтр), тест-страж `DmReachabilityGuardTest` (исключение — синтетические ученики нагрузочного теста `LoadTestTokenIssuer`). B7 сделан в `DmReachability`: при закрытии с причиной `user_deactivated` / `chat_not_found` `next_reminder_at` обнуляется, выборка и досоздание `ReminderDispatcher` его не возвращают, пока флаг стоит (после снятия флага досоздание ставит указатель заново). Группы — общий `GroupBotRemoval` (`disabled` через Eloquent, лог `telegram.group_forbidden`; `bot_status` не трогает). `SendTelegramMessageJob`: 403 при `chatId > 0` — `markUnreachable`, при `chatId < 0` — группа `disabled`. `AssignmentService` при 403 по-прежнему считает неудачу (`*_failures + 1`) и вдобавок отключает группу. Переводы `/admin` — только `lang/ru/admin.php` (у панели нет uz/en файлов, это проверяет `AdminPanelLocalizationTest`). Счётчик — третья плитка `TotalLearnersWidget`, только активному админу (`BotBlockedCounter`, ключ `admin:widget:bot_blocked:v1:all`, 60 с, сброс после фиксации перехода).
 
 ---
 
@@ -428,7 +508,7 @@ Mini App: при первом открытии после `T`, если в `/me.
 ## 6. Риски для ревью
 
 - **Гонки вокруг цели дня (P2).** Снижение цели засчитывает день и продлевает серию. Порядок блокировок `learners` → (после фиксации) `learner_daily_stats` нарушать нельзя: при совместной блокировке возможна взаимная блокировка с транзакцией ответа. Тест на PG с двумя соединениями обязателен.
-- **Звёздная подписка во время 14-дневного пробного периода.** `CheckoutService::assertCanBuyOver` отказывает в покупке Stars-месяца, пока до конца живого периода больше `billing.stars.subscribe_window_days` (7) дней: первую неделю пробного периода ученик получит `subscribe_too_early`. Сообщения −3 и 0 в окно попадают, пейвол из настроек (P4) в первую неделю — нет. На ревью P4 проверить, что пейвол предлагает квартал, год или сумы, или явно объясняет отказ.
+- **Звёздная подписка во время 14-дневного пробного периода.** ~~`CheckoutService::assertCanBuyOver` отказывает в покупке Stars-месяца первую неделю пробного (`subscribe_too_early`).~~ **Решено 25.11.2026 (§2б.5):** окно действует только поверх оплаченного периода; поверх пробного Stars-месяц разрешён, остаток пробного переносится за оплаченный срок (`meta.stars.grant_carry_seconds`). На ревью: Telegram списывает очередной месяц на «остаток» раньше конца нашего периода — экраны показывают конец доступа, а не дату списания.
 - **Потеря сообщений при 429 (B3).** Сейчас 429 в половине отправителей оставляет маркер. Это нужно закрыть до волн выпуска 3 (итоги недели и месяца в двух таблицах — Free и Pro).
 - **Шум предложений.** Цепочка + напоминания о продлении + учебные напоминания. Правило «одно сообщение о Pro в сутки» проверить тестом вместе с `RenewalReminderSender`.
 - **Прод-env.** Без смены `.env` на сервере новые умолчания не действуют (T4). После смены — `config:cache` и перезапуск Octane и воркеров, иначе старые числа живут до перезапуска.

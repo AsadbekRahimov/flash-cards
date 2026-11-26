@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Game\DTO\AuthoredCandidate;
+use App\Domain\Game\DTO\PublicDistractors;
 use App\Domain\Game\DTO\RunComposition;
 use App\Domain\Game\DTO\RunLimits;
 use App\Domain\Game\DTO\RunPool;
@@ -169,6 +170,44 @@ it('builds the options of a choice from the nearest tier first and never lets a 
     // With only the clashing course word and nothing else, "cat" has two distractors: no task with options for it.
     $short = new RunPool(composerLocales(), $words, [], [$clash]);
     expect(RunComposer::distractors($words[0], $short, COMPOSER_SEED))->toBeNull();
+});
+
+it('asks for the public tier only when the run and the course ran short, and answers as one ranked list of every tier would', function (): void {
+    $words = [poolWord(1, 'cat', 'кот'), poolWord(2, 'dog', 'собака'), poolWord(3, 'fish', 'рыба', example: false)];
+    $course = [poolWord(10, 'bird', 'птица', tier: RunPoolWord::TIER_COURSE)];
+    $public = [];
+    foreach (range(20, 29) as $id) {
+        $public[] = poolWord($id, "public{$id}", tier: RunPoolWord::TIER_PUBLIC);
+    }
+    $ids = static fn (?array $chosen): ?array => $chosen === null ? null : array_map(static fn (RunPoolWord $w): int => $w->id(), $chosen);
+    $reads = 0;
+    $lazy = new PublicDistractors(function () use ($public, &$reads): array {
+        $reads++;
+
+        return $public;
+    });
+
+    // Enough in the run and the course: the tier is never read.
+    $rich = new RunPool(composerLocales(), $words, [], $course, public: $lazy);
+    foreach ($words as $word) {
+        expect($ids(RunComposer::distractors($word, $rich, COMPOSER_SEED)))->toBe($ids(RunComposer::distractors($word, new RunPool(composerLocales(), $words, [], [...$course, ...$public]), COMPOSER_SEED)));
+    }
+    expect($reads)->toBe(0)->and($lazy->wasRead())->toBeFalse();
+
+    // Two words in the run, nothing in the course: one distractor from the run, two from the public tier - read once for every word.
+    $two = array_slice($words, 0, 2);
+    $thin = new RunPool(composerLocales(), $two, [], [], public: $lazy);
+    foreach ($two as $word) {
+        $chosen = $ids(RunComposer::distractors($word, $thin, COMPOSER_SEED));
+        expect($chosen)->toHaveCount(3)
+            ->and($chosen)->toBe($ids(RunComposer::distractors($word, new RunPool(composerLocales(), $two, [], $public), COMPOSER_SEED)))
+            ->and($chosen[0] ?? null)->toBeLessThan(20);
+    }
+    expect($reads)->toBe(1)->and($lazy->wasRead())->toBeTrue();
+
+    // No public tier at all, or an empty one: as before, no task with options.
+    expect(RunComposer::distractors($two[0], new RunPool(composerLocales(), $two), COMPOSER_SEED))->toBeNull()
+        ->and(RunComposer::distractors($two[0], new RunPool(composerLocales(), $two, public: PublicDistractors::of([])), COMPOSER_SEED))->toBeNull();
 });
 
 it('puts the authored tasks first, no more than three, never at the warm-up, and does not ask their target words again', function (): void {

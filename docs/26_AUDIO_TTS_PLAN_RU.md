@@ -1,5 +1,7 @@
 # Озвучка: Google Cloud TTS + Cloudflare R2 — план реализации
 
+> **25.11.2026: основной синтезатор — Deepgram Aura-2 (`TTS_DRIVER=deepgram`), §10.** Google остаётся альтернативой; всё про Google ниже действует для `TTS_DRIVER=google`. Инструкция владельца — `docs/37_DEEPGRAM_TTS_SETUP_RU.md`.
+
 Статус: **выпуск 1 реализован (слова и диктанты); выпуск 2 (примеры, §5.7) реализован: ядро на сервере, поле API `example_audio_url` и кнопка в Mini App (§9.11).** Реальные Google и R2 и телефон не проверены. Решение владельца — 20.11.2026. Настройка внешних сервисов и порядок включения — `docs/27_GOOGLE_TTS_SETUP_RU.md`. Разделы 2–3 описывают состояние до реализации.
 
 ## 1. Решение
@@ -72,6 +74,8 @@ Google: 1 млн символов в месяц бесплатно для Chirp 
 - В запросах ученика бакет не опрашивается: готовность слова — это заполненный `words.audio_path`, равный ожидаемому пути (так `urlFor` работает уже сейчас). Проверка наличия файла — только в заданиях, в `audio:coverage --verify` и в `audio-failed` баттла (§9.9). Это касается и диктантов практики по словам (`DictationMode::isPlayable`) и игровых заданий на слух — §9.5.
 - CSP: в `media-src` всех nginx-конфигов добавить домен озвучки из переменной; в `connect-src` — **не** добавлять: Mini App на домен озвучки `fetch` не делает (§9.9). CORS на бакете не нужен.
 - Диктанты: диск `practice_audio` остаётся локальным (файлы закрыты, отдаются через JWT). На нескольких серверах или при переезде они пересоздаются командой; в R2 не выносим.
+- **Адрес на диске `public` (docs/31 §5д, 25.11.2026):** `https://<основной домен>/audio/<хеш>.mp3`. Его строит `WordAudioService` из `twa.tts.public_disk_audio_url` (`TTS_PUBLIC_DISK_AUDIO_URL`, по умолчанию `APP_URL`) и пути файла `audio/<хеш>.mp3`; прочие файлы диска `public` по-прежнему идут через `/storage` (`filesystems.disks.public.url`). Отдаёт nginx (`prod.conf`, `coolify.conf`, `default.conf`): `location ^~ /audio/` с тем же `alias` каталога `storage/app/public/audio/` и теми же заголовками (`Cache-Control: public, max-age=2592000, immutable`, HSTS, `nosniff`, `gzip off`), только `GET`/`HEAD` (прочее — 403) и только `<имя>.mp3` в самом каталоге (подкаталоги, `.tmp/`, другие типы — 404). Старый `location ^~ /storage/audio/` оставлен: открытые сессии Mini App держат старые адреса. CSP не меняется — адрес на том же домене (`media-src 'self'`). Без nginx (`php artisan serve`) `php artisan storage:link` создаёт и ссылку `public/audio`. Откат на старые адреса без правок кода: `TTS_PUBLIC_DISK_AUDIO_URL=${APP_URL}/storage`.
+- Диск `audio` (R2) эту настройку не читает: его адрес — `AUDIO_PUBLIC_URL` + `/audio/<хеш>.mp3`; при `AUDIO_PUBLIC_URL=https://<основной домен>` адрес совпадает с адресом диска `public`, но отдавать `/audio/` основного домена из бакета — отдельная задача (docs/31 §5д, U0/U1).
 
 ### 5.5 Синтез «на лету» (`GET /api/twa/tts`) — адрес удалён
 
@@ -468,3 +472,26 @@ JWT:
 - Адрес — публичный URL диска слов (R2 при `TTS_AUDIO_DISK=audio`), как `audio_url` слова: играть `new Audio(url)` по нажатию, без `fetch`, домен уже в CSP `media-src`.
 - `DeckDetailResource` (свои колоды) поле не получает — свои колоды не озвучиваются (§9.4).
 
+## 10. Смена сервиса на Deepgram (25.11.2026)
+
+**Решение владельца.** Слова, примеры и диктанты озвучивает Deepgram Aura-2: 200 $ кредита без карты, Google требует платёжный профиль. Драйвер `google` из кода не удалён (рабочий, покрыт тестами) — альтернатива. Инструкция владельца — `docs/37_DEEPGRAM_TTS_SETUP_RU.md`.
+
+**Драйвер `DeepgramSpeechSynthesizer`** (`TTS_DRIVER=deepgram`, регистр и пробелы не важны):
+- `POST https://api.deepgram.com/v1/speak?model=<голос>&encoding=mp3&bit_rate=<32000|48000>`, заголовок `Authorization: Token <DEEPGRAM_API_KEY>`, тело `{"text": …}`; ответ 200 — сам mp3. Пустое тело или JSON/HTML вместо звука — `tts_service_bad_audio` (повтор).
+- Порядок, как у Google (§9.3): маркер остановки → голос и длина → ключ → темп → бюджет → HTTP → возврат символов или звук.
+- Голос — имя модели целиком (`aura-2-thalia-en`), проверка `aura-(2-)?<имя>-<язык>`; имя Google/edge-tts — `tts_voice_unsupported` без вызова. `TTS_VOICE` пуст и `TTS_DRIVER=deepgram` — `aura-2-thalia-en` (умолчание считается в `config/twa.php`). Схема имени файла не меняется: `sha1(текст|голос|версия)`.
+- Длина: больше `DEEPGRAM_TTS_MAX_CHARS` символов (по умолчанию и не выше 2 000) — новый окончательный код `tts_text_too_long` без вызова. Примеры длиннее предела драйвера не ставятся в очередь и не считаются в покрытии (`ConfiguredSpeechSynthesizer::maxTextChars()`; для `google` — прежние 5 000 байт).
+- Ответы: 401 → `tts_auth_failed`, 403 → `tts_forbidden`, 402 → новый `tts_payment_required` — все три окончательные и ставят маркер остановки `tts:deepgram:v1:halt` на 10 минут (отдельный от Google; `audio:sample --clear-halt` снимает оба). 408/429 → `tts_rate_limited`, 5xx → `tts_service_failed` (повтор), прочие 4xx → `tts_request_rejected`. Символы возвращаются при любом отказе; при обрыве связи — нет (Deepgram мог успеть). Повтора с новым ключом при 401 нет — ключ статичный.
+- Ключ: пустой → `tts_service_not_configured`, `/health/ready` → `checks.tts = degraded`, ночная сверка ничего не ставит. Ключ не попадает в сообщения, `previous` (причина обрыва копируется без цепочки: исключение Guzzle держит запрос с заголовком), логи (`tts.deepgram_refused`: только статус, `err_code`, `request_id`, длина), трассировки (`#[\SensitiveParameter]`).
+
+**Темп.** `TtsRequestThrottle::acquire('deepgram')` — свой лимитер `tts-deepgram` и свой предел `DEEPGRAM_TTS_RATE_PER_MINUTE` (150). Лимиты Deepgram по параллельным запросам не сверены (сеть не пустила к документации); воркер `low` один, запросы идут по одному.
+
+**Бюджет — общий, не месячный.** Кредит Deepgram разовый, поэтому `TtsCharacterBudget` для `deepgram` ведёт **одну строку на всё время** в той же таблице `tts_usage_months`: ключ `dgtotal` (7 символов, как `2026-11`: колонка `char(7)`, миграция не нужна), предел `DEEPGRAM_TTS_CHAR_LIMIT` = 6 000 000 символов (≈ 180 $ из 200 $ при 0,03 $ за 1 000). Тот же атомарный `UPDATE … WHERE characters <= предел − n`, тот же возврат. Счётчик сам не обнуляется; новый кредит — владелец поднимает предел (уже потрачено + новое). Превышение — новый код `tts_credit_limit_reached`: задание слова тихо выходит (как при месячном пределе), диктант — `failed` с кодом, сверка пишет причину. Для `google` и прочих — прежний месяц по тихоокеанскому времени.
+
+**Прочее.**
+- `ConfiguredSpeechSynthesizer`: `deepgram` в `KNOWN`; `haltCode()` и `misconfigured()` по драйверу; `WordAudioService::enabled()` — включает `deepgram`.
+- `audio:sample`: `--voices=a,b,c` — до 10 голосов за запуск, каждый в свою папку; после `tts_voice_unsupported` идёт к следующему голосу, после прочих окончательных ошибок останавливается; подсказка с голосами Deepgram; в конце — израсходовано символов кредита.
+- `audio:reconcile`: причины пропуска для `deepgram` — маркер, нет ключа, голос не Deepgram, кредит исчерпан.
+- «Требуют внимания» в `/admin`: «Deepgram · расход кредита» (от 90 % общего предела, исчерпан — срочно) и «Deepgram · озвучка остановлена» (маркер); строки Google — только при `TTS_DRIVER=google`.
+
+**Не сверено по документации Deepgram** (сеть не пустила к developers.deepgram.com): предел 2 000 символов на запрос (настраивается), код 402 при нехватке средств, лимиты параллельных запросов, минимальная роль ключа. Проверяется первым `audio:sample` на сервере.

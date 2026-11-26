@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 19,
+    "title": "Разговорный английский",
+    "title_uz": "So'zlashuv ingliz tili"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Хватит!",
+    "title_uz": "Bas qil!"
+  },
+  "words": [
+    {
+      "word": "Cut it out!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прекрати!",
+        "uz": "bas qil!"
+      },
+      "example": "Cut it out, you two! I'm trying to work.",
+      "example_translations": {
+        "ru": "Прекратите, вы двое! Я пытаюсь работать.",
+        "uz": "Bas qilinglar, ikkovingiz! Men ishlashga harakat qilyapman."
+      },
+      "hooks": {
+        "ru": "Резко требуют перестать шуметь, дразнить или мешать; детям, друзьям",
+        "uz": "Shovqin, masxara yoki xalaqit berishni to'xtatishni keskin talab qilganda aytiladi; bolalar, do'stlarga"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cut",
+        "literal": {
+          "ru": "вырежи это!",
+          "uz": "buni kesib tashla!"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Give me a break",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "да брось!",
+        "uz": "qo'ysang-chi!"
+      },
+      "example": "You'll clean the whole house in ten minutes? Give me a break!",
+      "example_translations": {
+        "ru": "Ты уберёшь весь дом за десять минут? Да брось!",
+        "uz": "Butun uyni o'n daqiqada yig'ishtirasanmi? Qo'ysang-chi!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда не верят чужим словам или просят перестать придираться",
+        "uz": "Birovning gapiga ishonmaganda yoki unga tirg'alishni bas qilishni so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "break",
+        "literal": {
+          "ru": "дай мне перерыв",
+          "uz": "menga tanaffus ber"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Get real",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "спустись на землю!",
+        "uz": "xayolparastlikni qo'y!"
+      },
+      "example": "I'll be a millionaire by thirty. — Get real! You can't even save for a phone.",
+      "example_translations": {
+        "ru": "Я к тридцати стану миллионером. — Спустись на землю! Ты даже на телефон накопить не можешь.",
+        "uz": "O'ttiz yoshgacha millioner bo'laman. — Xayolparastlikni qo'y! Telefonga ham pul yig'olmaysan-ku."
+      },
+      "hooks": {
+        "ru": "Грубовато говорят тому, кто мечтает о нереальном или не видит очевидного",
+        "uz": "Amalga oshmaydigan narsani orzu qilgan yoki ochiq-oydin narsani ko'rmagan odamga qo'polroq aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "real",
+        "literal": {
+          "ru": "стань настоящим",
+          "uz": "haqiqiy bo'l"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Knock it off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хватит!",
+        "uz": "yetar endi!"
+      },
+      "example": "Knock it off, kids — Grandma is sleeping.",
+      "example_translations": {
+        "ru": "Хватит, дети, — бабушка спит.",
+        "uz": "Yetar endi, bolalar, — buvingiz uxlayapti."
+      },
+      "hooks": {
+        "ru": "Требуют сразу прекратить надоевшее поведение; звучит строго",
+        "uz": "Jonga tekkan xatti-harakatni darhol to'xtatishni talab qilganda aytiladi; qat'iy ohangda"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "knock",
+        "literal": {
+          "ru": "сбей это",
+          "uz": "buni urib tushir"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Give it a rest!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "смени пластинку!",
+        "uz": "shu gapni qo'y endi!"
+      },
+      "example": "You've talked about your new car all day — give it a rest!",
+      "example_translations": {
+        "ru": "Ты весь день говоришь о своей новой машине — смени пластинку!",
+        "uz": "Kun bo'yi yangi mashinang haqida gapiryapsan — shu gapni qo'y endi!"
+      },
+      "hooks": {
+        "ru": "Просят перестать без конца говорить об одном и том же или жаловаться",
+        "uz": "Bir narsani to'xtovsiz gapirish yoki shikoyat qilishni bas qilishni so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rest",
+        "literal": {
+          "ru": "дай этому отдых!",
+          "uz": "bunga dam ber!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Back off!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отстань!",
+        "uz": "meni tinch qo'y!"
+      },
+      "example": "Back off! I can make my own decisions.",
+      "example_translations": {
+        "ru": "Отстань! Я сам могу принимать решения.",
+        "uz": "Meni tinch qo'y! O'z qarorlarimni o'zim qabul qila olaman."
+      },
+      "hooks": {
+        "ru": "Резко просят не давить и не вмешиваться; может прозвучать грубо",
+        "uz": "Bosim o'tkazmaslik va aralashmaslikni keskin so'raganda aytiladi; qo'pol eshitilishi mumkin"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "отойди назад!",
+          "uz": "orqaga tisaril!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Drop it!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оставь эту тему!",
+        "uz": "bu mavzuni qo'y!"
+      },
+      "example": "I said I'm sorry. Can we just drop it now?",
+      "example_translations": {
+        "ru": "Я же извинился. Может, оставим эту тему?",
+        "uz": "Uzr so'radim-ku. Endi bu mavzuni qo'ysak bo'ladimi?"
+      },
+      "hooks": {
+        "ru": "Просят больше не говорить о неприятном или спорном вопросе",
+        "uz": "Noxush yoki bahsli masala haqida boshqa gapirmaslikni so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "drop",
+        "literal": {
+          "ru": "урони это!",
+          "uz": "buni tashla!"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Don't push your luck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не испытывай судьбу",
+        "uz": "omadingni ortiqcha sinama"
+      },
+      "example": "OK, you can stay up until ten. Don't push your luck!",
+      "example_translations": {
+        "ru": "Ладно, можешь не ложиться до десяти. Не испытывай судьбу!",
+        "uz": "Mayli, o'ngacha uxlamasang ham bo'ladi. Omadingni ortiqcha sinama!"
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кто уже получил своё и просит ещё больше",
+        "uz": "Xohlaganini olib bo'lib, yana ko'proq so'rayotgan odamni ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "push",
+        "literal": {
+          "ru": "не толкай свою удачу",
+          "uz": "omadingni itarma"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Mind your own business",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не лезь не в своё дело",
+        "uz": "o'z ishing bilan bo'l"
+      },
+      "example": "Who were you talking to on the phone? — Mind your own business!",
+      "example_translations": {
+        "ru": "С кем ты говорил по телефону? — Не лезь не в своё дело!",
+        "uz": "Telefonda kim bilan gaplashding? — O'z ishing bilan bo'l!"
+      },
+      "hooks": {
+        "ru": "Резко отвечают на слишком личный вопрос; звучит грубо, с незнакомыми не говорят",
+        "uz": "Haddan tashqari shaxsiy savolga keskin javob; qo'pol eshitiladi, notanishlarga aytilmaydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "business",
+        "literal": {
+          "ru": "занимайся своим делом",
+          "uz": "o'z ishingga qara"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Enough already!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ну хватит уже!",
+        "uz": "bo'ldi, yetar!"
+      },
+      "example": "Enough already! We've heard your story five times.",
+      "example_translations": {
+        "ru": "Ну хватит уже! Мы слышали твою историю пять раз.",
+        "uz": "Bo'ldi, yetar! Hikoyangni besh marta eshitdik."
+      },
+      "hooks": {
+        "ru": "Раздражённо просят прекратить то, что повторяется слишком долго",
+        "uz": "Juda uzoq takrorlanayotgan narsani to'xtatishni jahl bilan so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "us",
+        "gap": "enough",
+        "literal": {
+          "ru": "достаточно уже!",
+          "uz": "allaqachon yetarli!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

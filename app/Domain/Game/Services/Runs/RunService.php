@@ -6,7 +6,10 @@ namespace App\Domain\Game\Services\Runs;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Game\DTO\HintOutcome;
 use App\Domain\Game\DTO\RunAnswerOutcome;
 use App\Domain\Game\DTO\RunSnapshot;
@@ -36,6 +39,12 @@ use App\Domain\Game\Services\Tasks\TaskRegistry;
 use App\Domain\Game\Support\CityNames;
 use App\Domain\Game\Support\RunScoring;
 use App\Domain\Learners\Services\LearnerClock;
+use App\Domain\Learning\Contracts\AnswerScoreRecorder;
+use App\Domain\Learning\DTO\CardStateBefore;
+use App\Domain\Learning\DTO\ScoredAnswer;
+use App\Domain\Learning\DTO\WordScoreOutcome;
+use App\Domain\Learning\Enums\AnswerVerdict;
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\SnapshotElement;
@@ -99,6 +108,8 @@ final class RunService
         private readonly BoosterService $boosters,
         private readonly ClassCaravanService $caravans,
         private readonly GameCardSender $cards,
+        private readonly AnswerScoreRecorder $scores,
+        private readonly EntitlementResolver $entitlements,
     ) {}
 
     /**
@@ -685,6 +696,8 @@ final class RunService
         }
         $state->rememberMistakes($wordIds);
 
+        $wordScore = $grade->final ? $this->scoreWord($element, $learner, $run, $verdict, $hinted, $now) : null;
+
         $pair = $element->isPairsRound() ? ['left_id' => $grade->normalizedAnswer['left_id'] ?? null, 'right_id' => $grade->normalizedAnswer['right_id'] ?? null] : null;
         $body = [
             'verdict' => $grade->verdict->value,
@@ -697,6 +710,12 @@ final class RunService
         if ($element->isPairsRound()) {
             $body['pair'] = $pair;
             $body['round_done'] = $grade->final;
+        }
+        // The word points of the answer (docs/32 §8.1), only when they may be shown (`live`): stored with the attempt, so a repeated
+        // request_id answers the same block. Off and shadow add nothing - the body is what it was.
+        $shownScore = $wordScore?->toApi();
+        if ($shownScore !== null) {
+            $body['score'] = $shownScore;
         }
         $body = JsonbKeyOrder::object($body);
 
@@ -719,6 +738,11 @@ final class RunService
             'combo_best' => max($run->combo_best, $score->combo),
             'score' => $run->score + $score->points,
         ];
+        if ($wordScore !== null && $wordScore->weekAdded > 0) {
+            // A week on the v2 rules: the run's league points are the weekly points of its credits (docs/32 §3.6), summed here - the
+            // finish keeps them ({@see RunFinisher}); a v1 week adds nothing here and the finish writes the v1 points as before.
+            $updates['league_points'] = $run->league_points + $wordScore->weekAdded;
+        }
         if ($grade->final) {
             $state->markAnswered($element->id, $verdict, $grade->firstAttempt, $score->points, $state->hasLostFlask($element->id), $grade->normalizedAnswer, IsoTime::format($now));
             $state->current++;
@@ -758,6 +782,55 @@ final class RunService
         }
 
         return $body;
+    }
+
+    /**
+     * The word points of the final answer to an element (docs/32 §3.2, §3.6), under the lock of the run and before the finish:
+     * `game_runs → learner_lexemes → learner_score_days → (the finish: the map, the wallet, … learner_daily_stats)`. Only the word tasks
+     * (translate_fwd / translate_back / listen / spell / gap) of a snapshot that carries the lexeme: a round of pairs and the authored
+     * tasks of the practice never get here, and a run started before the word points has no `lexeme_id` (no statement either way).
+     * A hint of the element before the answer (the bazaar or the booster) → assisted; a skip or a wrong answer → failed; right or a
+     * typo → passed. The card is read only when the decision needs it, without a lock (rule 17 of docs/18: the game does not lock
+     * `word_repetitions`); the plan only for the first credit of the rating day.
+     */
+    private function scoreWord(SnapshotElement $element, Learner $learner, GameRun $run, Verdict $verdict, bool $hinted, CarbonImmutable $now): ?WordScoreOutcome
+    {
+        $lexemeId = $element->get('lexeme_id');
+        if (! is_int($lexemeId) || TaskKind::tryFrom($element->kind)?->isWordTask() !== true || ! $this->scores->recordsGame()) {
+            return null;
+        }
+
+        $wordId = (int) $element->get('word_id');
+        $learnerId = (int) $learner->id;
+
+        return $this->scores->record(new ScoredAnswer(
+            learnerId: $learnerId,
+            lexemeId: $lexemeId,
+            wordId: $wordId,
+            source: ScoreSource::Game,
+            sourceId: (int) $run->id,
+            verdict: match (true) {
+                $hinted => AnswerVerdict::Assisted,
+                $verdict === Verdict::Correct, $verdict === Verdict::Typo => AnswerVerdict::Passed,
+                default => AnswerVerdict::Failed,
+            },
+            before: static function () use ($learnerId, $wordId): ?CardStateBefore {
+                /** @var object{state: string, interval_days: int|string|null, last_reviewed_at: string|null}|null $row */
+                $row = DB::table('word_repetitions')
+                    ->where('learner_id', $learnerId)
+                    ->where('word_id', $wordId)
+                    ->first(['state', 'interval_days', 'last_reviewed_at']);
+                $state = $row === null ? null : RepetitionState::tryFrom((string) $row->state);
+
+                return $state === null ? null : new CardStateBefore(
+                    $state,
+                    (int) $row->interval_days,
+                    $row->last_reviewed_at === null ? null : CarbonImmutable::parse((string) $row->last_reviewed_at, 'UTC'),
+                );
+            },
+            plan: fn (): Plan => $this->entitlements->for($learner, $now)->plan,
+            now: $now,
+        ));
     }
 
     /**

@@ -77,7 +77,7 @@ it('takes a learner who has not finished the onboarding back to it, as /settings
     langSend(950_004);
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Шаг 2 из 3')
+        ->and($this->tg->sent[0]['text'])->toContain('Шаг 3 из 4')
         ->and($this->tg->sent[0]['text'])->not->toContain('Tilni tanlang');
 });
 

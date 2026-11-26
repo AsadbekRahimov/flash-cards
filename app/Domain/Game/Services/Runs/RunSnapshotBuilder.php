@@ -6,9 +6,13 @@ namespace App\Domain\Game\Services\Runs;
 
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
+use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Game\DTO\AuthoredCandidate;
+use App\Domain\Game\DTO\PublicDistractors;
+use App\Domain\Game\DTO\RunComposition;
 use App\Domain\Game\DTO\RunLimits;
 use App\Domain\Game\DTO\RunPool;
 use App\Domain\Game\DTO\RunPoolWord;
@@ -45,8 +49,9 @@ use LogicException;
  * 2. The authored tasks: `eligibleItems` of the three types for the lesson, then for the city; no more than `authored_max`, no more
  *    than one dictation, chosen by the seed; built by the handlers of the practice (`PracticeTaskAdapter`), which drop a dictation
  *    whose clip is missing.
- * 3. The distractors: one query - up to `distractor_pool` active words of the course outside the pool, and as many of the public
- *    courses of the platform (`Course::scopePublicPlatform`) - with their translations.
+ * 3. The distractors: one query - up to `distractor_pool` active words of the course outside the pool, with their translations;
+ *    and as many of the public courses of the platform (`Course::scopePublicPlatform`, the cached {@see PlatformDistractorPool}),
+ *    read only if the composer runs short of the words of the run and of the course ({@see PublicDistractors}).
  *
  * The seed is `random_bytes(32)`, used here and NOT stored (the layout is in the snapshot); a test passes its own and gets the same
  * composition every time.
@@ -61,6 +66,7 @@ final class RunSnapshotBuilder
         private readonly GapFillBuilder $gaps,
         private readonly CourseCatalogService $catalog,
         private readonly DeckTitles $titles,
+        private readonly PlatformDistractorPool $platform,
     ) {}
 
     /**
@@ -123,7 +129,7 @@ final class RunSnapshotBuilder
 
         $words = $this->wordsByIds($wordIds, $locales);
         $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
-        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales), public: $this->publicDistractors($course, $locales));
 
         $composition = RunComposer::compose($pool, $seed, $limits);
         if ($composition->count() < $limits->minElements) {
@@ -165,7 +171,7 @@ final class RunSnapshotBuilder
 
         $words = $this->wordsByIds($wordIds, $locales);
         $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
-        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales), public: $this->publicDistractors($course, $locales));
 
         $composition = RunComposer::compose($pool, $seed, $limits);
         if ($composition->count() < $limits->minElements) {
@@ -192,6 +198,37 @@ final class RunSnapshotBuilder
     }
 
     /**
+     * The tasks of a day of a group cup (docs/33 §5.1, K5): built ONCE per day and shared by every participant - the same words, kinds,
+     * options and right answers; only the order of the tasks and of the options differs per participant (the cup's projection). Like
+     * {@see forClassBoss()}: the kinds in a circle, no pairs, no authored tasks, no events, no flasks - and exactly `$tasks` elements
+     * ({@see RunLimits::forCup()}). `$wordIds` are the planned words of the day, spares included: a word the composer cannot turn into a
+     * task (no three distractors that do not clash) is replaced by the next one of the seeded order. A `listen` needs the recording of
+     * the word's current text; without one the circle takes another kind - decided here, so it is the same for everybody.
+     *
+     * `$locales` are ALL the supported locales: every participant reads the texts of the same snapshot in his own. The opaque ids are
+     * random, so a second build of the same day is a different snapshot - the caller builds a day once, under the lock of its row.
+     *
+     * @param  list<int>  $wordIds
+     *
+     * @throws GameException game_not_enough_material
+     */
+    public function forCupDay(Course $course, array $wordIds, LocaleSet $locales, string $seed, int $tasks): RunComposition
+    {
+        $limits = RunLimits::forCup($tasks);
+
+        $words = $this->wordsByIds($wordIds, $locales);
+        $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales), public: $this->publicDistractors($course, $locales));
+
+        $composition = RunComposer::compose($pool, $seed, $limits);
+        if ($composition->count() < $limits->minElements) {
+            throw GameException::notEnoughMaterial($composition->count(), $limits->minElements, 'no_words');
+        }
+
+        return $composition;
+    }
+
+    /**
      * The snapshot of the boss of a city (docs/18 §12.3.1, §12.3.4): tasks made of the hardest words `$wordIds` of the city (the kinds in
      * a circle), no authored tasks, no pairs, no events, no flasks. The set of words is fixed here - nothing the learner does in the
      * cards later changes this fight. The distractors are the course's and the public ones.
@@ -207,7 +244,7 @@ final class RunSnapshotBuilder
 
         $words = $this->wordsByIds($wordIds, $locales);
         $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
-        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales), public: $this->publicDistractors($course, $locales));
 
         $composition = RunComposer::compose($pool, $seed, $limits);
         if ($composition->count() < $limits->minElements) {
@@ -255,7 +292,7 @@ final class RunSnapshotBuilder
 
         /** @var array<int, Word> $rows */
         $rows = Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.lexeme_id', 'words.part_of_speech', 'words.meta')
             ->whereIn('words.id', $ids)
             ->where('words.is_active', true)
             ->get()
@@ -280,7 +317,8 @@ final class RunSnapshotBuilder
             foreach ($byLocale as $locale => $texts) {
                 $translations[$locale] = $texts[$row->id] ?? $row->translation;
             }
-            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example);
+            $phrase = Phrase::isPhraseWord($row);
+            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, $row->lexeme_id === null ? null : (int) $row->lexeme_id, $phrase, $phrase ? Phrase::gapOf($row->getAttribute('meta')) : null);
         }
 
         return $words;
@@ -316,7 +354,7 @@ final class RunSnapshotBuilder
 
         $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
 
-        return new RunPool($locales, $poolWords, $authored, $this->distractors($course, $words, $locales, $lesson->id), $widened);
+        return new RunPool($locales, $poolWords, $authored, $this->distractors($course, $words, $locales, $lesson->id), $widened, $this->publicDistractors($course, $locales));
     }
 
     /**
@@ -371,10 +409,10 @@ final class RunSnapshotBuilder
     }
 
     /**
-     * The distractors in one query (docs/18 §12.3.1): the course's words outside the pool (tier 1) and the words of the public courses
-     * of the platform (tier 2), `distractor_pool` of each, with their translations.
+     * The distractors of the course (docs/18 §12.3.1) in one query: up to `distractor_pool` active words of the course outside the
+     * pool (tier 1), with their translations.
      *
-     * The words of the course are the nearest to the lesson of the run (`$anchorLessonId`, by default the lesson of the middle word of the
+     * They are the nearest to the lesson of the run (`$anchorLessonId`, by default the lesson of the middle word of the
      * pool) in the order of the course - by `stages.number`, then `lessons.number`, both sides - and not the first of the course by id:
      * in a late lesson the first words of the course are not what the learner has just met. The set is a function of the pool and the
      * course, so the composition stays a pure function of the pool and the seed.
@@ -384,7 +422,7 @@ final class RunSnapshotBuilder
      */
     private function distractors(Course $course, array $pool, LocaleSet $locales, ?int $anchorLessonId = null): array
     {
-        $limit = max(0, (int) config('game.run.distractor_pool', 40));
+        $limit = self::distractorLimit();
         if ($limit === 0) {
             return [];
         }
@@ -399,12 +437,53 @@ final class RunSnapshotBuilder
                 ->orderByRaw('ABS((stages.number - anchor_stages.number) * 100000 + (lessons.number - anchor_lessons.number)) asc')
                 ->orderBy('words.id');
         }
-        $public = $this->distractorQuery()
-            ->whereIn('stages.course_id', Course::query()->publicPlatform()->where('courses.id', '<>', $course->id)->select('courses.id'))
-            ->limit($limit);
 
         /** @var list<Word> $rows */
-        $rows = $ownCourse->union($public)->get()->all();
+        $rows = $ownCourse->get()->all();
+
+        return $this->distractorWords($rows, $locales, RunPoolWord::TIER_COURSE);
+    }
+
+    /**
+     * The distractors of the public courses of the platform (tier 2), not read until the composer asks for them
+     * ({@see PublicDistractors}): up to `distractor_pool` words of the shared pool of the kind of the run's course (docs/35 §3.3 c: a
+     * course of phrases borrows phrases, any other course words) outside the course itself, with their translations. The pool
+     * ({@see PlatformDistractorPool}) is a cached list, the same for every run: no statement of its own on a hit.
+     *
+     * As a branch of the query of the course it read every word of every public course at the start of every run - 31-33 ms at 60k
+     * public words - for a tier the composer hardly ever reaches (docs/38, «Дополнение: варианты ответа»).
+     */
+    private function publicDistractors(Course $course, LocaleSet $locales): ?PublicDistractors
+    {
+        $limit = self::distractorLimit();
+        if ($limit === 0) {
+            return null;
+        }
+
+        return new PublicDistractors(function () use ($course, $locales, $limit): array {
+            $rows = [];
+            foreach ($this->platform->nearest(Phrase::isPhraseCourse($course->exam_tag), $limit, exceptCourseId: (int) $course->id) as $row) {
+                $rows[] = (new Word)->forceFill($row);
+            }
+
+            return $this->distractorWords($rows, $locales, RunPoolWord::TIER_PUBLIC);
+        });
+    }
+
+    private static function distractorLimit(): int
+    {
+        return max(0, (int) config('game.run.distractor_pool', 40));
+    }
+
+    /**
+     * @param  list<Word>  $rows
+     * @return list<RunPoolWord>
+     */
+    private function distractorWords(array $rows, LocaleSet $locales, int $tier): array
+    {
+        if ($rows === []) {
+            return [];
+        }
 
         $byLocale = [];
         foreach ($locales->locales as $locale) {
@@ -417,8 +496,7 @@ final class RunSnapshotBuilder
             foreach ($byLocale as $locale => $texts) {
                 $translations[$locale] = $texts[$row->id] ?? $row->translation;
             }
-            $word = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example);
-            $tier = (int) $row->getAttribute('course_id') === $course->id ? RunPoolWord::TIER_COURSE : RunPoolWord::TIER_PUBLIC;
+            $word = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, phrase: Phrase::isPhraseWord($row));
             $distractors[] = $this->poolWord($word, $locales, $tier);
         }
 
@@ -429,7 +507,7 @@ final class RunSnapshotBuilder
     private function distractorQuery(): Builder
     {
         return Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'stages.course_id')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.part_of_speech', 'stages.course_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('words.is_active', true)
@@ -443,6 +521,9 @@ final class RunSnapshotBuilder
         $path = $this->wordAudio->pathFor($word->word);
         $audio = $path !== null && $word->audioPath === $path ? $path : null;
 
-        return new RunPoolWord($word, $audio, $this->gaps->fromText($word->word, $word->example), PairsMode::candidate($word, $locales), $tier);
+        // A phrase is masked in itself, by its key word (docs/35 §3.3 b, e); a word in its example.
+        $gap = $word->phrase ? $this->gaps->inPhrase($word->word, $word->phraseGap) : $this->gaps->fromText($word->word, $word->example);
+
+        return new RunPoolWord($word, $audio, $gap, PairsMode::candidate($word, $locales), $tier);
     }
 }

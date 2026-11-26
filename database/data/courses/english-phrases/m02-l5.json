@@ -1,0 +1,285 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 2,
+    "title": "Разговор и понимание",
+    "title_uz": "Suhbat va tushunish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Связать мысли",
+    "title_uz": "Fikrlarni bog'lash"
+  },
+  "words": [
+    {
+      "word": "by the way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кстати",
+        "uz": "aytgancha"
+      },
+      "example": "I'm going to the shop. By the way, do you need anything?",
+      "example_translations": {
+        "ru": "Я иду в магазин. Кстати, тебе что-нибудь нужно?",
+        "uz": "Do'konga ketyapman. Aytgancha, senga biror narsa kerakmi?"
+      },
+      "hooks": {
+        "ru": "Переходят к новой теме или вспоминают что-то попутно",
+        "uz": "Yangi mavzuga o'tganda yoki biror narsa yodga tushganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "literal": {
+          "ru": "по пути",
+          "uz": "yo'l-yo'lakay"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "to be honest",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "честно говоря",
+        "uz": "rostini aytsam"
+      },
+      "example": "Do you like my new haircut? — To be honest, I liked the old one more.",
+      "example_translations": {
+        "ru": "Тебе нравится моя новая стрижка? — Честно говоря, старая нравилась мне больше.",
+        "uz": "Yangi soch turmagim yoqdimi? — Rostini aytsam, eskisi ko'proq yoqardi."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что скажут правду, даже если она неприятна",
+        "uz": "Haqiqat yoqimsiz bo'lsa ham, uni aytishdan oldin ogohlantiradi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "honest",
+        "literal": {
+          "ru": "быть честным",
+          "uz": "rostgo'y bo'lish uchun"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in other words",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "другими словами",
+        "uz": "boshqacha aytganda"
+      },
+      "example": "The trip is cancelled. In other words, we're staying home.",
+      "example_translations": {
+        "ru": "Поездку отменили. Другими словами, мы остаёмся дома.",
+        "uz": "Safar bekor qilindi. Boshqacha aytganda, uyda qolamiz."
+      },
+      "hooks": {
+        "ru": "Пересказывают мысль проще или подводят итог",
+        "uz": "Fikrni soddaroq qilib qayta aytish yoki xulosa chiqarish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "words",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "first of all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прежде всего",
+        "uz": "avvalo"
+      },
+      "example": "First of all, I'd like to thank everyone for coming.",
+      "example_translations": {
+        "ru": "Прежде всего я хотел бы поблагодарить всех, кто пришёл.",
+        "uz": "Avvalo, kelgan hammaga rahmat aytmoqchiman."
+      },
+      "hooks": {
+        "ru": "Начинают перечислять мысли или открывают выступление",
+        "uz": "Fikrlarni sanashni boshlash yoki nutqni ochish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "first",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on top of that",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вдобавок ко всему",
+        "uz": "buning ustiga"
+      },
+      "example": "The hotel was dirty. On top of that, the staff were unfriendly.",
+      "example_translations": {
+        "ru": "Отель был грязный. Вдобавок ко всему, персонал был неприветливый.",
+        "uz": "Mehmonxona iflos edi. Buning ustiga, xodimlar xushmuomala emas edi."
+      },
+      "hooks": {
+        "ru": "Добавляют ещё один довод, обычно к списку неприятностей",
+        "uz": "Yana bir dalil qo'shiladi, odatda noxush narsalar ro'yxatiga"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "top",
+        "literal": {
+          "ru": "сверху этого",
+          "uz": "buning tepasida"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "as I was saying",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как я уже говорил",
+        "uz": "aytayotganimdek"
+      },
+      "example": "Sorry, my phone rang. As I was saying, the project starts in May.",
+      "example_translations": {
+        "ru": "Извините, звонил телефон. Как я уже говорил, проект начинается в мае.",
+        "uz": "Kechirasiz, telefonim jiringladi. Aytayotganimdek, loyiha mayda boshlanadi."
+      },
+      "hooks": {
+        "ru": "Возвращаются к своей мысли после того, как их перебили",
+        "uz": "Gapi bo'linganidan keyin o'z fikriga qaytishda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "saying",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "for instance",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "например",
+        "uz": "masalan"
+      },
+      "example": "Some fruits, for instance apricots and peaches, grow well here.",
+      "example_translations": {
+        "ru": "Некоторые фрукты, например абрикосы и персики, хорошо растут здесь.",
+        "uz": "Ba'zi mevalar, masalan, o'rik va shaftoli, bu yerda yaxshi o'sadi."
+      },
+      "hooks": {
+        "ru": "Вводят пример, чтобы пояснить мысль; то же, что «for example»",
+        "uz": "Fikrni tushuntirish uchun misol keltiriladi; «for example» bilan bir xil"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "instance",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "after all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в конце концов",
+        "uz": "axir"
+      },
+      "example": "Let him play. After all, he's only a child.",
+      "example_translations": {
+        "ru": "Пусть играет. В конце концов, он всего лишь ребёнок.",
+        "uz": "Qo'yaver, o'ynasin. Axir u hali bola-ku."
+      },
+      "hooks": {
+        "ru": "Добавляют важный довод, который все и так знают",
+        "uz": "Hamma biladigan muhim dalilni qo'shishda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "after",
+        "literal": {
+          "ru": "после всего",
+          "uz": "hammasidan keyin"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "that's why",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вот почему",
+        "uz": "shuning uchun"
+      },
+      "example": "I overslept this morning. That's why I'm late.",
+      "example_translations": {
+        "ru": "Я сегодня проспал. Вот почему я опоздал.",
+        "uz": "Bugun ertalab uxlab qolibman. Shuning uchun kechikdim."
+      },
+      "hooks": {
+        "ru": "Объясняют причину того, о чём только что сказали",
+        "uz": "Hozirgina aytilgan narsaning sababini tushuntirish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "why",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in the end",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в итоге",
+        "uz": "oxir-oqibat"
+      },
+      "example": "We looked at many flats. In the end, we chose the smallest one.",
+      "example_translations": {
+        "ru": "Мы посмотрели много квартир. В итоге выбрали самую маленькую.",
+        "uz": "Ko'p kvartiralarni ko'rdik. Oxir-oqibat eng kichkinasini tanladik."
+      },
+      "hooks": {
+        "ru": "Говорят, чем всё закончилось после долгих событий или раздумий",
+        "uz": "Uzoq voqealar yoki o'ylashlardan keyin hammasi nima bilan tugaganini aytish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "end",
+        "literal": {
+          "ru": "в конце",
+          "uz": "oxirida"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

@@ -28,7 +28,7 @@ final class RepetitionWithWord
     /** Every column of `words` (docs/03); a column added to the table is added here, or the Word in hand lacks it. */
     private const WORD_COLUMNS = [
         'id', 'lesson_id', 'word', 'translation', 'example', 'part_of_speech', 'transcription', 'audio_path',
-        'example_audio_path', 'is_active', 'meta', 'created_at', 'updated_at',
+        'example_audio_path', 'is_active', 'meta', 'lexeme_id', 'created_at', 'updated_at',
     ];
 
     /**

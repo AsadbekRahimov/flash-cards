@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale, t } from '@/i18n'
-import { tierLabelKey } from '../leagueTiers'
+import { WEEK_BEST_DAYS, tierLabelKey, weekBestDays } from '../leagueTiers'
 
 afterEach(() => setLocale('ru'))
 
@@ -34,5 +34,16 @@ describe('tierLabelKey', () => {
     setLocale('uz')
     expect(t(tierLabelKey('diamond'))).toBe('Olmos')
     expect(t(tierLabelKey('unknown'))).toBe('Bronza')
+  })
+})
+
+describe('weekBestDays', () => {
+  it('takes the number of the server', () => {
+    expect(weekBestDays(7)).toBe(7)
+    expect(weekBestDays(1)).toBe(1)
+  })
+
+  it.each([undefined, null, 0, -3, 2.5, Number.NaN, '6'])('falls back to the constant of the build for %s', (value) => {
+    expect(weekBestDays(value)).toBe(WEEK_BEST_DAYS)
   })
 })

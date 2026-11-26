@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 10,
+    "title": "Учёба",
+    "title_uz": "O'qish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Экзамены",
+    "title_uz": "Imtihonlar"
+  },
+  "words": [
+    {
+      "word": "keep my fingers crossed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держать кулачки",
+        "uz": "omad tilab turmoq"
+      },
+      "example": "Good luck with your exam! I'll keep my fingers crossed for you.",
+      "example_translations": {
+        "ru": "Удачи на экзамене! Буду держать за тебя кулачки.",
+        "uz": "Imtihoningda omad! Senga omad tilab turaman."
+      },
+      "hooks": {
+        "ru": "Обещают «болеть» за друга и желать ему удачи",
+        "uz": "Do'st uchun qayg'urib, unga omad tilab turishga va'da berishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fingers",
+        "literal": {
+          "ru": "держать мои пальцы скрещёнными",
+          "uz": "barmoqlarimni chalishtirib turmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "learn something by heart",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выучить наизусть",
+        "uz": "yod olmoq"
+      },
+      "example": "We had to learn the whole poem by heart.",
+      "example_translations": {
+        "ru": "Нам пришлось выучить всё стихотворение наизусть.",
+        "uz": "Butun she'rni yod olishimiz kerak edi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы запомнить текст слово в слово",
+        "uz": "Matnni so'zma-so'z eslab qolish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "heart",
+        "literal": {
+          "ru": "выучить сердцем",
+          "uz": "yurak bilan o'rganmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pass with flying colors",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдать блестяще",
+        "uz": "a'lo baholarga topshirmoq"
+      },
+      "example": "Kamola studied every day and passed with flying colors.",
+      "example_translations": {
+        "ru": "Камола занималась каждый день и сдала блестяще.",
+        "uz": "Kamola har kuni o'qidi va imtihonni a'lo baholarga topshirdi."
+      },
+      "hooks": {
+        "ru": "Говорят о блестяще сданном экзамене или испытании; в Британии пишут colours",
+        "uz": "Imtihon yoki sinovdan a'lo o'tish haqida aytiladi; Britaniyada colours deb yoziladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "flying",
+        "literal": {
+          "ru": "пройти с развевающимися флагами",
+          "uz": "hilpiragan bayroqlar bilan o'tmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "cram for an exam",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зубрить перед экзаменом",
+        "uz": "imtihon oldidan shoshib yodlamoq"
+      },
+      "example": "I'm cramming for an exam tomorrow, so I can't go out.",
+      "example_translations": {
+        "ru": "Я зубрю к завтрашнему экзамену, так что не могу выйти.",
+        "uz": "Ertangi imtihon uchun shoshib yodlayapman, shuning uchun chiqa olmayman."
+      },
+      "hooks": {
+        "ru": "Говорят о спешной зубрёжке в последние дни или ночь перед экзаменом",
+        "uz": "Imtihon oldidan so'nggi kunlarda yoki tunda shoshib yodlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cram",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take an exam",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдавать экзамен",
+        "uz": "imtihon topshirmoq"
+      },
+      "example": "I'm taking an exam in English next Monday.",
+      "example_translations": {
+        "ru": "В следующий понедельник я сдаю экзамен по английскому.",
+        "uz": "Keyingi dushanba ingliz tilidan imtihon topshiraman."
+      },
+      "hooks": {
+        "ru": "Говорят о самом процессе экзамена; «сдать успешно» — pass",
+        "uz": "Imtihon topshirish jarayoni haqida aytiladi; «muvaffaqiyatli topshirmoq» — pass"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "take",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "fail an exam",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "провалить экзамен",
+        "uz": "imtihondan yiqilmoq"
+      },
+      "example": "He failed an exam last year, but he passed it the second time.",
+      "example_translations": {
+        "ru": "В прошлом году он провалил экзамен, но со второго раза сдал.",
+        "uz": "U o'tgan yili imtihondan yiqildi, lekin ikkinchi safar topshirdi."
+      },
+      "hooks": {
+        "ru": "Говорят о неудаче на экзамене",
+        "uz": "Imtihondagi muvaffaqiyatsizlik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fail",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "my mind went blank",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня всё вылетело из головы",
+        "uz": "hamma narsa esimdan chiqib ketdi"
+      },
+      "example": "I knew the answer, but when the teacher asked me, my mind went blank.",
+      "example_translations": {
+        "ru": "Я знал ответ, но, когда учитель спросил меня, всё вылетело из головы.",
+        "uz": "Javobni bilardim, lekin o'qituvchi so'raganda hamma narsa esimdan chiqib ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда от волнения вдруг забыли всё, что знали",
+        "uz": "Hayajondan to'satdan bilgan hamma narsani unutib qo'yganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "blank",
+        "literal": {
+          "ru": "мой ум стал пустым",
+          "uz": "miyam bo'm-bo'sh bo'lib qoldi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "study hard",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "усердно учиться",
+        "uz": "qunt bilan o'qimoq"
+      },
+      "example": "If you study hard, you'll get into a good university.",
+      "example_translations": {
+        "ru": "Если будешь усердно учиться, поступишь в хороший университет.",
+        "uz": "Qunt bilan o'qisang, yaxshi universitetga kirasan."
+      },
+      "hooks": {
+        "ru": "Советуют много и серьёзно заниматься",
+        "uz": "Ko'p va jiddiy shug'ullanishni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hard",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a trick question",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вопрос с подвохом",
+        "uz": "chalg'ituvchi savol"
+      },
+      "example": "Be careful, number five is a trick question.",
+      "example_translations": {
+        "ru": "Осторожно, пятый вопрос — с подвохом.",
+        "uz": "Ehtiyot bo'ling, beshinchi savol — chalg'ituvchi savol."
+      },
+      "hooks": {
+        "ru": "Говорят о вопросе, в котором легко ошибиться из-за ловушки",
+        "uz": "Tuzog'i bor, oson adashtiradigan savol haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "trick",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pull an all-nighter",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не спать всю ночь",
+        "uz": "tun bo'yi uxlamay o'qimoq"
+      },
+      "example": "I pulled an all-nighter before the exam and now I can't think.",
+      "example_translations": {
+        "ru": "Я не спал всю ночь перед экзаменом и теперь не могу соображать.",
+        "uz": "Imtihon oldidan tun bo'yi uxlamay o'qidim, endi hech narsani o'ylay olmayapman."
+      },
+      "hooks": {
+        "ru": "Говорят о бессонной ночи за учёбой или работой",
+        "uz": "O'qish yoki ish bilan uxlamay o'tkazilgan tun haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pull",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

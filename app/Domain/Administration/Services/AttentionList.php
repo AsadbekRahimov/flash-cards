@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Domain\Content\Services\CourseAudioCoverageStats;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\TtsQueueStats;
 use App\Domain\Content\Services\TtsUsageStats;
 use App\Domain\Learners\Services\ReminderExperiment;
@@ -19,10 +20,11 @@ use Carbon\CarbonImmutable;
  *  - active centers with no assignment completed by a learner {@see centerWaitDays()} days or more after their creation
  *    ({@see OrgActivationStats}), the oldest {@see CENTERS_SHOWN} by name, the others as one line;
  *  - courses published or on review whose audio coverage is below the publishing threshold ({@see CourseAudioCoverageStats});
- *  - the characters Google TTS may still synthesize this month ({@see TtsUsageStats}, only with `TTS_DRIVER=google`): a warning from
- *    90 % of the monthly limit, an urgent line once it is spent (the voicing stops until the next billing month);
- *  - Google refused the sign-in (the halt marker of the `google` driver) — urgent; the queue `tts` longer than
- *    `twa.tts.queue_attention_size` — a warning ({@see TtsQueueStats});
+ *  - the characters the paid TTS driver may still synthesize ({@see TtsUsageStats}, only with `TTS_DRIVER=google` - this month -
+ *    or `deepgram` - the whole credit): a warning from 90 % of the limit, an urgent line once it is spent (the voicing stops until
+ *    the next billing month, for `deepgram` until the limit is raised); `state` - the driver;
+ *  - the service refused the key or the payment (the halt marker of the `google` or `deepgram` driver, `state` - the code, `name` -
+ *    the driver) — urgent; the queue `tts` longer than `twa.tts.queue_attention_size` — a warning ({@see TtsQueueStats});
  *  - the reminder experiment ({@see ReminderExperiment}) while it is switched on: its day, and from day {@see readAfterDays()} on
  *    that the report can be read — from the configuration alone (whether the base is large enough takes the full report,
  *    `analytics:reminder-experiment`, which is not run on an open of the dashboard).
@@ -171,8 +173,9 @@ final class AttentionList
     }
 
     /**
-     * The voicing: the halt of the `google` driver, the month's characters of Google TTS (`count` - spent, `total` - the limit,
-     * `value` - percent, `name` - the billing month) and the backlog of the queue `tts` ({@see TtsQueueStats}).
+     * The voicing: the halt of the `google` / `deepgram` driver, the characters of the period (`count` - spent, `total` - the limit,
+     * `value` - percent, `name` - the billing month or `dgtotal`, `state` - the driver) and the backlog of the queue `tts`
+     * ({@see TtsQueueStats}).
      *
      * @return list<Item>
      */
@@ -180,10 +183,10 @@ final class AttentionList
     {
         $items = [];
 
-        // Google refused the sign-in: every job fails at once until the key is replaced (`state` - the code).
+        // The service refused the key or the payment: every job fails at once until it is fixed (`state` - the code, `name` - the driver).
         $halt = $this->ttsQueue->haltCode();
         if ($halt !== null) {
-            $items[] = self::item(self::KIND_TTS_HALTED, self::LEVEL_DANGER, state: $halt);
+            $items[] = self::item(self::KIND_TTS_HALTED, self::LEVEL_DANGER, name: ConfiguredSpeechSynthesizer::driver(), state: $halt);
         }
 
         $usage = $this->tts->current();
@@ -192,6 +195,7 @@ final class AttentionList
                 $usage['exhausted'] ? self::KIND_TTS_EXHAUSTED : self::KIND_TTS_BUDGET,
                 $usage['exhausted'] ? self::LEVEL_DANGER : self::LEVEL_WARNING,
                 name: $usage['month'],
+                state: $usage['driver'],
                 count: $usage['characters'],
                 value: $usage['percent'],
                 total: $usage['limit'],

@@ -1,6 +1,6 @@
 # Сообщения бота: «поделиться» с кнопкой, карточка достижения, кнопки, пробный Pro, название Muhrla
 
-Статус: **проект, код не написан** (25.11.2026). Автор — architect, по запросу владельца от 25.11.2026.
+Статус: **проект** (25.11.2026); темы 3 (N0–N6) и 4 (W0–W2, W4) — сделаны 25.11.2026, см. «Сделано» в §3 и §4. Автор — architect, по запросу владельца от 25.11.2026.
 Продукт в бета-режиме, боевых учеников нет. Документ встраивается в выпуски [docs/31](31_COMPETITION_PLAN_RU.md) §2 (см. §6) и опирается на [docs/34](34_TARIFF_AND_BOT_HYGIENE_RU.md): пробный Pro — `BILLING_TRIAL_DAYS` (станет 14), награда за друзей — `REFERRALS_MILESTONE_DAYS` (7 дней за 3-го и 6-го засчитанного друга), цепочка предложений после пробного периода — задачи P0–P8 docs/34; блокировки бота и 429 — задачи B0–B9 docs/34. Здесь их не повторяем.
 
 | № | Тема | Главное по коду | Что делаем |
@@ -35,7 +35,7 @@
 
 - `IrazasyedTelegramClient::ALLOWED_UPDATES` = `message, my_chat_member, chat_member, callback_query, pre_checkout_query` — **`inline_query` бот не получает**, inline-режим не используется.
 - Переход по `?start=ref_<код>` засчитывает реферала в `StartCommandHandler` (`StartPayload::referralCode()` → `ReferralService`). Mini App `start_param` для учёта рефералов **не читает** (только для перехода на экран — `router/startParam.ts`). Значит кнопка должна вести на `?start=ref_…`, а не на `?startapp=…`.
-- Mini App подключает `@twa-dev/sdk` **7.10.1**. Его собственная копия `telegram-web-apps.js` (версия 7.10) при импорте **перезаписывает** `window.Telegram.WebApp`, загруженный из `telegram.org/js/telegram-web-app.js` в `index.html`. Метода `shareMessage` (Mini Apps 8.0) в этой копии нет — его нужно добавить (см. §1б, H6).
+- ~~Mini App подключает `@twa-dev/sdk` **7.10.1**~~ — **обновлён до 8.0.2 (26.11.2026, разрешение владельца).** Собственная копия `telegram-web-apps.js` SDK по-прежнему при импорте **перезаписывает** `window.Telegram.WebApp`, загруженный из `telegram.org/js/telegram-web-app.js` в `index.html`, но теперь это копия Mini Apps 8.0 — с `WebApp.shareMessage`. `useTelegram().shareMessage` вызывает этот метод (было: сырое событие `web_app_send_prepared_message` через `Telegram.WebView`, пока в 7.10 метода не было); сырое событие убрано — метод SDK шлёт то же самое событие и есть всегда, когда есть SDK, так что запасной путь через WebView ничего не покрывал бы. Сохранено: проверка `isVersionAtLeast('8.0')` до вызова (ниже 8.0 — сразу `t.me/share/url`, `fallback {old_client}`), разбор отказа — колбэк SDK говорит только «отправлено / нет», причину даёт событие `shareMessageFailed {error}` в том же такте: `USER_DECLINED` — ученик закрыл выбор чата (ничего не отмечаем), остальное — ошибка → запасной путь `t.me/share/url` один раз; исключение SDK (`WebAppMethodUnsupported`, `WebAppShareMessageOpened` — прежний выбор чата не ответил) — тоже запасной путь; тайм-аут 120 с без ответа — кнопка освобождается (но SDK сбросить нельзя: флаг `WebAppShareMessageOpened` — закрытая переменная копии SDK, его снимают только события клиента `prepared_message_sent` / `prepared_message_failed`, штатного сброса нет — до конца сессии Mini App каждое следующее «Поделиться» сразу уходит в `t.me/share/url`; мягкая деградация, во внутренности SDK не лезем — ревью 7f46a449); повторное нажатие, пока идёт отправка, игнорируется (`useShare.pending`). Другие новые возможности SDK 8 (полный экран, эмодзи-статус, `downloadFile`, датчики) не используются. Побочный эффект копии 8.0: при загрузке она запрашивает safe area и пишет CSS-переменные `--tg-safe-area-inset-*` / `--tg-content-safe-area-inset-*` (приложение их не читает).
 - Карточки лежат на диске `public` (`storage/app/public/achievements/…png`), но в `docker/nginx/prod.conf` наружу открыт только `location ^~ /storage/audio/` (`storage:link` не делается). Для inline-сообщения с фото Telegram должен **скачать картинку по HTTPS** — нужен публичный адрес.
 
 ### 1б. Ограничения Telegram
@@ -83,7 +83,7 @@ public function build(Learner $learner, ShareKind $kind, ?string $subject, strin
 2. **Mini App: подготовленное сообщение.**
    - `POST /api/twa/share/prepare` `{kind, subject?}` → `ShareController` → `SharePreparer::prepare($learner, $kind, $subject)` → `TelegramClient::savePreparedInlineMessage(userId, result, allowUser: true, allowBot: false, allowGroup: true, allowChannel: true)` → `ShareMessageResource` `{id, expires_at}`.
    - `user_id` — **только** `telegram_user_id` ученика из JWT. Ученик с `blocked_at` → 403 `share_unavailable`.
-   - Кэш Redis (docs/19 §3): ключ `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{hash содержимого}`, значение — массив `{id, expires_at}`, TTL = `expiration_date − now − 5 мин`, но не больше 1 ч. Повторное нажатие не дёргает Bot API. Инвалидация не нужна: смена текста или карточки меняет хэш в ключе.
+   - Кэш Redis (docs/19 §3): ключ `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{версия содержимого}` (чистый кэш `PureCache`; версия — хэш `telegram_user_id`, текстов, ссылки, версии шаблона и настроек карточки, считается без отрисовки и чтения файлов), значение — массив `{id, expires_at, fresh_until, photo}`, TTL = `expiration_date − now − 5 мин`, но не больше 1 ч. Повторное нажатие не дёргает Bot API и не рисует карточку; проверки предмета выполняются всегда, до кэша. Инвалидация не нужна: смена текста, ссылки или настройки карточки меняет ключ (новый файл логотипа под тем же путём — по истечении TTL).
    - Лимит: новый `RateLimiter::for('twa-share')` — 20 в минуту и 100 в сутки на ученика (`AppServiceProvider`, рядом с `twa-friends`). 429 — клиент уходит в запасной путь.
    - Ошибки: 404 `share_subject_not_found`, 403 `share_unavailable` (бот без имени, ученик заблокирован, `share.enabled = false`), 503 `share_failed` (Bot API отказал) — клиент во всех трёх случаях открывает **нынешний** `t.me/share/url`.
    - Клиент: новая функция `useTelegram().shareMessage(id): Promise<'sent' | 'cancelled' | 'unsupported'>` и composable `useShare(kind, subject, fallback: {link, text})`: если `isVersionAtLeast('8.0')` и есть способ вызвать `shareMessage` → prepare → shareMessage; иначе — `shareUrl(link, text)`. Отметка «поделился» (`/achievements/{key}/shared`, `/game/cities/{stage}/shared`) — после `'sent'`, а в запасном пути — как сейчас, при открытии диалога.
@@ -131,6 +131,15 @@ public function build(Learner $learner, ShareKind $kind, ?string $subject, strin
 | H7 | Аналитика: `share.prepared`, `share.sent`, `share.fallback {reason: old_client|error}` | coder | H4, H6 | Тест события; строка в отчёте вовлечённости `/admin` (по желанию) |
 | H8 | Включение на проде: inline у BotFather, `telegram:setup-bot`, `share.inline_enabled = true` | владелец / devops | H5, H1 | Ученик из бота делится достижением в группу — под фото кнопка, по ней новичок попадает в бот с `ref_` и засчитывается |
 
+**Сделано (25.11.2026): H3, H4, серверная часть H7** — `ShareKind`, `ShareMessageBuilder`, `SharePreparer`, `ShareAnalytics`,
+`ShareException` (`app/Domain/Engagement/`), `POST /api/twa/share/prepare` и `POST /api/twa/share/events` — контракт и коды в
+docs/04 A.22, лимиты в docs/07 §6, настройки `config/share.php`. Отличия от §1в: заблокированного ученика отсекает `TwaAuth` раньше
+(401 `learner_blocked`; сервис отвечает 403 сам — для будущего inline-входа H5); `league_week` и `month_place` есть в `ShareKind`, но
+до своих задач API отвечает на них 422; `:brand` в `share.php` не подставляется — бренд написан в строках, как во всех lang-файлах
+(правило `BrandTest`); `friend_invite` идёт с той же карточкой бренда, что и `invite`; 503 `share_failed` — ещё и при паузе бота
+после 429 (без вызова Bot API) и при занятой блокировке. В кэше кроме `{id, expires_at}` лежит `fresh_until` (свой срок, не только TTL
+хранилища). Тексты uz `share.php` — на вычитку в docs/I18N_UZ_REVIEW.md.
+
 ### 1д. Вопросы владельцу
 
 - **В1.1.** Текст кнопки: «🚀 Начать изучение» / «🚀 O'rganishni boshlash»? *Рекомендация:* да; для приглашения в друзья — «🤝 Добавить в друзья».
@@ -139,7 +148,7 @@ public function build(Learner $learner, ShareKind $kind, ?string $subject, strin
 ### 1е. Риски
 
 - **Картинка не скачивается Telegram** (Cloudflare, nginx, не JPEG) — сообщение уйдёт без фото или не уйдёт совсем. Защита: `Article` как запасной вариант в H3 и проверка H1.
-- **Старый SDK перетирает `window.Telegram.WebApp`.** Без H6 `shareMessage` не будет никогда, даже в новых клиентах.
+- **Старый SDK перетирает `window.Telegram.WebApp`.** Без H6 `shareMessage` не будет никогда, даже в новых клиентах. *(Снято 26.11.2026: SDK 8.0.2.)*
 - **Спам от имени бота.** Закрыт тем, что текст только серверный, предмет только свой, лимиты на prepare и inline.
 - **Срок подготовленного сообщения.** Если он короткий (минуты), кэш H3 должен его учитывать — TTL берём из ответа, а не из конфига.
 
@@ -206,7 +215,11 @@ public function build(Learner $learner, ShareKind $kind, ?string $subject, strin
 | A2 | Рисовальщик v2: `CardPalette`, макет §2б, JPEG, каталог `share-cards`, `publicUrl()`, бренд и `t.me/<bot>` из конфига, без иллюстрации — «медаль»; nginx-location; `achievements:prune-cards` | coder (ревью architect) | A0, M2 | Существующие тесты переведены на JPEG; снимок-тест ru/uz; тест глифов; тест сверки цветов со `style.css`; запрос к `/storage/share-cards/…` отдаёт файл, к `/storage/achievements/…` — 404 |
 | A3 | Подключение иллюстраций, проверка карточки города и всех ключей достижений на длину (2 строки заголовка, 3 строки описания) | coder | A1, A2 | Тест: все ключи × ru/uz укладываются в строки; снимки обновлены |
 | A4 | Карточка бренда для `invite` (`CardSpec`) | coder | A2 | Снимок-тест |
-| A5 | Картинка победителя месяца: `MonthWinnerSender` шлёт фото с подписью вместо текста (место, месяц, без имени); кнопка — N-задача | coder | A2 | `MonthWinnerSenderTest`: фото, маркер, 403 как сейчас |
+| A5 ✅ | Картинка победителя месяца: `MonthWinnerSender` шлёт фото с подписью вместо текста (место, месяц, без имени); кнопка — N-задача | coder | A2 | `MonthWinnerSenderTest`: фото, маркер, 403 как сейчас |
+
+**A5 сделано (coder, 25.11.2026).** `MonthWinnerCardBuilder` (`App\Domain\Engagement\Services`) строит `CardSpec` семьи `month`: метка «Рейтинг месяца» / «Oy reytingi» (месяц v2 — «… · Free» / «… · Pro» по таблице победителя), заголовок «:place место» / «:place-o'rin», описание «в рейтинге за :month — :points» / «:month reytingida — :points» (`leagues.month.card.*`). Отличие от таблицы выше: фраза «:place место в рейтинге за :month» целиком в заголовок не помещается (68 pt, ≈ 13 букв в строке → 3 строки), поэтому разбита на заголовок и описание. Имени ученика на картинке нет; ничья на призовом месте — каждому своё сообщение, файл общий. `MonthWinnerSender` под тем же замком и маркером `league_month_won` (в `payload` добавлен `photo: true|false`) рисует картинку и шлёт `sendPhotoMessage(PhotoSource::file(путь), подпись = прежний текст поздравления с призом своей категории, кнопка «🏆 Рейтинг месяца»)` — файлом, не по адресу (не зависит от https). Рисовальщик упал или карточка не локальный файл (диск `achievements.disk` не локальный, например S3) → прежний текст `sendMessage` с той же кнопкой, ошибка в `report()`. Правила docs/34 §4в п. 8 прежние (403 → маркер удаляется, `markUnreachable`; 429 — остановка цикла; определённый отказ — маркер удаляется; таймаут — маркер остаётся). Тесты: `MonthWinnerSenderTest` (заменил `MonthWinnerMessageTest`), длина — `ShareCardTextsTest`.
+
+**A5, ревью выпусков 3–4 (architect, 29.11.2026).** (1) Telegram **отказал в фото** (определённый 4xx, не 403/429, напр. 400 `IMAGE_PROCESS_FAILED`): `report()`, тот же текст с той же кнопкой уходит один раз обычным сообщением под тем же маркером (`payload.photo` → false); отказ и в тексте — маркер удаляется, как при любом отказе; таймаут фото — маркер остаётся, текст не шлётся. (2) **Бюджет бота.** Ни `sendPhotoMessage`, ни `sendMessage` клиента общий слот не берут (`sendMessage` — только окно чата); слот слушателю даёт `ThrottleTelegramOutbound`, один на запуск, а победителей несколько. Теперь первое сообщение запуска идёт по слоту посредника, каждое следующее (фото или текст) ждёт свой (`awaitGlobal`, `telegram.outbound.sync_wait_ms`) до маркера; не дождалось — `TelegramOutboundBusyException`, посредник откладывает слушателя на `globalRetryDelay()` без `maxExceptions`, повтор пропускает уже получивших. Пропущенный победитель (уже получил, недоступен) слота не тратит; текст после отказа фото отдельного слота не берёт (отказанное фото не доставлено).
 
 ### 2г. Вопросы владельцу
 
@@ -324,13 +337,15 @@ public function keyboard(int|string $chatId, array $rows): array;         // rep
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| N0 | Docs: docs/04 (правило одной кнопки, таблица §3а, `TwaScreen`), docs/05 (`/friends?challenge=`, `?friend=`), I18N_UZ_REVIEW (кнопки) | координатор | — | docs согласованы |
-| N1 | `TwaScreen`, `BotButton`, `BotButtons`, `lang/{ru,uz}/buttons.php` | coder | N0 | Unit: адреса с параметрами и `from`; web_app в личке, url `startapp` в группе; `callback_data` > 64 байт → исключение; без имени бота группа получает обычный адрес (как сейчас) |
-| N2 | **Вызовы и друзья**: кнопки в `notifyChallengeAccepted`, `acceptChallenge`, `notifyChallengeFinished` (won/draw/lost), `notifyFriendAccepted`, `acceptFriend` / `sendRequest` | coder | N1 | `FriendsMessengerTest`: у каждого вида — своя кнопка и адрес с id; маркер и 403 как сейчас |
-| N3 | Mini App: `FriendsView` — `?challenge=<id>` (прокрутка и подсветка карточки, чужой/неизвестный id — ничего), `?friend=<id>` (открыть выбор вызова, если вызов возможен) | coder | N0 | vitest: подсветка, неизвестный id, вызов уже открыт → показать его |
-| N4 | `MonthWinnerSender`, `ReferralMilestoneSender`, `PromoCommandHandler` (успех), `StartCommandHandler` (восстановление), `SuccessfulPaymentHandler` — кнопки из §3а | coder | N1 | Тест на каждого отправителя: кнопка и адрес; для `MonthWinnerSender` — вместе с A5, если A5 готов |
-| N5 | `ReminderSender`: текст кнопки по виду напоминания, `choose_course` → `/courses` | coder | N1 | `ReminderSenderTest` по трём видам |
-| N6 | Перевод остальных мест с ручного `config('twa.base_url')` на `BotButtons::twaUrl()` + тест-страж | coder | N1 | Страж зелёный; все тесты бота зелёные без правки ожиданий адресов |
+| N0 | Docs: docs/04 (правило одной кнопки, таблица §3а, `TwaScreen`), docs/05 (`/friends?challenge=`, `?friend=`), I18N_UZ_REVIEW (кнопки) **Сделано 25.11.2026 (coder).** | координатор | — | docs согласованы |
+| N1 | `TwaScreen`, `BotButton`, `BotButtons`, `lang/{ru,uz}/buttons.php` **Сделано 25.11.2026 (coder).** | coder | N0 | Unit: адреса с параметрами и `from`; web_app в личке, url `startapp` в группе; `callback_data` > 64 байт → исключение; без имени бота группа получает обычный адрес (как сейчас) |
+| N2 | **Вызовы и друзья**: кнопки в `notifyChallengeAccepted`, `acceptChallenge`, `notifyChallengeFinished` (won/draw/lost), `notifyFriendAccepted`, `acceptFriend` / `sendRequest` **Сделано 25.11.2026 (coder).** | coder | N1 | `FriendsMessengerTest`: у каждого вида — своя кнопка и адрес с id; маркер и 403 как сейчас |
+| N3 | Mini App: `FriendsView` — `?challenge=<id>` (прокрутка и подсветка карточки, чужой/неизвестный id — ничего), `?friend=<id>` (открыть выбор вызова, если вызов возможен) **Сделано 25.11.2026 (coder) в текущем дизайне `FriendsView`; при редизайне выпуска 1 — перенести.** | coder | N0 | vitest: подсветка, неизвестный id, вызов уже открыт → показать его |
+| N4 | `MonthWinnerSender`, `ReferralMilestoneSender`, `PromoCommandHandler` (успех), `StartCommandHandler` (восстановление), `SuccessfulPaymentHandler` — кнопки из §3а **Сделано 25.11.2026 (coder).** | coder | N1 | Тест на каждого отправителя: кнопка и адрес; для `MonthWinnerSender` — вместе с A5, если A5 готов |
+| N5 | `ReminderSender`: текст кнопки по виду напоминания, `choose_course` → `/courses` **Сделано 25.11.2026 (coder).** | coder | N1 | `ReminderSenderTest` по трём видам |
+| N6 | Перевод остальных мест с ручного `config('twa.base_url')` на `BotButtons::twaUrl()` + тест-страж **Сделано 25.11.2026 (coder).** | coder | N1 | Страж зелёный; все тесты бота зелёные без правки ожиданий адресов |
+
+**Сделано (coder, 25.11.2026).** `TwaScreen` (+ `Course`, `Training`, `Exam`, `GameClass` для групповых и онбординга), `BotButton`, `BotButtons` (`twaUrl`, `open`, `callback`, `url`, `keyboard`, `single`; `shareInline` — вместе с H5), `lang/{ru,uz}/buttons.php`; правило и перечень — docs/04 B.4b; `/friends?challenge=` / `?friend=` — docs/05 §3. Отправители, которые уже слали одну кнопку через `sendWebAppButton` (напоминания, оплата, лига, продление, групповые), так и шлют — адрес теперь из `twaUrl()`; новые кнопки — `sendMessage` + `BotButtons::single()`. Отличия от таблицы §3а: у итогов лиги `from=league_result` **не** добавлен (DoD N6 — «без правки ожиданий адресов»); `bot.account.restored` ведёт на `/?from=restored`; итог вызова без дружбы — без кнопки; `billing.stars.open_button` удалён (не используется). Тесты: `BotButtonsTest`, `TwaBaseUrlGuardTest`, `FriendsMessengerTest`, `ReminderSenderTest`, кнопки в `MonthWinnerSenderTest` (бывш. `MonthWinnerMessageTest`), `ReferralMilestoneMessageTest`, `PromoCommandTest`, `AccountRestoreNoticeTest`, `StarsPaymentFlowTest`; vitest `FriendsView.spec.ts` («the address of a button of the bot»).
 
 ### 3г. Вопросы владельцу
 
@@ -392,11 +407,13 @@ Pro nima beradi:
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| W0 | Docs: docs/13 §7.1 «2C.9» (новый текст, плюсы, кнопка, лист в Mini App) | координатор | docs/34 T1 | docs согласованы |
-| W1 | `ProPromises::top()` — короткий список плюсов для бота, общий с docs/34 P5 | coder | W0 | Unit: скрытая фича не попадает; ru/uz; порядок стабилен |
-| W2 | `TrialWelcomeMessenger`: новый текст с плюсами, `withButton` на пути `/start` | coder | W1, N1 | `TrialWelcomeBotTest`: 14 дней из конфига, дата в поясе ученика, 4 пункта, в онбординге без кнопки и перед финалом, на `/start` с кнопкой; второй `/start` — тишина; устаревшая метка — тишина |
+| W0 | Docs: docs/13 §7.1 «2C.9» (новый текст, плюсы, кнопка, лист в Mini App) **Сделано 25.11.2026 (coder).** | координатор | docs/34 T1 | docs согласованы |
+| W1 | `ProPromises::top()` — короткий список плюсов для бота, общий с docs/34 P5 **Сделано 25.11.2026 (coder).** | coder | W0 | Unit: скрытая фича не попадает; ru/uz; порядок стабилен |
+| W2 | `TrialWelcomeMessenger`: новый текст с плюсами, `withButton` на пути `/start` **Сделано 25.11.2026 (coder).** | coder | W1, N1 | `TrialWelcomeBotTest`: 14 дней из конфига, дата в поясе ученика, 4 пункта, в онбординге без кнопки и перед финалом, на `/start` с кнопкой; второй `/start` — тишина; устаревшая метка — тишина |
 | W3 | Mini App: разовый лист пробного Pro (`localStorage` по `ends_at`) | coder | выпуск 1 (макет), W1 | vitest: показ один раз на `ends_at`; не показывается платному Pro и Pro от центра |
-| W4 | `ReferralMilestoneSender`: кнопка «Пригласить ещё» (входит в N4) | coder | N1 | Тест кнопки |
+| W4 | `ReferralMilestoneSender`: кнопка «Пригласить ещё» (входит в N4) **Сделано 25.11.2026 (coder).** | coder | N1 | Тест кнопки |
+
+**Сделано (coder, 25.11.2026).** `ProPromises::top(n, locale, ?practiceOpen, ?gameOpen)` — строки `billing.pro_promises.*`, порядок: новые слова, практика (и баттлы), свои колоды, заморозка серии, «Караван», упражнения, пробные тесты; практика и игра — только если открыты читающему (без читающего — публичное чтение: `practice.access = all`, `game.access = all`). `TrialWelcomeMessenger::announce(…, withButton)` берёт открытость у `PracticeAccess` / `GameAccess` ученика. Тексты — §4б; W0 — docs/13 §7.1 «2C.9». W3 — выпуск 1.
 
 ### 4г. Вопросы владельцу
 
@@ -495,7 +512,7 @@ Pro nima beradi:
 ## 7. Риски для ревью (сводно)
 
 - **Telegram:** всё из §1б сверить на живом боте (H1) до H3. Если `shareMessage` окажется недоступен у большой доли учеников, запасной путь (нынешняя ссылка) должен работать без регрессий — тесты H6 это проверяют.
-- **SDK Mini App** 7.10 перетирает `window.Telegram.WebApp`: обновление до 8.x — смена версии существующей зависимости, нужна отметка координатора.
+- **SDK Mini App** 7.10 перетирает `window.Telegram.WebApp`: обновление до 8.x — смена версии существующей зависимости, нужна отметка координатора. *(Сделано 26.11.2026: `@twa-dev/sdk` 8.0.2 по разрешению владельца, см. §1а.)*
 - **Новые файлы шрифтов** (Source Serif 4 TTF, OFL) — согласовать; без них карточка рисуется Noto Sans, макет не совпадёт.
 - **Публичный каталог карточек** и Cloudflare: Telegram должен скачать JPEG без проверки «вы человек?».
 - **Безопасность share:** `user_id` только из JWT / `from.id`, предмет только свой, текст только серверный, лимиты на prepare и inline-запросы.

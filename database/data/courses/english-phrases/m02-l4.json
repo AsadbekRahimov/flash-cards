@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 2,
+    "title": "Разговор и понимание",
+    "title_uz": "Suhbat va tushunish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Подумать перед ответом",
+    "title_uz": "Javobdan oldin o'ylash"
+  },
+  "words": [
+    {
+      "word": "Let me think",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дайте подумать",
+        "uz": "o'ylab ko'ray"
+      },
+      "example": "What's the capital of Australia? — Let me think... Canberra!",
+      "example_translations": {
+        "ru": "Какая столица Австралии? — Дайте подумать... Канберра!",
+        "uz": "Avstraliyaning poytaxti qaysi? — O'ylab ko'ray... Kanberra!"
+      },
+      "hooks": {
+        "ru": "Берут паузу, чтобы вспомнить или обдумать ответ",
+        "uz": "Javobni eslash yoki o'ylab olish uchun pauza olinadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "think",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Good question",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хороший вопрос",
+        "uz": "yaxshi savol"
+      },
+      "example": "Why is the sky blue? — Good question! I'm not really sure.",
+      "example_translations": {
+        "ru": "Почему небо голубое? — Хороший вопрос! Я толком не знаю.",
+        "uz": "Nega osmon moviy? — Yaxshi savol! Rosti, bilmayman."
+      },
+      "hooks": {
+        "ru": "Говорят, чтобы выиграть время, когда ответить сразу трудно",
+        "uz": "Darhol javob berish qiyin bo'lganda vaqt yutish uchun aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "question",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm not sure",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я не уверен",
+        "uz": "ishonchim komil emas"
+      },
+      "example": "Is the museum open on Mondays? — I'm not sure. Let's check online.",
+      "example_translations": {
+        "ru": "Музей работает по понедельникам? — Я не уверен. Давай посмотрим в интернете.",
+        "uz": "Muzey dushanba kunlari ochiqmi? — Ishonchim komil emas. Internetdan tekshiraylik."
+      },
+      "hooks": {
+        "ru": "Честно говорят о сомнении, не отвечая ни «да», ни «нет»",
+        "uz": "«Ha» ham, «yo'q» ham demasdan, shubhasini ochiq aytish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sure",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It depends",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "смотря по обстоятельствам",
+        "uz": "vaziyatga bog'liq"
+      },
+      "example": "Are you coming to the party? — It depends. I might have to work.",
+      "example_translations": {
+        "ru": "Ты придёшь на вечеринку? — Смотря по обстоятельствам. Возможно, придётся работать.",
+        "uz": "Bazmga kelasanmi? — Vaziyatga bog'liq. Balki ishlashimga to'g'ri kelar."
+      },
+      "hooks": {
+        "ru": "Отвечают, когда всё зависит от условий; часто добавляют «on...»",
+        "uz": "Hammasi sharoitga bog'liq bo'lganda beriladigan javob; ko'pincha «on...» qo'shiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "depends",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let me see",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "так, посмотрим",
+        "uz": "qani, ko'raylik-chi"
+      },
+      "example": "How much do I owe you? — Let me see... twenty thousand sum.",
+      "example_translations": {
+        "ru": "Сколько я вам должен? — Так, посмотрим... двадцать тысяч сумов.",
+        "uz": "Sizga qancha berishim kerak? — Qani, ko'raylik-chi... yigirma ming so'm."
+      },
+      "hooks": {
+        "ru": "Заполняют паузу, пока что-то считают, вспоминают или ищут",
+        "uz": "Hisoblayotganda, eslayotganda yoki qidirayotganda pauzani to'ldiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "see",
+        "literal": {
+          "ru": "дай мне посмотреть",
+          "uz": "ko'rishimga ruxsat ber"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Hard to say",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "трудно сказать",
+        "uz": "aytish qiyin"
+      },
+      "example": "Who will win the match tonight? — Hard to say. Both teams are strong.",
+      "example_translations": {
+        "ru": "Кто выиграет сегодняшний матч? — Трудно сказать. Обе команды сильные.",
+        "uz": "Bugungi o'yinda kim yutadi? — Aytish qiyin. Ikkala jamoa ham kuchli."
+      },
+      "hooks": {
+        "ru": "Говорят, когда ответ неочевиден и легко ошибиться",
+        "uz": "Javob aniq bo'lmaganda va xato qilish oson bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hard",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I guess so",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "наверное, да",
+        "uz": "menimcha, ha"
+      },
+      "example": "Is this the right bus? — I guess so. It says \"City Center\".",
+      "example_translations": {
+        "ru": "Это нужный автобус? — Наверное, да. Тут написано «Центр города».",
+        "uz": "Shu kerakli avtobusmi? — Menimcha, ha. «Shahar markazi» deb yozilgan."
+      },
+      "hooks": {
+        "ru": "Неуверенное согласие: скорее да, но без гарантии",
+        "uz": "Ishonchsiz rozilik: ehtimol ha, lekin kafolatsiz"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "guess",
+        "literal": {
+          "ru": "я угадываю, что так",
+          "uz": "shunday deb taxmin qilaman"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How should I put it?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как бы это сказать?",
+        "uz": "qanday desam ekan?"
+      },
+      "example": "Did you like the film? — Well, how should I put it? It was very long.",
+      "example_translations": {
+        "ru": "Тебе понравился фильм? — Ну, как бы это сказать? Он был очень длинный.",
+        "uz": "Film senga yoqdimi? — Xo'sh, qanday desam ekan? Juda uzun edi."
+      },
+      "hooks": {
+        "ru": "Подбирают слова, особенно перед мягкой критикой",
+        "uz": "So'z tanlayotganda, ayniqsa muloyim tanqiddan oldin aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "put",
+        "literal": {
+          "ru": "как мне это положить?",
+          "uz": "buni qanday qo'yay?"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That's a tough one",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сложный вопрос",
+        "uz": "qiyin savol ekan"
+      },
+      "example": "What's your biggest weakness? — Hmm, that's a tough one.",
+      "example_translations": {
+        "ru": "Какая ваша главная слабость? — Хм, сложный вопрос.",
+        "uz": "Eng katta zaif tomoningiz nima? — Hmm, qiyin savol ekan."
+      },
+      "hooks": {
+        "ru": "Признают, что вопрос трудный, и берут время подумать",
+        "uz": "Savol qiyinligini tan olib, o'ylash uchun vaqt olinadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tough",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Not that I know of",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "насколько я знаю, нет",
+        "uz": "bilishimcha, yo'q"
+      },
+      "example": "Is there a test tomorrow? — Not that I know of.",
+      "example_translations": {
+        "ru": "Завтра будет контрольная? — Насколько я знаю, нет.",
+        "uz": "Ertaga nazorat ishi bormi? — Bilishimcha, yo'q."
+      },
+      "hooks": {
+        "ru": "Отвечают «нет», но допускают, что могут чего-то не знать",
+        "uz": "«Yo'q» deydi, lekin nimanidir bilmasligi mumkinligini tan oladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "know",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

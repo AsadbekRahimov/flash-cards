@@ -1,6 +1,6 @@
-# LexiFlow Pro — Administrator Guide
+# Muhrla — Administrator Guide
 
-This guide covers everything the administrator needs to set up and maintain LexiFlow Pro.
+This guide covers everything the administrator needs to set up and maintain Muhrla (formerly LexiFlow Pro).
 
 ---
 
@@ -243,7 +243,7 @@ The original PRD schema is also supported for compatibility (`course` may be add
 - The course's word counter is refreshed after every import.
 
 ### Word audio (pre-generation)
-Cards play a pre-generated mp3 when the word has one; otherwise the app uses the phone's own voice (Web Speech), and stays silent without it — nothing is synthesized at the moment a learner opens a card. **New words are voiced by themselves** once voicing is switched on (`TTS_DRIVER=google`, set up by the developer, `docs/27_GOOGLE_TTS_SETUP_RU.md`): a word added in the admin panel, the new and changed words of a lesson import and an edit of a word's English text each queue a voice-over in the background (usually ready within a minute or so; until then the card uses the phone voice). Every night at 02:30 UTC a check queues whatever is still missing. Inactive words are skipped; the learners' own decks are never voiced by Google (they keep the phone voice). `php artisan audio:pregenerate <course-slug>` (or `--all`) is still there for a whole course — after a change of the voice, or if something was lost; it only queues the words without current audio (`--force` redoes all).
+Cards play a pre-generated mp3 when the word has one; otherwise the app uses the phone's own voice (Web Speech), and stays silent without it — nothing is synthesized at the moment a learner opens a card. **New words are voiced by themselves** once voicing is switched on (`TTS_DRIVER=deepgram`, set up by the developer, `docs/37_DEEPGRAM_TTS_SETUP_RU.md`; Google — `docs/27_GOOGLE_TTS_SETUP_RU.md` — is the alternative): a word added in the admin panel, the new and changed words of a lesson import and an edit of a word's English text each queue a voice-over in the background (usually ready within a minute or so; until then the card uses the phone voice). Every night at 02:30 UTC a check queues whatever is still missing. Inactive words are skipped; the learners' own decks are never voiced by the paid service (they keep the phone voice). `php artisan audio:pregenerate <course-slug>` (or `--all`) is still there for a whole course — after a change of the voice, or if something was lost; it only queues the words without current audio (`--force` redoes all).
 
 **Example sentences are voiced too** — only the main example of a word (the field *Example* of the word form); the additional examples of a word (its examples tab, shown in turn after the card graduates) stay silent. A new word, an import and an edit of the main example in the word form or the lesson's word list queue the example's voice-over like the word's (an edit of the blanks only keeps the file); the nightly check picks up the missing ones as well. In the Mini App the speaker button next to the example appears **only when its file is ready** — the phone voice never reads an example, so until the job runs there is simply no button. `audio:pregenerate` queues the words and the examples; `--only=words` or `--only=examples` limits it to one kind (e.g. `php artisan audio:pregenerate --all --only=examples` right after the examples release, instead of waiting for the nightly check: up to 2 000 jobs a night, words and examples together).
 
@@ -458,14 +458,21 @@ of their own groups, with name / username and the learning metrics of their grou
 onboarding state, subscriptions or events).
 
 **List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
-`Pro (sponsored)`, shown as `Pro (от центра)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
-invited, rejected ones excluded), last seen.
+`Pro (sponsored)`, shown as `Pro (от центра)` — through an organization), blocked, **Bot unreachable** (Бот недоступен — see below),
+onboarded, **Referrals** (how many learners this one invited, rejected ones excluded), last seen.
 
 - **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
   **Telegram ID** (exact: type the whole number, `12345` does not find `123456789`).
 - **Filters:** *Group*; *Plan* — Free / Pro (own **or** sponsored; the rule is the same as in the bot and the TWA:
   a subscription counts until its end, an auto-renewing provider gets the grace days, a suspended organization or a
-  member who left sponsors nothing); *Onboarding* — Done / Not done.
+  member who left sponsors nothing); *Onboarding* — Done / Not done; **Bot unreachable** (Бот недоступен) — Бот недоступен / Бот доступен.
+- **Bot unreachable** (Бот недоступен; column, filter and a line on the learner page; admin only, docs/34 §4в п. 3-4): the bot cannot write to
+  this learner in private messages, and since when («с 20.11.2026»). The reason: *Заблокировал бота* (the learner blocked the bot — Telegram's
+  403 or the `my_chat_member` update), *Не запускал бота* (never pressed Start), *Аккаунт удалён* / *Чат не найден* (the Telegram account is
+  gone — no reminders are planned for it any more), *Telegram запретил отправку* (another 403), *Причина не записана* (closed before the reason
+  was stored). Nothing is sent to such a learner (reminders, league results, achievements, offers); the mark goes away by itself as soon as the
+  learner writes to the bot, taps a button or unblocks it. Opening the Mini App does **not** remove it. There is nothing to do by hand: the
+  learner keeps their progress and their plan; to bring reminders back the learner has to open the bot and press Start.
 - **Block / Unblock** (Заблокировать / Разблокировать; row button, confirmation required): the learner's next TWA request answers
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
@@ -534,8 +541,8 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
   the table: the invited learner (link to their page), the state (`pending` — came, not counted yet; `activated` — started, the
   count waits; `rewarded`, shown as **Засчитан** — counted towards the milestones: the setup is done and 10 cards were rated in a day within
   14 days; `rejected` with the reason: `self`, `existing_learner`, `referrer_capped` — legacy rows only, `flagged`), the
-  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner
-  (provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
+  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner, 14 days
+  (`BILLING_TRIAL_DAYS`; provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
   A referral is flagged automatically when the inviter collected 20 or more
   links within 24 hours (a farm is likely); it is not counted meanwhile. Two row buttons for a flagged row, both written
   to the audit log: **Clear flag** (Снять пометку; `referral.unflagged`) — the referral is genuine, an activated one is
@@ -549,7 +556,7 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
 
 Navigate to **Billing → Subscriptions / Promo codes / Organizations / Payments / Payment orders / Provider
 transactions** (Оплата → Подписки / Промокоды / Учебные центры / Платежи / Заказы / Транзакции провайдеров). These screens are for **admins only** (teachers do not see them; an inactive admin does not either).
-Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a subscription of the learner, or from
+Free learners get 10 new words a day (`BILLING_FREE_NEW_WORDS_PER_DAY`) and 3 practice sessions a day; **Pro** removes the limits. Pro comes from a subscription of the learner, or from
 the subscription of an **organization** whose group the learner is an active member of (sponsored Pro). Online payment
 (Telegram Stars, Payme, Click) is switched on per provider by DevOps (see DEVOPS_GUIDE §17); until a provider is enabled
 the payment screens stay empty and Pro is granted by hand or with promo codes.
@@ -564,7 +571,7 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
   If the learner has a **Stars subscription with auto-renewal**, the form warns that Telegram keeps charging them and
-  that a manual grant replaces the row (the renewal can no longer be canceled from LexiFlow): ask the learner to turn
+  that a manual grant replaces the row (the renewal can no longer be canceled from Muhrla): ask the learner to turn
   the renewal off in /pro first, then tick **I understand: grant anyway** (Понимаю, всё равно выдать). If the date is earlier than the end of a
   period the learner has already paid for, the **Pro until** hint says it will shorten the paid period.
   For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
@@ -744,7 +751,7 @@ Changes apply within seconds.
 staff adds a learner by @username or Telegram ID as an *invitation* (`organization_member_invitations`, not a member row): the
 learner gets a message in the bot and becomes a member — a row here — only when they press **Join**. An invited learner holds no
 seat, has no sponsored Pro and is not counted anywhere; the center's cabinet sees only what its staff typed and "waiting / expired",
-never whether the learner exists or declined (the cabinet must not be an oracle of who uses LexiFlow). Invitations are not shown
+never whether the learner exists or declined (the cabinet must not be an oracle of who uses Muhrla). Invitations are not shown
 in `/admin`; the audit log keeps `organization.member_invited` / `organization.member_invite_revoked` with the handle.
 
 ---
@@ -1013,6 +1020,8 @@ first, then warnings (amber), then notes:
 | A center's name — «Нет выполненного задания с момента создания», *N дней* | warning | An active center created **7 or more days ago** (`analytics.attention.center_wait_days`) where no learner has completed an assignment yet; the three oldest one by one, the rest as one line *Другие центры* | Call the center: is a group linked, is an assignment created? (*Центры: до первого задания* shows the step it is stuck on) |
 | *<course slug> · озвучка* — «Покрытие X %, порог публикации 95 %» | warning | A published course, or one on review, where fewer than 95 % of the active words have audio recorded (the same count as `audio:coverage <course>`; files are not checked here). Updated within 5 minutes after the audio queue runs | Run the audio pre-generation for the course (*Word audio*), then `audio:coverage --verify` |
 | *Google TTS · вход отклонён* — «Google отклонил ключ (…): озвучка остановлена» | urgent | Google refused the service-account key (`tts_auth_failed` — key deleted or wrong; `tts_forbidden` — API off, no billing, no role). Voicing stops for 10 minutes at a time and every voicing job fails | The developer replaces the key or fixes the Google project, then runs `php artisan audio:sample --clear-halt` and `php artisan queue:retry all` (`docs/27` C8) |
+| *Deepgram · озвучка остановлена* — «Deepgram отклонил запрос (…)» | urgent | With `TTS_DRIVER=deepgram`: Deepgram refused the key (`tts_auth_failed` — wrong, deleted or expired; `tts_forbidden` — no permission) or the payment (`tts_payment_required` — the account is out of money). Voicing stops for 10 minutes at a time | The developer replaces the key or the owner tops up the account, then `php artisan audio:sample --clear-halt` and `php artisan queue:retry all` (`docs/37`) |
+| *Deepgram · расход кредита* — «Израсходовано X % предела кредита …» / «Предел кредита исчерпан …» | warning from 90 %, urgent when spent | With `TTS_DRIVER=deepgram`: the characters sent to Deepgram **in all** against `DEEPGRAM_TTS_CHAR_LIMIT` (default 6 000 000 ≈ $180 of the one-off $200 credit). The counter never starts over | Near: check the balance in the Deepgram console. Spent: top up, then raise `DEEPGRAM_TTS_CHAR_LIMIT` (spent + new); the nightly check voices the words; dictations failed with `tts_credit_limit_reached` — **Сгенерировать аудио заново** |
 | *Google TTS · расход за месяц* — «Израсходовано X % …» / «Предел исчерпан …» | warning from 90 %, urgent when spent | Only with `TTS_DRIVER=google`: the characters sent to Google this month against `TTS_MONTHLY_CHAR_LIMIT` (default 900 000, below the free million). The month follows Pacific time, like Google's bills | Near: check what used the volume. Spent: nothing to do for words — the nightly check voices them next month; dictations failed with `tts_monthly_limit_reached`, press **Сгенерировать аудио заново** next month |
 | *Очередь озвучки* — «В очереди tts N заданий при пороге M» | warning | More than `TTS_QUEUE_ATTENTION_SIZE` (3000) voicing jobs are waiting | Normal during a mass run (`audio:pregenerate --all`); otherwise ask the developer whether the `queue-low` worker runs with `--queue=low,tts` |
 | *Сравнение напоминаний* | note | Shown only while the reminder experiment is switched on: its day, and from **day 14** (`analytics.attention.reminder_read_after_days`) that the report can be read; «деление начнётся позже» before the start date, «Дата начала не читается» when `starts_at` is not a date | From day 14: `php artisan analytics:reminder-experiment` (see *Reminder experiment*) |
@@ -1021,11 +1030,85 @@ The two thresholds are plain settings in `config/analytics.php` (`attention.cent
 default 14), not environment variables; after a change deploy and run `php artisan config:cache`. The list reads only figures the
 dashboard already caches, so it follows their timers (payments — up to a minute, centers — up to 10 minutes, audio — up to 5 minutes).
 
+## Polls in the bot (Опросы в боте, docs/35)
+
+A poll is a message of the bot (a picture with a caption, or a text) with one button per answer. Every learner gets their own
+message; the answers are counted by Muhrla, not by Telegram. After answering, a learner sees only «Спасибо» — never the results.
+Only an active admin sees the polls (Администрирование → Опросы в боте); teachers and centers do not.
+
+**How to run a poll**
+
+1. **Create** («Новый опрос»): an internal title (learners do not see it), the question in Russian and Uzbek (up to 700 characters
+   each), 2–10 options in both languages (up to 40 characters each), an optional picture (a photo or an image, up to
+   `POLLS_IMAGE_MAX_KB`, 5 MB by default). Choose: one or several answers (and how many at most), whether the answer may be changed,
+   the deadline (Tashkent time; empty = until you close it by hand). If an option is longer than 24 characters, the options go as a
+   numbered list into the text and the buttons show numbers.
+2. **Audience** («Кому отправить»): plan (all / Free / Pro), interface language, course, region (14 regions and «Другая страна» —
+   learners outside Uzbekistan; empty = everybody, including those who did not give a region), and whether only learners who
+   finished the introduction get it. Press **«Посчитать получателей»** to see how many learners match right now. Blocked, deleted,
+   banned learners and those who blocked the bot never get a poll. The audience is fixed at the launch.
+3. **Save**, then check the **preview** (the caption and the buttons a learner will see, in both languages).
+4. **«Отправить себе»**: the saved poll goes to your own Telegram (link it in your profile first; then open the bot and press Start).
+   Vote, change the answer — test answers never count. **A poll cannot be launched without at least one test send that arrived.**
+   If you change the poll afterwards, send it to yourself again.
+5. **«Запустить»**: the dialog shows how many learners will get it. After the launch the question, the options, the picture, the
+   answer rules and the audience are locked (the server refuses changes); only the title and the deadline can change. The broadcast
+   goes out gradually (at most 15 messages a second, and it yields to the other messages of the bot); 10 000 learners take about
+   11 minutes. Do not launch between 19:00 and 21:00 (reminder time).
+6. **«Остановить рассылку»** stops sending to those who have not got it yet; **«Закрыть сейчас»** ends the poll: no more answers,
+   the totals are fixed. A poll with a deadline closes by itself within 5 minutes after it (`polls:close-due`); answers after the
+   deadline are refused at once.
+
+**Results** («Результаты» on the poll): recipients, sent, skipped, blocked the bot, errors, answered (share of the sent); votes per
+option with the share of those who answered (with several answers the shares add up to more than 100 %); breakdowns by message
+language, Free / Pro, course and region (the learner's current plan, course and region, not at the moment of the answer); the answers
+by person (learner, option, time). Two CSV files (Excel opens them, `;`-separated): **«Скачать итоги»** and **«Скачать ответы»**
+(delivery, learner id, language, plan, region, options, time — no names). Every download is written to the audit log.
+
+**Retention.** The answers of a poll are deleted 365 days after it was closed or stopped (`polls:prune`, nightly,
+`POLLS_RETENTION_DAYS`); the totals stay on the results page.
+
+**If something goes wrong.** «Telegram не доставил сообщение» on the test send — open the bot and press Start. «Текст не помещается» —
+shorten the question or the options (a caption with a picture holds 1 024 characters together with the list of options).
+
+## Friends' cup (Кубки друзей, docs/33)
+
+A friends' cup is a 7-day tournament inside a Telegram group: anyone in the chat proposes it with the button of the bot or `/cup`, an
+administrator of the chat publishes it, members join from the link in the chat and play one round of 10 tasks a day in the Mini App.
+The best 5 days count. Only an active admin of the platform sees the cups (Администрирование → Кубки друзей); teachers do not.
+
+**Switching it on** (`CUP_ACCESS` in `.env`): `off` — nothing of the cup works anywhere (the default); `pilot` — only the groups you
+marked; `all` — every group. For the pilot open **Telegram-группы**, find the group and press **«Кубок: включить пилот»** (the same
+button turns it off). Every change is written to the audit log.
+
+**The list of cups** shows the group, the status (Черновик, Ждёт старта, Идёт, Завершён, Отменён), the pause, the level and course,
+«День N из 7», how many joined and how many played at least one round, the start and the finish. Filters: status, «Только на паузе»,
+«Только группы пилота»; the search looks in the names of the groups. A cup is **on pause** when the bot was removed from the chat or
+cups are forbidden in the group: no new rounds and no messages in the chat; the days of the cup still run out.
+
+**The page of a cup** has two tabs: **«Участники и таблица»** (the name in the tournament, in the chat or left it, points, round
+points, days played, from which day the person plays) and **«Попытки дня»** (choose the day: who played, how many answers, right
+answers, points, when).
+
+**What you can do**
+
+- **«Отменить кубок»** — write the reason (required; only the audit log sees it) and confirm. No more rounds, no final message in the
+  chat, the card in the chat says the cup is canceled; the points stay in the table. A finished cup cannot be canceled.
+- **«Сбросить имя»** (on a participant) — for an offensive name: it becomes the person's first name from Telegram. The participant's
+  own name changes (3 per cup) are not spent. The new name shows in the table and in the card of the chat.
+- **«Запретить кубки»** (on the group, in Telegram-группы and on the page of a cup) — the group can no longer create a cup, and a
+  running cup goes on pause. **«Разрешить кубки»** takes it back; a cup that has not ended continues.
+
+**Pilot numbers**: `php artisan cups:pilot-report --since=2026-12-01` (add `--json` for the raw numbers). It prints the cups by
+status; how many people opened an invitation and how many of them joined; how many participants played a round and how many left the
+chat; how many rounds were played to the last task or ran out of time, and the average points; of those who played on day 1 or 2,
+how many came back on day 3 or later; of the groups with a finished cup, how many published the next one within 14 days.
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |
 |---|---|---|
-| Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
+| Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`). **Admin only**, a third tile: **Заблокировали бота: N** with «за 7 дней: M» — learners the bot cannot write to in private messages (blocked the bot, deleted the account, …; deleted learners excluded) and how many of them closed it in the last 7 days. Cached for 60 seconds and refreshed at once when a learner blocks or unblocks the bot. A jump of *M* after a wave of reminders or league results means the messages annoy; the list behind it is **Learners → filter Bot unreachable** |
 | Exams Last 30 Days (Экзаменов за 30 дней) | admin, teacher | Number of exam sessions in the past month |
 | Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Line chart of **repetitions per day** over the last 30 days: how many cards were answered in training sessions that day (the dataset is called «Повторений»). It is not the number of learners: a learner who answers 30 cards counts 30. Admin: all sessions, including personal practice; teacher: group trainings of their own groups only |
 | Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
@@ -1083,17 +1166,47 @@ Teachers see only exams from their assigned groups; administrators see all group
 php artisan telegram:set-webhook
 ```
 
-### Command menu and the «LexiFlow» button (once after deploy)
+### Command menu and the «Muhrla» button (once after deploy)
 ```bash
 php artisan telegram:setup-bot
 ```
 Sets the list of bot commands that Telegram shows after «/» (in private chats: `/today`, `/settings`, `/language` — «Язык / Til» —, `/invite`, `/pro`, `/promo`, `/delete_account`, `/help`; Russian and Uzbek; private chats and group chats have
 their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
 administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
-command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.
+command by hand) and the permanent menu button captioned with `APP_BRAND` (**«Muhrla»** by default) that opens the Mini App at `{TWA_BASE_URL}/twa/`.
 Telegram accepts the button only for an https address: with any other address the command warns and skips the button
 (the command list is still set). It is safe to repeat — run it again after a deploy that changes the bot's commands.
 Without it the «/» menu stays empty. See `docs/VPS_DEPLOY_GUIDE_RU.md` for the BotFather side (Main Mini App).
+
+### Product name (brand)
+
+What people see is called **Muhrla**, the paid plan **Muhrla Pro** (renamed from LexiFlow on 25.11.2026, docs/36 §5).
+The name lives in its own keys, not in `APP_NAME`:
+
+| Key | Default | Where it shows |
+|---|---|---|
+| `APP_BRAND` | `Muhrla` | the bot menu button (`telegram:setup-bot`), the public site (header, `<title>` of the legal pages, `og:site_name`), `/billing/return`, the 2FA pages, the letters (header, footer, signature) and the default sender name (`MAIL_FROM_NAME`) |
+| `APP_BRAND_PRO` | `Muhrla Pro` | the name of both panels (`/admin`, `/org`) |
+| `APP_BRAND_LOGO` | empty | a path to a PNG logo for the share cards (docs/36 A2); empty = the text name |
+| `VITE_BRAND` | `Muhrla` | the Mini App: `<title>` and the screen opened outside Telegram; read at **build** time of `resources/twa` |
+
+The texts of the bot, the reminders, the site and the Mini App (`lang/{ru,uz}`, `resources/twa/src/i18n/{ru,uz}.ts`)
+carry the word itself. A new name is one replace there plus these env values; the guard tests
+(`tests/Feature/BrandTest.php`, `resources/twa/src/__tests__/brand.spec.ts`) fail while the old word is left in a text.
+After changing a key: `php artisan config:cache`, `php artisan telegram:setup-bot` (menu button), rebuild the Mini App
+for `VITE_BRAND`, and in BotFather the bot's display name, description, short description and the Mini App name.
+
+**Do not rename** with the brand (they are technical and changing them breaks things):
+
+- `APP_NAME` — it derives `REDIS_PREFIX` (queues, locks, cache) and the backup folder `storage/app/private/<APP_NAME>`;
+  changing it on a live server loses queued jobs and locks.
+- `REDIS_PREFIX`, `CACHE_PREFIX`, `SESSION_COOKIE` — new values drop the cache and log everybody out of the panels.
+- `TWA_JWT_ISS` — every Mini App token in flight becomes invalid.
+- The bot username (`@…lexiflow_bot`): old `t.me/<bot>?start=ref_…` links would stop working; a new username is a new bot.
+- The domain, the nginx / docker / database names, the PHP namespaces and packages, the `localStorage` keys of the Mini
+  App (`lexiflow:*` — learners would lose their settings), the practice file format `lexiflow-practice/1`, the panel CSS
+  id `lexiflow-panel`.
+- The 2FA issuer of the authenticator apps stays `APP_NAME`: already enrolled admins keep their entry; signing in is not affected.
 
 ### Remove the webhook
 ```bash

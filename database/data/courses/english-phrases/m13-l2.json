@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 13,
+    "title": "Решения и проблемы",
+    "title_uz": "Qarorlar va muammolar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Проблемы",
+    "title_uz": "Muammolar"
+  },
+  "words": [
+    {
+      "word": "What's wrong?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что случилось?",
+        "uz": "nima bo'ldi?"
+      },
+      "example": "You look upset. What's wrong? — I lost my keys.",
+      "example_translations": {
+        "ru": "Ты расстроен. Что случилось? — Я потерял ключи.",
+        "uz": "Xafa ko'rinyapsan. Nima bo'ldi? — Kalitlarimni yo'qotib qo'ydim."
+      },
+      "hooks": {
+        "ru": "Спрашивают с участием, когда видят, что человек расстроен или ему плохо",
+        "uz": "Odam xafa yoki mazasi yo'q ko'rinsa, hamdardlik bilan so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wrong",
+        "literal": {
+          "ru": "что неправильно?",
+          "uz": "nima noto'g'ri?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in trouble",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в беде, в неприятностях",
+        "uz": "boshiga ish tushgan"
+      },
+      "example": "My phone is dead and I've missed the last bus. I'm in trouble!",
+      "example_translations": {
+        "ru": "Телефон сел, и я опоздал на последний автобус. Я влип!",
+        "uz": "Telefonim o'chib qoldi, oxirgi avtobusdan ham qoldim. Boshimga ish tushdi!"
+      },
+      "hooks": {
+        "ru": "Говорят о трудной ситуации или о том, что кого-то накажут или отругают",
+        "uz": "Qiyin vaziyat yoki kimdir jazolanishi, urishilishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "trouble",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in hot water",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "влипнуть (по своей вине)",
+        "uz": "baloga qolmoq"
+      },
+      "example": "Malik is in hot water for breaking the school window.",
+      "example_translations": {
+        "ru": "Малику влетит за то, что он разбил окно в школе.",
+        "uz": "Malik maktab oynasini sindirgani uchun baloga qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда кому-то грозит наказание или выговор за проступок",
+        "uz": "Kimgadir qilgan xatosi uchun jazo yoki tanbeh kutilayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "water",
+        "literal": {
+          "ru": "в горячей воде",
+          "uz": "issiq suvda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the last straw",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "последняя капля",
+        "uz": "sabr kosasini to'ldirgan oxirgi tomchi"
+      },
+      "example": "He was late again today, and that was the last straw.",
+      "example_translations": {
+        "ru": "Сегодня он снова опоздал, и это стало последней каплей.",
+        "uz": "U bugun yana kechikdi va bu sabr kosasini to'ldirgan oxirgi tomchi bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о последней неприятности, после которой терпение кончилось",
+        "uz": "Sabr tugashiga sabab bo'lgan oxirgi ko'ngilsizlik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "straw",
+        "literal": {
+          "ru": "последняя соломинка",
+          "uz": "oxirgi somon"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the tip of the iceberg",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "верхушка айсберга",
+        "uz": "muammoning faqat ko'rinib turgan qismi"
+      },
+      "example": "These ten complaints are only the tip of the iceberg.",
+      "example_translations": {
+        "ru": "Эти десять жалоб — лишь верхушка айсберга.",
+        "uz": "Bu o'nta shikoyat muammoning faqat ko'rinib turgan qismi, xolos."
+      },
+      "hooks": {
+        "ru": "Говорят, когда видна только малая часть большой проблемы",
+        "uz": "Katta muammoning faqat kichik qismi ko'rinib turganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "iceberg",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "open a can of worms",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разворошить осиное гнездо",
+        "uz": "ari uyasiga cho'p suqmoq"
+      },
+      "example": "Let's not ask about the old argument; it will open a can of worms.",
+      "example_translations": {
+        "ru": "Давай не будем спрашивать про старую ссору, а то разворошим осиное гнездо.",
+        "uz": "Eski janjal haqida so'ramaylik, aks holda ari uyasiga cho'p suqqan bo'lamiz."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что вопрос или поступок вызовет кучу новых проблем",
+        "uz": "Biror savol yoki ish ko'plab yangi muammolarni keltirib chiqarishidan ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "worms",
+        "literal": {
+          "ru": "открыть банку с червями",
+          "uz": "chuvalchang to'la bankani ochmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Something's come up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня кое-что случилось",
+        "uz": "bir ish chiqib qoldi"
+      },
+      "example": "Sorry, I can't meet you tonight. Something's come up.",
+      "example_translations": {
+        "ru": "Извини, сегодня вечером не смогу встретиться. У меня кое-что случилось.",
+        "uz": "Kechirasan, bugun kechqurun uchrasha olmayman. Bir ish chiqib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят, отменяя встречу или планы из-за неожиданного дела, без подробностей",
+        "uz": "Kutilmagan ish tufayli uchrashuv yoki rejani bekor qilganda, tafsilotsiz aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "come",
+        "literal": {
+          "ru": "что-то поднялось",
+          "uz": "nimadir paydo bo'ldi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "run into problems",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "столкнуться с проблемами",
+        "uz": "muammolarga duch kelmoq"
+      },
+      "example": "We ran into problems with the new software.",
+      "example_translations": {
+        "ru": "У нас возникли проблемы с новой программой.",
+        "uz": "Yangi dastur bilan muammolarga duch keldik."
+      },
+      "hooks": {
+        "ru": "Говорят, когда в работе или деле неожиданно появились трудности",
+        "uz": "Ish yoki biror yumushda kutilmagan qiyinchiliklar paydo bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "run",
+        "literal": {
+          "ru": "набежать на проблемы",
+          "uz": "muammolarga yugurib kirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the last thing I need",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "только этого мне не хватало",
+        "uz": "shu yetmay turuvdi"
+      },
+      "example": "It's raining, and my bus is late. That's the last thing I need!",
+      "example_translations": {
+        "ru": "Идёт дождь, и автобус опаздывает. Только этого мне не хватало!",
+        "uz": "Yomg'ir yog'yapti, avtobus ham kechikyapti. Shu yetmay turuvdi!"
+      },
+      "hooks": {
+        "ru": "Говорят с досадой, когда к старым неприятностям добавляется новая",
+        "uz": "Eski muammolar ustiga yangisi qo'shilganda g'ijinib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "need",
+        "literal": {
+          "ru": "последнее, что мне нужно",
+          "uz": "menga kerak bo'lgan eng oxirgi narsa"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go from bad to worse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "становиться всё хуже",
+        "uz": "tobora yomonlashmoq"
+      },
+      "example": "First I lost my wallet, then my phone. Things went from bad to worse.",
+      "example_translations": {
+        "ru": "Сначала я потерял кошелёк, потом телефон. Всё становилось только хуже.",
+        "uz": "Avval hamyonimni, keyin telefonimni yo'qotdim. Ahvol tobora yomonlashdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда плохая ситуация становится ещё хуже",
+        "uz": "Yomon vaziyat yanada yomonlashganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "worse",
+        "literal": {
+          "ru": "идти от плохого к худшему",
+          "uz": "yomondan battarga o'tmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

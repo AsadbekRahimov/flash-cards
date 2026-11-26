@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
+import RegionSheet from '@/components/RegionSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -12,7 +14,9 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
+import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { isSoundEnabled, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { isAutoSpeakEnabled, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
@@ -39,7 +43,7 @@ const auth = useAuthStore()
 const settings = useSettingsStore()
 const organizations = useOrganizationsStore()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 useBackButton({ name: 'profile' })
 
@@ -76,9 +80,22 @@ watch(message, (text) => {
   settings.clearError()
 })
 
+/** The highest goal the plan allows; null = no limit. */
+const goalMax = computed((): number | null => data.value?.options.daily_goal_max ?? null)
+const goalLocked = (goal: number): boolean => goalMax.value !== null && goal > goalMax.value
+
 const goalOptions = computed<SegmentOption[]>(() =>
-  (data.value?.options.daily_goals ?? []).map((goal) => ({ value: goal, label: String(goal), testid: `goal-${goal}` })),
+  (data.value?.options.daily_goals ?? []).map((goal) => ({ value: goal, label: String(goal), testid: `goal-${goal}`, locked: goalLocked(goal) })),
 )
+/** The select has no room for an icon: a locked goal says "40 — in Pro" in its text. */
+const goalSelectLabel = (option: SegmentOption): string =>
+  option.locked ? t('settings.daily_goal.locked', { value: option.label }) : option.label
+
+/** The paywall of a goal behind Pro (docs/05 §8c-1). */
+const goalPaywallOpen = ref(false)
+const { reviewFromPaywall: onGoalPaywallReview } = useReviewFromPaywall(() => {
+  goalPaywallOpen.value = false
+}, { toastErrors: true })
 
 const goalAsSegments = computed(() => goalOptions.value.length <= MAX_SEGMENTS)
 
@@ -164,8 +181,77 @@ async function deleteAccount(): Promise<void> {
   await router.replace({ name: 'account-deleted', query: { until: result.until } })
 }
 
+/** The region (docs/35 §2.3): its name, the date from which another one can be chosen, the undo of the last change (10 minutes). */
+const regionOpen = ref(false)
+const regionName = computed((): string => {
+  const code = data.value?.region_code ?? null
+  if (code === null) return t('settings.region.none')
+  return data.value?.options.regions?.find((region) => region.code === code)?.name ?? code
+})
+const regionNextChange = computed((): string => {
+  const at = data.value?.region_change_available_at
+  return at ? t('settings.region.next_change', { date: formatDate(at, 'dayMonthShortYear', locale.value) }) : ''
+})
+/**
+ * The moment the undo is judged at. `Date.now()` inside the computed would not move it, so a one-shot timer set to the end of the undo
+ * (`region_undo_available_until`) takes the row away at that moment while the screen stays open.
+ */
+const undoClock = ref(Date.now())
+let undoTimer: ReturnType<typeof setTimeout> | null = null
+function clearUndoTimer(): void {
+  if (undoTimer !== null) clearTimeout(undoTimer)
+  undoTimer = null
+}
+watch(() => data.value?.region_undo_available_until, (until) => {
+  clearUndoTimer()
+  undoClock.value = Date.now()
+  const left = typeof until === 'string' ? Date.parse(until) - undoClock.value : NaN
+  if (Number.isFinite(left) && left > 0) {
+    undoTimer = setTimeout(() => {
+      undoTimer = null
+      undoClock.value = Date.now()
+    }, left + 50)
+  }
+}, { immediate: true })
+onBeforeUnmount(clearUndoTimer)
+const regionUndoable = computed((): boolean => {
+  const until = data.value?.region_undo_available_until
+  return typeof until === 'string' && Date.parse(until) > undoClock.value
+})
+async function undoRegion(): Promise<void> {
+  await settings.revertRegion()
+}
+
+/** The emoji of Pro (docs/31 §5а): a locked picker opens the paywall and sends nothing; a 403 of a free-looking one does the same. */
+const emojiOptions = computed(() => data.value?.options.pro_emojis ?? [])
+const emojiLocked = computed(() => data.value?.options.pro_emoji_locked === true)
+const emojiChoice = computed(() => data.value?.pro_emoji_choice ?? null)
+const emojiPaywallOpen = ref(false)
+const { reviewFromPaywall: onEmojiPaywallReview } = useReviewFromPaywall(() => {
+  emojiPaywallOpen.value = false
+}, { toastErrors: true })
+async function onEmoji(code: string | null): Promise<void> {
+  if (emojiLocked.value && code !== null) {
+    emojiPaywallOpen.value = true
+    return
+  }
+  if (code === emojiChoice.value) return
+  await save({ pro_emoji: code })
+  if (settings.proEmojiRequired) emojiPaywallOpen.value = true
+}
+
 const onLocale = (value: string | number) => save({ interface_locale: String(value) })
-const onGoal = (value: string | number) => save({ daily_goal: Number(value) })
+/** A locked goal opens the paywall and sends nothing; a 403 `daily_goal_pro_required` of a free-looking one does the same. */
+async function onGoal(value: string | number): Promise<void> {
+  const goal = Number(value)
+  if (goalLocked(goal)) {
+    syncDraft()
+    goalPaywallOpen.value = true
+    return
+  }
+  await save({ daily_goal: goal })
+  if (settings.goalProRequired) goalPaywallOpen.value = true
+}
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
 const onRetention = (value: string | number) => save({ retention_mode: String(value) as LearnerSettings['retention_mode'] })
@@ -187,7 +273,7 @@ onMounted(() => {
     <div v-else class="space-y-4">
       <ListGroup :header="t('settings.group.region')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="language-row">
-          <span class="text-[15px] leading-5">{{ t('settings.language') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.language') }}</span>
           <div data-testid="locale-select">
             <SegmentedControl
               :model-value="data.interface_locale"
@@ -200,9 +286,60 @@ onMounted(() => {
         </div>
       </ListGroup>
 
+      <ListGroup :footer="regionNextChange || t('settings.region.hint')" data-testid="region-card">
+        <button type="button" class="list-row" :disabled="saving" data-testid="region-row" @click="regionOpen = true">
+          <span class="shrink-0 text-base leading-[22px] font-bold">{{ t('settings.region') }}</span>
+          <span class="min-w-0 flex-1 truncate text-right text-[15px] leading-[22px] text-muted" data-testid="region-name">{{ regionName }}</span>
+          <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
+        </button>
+        <button v-if="regionUndoable" type="button" class="list-row text-accent" :disabled="saving" data-testid="region-undo" @click="undoRegion">
+          <span class="min-w-0 flex-1 text-left text-base leading-[22px] font-semibold">{{ t('settings.region.undo') }}</span>
+        </button>
+      </ListGroup>
+
+      <!-- The emoji next to the name (docs/31 §5а): one of the platform's set; for Free a plus of Pro, the choice is kept. -->
+      <ListGroup
+        v-if="emojiOptions.length > 0"
+        :header="t('settings.pro_emoji')"
+        :footer="emojiLocked ? t('settings.pro_emoji.locked') : t('settings.pro_emoji.hint')"
+        data-testid="pro-emoji-card"
+      >
+        <div class="list-row flex-wrap gap-1.5" role="radiogroup" :aria-label="t('settings.pro_emoji')" data-testid="pro-emoji-picker">
+          <button
+            type="button"
+            class="chip"
+            role="radio"
+            :aria-checked="emojiChoice === null"
+            :class="{ 'chip-accent': emojiChoice === null }"
+            :disabled="saving"
+            data-testid="pro-emoji-none"
+            @click="onEmoji(null)"
+          >
+            {{ t('settings.pro_emoji.none') }}
+          </button>
+          <button
+            v-for="option in emojiOptions"
+            :key="option.code"
+            type="button"
+            class="flex size-11 items-center justify-center rounded-control text-[22px]"
+            role="radio"
+            :aria-checked="emojiChoice === option.code"
+            :aria-label="option.emoji"
+            :class="emojiChoice === option.code ? 'border-2 border-primary bg-accent-soft' : 'bg-fill'"
+            :disabled="saving"
+            :data-locked="emojiLocked ? 'true' : undefined"
+            :data-testid="`pro-emoji-${option.code}`"
+            @click="onEmoji(option.code)"
+          >
+            {{ option.emoji }}
+          </button>
+          <span v-if="emojiLocked" class="chip chip-accent shrink-0" data-testid="pro-emoji-pro">{{ t('profile.chip.pro') }}</span>
+        </div>
+      </ListGroup>
+
       <ListGroup :header="t('settings.group.learning')" :footer="t('settings.daily_goal.unit')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="goal-row">
-          <span class="text-[15px] leading-5">{{ t('settings.daily_goal') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.daily_goal') }}</span>
           <div data-testid="goal-select">
             <SegmentedControl
               v-if="goalAsSegments"
@@ -213,14 +350,14 @@ onMounted(() => {
               @update:model-value="onGoal"
             />
             <select v-else v-model="draft.goal" class="field" :disabled="saving" :aria-label="t('settings.daily_goal')" @change="onGoal(draft.goal)">
-              <option v-for="option in goalOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+              <option v-for="option in goalOptions" :key="option.value" :value="option.value" :data-locked="option.locked ? 'true' : undefined">{{ goalSelectLabel(option) }}</option>
             </select>
           </div>
         </div>
 
         <!-- The FSRS retention dial (docs/06 §12.8): only for a learner scheduled by FSRS; SM-2 has no such setting. -->
         <div v-if="showsRetention" class="list-row flex-col items-stretch gap-2" data-testid="retention-row">
-          <span class="text-[15px] leading-5">{{ t('settings.retention') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.retention') }}</span>
           <SegmentedControl
             :model-value="data.retention_mode ?? 'normal'"
             :options="retentionOptions"
@@ -232,17 +369,17 @@ onMounted(() => {
         </div>
 
         <div class="list-row" data-testid="say-aloud-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.say_aloud') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.say_aloud') }}</span>
           <ToggleSwitch :model-value="sayAloud" :label="t('settings.say_aloud')" data-testid="say-aloud-toggle" @update:model-value="onSayAloud" />
         </div>
 
         <div class="list-row" data-testid="autospeak-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.autospeak') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.autospeak') }}</span>
           <ToggleSwitch :model-value="autoSpeak" :label="t('settings.autospeak')" data-testid="autospeak-toggle" @update:model-value="onAutoSpeak" />
         </div>
 
         <div class="list-row" data-testid="sounds-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.sounds') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.sounds') }}</span>
           <ToggleSwitch :model-value="sounds" :label="t('settings.sounds')" data-testid="sounds-toggle" @update:model-value="onSounds" />
         </div>
       </ListGroup>
@@ -253,18 +390,18 @@ onMounted(() => {
           a long course name. Here the title keeps its line and a long name takes up to two lines.
         -->
         <RouterLink :to="{ name: 'courses' }" class="list-row" data-testid="course-card">
-          <span class="shrink-0 text-[15px] leading-5">{{ t('settings.course') }}</span>
-          <span class="line-clamp-2 min-w-0 flex-1 text-right text-[15px] leading-5 break-words text-muted" data-testid="course-title">
+          <span class="shrink-0 text-base leading-[22px] font-bold">{{ t('settings.course') }}</span>
+          <span class="line-clamp-2 min-w-0 flex-1 text-right text-[15px] leading-[22px] break-words text-muted" data-testid="course-title">
             {{ data.active_course ? data.active_course.title : t('settings.course.none') }}
           </span>
-          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+          <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
         </RouterLink>
       </ListGroup>
 
       <ListGroup :header="t('settings.exercises')" :footer="t('settings.exercises.always')" data-testid="exercises-card">
         <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`">
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="flex min-w-0 items-center gap-2 text-[15px] leading-5">
+            <span class="flex min-w-0 items-center gap-2 text-base leading-[22px] font-bold">
               <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
               <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
             </span>
@@ -284,7 +421,7 @@ onMounted(() => {
 
       <ListGroup :header="t('settings.group.reminders')" :footer="t('settings.reminder.hint')">
         <label class="list-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.reminder.time') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.reminder.time') }}</span>
           <select v-model="draft.reminder" class="field field-inline shrink-0" :disabled="saving" data-testid="reminder-select" @change="onReminder">
             <option v-for="time in data.options.reminder_times" :key="time" :value="time">{{ time }}</option>
             <option value="">{{ t('settings.reminder.off') }}</option>
@@ -294,7 +431,7 @@ onMounted(() => {
 
       <ListGroup :header="t('settings.group.leagues')" :footer="t('settings.leagues.hint')">
         <div class="list-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.leagues.toggle') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.leagues.toggle') }}</span>
           <ToggleSwitch
             :model-value="!data.leagues_opt_out"
             :disabled="saving"
@@ -308,7 +445,7 @@ onMounted(() => {
       <ListGroup v-if="organizations.items.length > 0" :header="t('orgs.title')" data-testid="orgs-card">
         <div v-for="org in organizations.items" :key="org.id" class="list-row flex-col items-stretch gap-2" :data-testid="`org-${org.id}`">
           <div class="flex items-center gap-3">
-            <span class="min-w-0 flex-1 text-[15px] leading-5 break-words" data-testid="org-name">{{ org.name }}</span>
+            <span class="min-w-0 flex-1 text-base leading-[22px] font-bold break-words" data-testid="org-name">{{ org.name }}</span>
             <span class="chip shrink-0" :class="org.seat_state === 'seated' ? 'chip-success' : 'chip-warning'" data-testid="org-state">
               {{ org.seat_state === 'seated' ? t('orgs.seated') : t('orgs.waitlisted') }}
             </span>
@@ -354,10 +491,14 @@ onMounted(() => {
       <ListGroup :header="t('settings.group.danger')" data-testid="danger-zone">
         <button type="button" class="list-row text-danger-ink" data-testid="delete-account" @click="askDelete">
           <AppIcon name="trash" :size="20" class="shrink-0" />
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.delete') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.delete') }}</span>
         </button>
       </ListGroup>
     </div>
+
+    <PaywallSheet v-if="goalPaywallOpen" reason="daily_goal" @close="goalPaywallOpen = false" @review="onGoalPaywallReview" />
+    <PaywallSheet v-if="emojiPaywallOpen" reason="info" @close="emojiPaywallOpen = false" @review="onEmojiPaywallReview" />
+    <RegionSheet v-if="regionOpen" via="settings" @close="regionOpen = false" />
 
     <DeleteAccountSheet
       v-if="deleteOpen"

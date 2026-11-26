@@ -13,6 +13,7 @@ use App\Domain\Engagement\Services\LeagueResultSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\SendLeagueResultJob;
 use App\Jobs\SendLeagueResultsJob;
@@ -151,6 +152,7 @@ it('goes on after a Bot API failure or a 403 of one member and keeps the failed 
     [$a, $b, $c] = lrThree();
     $b->learner?->forceFill(['telegram_user_id' => 777_999])->save();
     $this->tg->failSends = 1; // the first send of the batch fails like an outage
+    $this->tg->failSendsAsTransport = true;
 
     $outcome = app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30);
 
@@ -175,6 +177,38 @@ it('goes on after a Bot API failure or a 403 of one member and keeps the failed 
 
     expect(app(LeagueResultSender::class)->sendBatch([$d->id, $e->id], 30))->toBe(['sent' => 1, 'skipped' => 0, 'forbidden' => 1, 'failed' => 0, 'remaining' => []])
         ->and($d->learner?->fresh()?->dm_blocked_at)->not->toBeNull();
+});
+
+it('drops the marker of a member refused by a 4xx (reported) and goes on: the retry of the batch reaches that member once', function (): void {
+    Exceptions::fake();
+    [$a, $b, $c] = lrThree();
+    $this->tg->failSends = 1; // a definite refusal (not a 403, not a 429)
+
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30))->toBe(['sent' => 2, 'skipped' => 0, 'forbidden' => 0, 'failed' => 1, 'remaining' => []])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(2);
+    Exceptions::assertReported(TelegramApiException::class);
+
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30))->toBe(['sent' => 1, 'skipped' => 2, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and($this->tg->sent)->toHaveCount(3);
+});
+
+it('stops the batch on a 429 and hands back that member and the rest, without a marker and without a report', function (): void {
+    Exceptions::fake();
+    [$a, $b, $c] = lrThree();
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id], 30)['sent'])->toBe(1);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 5; // the next send (member b) meets flood control
+
+    $outcome = app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30);
+
+    expect($outcome)->toBe(['sent' => 0, 'skipped' => 1, 'forbidden' => 0, 'failed' => 0, 'remaining' => [$b->id, $c->id]])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(1);
+    Exceptions::assertNotReported(TelegramRateLimitedException::class);
+
+    // The retry after the pause delivers each of the rest exactly once.
+    expect(app(LeagueResultSender::class)->sendBatch($outcome['remaining'], 30))->toBe(['sent' => 2, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30)['skipped'])->toBe(3)
+        ->and($this->tg->sent)->toHaveCount(3);
 });
 
 it('stops when no slot of the bot-wide budget comes and hands the rest back; the job queues them again with a short delay', function (): void {

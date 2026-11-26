@@ -411,7 +411,7 @@ it('queues nothing while TTS_DRIVER is a value nobody knows, and says so', funct
     app()->forgetInstance(SpeechSynthesizer::class);
     config(['twa.tts.driver' => 'gogle']);
 
-    $this->artisan('audio:reconcile')->expectsOutputToContain('TTS_DRIVER is none of google, http or null')->assertSuccessful();
+    $this->artisan('audio:reconcile')->expectsOutputToContain('TTS_DRIVER is none of deepgram, google, http or null')->assertSuccessful();
     Queue::assertNothingPushed();
 });
 

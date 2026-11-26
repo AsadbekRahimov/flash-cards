@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 2,
+    "title": "Разговор и понимание",
+    "title_uz": "Suhbat va tushunish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Понял или нет",
+    "title_uz": "Tushundimi, yo'qmi"
+  },
+  "words": [
+    {
+      "word": "I see",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понятно",
+        "uz": "tushunarli"
+      },
+      "example": "The shop is closed because it's a holiday. — Oh, I see.",
+      "example_translations": {
+        "ru": "Магазин закрыт, потому что праздник. — А, понятно.",
+        "uz": "Do'kon yopiq, chunki bugun bayram. — Ha, tushunarli."
+      },
+      "hooks": {
+        "ru": "Показывают, что поняли объяснение; к зрению отношения не имеет",
+        "uz": "Tushuntirishni tushunganini bildiradi; ko'rishga aloqasi yo'q"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "see",
+        "literal": {
+          "ru": "я вижу",
+          "uz": "ko'ryapman"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Got it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понял",
+        "uz": "tushundim"
+      },
+      "example": "Press the green button, then wait. — Got it!",
+      "example_translations": {
+        "ru": "Нажми зелёную кнопку, потом подожди. — Понял!",
+        "uz": "Yashil tugmani bos, keyin kut. — Tushundim!"
+      },
+      "hooks": {
+        "ru": "Коротко подтверждают, что поняли указание или объяснение",
+        "uz": "Ko'rsatma yoki tushuntirishni tushunganini qisqa tasdiqlash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "got",
+        "literal": {
+          "ru": "получил это",
+          "uz": "buni oldim"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm lost",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я запутался",
+        "uz": "chalkashib ketdim"
+      },
+      "example": "First you add the eggs, then the milk, then... — Wait, I'm lost.",
+      "example_translations": {
+        "ru": "Сначала добавляешь яйца, потом молоко, потом... — Погоди, я запутался.",
+        "uz": "Avval tuxum qo'shasan, keyin sut, keyin... — To'xta, chalkashib ketdim."
+      },
+      "hooks": {
+        "ru": "Признаются, что перестали понимать объяснение; также «я заблудился»",
+        "uz": "Tushuntirishni tushunmay qolganda aytiladi; adashib qolganda ham"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "lost",
+        "literal": {
+          "ru": "я потерялся",
+          "uz": "men adashdim"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What do you mean?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что вы имеете в виду?",
+        "uz": "nima demoqchisiz?"
+      },
+      "example": "Your plan won't work. — What do you mean? Why not?",
+      "example_translations": {
+        "ru": "Твой план не сработает. — Что ты имеешь в виду? Почему?",
+        "uz": "Rejang ish bermaydi. — Nima demoqchisan? Nega?"
+      },
+      "hooks": {
+        "ru": "Просят пояснить сказанное; резким тоном звучит как вызов",
+        "uz": "Aytilganni tushuntirishni so'rash; keskin ohangda e'tirozdek eshitiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mean",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you follow me?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понимаете, о чём я?",
+        "uz": "fikrimni tushunyapsizmi?"
+      },
+      "example": "First we fix the roof, then we paint the walls. Do you follow me? — Yes, go on.",
+      "example_translations": {
+        "ru": "Сначала чиним крышу, потом красим стены. Понимаешь, о чём я? — Да, продолжай.",
+        "uz": "Avval tomni tuzatamiz, keyin devorlarni bo'yaymiz. Fikrimni tushunyapsanmi? — Ha, davom et."
+      },
+      "hooks": {
+        "ru": "Проверяют, успевает ли собеседник за объяснением",
+        "uz": "Suhbatdosh tushuntirishga ulgurayotganini tekshirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "follow",
+        "literal": {
+          "ru": "вы следуете за мной?",
+          "uz": "ortimdan kelyapsizmi?"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I don't get it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не понимаю",
+        "uz": "tushunmayapman"
+      },
+      "example": "Everyone laughed at the joke, but I don't get it. — I'll explain later.",
+      "example_translations": {
+        "ru": "Все смеялись над шуткой, а я не понимаю. — Потом объясню.",
+        "uz": "Hamma hazilga kuldi, lekin men tushunmayapman. — Keyin tushuntiraman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не понимают шутку, объяснение или чей-то поступок",
+        "uz": "Hazil, tushuntirish yoki birovning xatti-harakatini tushunmaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "get",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Is that clear?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё ясно?",
+        "uz": "hammasi aniqmi?"
+      },
+      "example": "Homework is due on Monday. Is that clear? — Yes, Ms. Karimova.",
+      "example_translations": {
+        "ru": "Домашнее задание сдать в понедельник. Всё ясно? — Да, госпожа Каримова.",
+        "uz": "Uy vazifasini dushanbagacha topshirish kerak. Hammasi aniqmi? — Ha, Karimova opa."
+      },
+      "hooks": {
+        "ru": "Проверяют, поняли ли их; так говорит учитель или начальник",
+        "uz": "Tushunishganini tekshirish; o'qituvchi yoki rahbar shunday deydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "clear",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Point taken",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "справедливо, учту",
+        "uz": "tushundim, hisobga olaman"
+      },
+      "example": "You should check your work before you send it. — Point taken. I'll be more careful.",
+      "example_translations": {
+        "ru": "Проверяй работу перед отправкой. — Справедливо, учту. Буду внимательнее.",
+        "uz": "Ishingni yuborishdan oldin tekshir. — Tushundim, hisobga olaman. Ehtiyotkorroq bo'laman."
+      },
+      "hooks": {
+        "ru": "Принимают замечание или довод без спора",
+        "uz": "Tanbeh yoki dalilni bahslashmasdan qabul qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "point",
+        "literal": {
+          "ru": "мысль принята",
+          "uz": "fikr qabul qilindi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Let me get this straight",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давайте уточним",
+        "uz": "keling, aniqlab olaylik"
+      },
+      "example": "Let me get this straight: you want to quit your job tomorrow? — Yes!",
+      "example_translations": {
+        "ru": "Давай уточним: ты хочешь завтра уволиться? — Да!",
+        "uz": "Qani, aniqlab olaylik: ertaga ishdan ketmoqchimisan? — Ha!"
+      },
+      "hooks": {
+        "ru": "Переспрашивают, чтобы точно понять что-то странное или важное",
+        "uz": "G'alati yoki muhim gapni aniq tushunish uchun qayta so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "straight",
+        "literal": {
+          "ru": "дай мне сделать это прямым",
+          "uz": "buni to'g'rilab olay"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I have no idea",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понятия не имею",
+        "uz": "xabarim yo'q"
+      },
+      "example": "Where's Dad? — I have no idea. Maybe in the garden.",
+      "example_translations": {
+        "ru": "Где папа? — Понятия не имею. Может, в саду.",
+        "uz": "Dadam qayerda? — Xabarim yo'q. Balki bog'dadir."
+      },
+      "hooks": {
+        "ru": "Честно признаются, что совсем ничего не знают",
+        "uz": "Umuman hech narsa bilmasligini ochiq tan olish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "idea",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Cup\Enums;
+
+/**
+ * `cup_duels.end_reason` (docs/33 §11.9): why a duel ended the way it did.
+ *
+ *   declined          the addressee said no
+ *   expired           nobody accepted within `cup.duel.challenge_minutes`
+ *   cup_over          accepted when the cup had no current day any more (after the end of its last day)
+ *   challenger        the challenger withdrew it
+ *   cup_closed        the cup was finished / canceled before the acceptance (canceled), or before the result (done, not credited)
+ *   left              the challenger is no active participant any more (left the chat) at the acceptance
+ *   challenger_limit  a friendly duel: the Free challenger has no battle of the day left at the acceptance (owner's К5)
+ *   material          the course of the cup has no material for the mode any more
+ *   no_answers        the match ended, whatever the end (closed; finished by a surrender in the countdown or in the game, the
+ *                     first round included), before either player gave an answer that is not a timeout (void: the slots are free
+ *                     again, docs/33 §5.7). Accepted risk: a player may see the first task and give up while nobody has answered -
+ *                     the attempt goes back to both, the tasks are new each time, at most 3 challenges to the same pair a day
+ *                     (`duel.pair_daily_challenges`)
+ *   battle_gone       the match was deleted (a learner was deleted) before the result (void)
+ *   battle_voided     the system called the match off (`battles.end_reason = voided`: a clip missing, the practice switched off),
+ *                     answers or not (void)
+ */
+enum CupDuelEndReason: string
+{
+    case Declined = 'declined';
+    case Expired = 'expired';
+    case CupOver = 'cup_over';
+    case Challenger = 'challenger';
+    case CupClosed = 'cup_closed';
+    case Left = 'left';
+    case ChallengerLimit = 'challenger_limit';
+    case Material = 'material';
+    case NoAnswers = 'no_answers';
+    case BattleGone = 'battle_gone';
+    case BattleVoided = 'battle_voided';
+}

@@ -14,8 +14,9 @@ use Tests\Support\QueryLog;
 
 /*
  * Shape of the rare slow distractor queries (measured on PostgreSQL, 100k words): the exercise "course" layer must not
- * walk the words primary key (`order by id + 0`), and the exam "foreign" layer must not sort every word of the platform
- * at random (two-step sample: lessons, then words of those lessons).
+ * walk the words primary key (`order by id + 0`), the exercise "platform" layer is not a query over every word of the public
+ * courses but a cached pool, and the exam "foreign" layer must not sort every word of the platform at random (two-step
+ * sample: lessons, then words of those lessons).
  */
 
 uses(RefreshDatabase::class);
@@ -32,7 +33,7 @@ function dqLesson(string $prefix, int $words, ?Course $course = null, array $cou
     return $lesson;
 }
 
-/** @return list<Builder<Word>|list<Word>> the lesson layer is the cached pool of the lesson (plain rows), the others are queries */
+/** @return list<Builder<Word>|list<Word>> the lesson and the platform layers are cached pools (plain rows), the course layer is a query */
 function dqPromptLayers(Word $word): array
 {
     $method = new ReflectionMethod(ExercisePromptBuilder::class, 'layers');
@@ -54,7 +55,10 @@ it('orders only the course layer of the exercise distractors by an expression th
         ->and(array_map(static fn (Word $w): int => (int) $w->id, $lessonLayer))
         ->toBe(Word::query()->where('lesson_id', $own->id)->whereKeyNot($word->id)->orderBy('id')->pluck('id')->all())
         ->and($courseLayer->toSql())->toContain('order by words.id + 0 limit')
-        ->and($platformLayer->toSql())->toMatch('/order by ["`]id["`] asc limit/i');
+        // The platform layer is no query either: the shared pool of the public courses (PlatformDistractorPoolTest), by id.
+        ->and($platformLayer)->toBeArray()
+        ->and(array_map(static fn (Word $w): int => (int) $w->id, $platformLayer))
+        ->toBe(Word::query()->whereKeyNot($word->id)->orderBy('id')->limit(40)->pluck('id')->all());
 
     // Same rows as the plain id order: the 40 lowest ids of the course, minus the lesson and the word itself.
     $expected = Word::query()->where('is_active', true)->where('lesson_id', '<>', $own->id)
@@ -118,7 +122,7 @@ it('borrows exam distractors only from active words of published public platform
     $method = new ReflectionMethod($builder, 'foreignCandidates');
 
     for ($i = 0; $i < 5; $i++) {
-        $got = array_column($method->invoke($builder, $own->stage->course_id, 40, 'ru'), 'translation');
+        $got = array_column($method->invoke($builder, $own->stage->course_id, false, 40, 'ru'), 'translation');
         sort($got);
         expect($got)->toBe(['pub-0', 'pub-1', 'pub-2', 'pub-3', 'pub-4', 'pub-5']);
     }
@@ -139,7 +143,7 @@ it('gives an empty foreign layer without a words query when the platform has no 
     $method = new ReflectionMethod($builder, 'foreignCandidates');
 
     $queries = QueryLog::during(function () use ($method, $builder, $own, &$result): void {
-        $result = $method->invoke($builder, $own->stage->course_id, 40, 'ru');
+        $result = $method->invoke($builder, $own->stage->course_id, false, 40, 'ru');
     });
 
     expect($result)->toBe([])

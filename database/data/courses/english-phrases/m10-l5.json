@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 10,
+    "title": "Учёба",
+    "title_uz": "O'qish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Ум и знания",
+    "title_uz": "Aql va bilim"
+  },
+  "words": [
+    {
+      "word": "use your head",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пошевели мозгами",
+        "uz": "aqlingni ishlat"
+      },
+      "example": "Use your head! You can't carry all those boxes at once.",
+      "example_translations": {
+        "ru": "Пошевели мозгами! Ты не унесёшь все эти коробки сразу.",
+        "uz": "Aqlingni ishlat! Bu qutilarning hammasini birdaniga ko'tara olmaysan."
+      },
+      "hooks": {
+        "ru": "Нетерпеливо советуют подумать, прежде чем делать; звучит резковато",
+        "uz": "Biror ish qilishdan oldin o'ylashni betoqat maslahat berishadi; biroz keskin eshitiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "head",
+        "literal": {
+          "ru": "используй свою голову",
+          "uz": "boshingni ishlat"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It rings a bell",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что-то знакомое",
+        "uz": "tanish tuyulyapti"
+      },
+      "example": "Do you know a man called Farhod Aliev? — Hmm, it rings a bell.",
+      "example_translations": {
+        "ru": "Ты знаешь человека по имени Фарход Алиев? — Хм, что-то знакомое.",
+        "uz": "Farhod Aliyev degan odamni bilasanmi? — Hmm, tanish tuyulyapti."
+      },
+      "hooks": {
+        "ru": "Говорят, когда что-то кажется знакомым, но точно не вспоминается",
+        "uz": "Biror narsa tanish tuyulsa-yu, aniq esga tushmasa aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bell",
+        "literal": {
+          "ru": "это звонит в колокольчик",
+          "uz": "bu qo'ng'iroq chaladi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a know-it-all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всезнайка",
+        "uz": "o'zini hammadan aqlli deb biladigan odam"
+      },
+      "example": "Nobody likes a know-it-all who corrects everyone.",
+      "example_translations": {
+        "ru": "Никто не любит всезнаек, которые всех поправляют.",
+        "uz": "O'zini hammadan aqlli deb biladigan, hammani tuzatadigan odamni hech kim yoqtirmaydi."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о том, кто считает, что знает всё лучше всех",
+        "uz": "Hamma narsani hammadan yaxshiroq bilaman deb o'ylaydigan odam haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "know",
+        "literal": {
+          "ru": "знает-это-всё",
+          "uz": "hammasini-biladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a quick learner",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кто схватывает на лету",
+        "uz": "tez o'rganadigan odam"
+      },
+      "example": "Our new colleague is a quick learner — she understood everything in one day.",
+      "example_translations": {
+        "ru": "Наша новая коллега всё схватывает на лету — разобралась во всём за день.",
+        "uz": "Yangi hamkasbimiz tez o'rganadi — bir kunda hamma narsani tushunib oldi."
+      },
+      "hooks": {
+        "ru": "Хвалят того, кто быстро осваивает новое",
+        "uz": "Yangi narsani tez o'zlashtiradigan odamni maqtashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "quick",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Knowledge is power",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "знание — сила",
+        "uz": "bilim — kuch"
+      },
+      "example": "Read as much as you can. Knowledge is power.",
+      "example_translations": {
+        "ru": "Читай как можно больше. Знание — сила.",
+        "uz": "Imkon qadar ko'p o'qi. Bilim — kuch."
+      },
+      "hooks": {
+        "ru": "Говорят о пользе знаний и учёбы",
+        "uz": "Bilim va o'qishning foydasi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "power",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "rack your brains",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ломать голову",
+        "uz": "bosh qotirmoq"
+      },
+      "example": "I racked my brains, but I couldn't remember her name.",
+      "example_translations": {
+        "ru": "Я ломал голову, но так и не вспомнил её имя.",
+        "uz": "Bosh qotirdim, lekin uning ismini eslay olmadim."
+      },
+      "hooks": {
+        "ru": "Говорят о долгих и трудных попытках что-то вспомнить или придумать",
+        "uz": "Biror narsani eslash yoki o'ylab topishga uzoq va qiyin urinish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rack",
+        "literal": {
+          "ru": "напрягать свои мозги",
+          "uz": "miyangni qiynamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bright idea",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "блестящая идея",
+        "uz": "ajoyib g'oya"
+      },
+      "example": "Whose bright idea was it to go camping in the rain?",
+      "example_translations": {
+        "ru": "Чья это была блестящая идея — пойти в поход под дождём?",
+        "uz": "Yomg'irda sayohatga chiqish kimning ajoyib g'oyasi edi?"
+      },
+      "hooks": {
+        "ru": "Хвалят удачную мысль; с иронией — о глупой идее",
+        "uz": "Muvaffaqiyatli fikrni maqtashadi; kinoya bilan — ahmoqona g'oya haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bright",
+        "literal": {
+          "ru": "яркая идея",
+          "uz": "yorqin g'oya"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "common sense",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "здравый смысл",
+        "uz": "sog'lom fikr"
+      },
+      "example": "You don't need a book for this. Just use common sense.",
+      "example_translations": {
+        "ru": "Для этого не нужна книга. Просто включи здравый смысл.",
+        "uz": "Buning uchun kitob kerak emas. Sog'lom fikr yuritsang bas."
+      },
+      "hooks": {
+        "ru": "Говорят о простом практическом разуме, который есть у большинства",
+        "uz": "Ko'pchilikda bo'ladigan oddiy amaliy aql haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "common",
+        "literal": {
+          "ru": "общее чувство",
+          "uz": "umumiy tuyg'u"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "know something inside out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "знать как свои пять пальцев",
+        "uz": "besh qo'lday bilmoq"
+      },
+      "example": "Ask Bobur about computers — he knows them inside out.",
+      "example_translations": {
+        "ru": "Спроси Бобура про компьютеры — он знает их как свои пять пальцев.",
+        "uz": "Kompyuterlar haqida Boburdan so'ra — u ularni besh qo'lday biladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто знает предмет полностью, до мелочей",
+        "uz": "Mavzuni to'liq, mayda-chuydasigacha biladigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "inside",
+        "literal": {
+          "ru": "знать что-то изнутри и снаружи",
+          "uz": "nimanidir ichini ham, tashini ham bilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You learn something new every day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "каждый день узнаёшь что-то новое",
+        "uz": "har kuni yangi narsa o'rganasan"
+      },
+      "example": "Did you know that honey never goes bad? — Really? You learn something new every day.",
+      "example_translations": {
+        "ru": "Ты знал, что мёд никогда не портится? — Правда? Каждый день узнаёшь что-то новое.",
+        "uz": "Asal hech qachon buzilmasligini bilarmiding? — Rostdanmi? Har kuni yangi narsa o'rganasan."
+      },
+      "hooks": {
+        "ru": "С улыбкой говорят, услышав интересный факт",
+        "uz": "Qiziq ma'lumotni eshitganda jilmayib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "new",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

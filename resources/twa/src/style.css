@@ -12,46 +12,38 @@
 @custom-variant short (@media (max-height: 760px));
 
 /*
- * Fonts (docs/14 §4.2): files in the repository, no CDN (assets/fonts, SIL OFL 1.1, the licences lie next to the files).
- * Source Serif 4 is one variable file (wght 200-900) per subset: smaller than the three static weights 400/600/700 together,
- * in every subset. The browser downloads a subset only when the page has a character of its `unicode-range`: Russian text
- * takes latin + cyrillic, Uzbek text latin only (ʻ U+02BB and ʼ U+02BC are in the latin file), latin-ext waits for a rare
- * letter. The italic is latin only: it sets the English example sentences. IBM Plex Mono (400, 500) is latin only: it sets
- * numbers, counters and places; a Cyrillic letter in `font-mono` falls back to the system monospace. Plex and Source Serif have
- * no IPA letters (ɪ ʃ ə ...), so a transcription is `font-ipa`, the system monospace, rather than a mix of two fonts in one
- * word. index.html preloads what the first screen needs: Source Serif 4 latin + cyrillic (normal).
+ * Fonts (docs/14 §4.2, redesign 2026-11-25): files in the repository, no CDN (assets/fonts, SIL OFL 1.1, the licences lie next to the
+ * files). Inter is the one face of the interface - titles and body copy alike - as one variable file (wght 400-800) per subset.
+ * The browser downloads a subset only when the page has a character of its `unicode-range`: Russian text takes latin + cyrillic,
+ * Uzbek text latin only (ʻ U+02BB and ʼ U+02BC are in the latin file), latin-ext waits for a rare letter. There is no italic file:
+ * the few italic lines (English example sentences) take the slant the browser draws. IBM Plex Mono (400, 500) is latin only: it
+ * sets numbers, counters and places; a Cyrillic letter in `font-mono` falls back to the system monospace. Neither has IPA letters
+ * (ɪ ʃ ə ...), so a transcription is `font-ipa`, the system monospace, rather than a mix of two fonts in one word. index.html
+ * preloads the latin Inter; the start script preloads the cyrillic one for a Russian interface.
  */
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter';
   font-style: normal;
-  font-weight: 200 900;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./assets/fonts/source-serif-4-latin-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter';
   font-style: normal;
-  font-weight: 200 900;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./assets/fonts/source-serif-4-latin-ext-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/inter-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Inter';
   font-style: normal;
-  font-weight: 200 900;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./assets/fonts/source-serif-4-cyrillic-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/inter-cyrillic-wght-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: italic;
-  font-weight: 200 900;
-  font-display: swap;
-  src: url('./assets/fonts/source-serif-4-latin-wght-italic.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
   font-family: 'IBM Plex Mono';
@@ -72,7 +64,7 @@
 
 @theme {
   /*
-   * The app's own palette (docs/14 §4.1, redesign 2026-11): `bg-page`, `bg-surface`, `text-body`, `text-muted`, `bg-primary`,
+   * The app's own palette (docs/14 §4.1, redesign 2026-11-25): `bg-page`, `bg-surface`, `text-body`, `text-muted`, `bg-primary`,
    * `text-accent`, `border-divider`, `bg-danger-soft`, `text-success-ink`, `border-warning-line`, ... The values live in :root
    * (light) and :root[data-theme='dark'] below; the colours of the Telegram theme paint nothing any more.
    */
@@ -102,6 +94,8 @@
   --color-success-line: var(--app-success-line);
   --color-warning-line: var(--app-warning-line);
   --color-danger-line: var(--app-danger-line);
+  --color-highlight: var(--app-highlight);
+  --color-nav-active: var(--app-nav-active);
 
   /*
    * Old names, kept so that the screens not yet redrawn keep working (`text-tg-hint`, `bg-tg-button`, `divide-tg-separator`, ...):
@@ -123,14 +117,19 @@
   --color-tg-separator: var(--tg-separator);
   --color-tg-bottom-bar-bg: var(--tg-bottom-bar-bg);
 
-  /* Radii of the redesign: `rounded-card` (cards, lists, plan cards), `rounded-control` (buttons, answer options, fields), `rounded-badge`. */
+  /*
+   * Radii of the redesign (docs/design/2026-11-25-redesign): `rounded-card` (cards, lists, plan cards), `rounded-option` (answer
+   * options, the active tab, a row standing alone), `rounded-hero` (the big tinted card of a screen, a bottom sheet),
+   * `rounded-control` (buttons, fields), `rounded-badge` (a mark inside a line of text; chips are pills).
+   */
+  --radius-hero: 20px;
   --radius-card: 16px;
+  --radius-option: 14px;
   --radius-control: 12px;
   --radius-badge: 6px;
 
-  /* System sans for controls and body copy, serif for page titles, `font-mono` numbers and counters, `font-ipa` a transcription. */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  /* Inter for everything (titles and body copy; no serif any more), `font-mono` numbers and counters, `font-ipa` a transcription. */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
   --font-ipa: Menlo, Consolas, 'DejaVu Sans Mono', 'Noto Sans Mono', ui-monospace, monospace;
   --default-font-family: var(--font-sans);
@@ -154,27 +153,29 @@
 }
 
 /*
- * The palette (docs/14 §4.1). Light — the approved mock-ups (docs/design/2026-11-redesign); dark — the pair in the same spirit,
- * a deep blue-graphite page instead of black. <html data-theme> picks it: Telegram's `colorScheme`, outside Telegram the
- * system's `prefers-color-scheme` (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both, including each ink on
+ * The palette (docs/14 §4.1). Light and dark — the approved mock-ups (docs/design/2026-11-25-redesign: Main, Path, League, Profile
+ * and their *Dark pairs), a deep blue-graphite page instead of black; warning has no mock-up and keeps the values of 2026-11. The
+ * light success is the #2fa862 of the mock-ups a shade darker (#2da05d), so that a mark of it reaches 3:1 on the page and on its
+ * soft fill. <html data-theme> picks the palette: Telegram's `colorScheme`, outside Telegram the system's `prefers-color-scheme`
+ * (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both, including each ink on
  * its soft fill (designSystem.spec.ts reads the hex values below and checks them).
  */
 :root {
-  --app-page: #f6f7f9; /* page background */
+  --app-page: #f4f6fb; /* page background */
   --app-surface: #ffffff; /* cards, lists, sheets, the tab bar */
-  --app-fill: #f6f7f9; /* controls INSIDE a surface: fields, secondary buttons, the pressed row */
-  --app-hairline: #e4e7ec; /* the 1 px border of a card, a button, an option; the line above the tab bar */
-  --app-divider: #eef0f4; /* lines between the rows inside a card */
-  --app-track: #e4e7ec; /* progress tracks, the off switch, skeletons */
-  --app-text: #1d2130;
-  --app-muted: #5f6677; /* secondary text: subtitles, hints, values on the right */
-  --app-accent: #2854a8; /* links, text buttons, progress fill, focus ring */
-  --app-primary: #234fb1; /* the main button, the frame of a selected item, the line of the active tab */
+  --app-fill: #e7ecf4; /* controls INSIDE a surface or on the page: the language pill, fields, secondary buttons, the pressed row */
+  --app-hairline: #e1e6ef; /* the 1 px border of a card, a button, an option; the line above the tab bar */
+  --app-divider: #edf0f5; /* lines between the rows inside a card */
+  --app-track: #d9dfe9; /* progress tracks and segments, the frame of a step not yet done, the off switch, skeletons */
+  --app-text: #151a28;
+  --app-muted: #5a6275; /* secondary text: subtitles, hints, values on the right */
+  --app-accent: #234fb1; /* links, text buttons, icons of rows, progress fill, focus ring */
+  --app-primary: #234fb1; /* the main button, the frame of a selected item, the text of the active tab */
   --app-on-primary: #ffffff; /* text on primary (and on accent) */
-  --app-success: #2f7d5b; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
+  --app-success: #2da05d; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
   --app-warning: #b4741a;
   --app-danger: #b4382c;
-  --app-accent-soft: #edf3ff; /* soft fills: the selected row or option, status boxes */
+  --app-accent-soft: #edf3ff; /* soft fills: the selected row or option, a tile, a chip, status boxes */
   --app-success-soft: #eef6f1;
   --app-warning-soft: #f7eedd;
   --app-danger-soft: #fbf1ef;
@@ -182,10 +183,12 @@
   --app-success-ink: #1f5a40;
   --app-warning-ink: #8a5510;
   --app-danger-ink: #8c2a21;
-  --app-accent-line: #b9ccef; /* soft frames: a badge, a status box, a zone line in a table */
+  --app-accent-line: #c9dafb; /* soft frames: a badge, a status box, a zone line in a table, a track on the highlight */
   --app-success-line: #bfdccd;
   --app-warning-line: #e6cfa6;
   --app-danger-line: #edc7c1;
+  --app-highlight: #e1ebff; /* the big tinted card of a screen (the lesson of the day, the course, the league, the profile) */
+  --app-nav-active: #dce8ff; /* the pill of the active tab */
 
   /* Legacy names (see @theme): aliases of the palette, never the colours of the Telegram theme. */
   --tg-bg: var(--app-surface);
@@ -203,8 +206,8 @@
   --tg-separator: var(--app-divider);
   --tg-bottom-bar-bg: var(--app-surface);
 
-  /* Height of the tab bar without the home-indicator inset. */
-  --app-tabbar-h: 62px;
+  /* Height of the tab bar without the home-indicator inset: a 54 px tab with 8 px above and under it. */
+  --app-tabbar-h: 70px;
   /*
    * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
    * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
@@ -217,21 +220,21 @@
 
 /* The dark pair: same roles, lighter inks, soft fills are dark tints of the colour. Native controls follow (`color-scheme`). */
 :root[data-theme='dark'] {
-  --app-page: #11141c;
-  --app-surface: #191d28;
-  --app-fill: #222736;
-  --app-hairline: #2b3142;
-  --app-divider: #232836;
-  --app-track: #2b3142;
-  --app-text: #e7e9f0;
-  --app-muted: #a2a8b8;
+  --app-page: #0f1420;
+  --app-surface: #181d2a;
+  --app-fill: #262d3d;
+  --app-hairline: #2a3142;
+  --app-divider: #232a39;
+  --app-track: #454c5e;
+  --app-text: #f0f2f7;
+  --app-muted: #a8aebd;
   --app-accent: #a1c4ff;
   --app-primary: #94baff;
   --app-on-primary: #102444;
-  --app-success: #5db78c;
+  --app-success: #3ccb79;
   --app-warning: #d9a04a;
   --app-danger: #e5786b;
-  --app-accent-soft: #202f49;
+  --app-accent-soft: #1b2538;
   --app-success-soft: #16291f;
   --app-warning-soft: #2c2314;
   --app-danger-soft: #311b1a;
@@ -239,10 +242,12 @@
   --app-success-ink: #93d3b2;
   --app-warning-ink: #e6be7e;
   --app-danger-ink: #f1a59b;
-  --app-accent-line: #415b83;
+  --app-accent-line: #2f456b;
   --app-success-line: #2a4b3a;
   --app-warning-line: #54411f;
   --app-danger-line: #5a2f2b;
+  --app-highlight: #1d2d4a;
+  --app-nav-active: #1e3052;
 
   color-scheme: dark;
 }
@@ -301,7 +306,7 @@ body {
     padding-bottom: calc(var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));
   }
 
-  /* A flat card: white, a 1 px hairline, radius 12, no shadow. */
+  /* A flat card: white, a 1 px hairline, radius 16, no shadow. */
   .card {
     @apply rounded-card p-[18px];
     background: var(--app-surface);
@@ -316,8 +321,9 @@ body {
 
   /* ---- buttons ---- */
 
+  /* Buttons of the mock-ups: radius 12, bold text; the main one of a screen is `btn-lg` (52 px, 17 px). */
   .btn {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-control px-4 py-2.5 text-base leading-snug font-semibold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-control px-4 py-2.5 text-base leading-snug font-bold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
   }
   /* The one main action of a screen: flat, dark, white text. */
   .btn-primary {
@@ -330,16 +336,16 @@ body {
     box-shadow: inset 0 0 0 1px var(--app-hairline);
     color: var(--app-accent-ink);
   }
-  /* Neutral button INSIDE a surface (e.g. "Cancel"); on the bare page it has the page colour — use btn-tinted there. */
+  /* Neutral button (e.g. "Cancel"): the fill, a shade darker than the page and than a card, so it reads on both. */
   .btn-secondary {
     background: var(--app-fill);
     color: var(--app-text);
   }
-  /* A text button ("Ещё один раунд", "Не сейчас"): no box, the accent, regular weight. */
+  /* A text button ("Ещё один раунд", "Не сейчас"): no box, the accent, semibold. */
   .btn-plain {
     background: transparent;
     color: var(--app-accent);
-    font-weight: 400;
+    font-weight: 600;
   }
   .btn-danger {
     background: var(--app-danger-soft);
@@ -347,7 +353,7 @@ body {
     color: var(--app-danger-ink);
   }
   .btn-lg {
-    @apply min-h-[52px];
+    @apply min-h-[52px] text-[17px];
   }
   .btn-sm {
     @apply min-h-9 rounded-lg px-3 py-1.5 text-sm;
@@ -401,13 +407,13 @@ body {
   select.field {
     appearance: none;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6677' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6275' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.875rem center;
     background-size: 1rem;
   }
   :root[data-theme='dark'] select.field {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a2a8b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8aebd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
   }
   /* A field placed straight on the page: the same box as .field now (kept for the screens that name it). */
   .field-surface {
@@ -446,31 +452,31 @@ body {
   /* ---- answer option ---- */
 
   /*
-   * Answer button (docs/design Question / Feedback): a white box with a hairline, radius 10, 17 px text. The frame is an inset
-   * shadow, so the 1.5 px frame of a state does not move the text. Icons of the correct/incorrect states are drawn by the component.
+   * Answer button (docs/design/2026-11-25-redesign Question / Feedback): a white box with a hairline, radius 14, 17 px text. The
+   * frame is an inset shadow, so the 2 px frame of a state does not move the text. Icons of the correct/incorrect states are drawn by the component.
    * `dimmed` — the options that are neither picked nor right once the answer is checked.
    */
   .option {
-    @apply flex min-h-14 w-full items-center gap-3.5 rounded-control px-4 py-2 text-left text-[17px] leading-[22px] font-normal transition-colors duration-150 active:scale-[0.99];
+    @apply flex min-h-14 w-full items-center gap-3.5 rounded-option px-4 py-2 text-left text-[17px] leading-[22px] font-normal transition-colors duration-150 active:scale-[0.99];
     background-color: var(--app-surface);
     box-shadow: inset 0 0 0 1px var(--app-hairline);
     color: var(--app-text);
   }
   .option[data-state='selected'] {
     background-color: var(--app-accent-soft);
-    box-shadow: inset 0 0 0 1.5px var(--app-primary);
-    font-weight: 600;
+    box-shadow: inset 0 0 0 2px var(--app-primary);
+    font-weight: 700;
   }
   .option[data-state='correct'],
   .option[data-state='reveal'] {
     background-color: var(--app-success-soft);
-    box-shadow: inset 0 0 0 1.5px var(--app-success);
+    box-shadow: inset 0 0 0 2px var(--app-success);
     color: var(--app-success-ink);
-    font-weight: 600;
+    font-weight: 700;
   }
   .option[data-state='incorrect'] {
     background-color: var(--app-danger-soft);
-    box-shadow: inset 0 0 0 1.5px var(--app-danger);
+    box-shadow: inset 0 0 0 2px var(--app-danger);
     color: var(--app-danger-ink);
   }
   .option[data-state='dimmed'] {
@@ -481,9 +487,9 @@ body {
 
   /* ---- chips ---- */
 
-  /* A small badge ("вы здесь", "новое", "Pro"): 12 px text in a thin frame, radius 6, on the card colour. */
+  /* A small badge ("вы здесь", "новое", "Pro"): a pill, 12 px semibold text in a thin frame, on the card colour. */
   .chip {
-    @apply inline-flex h-6 items-center gap-1 rounded-badge border px-2 text-xs font-normal whitespace-nowrap;
+    @apply inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold whitespace-nowrap;
     background: var(--app-surface);
     border-color: var(--app-hairline);
     color: var(--app-muted);
@@ -537,8 +543,9 @@ body {
     background: var(--app-surface);
     border: 1px solid var(--app-hairline);
   }
+  /* A row of the mock-ups: 54 px, 14 px from the edges of the card, 16 px text. */
   .list-row {
-    @apply relative flex min-h-[52px] w-full items-center gap-3 px-[18px] py-3 text-left text-[15px] leading-5;
+    @apply relative flex min-h-[54px] w-full items-center gap-3.5 px-3.5 py-3 text-left text-base leading-[22px];
     color: var(--app-text);
   }
   /* The line between the rows runs from edge to edge of the card. */
@@ -560,12 +567,11 @@ body {
   }
 
   /*
-   * The icon at the start of a list row: a quiet square in the fill colour, the icon in a colour of the palette (no bright tiles
-   * any more). The `tile-*` names stay for the screens that pass them; they only pick the icon colour.
+   * The icon at the start of a list row: a bare icon in a colour of the palette, no square under it (the mock-ups of 2026-11-25).
+   * The `tile-*` names stay for the screens that pass them; they only pick the icon colour.
    */
   .icon-tile {
-    @apply inline-flex size-[30px] shrink-0 items-center justify-center rounded-lg;
-    background: var(--app-fill);
+    @apply inline-flex size-[26px] shrink-0 items-center justify-center;
     color: var(--app-muted);
   }
   .tile-blue,
@@ -671,7 +677,7 @@ body {
 
   /* Bottom sheet: the grabber is the ::before. Flat: the scrim sets it apart from the page, no shadow. */
   .sheet {
-    @apply w-full max-w-xl rounded-t-2xl px-4 pt-3;
+    @apply w-full max-w-xl rounded-t-hero px-4 pt-3;
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
     background: var(--app-surface);
   }

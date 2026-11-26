@@ -80,7 +80,7 @@ make load-seed                        # зрелые карточки + пило
 
 ```dotenv
 PRACTICE_ACCESS=all
-PRACTICE_FREE_SESSIONS_PER_DAY=        # пусто = без лимита для Free (умолчание 2 в день)
+PRACTICE_FREE_SESSIONS_PER_DAY=        # пусто = без лимита для Free (умолчание 3 в день)
 PRACTICE_FREE_BATTLES_PER_DAY=         # умолчание 1 в день
 GAME_ACCESS=all
 GAME_FREE_RUNS_PER_DAY=                # умолчание 1 в день

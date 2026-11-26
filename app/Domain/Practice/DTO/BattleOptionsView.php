@@ -13,7 +13,7 @@ namespace App\Domain\Practice\DTO;
 final readonly class BattleOptionsView
 {
     /**
-     * @param  array{first_name: string|null}  $friend
+     * @param  array{first_name: string|null, pro_emoji: string|null}  $friend
      * @param  array{slug: string, title: string}  $course
      * @param  array{id: int, stage: int|null, number: int|null, title: string|null}|null  $lesson
      * @param  list<array{mode: string, state: string, available: int, required: int, reason: string|null, round_seconds: int}>  $modes

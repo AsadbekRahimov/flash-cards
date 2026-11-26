@@ -21,6 +21,7 @@ import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useBackButton } from '@/composables/useBackButton'
 import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { useShare } from '@/composables/useShare'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -66,6 +67,7 @@ const auth = useAuthStore()
 const game = useGameRunStore()
 const audio = usePracticeAudio({ fetchBlob: (url, signal) => api.gameRuns.audioBlob(url, signal) })
 const { haptic, notificationHaptic, shareUrl } = useTelegram()
+const { pending: sharing, share: shareThroughBot } = useShare()
 const cities = useGameStore()
 const today = useTodayStore()
 const { t, locale } = useI18n()
@@ -307,20 +309,26 @@ const closedText = computed((): string => {
 let shareMarked = false
 
 /**
- * "Share" on the card of the city (docs/05 §5b.8): the dialog of Telegram with the link and the text of the server, then the mark that it
- * was opened (once; a refusal is silent). Without the stage of the boss (neither in the run nor in the address) the dialog opens and no mark is put.
+ * "Share" on the card of the city (docs/05 §5b.8, docs/36 §1в): the card goes through the bot with the button (`useShare`, kind
+ * `game_city`, the stage as the subject) and is marked once it is sent; an older client or a refusal opens the dialog of Telegram with the
+ * link and the text of the server and marks it then, as before (once; a failed mark is silent). Without the stage of the boss (neither in
+ * the run nor in the address) there is nothing to prepare: the dialog opens and no mark is put.
  */
-function onShare(): void {
+async function onShare(): Promise<void> {
   const share = run.value?.summary?.boss?.share
-  if (!share) return
+  if (!share || sharing.value) return
   haptic('light')
-  shareUrl(share.link, share.text)
   // The stage of the boss: from the run (G2.13), so that a reload or "Continue" from Today marks the card too; the query is the fallback.
   const stageId = run.value?.stage_id ?? props.boss ?? null
-  if (!shareMarked && stageId !== null) {
+  if (stageId === null) {
+    shareUrl(share.link, share.text)
+    return
+  }
+  await shareThroughBot('game_city', String(stageId), { link: share.link, text: share.text }, () => {
+    if (shareMarked) return
     shareMarked = true
     void cities.markCityShared(stageId)
-  }
+  })
 }
 
 const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastErrors: true })
@@ -360,6 +368,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
       :can-again="run.kind === 'stop'"
       :kind="run.kind"
       :class-caravan-id="run.class_caravan_id ?? null"
+      :sharing="sharing"
       @review="reviewFromPaywall"
       @share="onShare"
       @class="goTo(`/game/class/${run.class_caravan_id}`)"

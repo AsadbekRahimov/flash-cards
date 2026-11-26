@@ -201,7 +201,7 @@ describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
 
 describe('CourseView — the practice of a lesson, in the row of the lesson (docs/16 §11.1)', () => {
   /**
-   * Module 2 with the current lesson (40, the big "Учить урок"), a lesson that has words and one that has none yet; the rows
+   * Module 2 with the current lesson (40, the big "Начать урок"), a lesson that has words and one that has none yet; the rows
    * under test are lesson-41 and lesson-42.
    */
   const lessons = (): CourseDetail =>
@@ -230,29 +230,33 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     const button = rowButton(wrapper, 41)
     expect(row.findAll('button')).toHaveLength(2)
     expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-sm']))
+    // a 36 px button with a touch area of a finger (44 px, docs/14 §3), in the current row and in the others
+    expect(button.classes()).toContain('tap-target')
+    expect(rowButton(wrapper, 40).classes()).toContain('tap-target')
     expect(button.classes()).not.toContain('btn-primary')
     // an icon with a short visible caption; its name for a screen reader is the longer label that starts with it
     expect(button.text()).toBe('Практика')
     expect(button.attributes('aria-label')).toMatch(/^Практика: /)
     expect(button.find('svg').exists()).toBe(true)
     expect(button.get('path').attributes('d')).toBe(ICONS['puzzle-piece'].outline[0]?.d)
-    // "Учить" is still the action of the row, with its text; the icon comes before it for the keyboard and the screen reader
-    expect(row.findAll('button').map((b) => b.attributes('data-testid'))).toEqual(['practice-lesson-btn', 'learn-btn'])
-    expect(row.get('[data-testid=learn-btn]').text()).toBe('Учить')
-    expect(row.get('[data-testid=lesson-progress]').text()).toBe('1 из 3 слов')
+    // the row itself is still the button of the lesson (title and caption), the practice comes after it
+    expect(row.findAll('button').map((b) => b.attributes('data-testid'))).toEqual(['learn-btn', 'practice-lesson-btn'])
+    expect(row.get('[data-testid=learn-btn] [data-testid=lesson-title]').text()).toBe('Урок 4 · Еда')
+    expect(row.get('[data-testid=lesson-hint]').text()).toBe('1 из 3 слов')
+    // the current lesson has its own, under "вы здесь"
+    expect(rowButton(wrapper, 40).text()).toBe('Практика')
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     wrapper.unmount()
   })
 
-  it('closes the line of the progress instead of taking room from the title beside "Учить" (320 px: the column fell from 138 to 98 px)', async () => {
+  it('stands on a line of its own under the title, above the layer of the row button (a tap on it is not a tap on the lesson)', async () => {
     const { wrapper } = await render(access(), lessons())
 
     const line = rowButton(wrapper, 41).element.parentElement
-    expect(line?.contains(wrapper.get('[data-testid=lesson-41] [data-testid=lesson-progress]').element)).toBe(true)
-    // the trailing side of the row holds one control only: "Учить", the last thing of the row's line, outside the line of the progress
-    const learn = wrapper.get('[data-testid=lesson-41] [data-testid=learn-btn]').element
-    expect(line?.contains(learn)).toBe(false)
-    expect(learn.parentElement?.lastElementChild).toBe(learn)
+    expect(line?.classList.contains('relative')).toBe(true)
+    expect(line?.classList.contains('z-10')).toBe(true)
+    expect(line?.contains(wrapper.get('[data-testid=lesson-41] [data-testid=learn-btn]').element)).toBe(false)
+    expect(line?.contains(wrapper.get('[data-testid=lesson-41] [data-testid=lesson-title]').element)).toBe(false)
     wrapper.unmount()
   })
 
@@ -278,7 +282,7 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     wrapper.unmount()
   })
 
-  it('does not take the place of "Учить": that still opens the lesson session and stays out of the hub', async () => {
+  it('does not take the place of the row button: the row still opens the lesson session and stays out of the hub', async () => {
     vi.mocked(api.training.open).mockResolvedValue({ session_id: 77, mode: 'lesson', lesson: { stage: 2, lesson: 4, title: 'Еда' }, total_words: 3 })
     const { wrapper, router } = await render(access(), lessons())
 
@@ -294,7 +298,7 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     vi.mocked(api.training.open).mockReturnValue(new Promise(() => {}))
     const { wrapper } = await render(access(), lessons())
 
-    // lesson 42 has no words: "Учить" is off there, and so is its practice
+    // lesson 42 has no words: its row button is off, and so is its practice
     expect(rowButton(wrapper, 42).attributes('disabled')).toBeDefined()
     expect(rowButton(wrapper, 41).attributes('disabled')).toBeUndefined()
 

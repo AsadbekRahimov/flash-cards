@@ -1,5 +1,19 @@
 import WebApp from '@twa-dev/sdk'
 
+/** The error of `shareMessageFailed` that is the learner closing the chat picker, not a failure. */
+const USER_DECLINED = 'USER_DECLINED'
+
+/**
+ * How long the chat picker may stay open without an answer from Telegram. A client that says 8.0 but ignores the request would otherwise
+ * keep the share button busy for good; past it the share counts as dropped (nothing is marked, no fallback).
+ */
+export const SHARE_MESSAGE_TIMEOUT_MS = 120_000
+
+/** The payload of the SDK event `shareMessageFailed` (`UNSUPPORTED`, `MESSAGE_EXPIRED`, `MESSAGE_SEND_FAILED`, `USER_DECLINED`, …). */
+interface ShareMessageFailed {
+  error?: string
+}
+
 /**
  * Thin wrapper around @twa-dev/sdk with safe fallbacks when the TWA is
  * opened outside Telegram (e.g. for Playwright E2E runs with a stub).
@@ -76,6 +90,65 @@ export function useTelegram() {
     openTelegramLink(`https://t.me/share/url?${params.toString()}`)
   }
 
+  /**
+   * Whether this client can send a message the server prepared (`shareMessage`, Mini Apps 8.0+, docs/36 §1в): a Telegram client of
+   * 8.0 or newer and the method of the SDK (8.x has it; its own copy of `telegram-web-apps.js` replaces `window.Telegram.WebApp`).
+   */
+  function canShareMessage(): boolean {
+    try {
+      return Boolean(webApp)
+        && typeof webApp?.isVersionAtLeast === 'function'
+        && webApp.isVersionAtLeast('8.0')
+        && typeof webApp.shareMessage === 'function'
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Opens the chat picker for a prepared message (`POST /share/prepare` -> `id`). Resolves `true` once it is sent, `false` when the
+   * learner closed the picker (or nothing can be sent here); rejects when Telegram could not send it (expired, failed) or the SDK refused
+   * the call, so the caller can take the plain share dialog instead. Call it only from a tap.
+   *
+   * `WebApp.shareMessage` (SDK 8.x) calls back with "sent or not" only; the reason of a "not" comes right after it, in the same turn, as
+   * the event `shareMessageFailed {error}`: `USER_DECLINED` is a closed picker, anything else a failure. So the events decide, and a
+   * "not sent" without an event (a script that raises none) counts as closed, as before.
+   */
+  function shareMessage(id: string): Promise<boolean> {
+    if (!canShareMessage() || !webApp) return Promise.resolve(false)
+    const app = webApp
+    return new Promise((resolve, reject) => {
+      let done = false
+      const finish = (outcome: () => void): void => {
+        if (done) return
+        done = true
+        clearTimeout(timer)
+        app.offEvent('shareMessageSent', onSent)
+        app.offEvent('shareMessageFailed', onFailed)
+        outcome()
+      }
+      const onSent = (): void => finish(() => resolve(true))
+      const onFailed = (params: ShareMessageFailed): void => {
+        const error = (params as ShareMessageFailed | null | undefined)?.error
+        finish(() => (error === USER_DECLINED ? resolve(false) : reject(new Error(typeof error === 'string' ? error : 'share_message_failed'))))
+      }
+      // The button is freed, but the SDK keeps its `WebAppShareMessageOpened` until the client answers - it has no public reset, so
+      // every later call in this session throws and takes the plain dialog (docs/36 §1в: a soft degradation, the SDK is not patched).
+      const timer = setTimeout(() => finish(() => resolve(false)), SHARE_MESSAGE_TIMEOUT_MS)
+      app.onEvent('shareMessageSent', onSent)
+      app.onEvent('shareMessageFailed', onFailed)
+      try {
+        app.shareMessage(id, (sent) => {
+          if (sent === true) finish(() => resolve(true))
+          else queueMicrotask(() => finish(() => resolve(false)))
+        })
+      } catch (err) {
+        // `WebAppMethodUnsupported` / `WebAppShareMessageOpened` (an earlier picker never answered): the plain dialog instead.
+        finish(() => reject(err instanceof Error ? err : new Error('share_message_unavailable')))
+      }
+    })
+  }
+
   function showBackButton(handler: () => void): () => void {
     try {
       webApp?.BackButton?.show()
@@ -102,6 +175,8 @@ export function useTelegram() {
     openLink,
     openTelegramLink,
     shareUrl,
+    canShareMessage,
+    shareMessage,
     showBackButton,
   }
 }

@@ -19,8 +19,9 @@ const state = vi.hoisted(() => ({
   ensure: vi.fn(),
   showBack: vi.fn(),
   hideBack: vi.fn(),
-  shareUrl: vi.fn(),
   haptic: vi.fn(),
+  share: vi.fn(),
+  pending: { value: false },
 }))
 
 vi.mock('@/api', () => ({
@@ -49,9 +50,15 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   }
 })
 
+vi.mock('@/composables/useShare', async () => {
+  const { ref } = await import('vue')
+  const pending = ref(false)
+  state.pending = pending
+  return { useShare: () => ({ pending, share: state.share }) }
+})
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
-    shareUrl: state.shareUrl,
     haptic: state.haptic,
     showBackButton: state.showBack,
     webApp: { BackButton: { hide: state.hideBack } },
@@ -104,6 +111,7 @@ const makeRouter = () =>
     history: createMemoryHistory(),
     routes: [
       { path: '/league/month', name: 'league-month', component: { template: '<div />' } },
+      { path: '/league/all-time', name: 'league-all-time', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/friends', name: 'friends', component: FriendsView },
       { path: '/battles/new', name: 'battle-new', component: { template: '<div />' } },
@@ -124,11 +132,11 @@ const meWith = (practice?: PracticeAccess): MeResponse => ({
 
 const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both' }
 
-async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse()) {
+async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse(), path = '/friends') {
   vi.mocked(api.friends.get).mockResolvedValue(friends)
   vi.mocked(api.challenges.list).mockResolvedValue(challenges)
   const router = makeRouter()
-  await router.push('/friends')
+  await router.push(path)
   await router.isReady()
   const wrapper = mount(FriendsView, { global: { plugins: [router] } })
   await flushPromises()
@@ -153,6 +161,8 @@ describe('FriendsView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    state.pending.value = false
+    state.share.mockResolvedValue('sent')
     // A learner who has no practice: the screen is the Friends screen of before the battles.
     vi.mocked(api.me.get).mockResolvedValue(meWith())
     vi.mocked(api.battles.list).mockResolvedValue(battleList())
@@ -181,6 +191,22 @@ describe('FriendsView', () => {
     expect(wrapper.get('[data-testid=outgoing-row]').text()).toContain('Sam')
     expect(wrapper.find('[data-testid=friends-empty]').exists()).toBe(false)
     expect(text(wrapper, 'challenges-empty')).toBe('Вызовов пока нет.')
+  })
+
+  it('shows a friend\'s emoji of Pro after the name only when there is one (docs/31 §5а)', async () => {
+    const { wrapper } = await render(
+      friendsResponse({
+        friends: [
+          { id: 11, first_name: 'Dilnoza', pro_emoji: '🦁', streak: 5, words_learned: 120, since: null },
+          { id: 12, first_name: 'Aziz', pro_emoji: null, streak: 0, words_learned: 3, since: null },
+        ],
+      }),
+    )
+
+    const rows = wrapper.findAll('[data-testid=friend-row]')
+    expect(rows[0]?.get('[data-testid=friend-name]').text()).toBe('Dilnoza🦁')
+    expect(rows[0]?.get('[data-testid=pro-emoji]').attributes('aria-hidden')).toBe('true')
+    expect(rows[1]?.find('[data-testid=pro-emoji]').exists()).toBe(false)
   })
 
   it.each([
@@ -244,13 +270,26 @@ describe('FriendsView', () => {
       expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
     })
 
-    it('opens the Telegram share dialog with the f_ link', async () => {
+    it('shares the friend invitation through the bot, with the f_ link and the text as the fallback', async () => {
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Давай дружить в LexiFlow: сравним серии и устроим вызов!')
+      expect(state.share).toHaveBeenCalledWith('friend_invite', null, { link: LINK, text: 'Давай дружить в Muhrla: сравним серии и устроим вызов!' })
       expect(state.haptic).toHaveBeenCalled()
+    })
+
+    it('holds the share button with a spinner while the share is on its way', async () => {
+      const { wrapper } = await render()
+
+      state.pending.value = true
+      await flushPromises()
+      const share = wrapper.get('[data-testid=share-btn]')
+      expect(share.attributes('disabled')).toBeDefined()
+      expect(share.find('[data-testid=share-busy]').exists()).toBe(true)
+      expect(share.text()).toBe('Поделиться ссылкой')
+      await share.trigger('click')
+      expect(state.share).not.toHaveBeenCalled()
     })
 
     it('copies the link and says "Скопировано" in a toast instead of changing the button', async () => {
@@ -665,7 +704,7 @@ describe('FriendsView', () => {
 
     expect(wrapper.get('h1').text()).toBe("Do'stlar")
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
-    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
+    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Hafta')
     expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Havolani ulashish')
     expect(wrapper.get('[data-testid=copy-btn]').text()).toBe('Nusxalash')
     expect(text(wrapper, 'friends-count')).toBe('2 / 100')
@@ -1589,6 +1628,97 @@ describe('FriendsView', () => {
       const { wrapper } = await render()
 
       expect(wrapper.find('[data-testid=friend-camel]').exists()).toBe(false)
+    })
+  })
+
+  describe('the address of a button of the bot (docs/36 §3а)', () => {
+    let scrolled: Element[]
+    beforeEach(() => {
+      scrolled = []
+      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: function (this: Element) {
+          scrolled.push(this)
+        },
+      })
+    })
+    afterEach(() => {
+      delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView
+    })
+
+    const highlightedIds = (w: Wrapper): string[] => w.findAll('[data-highlighted=true]').map((row) => row.attributes('data-challenge-id') ?? '')
+
+    it('?challenge= scrolls to the card of that challenge and highlights it', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ open: [challenge({ id: 5 }), challenge({ id: 6, friendship_id: 12, friend_name: null })] }),
+        '/friends?challenge=6&from=challenge_accepted',
+      )
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual(['6'])
+      expect(wrapper.get('[data-challenge-id="6"]').classes()).toContain('bg-accent-soft')
+      expect(wrapper.get('[data-challenge-id="5"]').classes()).not.toContain('bg-accent-soft')
+      expect(scrolled).toHaveLength(1)
+      expect(scrolled[0]?.getAttribute('data-challenge-id')).toBe('6')
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+    })
+
+    it('?challenge= finds a finished challenge too', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ finished: [challenge({ id: 9, status: 'finished', result: 'won' })] }),
+        '/friends?challenge=9',
+      )
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual(['9'])
+      expect(wrapper.get('[data-challenge-id="9"]').attributes('data-testid')).toBe('finished-row')
+    })
+
+    it.each([
+      ['an unknown id', '/friends?challenge=999'],
+      ['not a number', '/friends?challenge=abc'],
+      ['zero', '/friends?challenge=0'],
+      ['an unknown friend', '/friends?friend=77'],
+      ['a pending request, not a friend', '/friends?friend=21'],
+    ])('does nothing for %s: the screen opens as always', async (_case, path) => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [challenge({ id: 5 })] }), path)
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual([])
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(scrolled).toHaveLength(0)
+      expect(wrapper.findAll('[data-testid=friend-row]')).toHaveLength(2)
+    })
+
+    it('?friend= opens the picker of a new challenge to that friend and scrolls to them', async () => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse(), '/friends?friend=12&from=challenge_finished')
+      await flushPromises()
+
+      const rows = wrapper.findAll('[data-testid=friend-row]')
+      expect(rows[1]?.find('[data-testid=metric-picker]').exists()).toBe(true)
+      expect(rows[0]?.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(scrolled[0]?.getAttribute('data-friend-id')).toBe('12')
+
+      vi.mocked(api.challenges.propose).mockResolvedValue(pending({ id: 30, friendship_id: 12 }))
+      await rows[1]?.get('[data-testid=metric-new_words]').trigger('click')
+      await flushPromises()
+      expect(api.challenges.propose).toHaveBeenCalledWith(12, 'new_words')
+    })
+
+    it('?friend= of a friend who has a challenge open already shows that challenge instead of the picker', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ open: [pending({ id: 7, friendship_id: 11, role: 'opponent' })] }),
+        '/friends?friend=11',
+      )
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(highlightedIds(wrapper)).toEqual(['7'])
+      expect(scrolled[0]?.getAttribute('data-challenge-id')).toBe('7')
     })
   })
 

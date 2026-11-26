@@ -114,7 +114,8 @@ it('lists learners with a number of statements that does not depend on the numbe
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
 
-    // Rows with what the columns read: a group, a plan (every third learner is Pro), onboarding.
+    // Rows with what the columns read: a group, a plan (every third learner is Pro), onboarding, a closed DM with its reason
+    // (every other learner; docs/34 §4в п. 4 - the column reads the row only).
     $fill = function (int $rows) use ($group): void {
         Learner::factory()
             ->count($rows - Learner::query()->count())
@@ -123,6 +124,9 @@ it('lists learners with a number of statements that does not depend on the numbe
             ->afterCreating(function (Learner $learner): void {
                 if ($learner->id % 3 === 0) {
                     Subscription::factory()->create(['subscriber_type' => 'learner', 'subscriber_id' => $learner->id]);
+                }
+                if ($learner->id % 2 === 0) {
+                    DB::table('learners')->where('id', $learner->id)->update(['dm_blocked_at' => now()->subDay(), 'dm_blocked_reason' => 'bot_blocked']);
                 }
             })
             ->create();

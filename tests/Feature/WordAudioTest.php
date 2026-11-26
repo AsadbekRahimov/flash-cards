@@ -273,7 +273,8 @@ it('exposes audio_url on the training card only when the word has audio', functi
         ->assertOk()
         ->json('card.audio_url');
 
-    expect($url)->toBe(Storage::disk('public')->url($path))->toEndWith('/storage/'.$path);
+    // The main domain's /audio/ (docs/31 §5д), not the /storage/audio/ of the disk.
+    expect($url)->toBe(rtrim((string) config('app.url'), '/').'/'.$path)->not->toContain('/storage/');
 });
 
 it('an empty (partial) file is not ready: it is regenerated and not served', function (): void {
@@ -344,7 +345,7 @@ it('audio_url is null once the word text changed, even before audio_path is rese
     $word = audioWord('resilient', attrs: ['audio_path' => $path]);
     $service = app(WordAudioService::class);
 
-    expect($service->urlFor($word))->toBe(Storage::disk('public')->url($path));
+    expect($service->urlFor($word))->toBe(config('twa.tts.public_disk_audio_url').'/'.$path);
 
     $word->word = 'durable';
 

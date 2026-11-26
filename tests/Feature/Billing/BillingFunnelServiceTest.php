@@ -223,10 +223,11 @@ it('answers an empty platform with one row of zeros', function (): void {
     expect($report['funnel'])->toBe([['provider' => 'all', 'locale' => 'all', 'viewed' => 0, 'started' => 0, 'paid' => 0, 'studied' => 0, 'maturing' => 0]])
         ->and($report['outside'])->toBe([])
         ->and($report['placements'])->toBe([])
-        ->and($report['orders'])->toBe([]);
+        ->and($report['orders'])->toBe([])
+        ->and($report['trial_offers'])->toBe(['steps' => [], 'opted_out' => 0]);
 });
 
-it('runs three statements whatever the volume', function (): void {
+it('runs five statements whatever the volume', function (): void {
     funnelScenario($this->now);
     $small = QueryLog::during(fn () => app(BillingFunnelService::class)->compute($this->now));
 
@@ -235,8 +236,8 @@ it('runs three statements whatever the volume', function (): void {
     }
     $large = QueryLog::during(fn () => app(BillingFunnelService::class)->compute($this->now));
 
-    expect($small)->toHaveCount(3)
-        ->and($large)->toHaveCount(3)
+    expect($small)->toHaveCount(5)
+        ->and($large)->toHaveCount(5)
         // The values of the filters are bindings: no event name, provider or date is in the SQL text.
         ->and(implode("\n", $large))->not->toContain('billing.offer_viewed', 'checkout.started', 'telegram_stars', '2026-');
 });
@@ -250,7 +251,7 @@ it('keeps the report in the pure cache as an array of scalars, under a versioned
     $key = WidgetCache::key(BillingFunnelService::CACHE_WIDGET, 'all', 'd30');
 
     expect($warm)->toBe([])
-        ->and($key)->toBe('admin:widget:billing_funnel:v2:all:d30')
+        ->and($key)->toBe('admin:widget:billing_funnel:v3:all:d30')
         ->and(PureCache::store()->get($key))->toBe($first);
 
     // A new learner pays: the cached figures stay until the TTL or a forget; then the next read sees it.
@@ -267,6 +268,7 @@ it('reads numbers that come back from the cache as strings, and recomputes what 
         'generated_at' => '2026-11-19T12:00:00+00:00', 'days' => '30',
         'funnel' => [['provider' => 'all', 'locale' => 'all', 'viewed' => '4', 'started' => '2', 'paid' => '1', 'studied' => '1', 'maturing' => '0']],
         'outside' => [], 'placements' => [['placement' => 'paywall_quota', 'learners' => '3', 'views' => '5']], 'orders' => [],
+        'trial_offers' => ['steps' => [['step' => '3', 'sent' => '2', 'paid' => '1']], 'opted_out' => '1'],
     ], 600);
     // `Cache::flexible` keeps the moment of the write beside the value; without it the entry would be recomputed at once.
     PureCache::store()->put(Repository::FLEXIBLE_CREATED_KEY_PREFIX.$key, CarbonImmutable::now()->getTimestamp(), 600);
@@ -274,9 +276,52 @@ it('reads numbers that come back from the cache as strings, and recomputes what 
     $report = app(BillingFunnelService::class)->report();
     expect($report['days'])->toBe(30)
         ->and($report['funnel'][0]['viewed'])->toBe(4)
-        ->and($report['placements'][0]['views'])->toBe(5);
+        ->and($report['placements'][0]['views'])->toBe(5)
+        ->and($report['trial_offers'])->toBe(['steps' => [['step' => 3, 'sent' => 2, 'paid' => 1]], 'opted_out' => 1]);
 
     PureCache::store()->put($key, ['something' => 'else'], 600);
     PureCache::store()->put(Repository::FLEXIBLE_CREATED_KEY_PREFIX.$key, CarbonImmutable::now()->getTimestamp(), 600);
     expect(app(BillingFunnelService::class)->report()['funnel'][0]['viewed'])->toBe(0);
+});
+
+it('counts the offers after the trial per step and credits a payment to the last step before it', function (): void {
+    $d = fn (float $days): CarbonImmutable => $this->now->subMinutes((int) round($days * 1440));
+    $sent = fn (Learner $l, int $step, float $daysAgo) => funnelEventAt($l, ProductEventName::TrialOfferSent, $d($daysAgo), ['step' => $step, 'subscription_id' => 1, 'priced' => true]);
+    $pay = fn (Learner $l, float $daysAgo, string $kind = 'charge') => funnelEventAt($l, ProductEventName::PaymentSucceeded, $d($daysAgo), ['provider' => 'telegram_stars', 'locale' => 'ru', 'kind' => $kind]);
+
+    // A: steps 0 and 3, paid after step 3 (credited to 3, not to 0).
+    $a = Learner::factory()->create();
+    $sent($a, 0, 13);
+    $sent($a, 3, 10);
+    $pay($a, 9);
+    // B: step 0, paid after it; a later renewal is not a decision to buy; step 3 came after the payment - not credited.
+    $b = Learner::factory()->create();
+    $sent($b, 0, 12);
+    $pay($b, 11.5);
+    $pay($b, 2, 'renewal');
+    $sent($b, 3, 9);
+    // C: all three steps, never paid, then opted out (twice: one learner).
+    $c = Learner::factory()->create();
+    $sent($c, 0, 20);
+    $sent($c, 3, 17);
+    $sent($c, 10, 10);
+    funnelEventAt($c, ProductEventName::TrialOfferOptedOut, $d(9));
+    funnelEventAt($c, ProductEventName::TrialOfferOptedOut, $d(8));
+    // D: paid BEFORE any offer (during the trial): not a payment of the chain.
+    $e = Learner::factory()->create();
+    $pay($e, 15);
+    $sent($e, 0, 14);
+    // E: an offer outside the window.
+    $sent(Learner::factory()->create(), 0, 31);
+
+    $report = app(BillingFunnelService::class)->compute($this->now);
+
+    expect($report['trial_offers'])->toBe([
+        'steps' => [
+            ['step' => 0, 'sent' => 4, 'paid' => 1],
+            ['step' => 3, 'sent' => 3, 'paid' => 1],
+            ['step' => 10, 'sent' => 1, 'paid' => 0],
+        ],
+        'opted_out' => 1,
+    ]);
 });

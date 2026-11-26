@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 3,
+    "title": "Просьбы и предложения",
+    "title_uz": "Iltimos va takliflar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Предложить помощь",
+    "title_uz": "Yordam taklif qilish"
+  },
+  "words": [
+    {
+      "word": "Can I help you?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чем могу помочь?",
+        "uz": "sizga yordam bera olamanmi?"
+      },
+      "example": "Can I help you? — Yes, I'm looking for the post office.",
+      "example_translations": {
+        "ru": "Чем могу помочь? — Да, я ищу почту.",
+        "uz": "Sizga yordam bera olamanmi? — Ha, pochtani qidiryapman."
+      },
+      "hooks": {
+        "ru": "Предлагают помощь покупателю, гостю, растерянному прохожему",
+        "uz": "Xaridor, mehmon yoki adashib qolgan yo'lovchiga yordam taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "help",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Here you go",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вот, держи",
+        "uz": "mana, ol"
+      },
+      "example": "Can I have some water? — Here you go.",
+      "example_translations": {
+        "ru": "Можно мне воды? — Вот, держи.",
+        "uz": "Menga suv berasanmi? — Mana, ol."
+      },
+      "hooks": {
+        "ru": "Говорят, передавая кому-то вещь",
+        "uz": "Kimgadir biror narsani uzatayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "go",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let me get that",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давайте я",
+        "uz": "qo'ying, o'zim"
+      },
+      "example": "The phone is ringing! — Don't worry, let me get that.",
+      "example_translations": {
+        "ru": "Телефон звонит! — Не беспокойся, я возьму.",
+        "uz": "Telefon jiringlayapti! — Xavotir olma, men olaman."
+      },
+      "hooks": {
+        "ru": "Берут на себя мелочь: открыть дверь, ответить на звонок, поднять вещь",
+        "uz": "Kichik ishni o'z zimmasiga olish: eshikni ochish, telefonga javob berish, narsani olish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "get",
+        "literal": {
+          "ru": "дай мне взять это",
+          "uz": "buni men olay"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you need a hand?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тебе помочь?",
+        "uz": "yordam kerakmi?"
+      },
+      "example": "Those boxes look heavy. Do you need a hand? — Yes, please!",
+      "example_translations": {
+        "ru": "Коробки, кажется, тяжёлые. Тебе помочь? — Да, пожалуйста!",
+        "uz": "Qutilar og'irga o'xshaydi. Yordam kerakmi? — Ha, iltimos!"
+      },
+      "hooks": {
+        "ru": "Предлагают помочь руками: нести, двигать, чинить",
+        "uz": "Qo'l kuchi bilan yordam taklif qilish: ko'tarish, surish, tuzatish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hand",
+        "literal": {
+          "ru": "тебе нужна рука?",
+          "uz": "senga qo'l kerakmi?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Allow me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "позвольте мне",
+        "uz": "ijozat bering"
+      },
+      "example": "Allow me to open the door for you. — Thank you!",
+      "example_translations": {
+        "ru": "Позвольте, я открою вам дверь. — Спасибо!",
+        "uz": "Ijozat bering, eshikni ochib qo'yay. — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Очень вежливо предлагают помощь, часто уже начиная действовать",
+        "uz": "Juda xushmuomala yordam taklifi, ko'pincha darhol harakatni boshlab"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "allow",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Is there anything I can do?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я могу чем-нибудь помочь?",
+        "uz": "qo'limdan keladigan biror ish bormi?"
+      },
+      "example": "My mother is in the hospital. — I'm so sorry. Is there anything I can do?",
+      "example_translations": {
+        "ru": "Моя мама в больнице. — Мне очень жаль. Я могу чем-нибудь помочь?",
+        "uz": "Onam kasalxonada. — Juda afsusdaman. Qo'limdan keladigan biror ish bormi?"
+      },
+      "hooks": {
+        "ru": "Предлагают поддержку человеку в трудной ситуации",
+        "uz": "Qiyin vaziyatdagi odamga yordam taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "anything",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Leave it to me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "предоставьте это мне",
+        "uz": "buni menga qo'yib bering"
+      },
+      "example": "Who's going to book the tickets? — Leave it to me.",
+      "example_translations": {
+        "ru": "Кто закажет билеты? — Предоставьте это мне.",
+        "uz": "Chiptalarni kim band qiladi? — Buni menga qo'yib bering."
+      },
+      "hooks": {
+        "ru": "Уверенно берут задачу на себя",
+        "uz": "Vazifani ishonch bilan o'z zimmasiga olish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "leave",
+        "literal": {
+          "ru": "оставь это мне",
+          "uz": "buni menga qoldir"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm happy to help",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рад помочь",
+        "uz": "yordam berishdan xursandman"
+      },
+      "example": "Thanks for showing me around. — I'm happy to help.",
+      "example_translations": {
+        "ru": "Спасибо, что всё мне показал. — Рад помочь.",
+        "uz": "Hammasini ko'rsatib berganingiz uchun rahmat. — Yordam berishdan xursandman."
+      },
+      "hooks": {
+        "ru": "Предлагают помощь или отвечают на благодарность: мне не трудно",
+        "uz": "Yordam taklif qilganda yoki rahmatga javoban aytiladi: menga qiyin emas"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "happy",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "No trouble at all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне совсем не трудно",
+        "uz": "hech qiyinchiligi yo'q"
+      },
+      "example": "Are you sure you can drive me? — Yes, it's no trouble at all.",
+      "example_translations": {
+        "ru": "Ты точно можешь меня подвезти? — Да, мне совсем не трудно.",
+        "uz": "Meni rostdan ham olib bora olasanmi? — Ha, hech qiyinchiligi yo'q."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто боится обременить своей просьбой",
+        "uz": "Iltimosi og'irlik qilishidan xavotirlangan odamni tinchlantirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "trouble",
+        "literal": {
+          "ru": "никаких хлопот вообще",
+          "uz": "hech qanday tashvish emas"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Let me know if you need anything",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "если что-то понадобится, скажите",
+        "uz": "biror narsa kerak bo'lsa, ayting"
+      },
+      "example": "Here's your room. Let me know if you need anything. — Thank you!",
+      "example_translations": {
+        "ru": "Вот ваша комната. Если что-то понадобится, скажите. — Спасибо!",
+        "uz": "Mana xonangiz. Biror narsa kerak bo'lsa, ayting. — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Говорят гостю или новому коллеге: обращайтесь, если что",
+        "uz": "Mehmonga yoki yangi hamkasbga aytiladi: kerak bo'lsa, murojaat qiling"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "know",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

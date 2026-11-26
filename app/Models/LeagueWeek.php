@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $ends_on
  * @property string $status
  * @property Carbon|null $closed_at
+ * @property int $rules_version the word-points rules of the week (docs/32 §6.1): 1 = the v1 formula; written at creation, never changed
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -28,7 +29,7 @@ class LeagueWeek extends Model
     use HasFactory;
 
     /** @var list<string> */
-    protected $fillable = ['starts_on', 'ends_on', 'status', 'closed_at'];
+    protected $fillable = ['starts_on', 'ends_on', 'status', 'closed_at', 'rules_version'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -37,6 +38,7 @@ class LeagueWeek extends Model
             'starts_on' => 'date',
             'ends_on' => 'date',
             'closed_at' => 'datetime',
+            'rules_version' => 'integer',
         ];
     }
 

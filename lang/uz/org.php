@@ -61,7 +61,7 @@ return [
         // The block under the list (review finding B1): what the owner typed, when, and whether it still waits — nothing about the learner.
         'invitations' => [
             'heading' => 'O\'quvchilarga takliflar',
-            'description' => 'Bu yerda faqat Siz kiritgan ma\'lumot va javob muddati ko\'rsatiladi. Kabinet bunday o\'quvchi LexiFlow\'da bor-yo\'qligini va u nima deb javob berganini ko\'rsatmaydi: taklifni qabul qilgan o\'quvchi o\'quvchilar ro\'yxatida paydo bo\'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi.',
+            'description' => 'Bu yerda faqat Siz kiritgan ma\'lumot va javob muddati ko\'rsatiladi. Kabinet bunday o\'quvchi Muhrla\'da bor-yo\'qligini va u nima deb javob berganini ko\'rsatmaydi: taklifni qabul qilgan o\'quvchi o\'quvchilar ro\'yxatida paydo bo\'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi.',
             'empty' => 'Hozircha takliflar yo\'q.',
             'columns' => [
                 'handle' => 'Kim taklif qilindi',
@@ -91,7 +91,7 @@ return [
             'telegram_invalid' => 'O\'quvchining @username yoki raqamli Telegram ID\'sini kiriting.',
         ],
         'notifications' => [
-            'invited' => 'Agar bunday o\'quvchi LexiFlow\'da bo\'lsa, taklif yuborildi. U quyidagi takliflar ro\'yxatida paydo bo\'ladi; o\'quvchi botda rozi bo\'lgach, u o\'quvchilar orasida ko\'rinadi.',
+            'invited' => 'Agar bunday o\'quvchi Muhrla\'da bo\'lsa, taklif yuborildi. U quyidagi takliflar ro\'yxatida paydo bo\'ladi; o\'quvchi botda rozi bo\'lgach, u o\'quvchilar orasida ko\'rinadi.',
             'removed' => 'O\'quvchi markazdan chiqarildi.',
             'revoked' => 'Taklif bekor qilindi.',
         ],
@@ -682,7 +682,7 @@ return [
         ],
         'item' => 'Xizmat nomi',
         'sum' => 'Summa',
-        'service' => "Markaz uchun LexiFlow Pro'ga kirish — «:tier» tarifi",
+        'service' => "Markaz uchun Muhrla Pro'ga kirish — «:tier» tarifi",
         'period' => 'muddat: :period (:days kun)',
         'total' => "Jami to'lov",
         'note' => "To'lov markaz obunasini ko'rsatilgan muddatga uzaytiradi. Summa so'mda ko'rsatilgan.",
@@ -728,7 +728,7 @@ return [
         'invitation' => [
             'subject' => '«:organization» markazi kabinetiga taklif',
             'heading' => 'Sizni «:organization» markaziga taklif qilishdi',
-            'intro' => ':inviter sizni LexiFlow Pro platformasidagi «:organization» markazi kabinetiga qo\'shdi.',
+            'intro' => ':inviter sizni Muhrla Pro platformasidagi «:organization» markazi kabinetiga qo\'shdi.',
             'set_password' => 'Quyidagi havola orqali parol o\'rnating — u :hours soat amal qiladi va bir marta ishlaydi.',
             'button_set_password' => 'Parol o\'rnatish',
             'existing_account' => 'Odatdagi parolingiz bilan kiring — markaz kabinetda allaqachon mavjud.',

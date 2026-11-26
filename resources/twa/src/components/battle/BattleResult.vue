@@ -138,7 +138,14 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
       </div>
 
-      <BattleScoreboard v-if="showScore" :me="battle.scores.me" :opponent="battle.scores.opponent" :opponent-name="opponentName" size="lg" />
+      <BattleScoreboard
+        v-if="showScore"
+        :me="battle.scores.me"
+        :opponent="battle.scores.opponent"
+        :opponent-name="opponentName"
+        :opponent-emoji="battle.opponent.pro_emoji"
+        size="lg"
+      />
 
       <section v-if="result.rounds.length > 0" data-testid="result-rounds">
         <h2 class="section-label mt-0">{{ t('battle.result.rounds') }}</h2>

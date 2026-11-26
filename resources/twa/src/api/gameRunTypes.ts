@@ -28,8 +28,16 @@ interface WithHint {
   hint?: GameHint
 }
 
+/**
+ * A task made of a word or of a phrase (docs/35 §3.3 e): `phrase: true` on a phrase - lay it out as a phrase; absent on a word and on a
+ * task of an older run or server. Only the mark, nothing of the answer.
+ */
+interface WithWord extends WithHint {
+  phrase?: true
+}
+
 /** translate_fwd: an English word, choose the translation. `audio`: the word has a recording (no clip is served for this kind). */
-export interface TranslateFwdElement extends WithHint {
+export interface TranslateFwdElement extends WithWord {
   id: string
   kind: 'translate_fwd'
   prompt: string
@@ -37,7 +45,7 @@ export interface TranslateFwdElement extends WithHint {
   options: PracticeChoice[]
 }
 
-export interface TranslateBackElement extends WithHint {
+export interface TranslateBackElement extends WithWord {
   id: string
   kind: 'translate_back'
   prompt: string
@@ -45,7 +53,7 @@ export interface TranslateBackElement extends WithHint {
 }
 
 /** listen: the clip behind `audio_url` (fetched with the token), choose the word. */
-export interface ListenElement extends WithHint {
+export interface ListenElement extends WithWord {
   id: string
   kind: 'listen'
   audio: true
@@ -53,14 +61,14 @@ export interface ListenElement extends WithHint {
   options: PracticeChoice[]
 }
 
-export interface SpellElement extends WithHint {
+export interface SpellElement extends WithWord {
   id: string
   kind: 'spell'
   prompt: string
   answer_length: number
 }
 
-export interface GapElement extends WithHint {
+export interface GapElement extends WithWord {
   id: string
   kind: 'gap'
   /** The example with the blank: `I ____ tea every morning.` */

@@ -11,9 +11,11 @@ use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Learners\Services\LearnerModerationService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Filament\Resources\LearnerResource\Support\DeleteAccountAction;
@@ -25,6 +27,7 @@ use App\Filament\Resources\Support\GroupFilter;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
@@ -51,6 +54,9 @@ class LearnerResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
+    /** The value of the region filter for the learners without a region. */
+    private const REGION_NONE = 'none';
+
     /**
      * The columns the list selects: every attribute a column or a row action of the table reads, the toggleable columns
      * (hidden by default) included. A column added to the table needs its attribute here: AdminTableSettingsTest renders every
@@ -66,7 +72,10 @@ class LearnerResource extends Resource
         'learners.username',
         'learners.onboarding_state',
         'learners.blocked_at',
+        'learners.dm_blocked_at',
+        'learners.dm_blocked_reason',
         'learners.practice_pilot_at',
+        'learners.region_code',
         'learners.last_seen_at',
         'learners.created_at',
     ];
@@ -110,6 +119,13 @@ class LearnerResource extends Resource
                 ->state(fn (Learner $record): string => self::groupTitles($record)),
             TextEntry::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->placeholder(__('admin.learners.fields.never'))->visible($isAdmin),
             TextEntry::make('blocked_at')->label(__('admin.learners.fields.blocked_at'))->dateTime()->placeholder('—')->visible($isAdmin),
+            TextEntry::make('dm_blocked_reason')
+                ->label(__('admin.learners.fields.dm_blocked'))
+                ->state(fn (Learner $record): ?string => $record->dm_blocked_at === null
+                    ? null
+                    : self::dmBlockedLabel($record->dm_blocked_reason).', '.__('admin.learners.fields.dm_blocked_since', ['date' => AdminDates::dateTime($record->dm_blocked_at)]))
+                ->placeholder('—')
+                ->visible($isAdmin),
             TextEntry::make('onboarding_state')
                 ->label(__('admin.learners.fields.onboarding'))
                 ->formatStateUsing(fn (string $state): string => self::onboardingLabel($state))
@@ -123,6 +139,11 @@ class LearnerResource extends Resource
                         .($entitlement->isSponsored() ? ', '.__('admin.learners.plan_center', ['id' => substr($entitlement->source, strlen('sponsor:organization:'))]) : '')
                         .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => AdminDates::dateTime($entitlement->until)]) : '');
                 })
+                ->visible($isAdmin),
+            TextEntry::make('region_code')
+                ->label(__('admin.learners.fields.region'))
+                ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : Regions::name($state, 'ru'))
+                ->placeholder('—')
                 ->visible($isAdmin),
             TextEntry::make('scheduler')
                 ->label(__('admin.learners.fields.scheduler'))
@@ -190,6 +211,14 @@ class LearnerResource extends Resource
                     ->boolean()
                     ->toggleable()
                     ->visible($isAdmin),
+                // The region the learner chose (docs/35 §2.4, R5): the name comes from the config, no query per row. Admin only: the
+                // region of a person is not shown to anybody else.
+                Tables\Columns\TextColumn::make('region_code')
+                    ->label(__('admin.learners.fields.region'))
+                    ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : Regions::name($state, 'ru'))
+                    ->placeholder('—')
+                    ->toggleable()
+                    ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('groups_list')
                     ->label(__('admin.learners.fields.groups'))
                     ->state(fn (Learner $record): string => self::groupTitles($record)),
@@ -199,6 +228,15 @@ class LearnerResource extends Resource
                     ->boolean()
                     ->trueColor('danger')
                     ->falseColor('gray')
+                    ->visible($isAdmin),
+                // Why the bot cannot write to the learner (docs/34 §4в п. 4): the reason and, below it, since when. Row data only.
+                Tables\Columns\TextColumn::make('dm_blocked_reason')
+                    ->label(__('admin.learners.fields.dm_blocked'))
+                    ->state(fn (Learner $record): ?string => $record->dm_blocked_at === null ? null : self::dmBlockedLabel($record->dm_blocked_reason))
+                    ->description(fn (Learner $record): ?string => $record->dm_blocked_at === null ? null : self::dmBlockedSince($record->dm_blocked_at))
+                    ->placeholder('—')
+                    ->color('danger')
+                    ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\IconColumn::make('practice_pilot')
                     ->label(__('admin.learners.fields.practice_pilot'))
@@ -261,6 +299,24 @@ class LearnerResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNotNull('learners.practice_pilot_at') : $query,
                         false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.practice_pilot_at') : $query,
+                        blank: fn (Builder $query): Builder => $query,
+                    )
+                    ->visible($isAdmin),
+                // The region (index `learners_region_code_idx`), with "not given": admin only, the query re-checks the role.
+                Tables\Filters\SelectFilter::make('region')
+                    ->label(__('admin.learners.filters.region'))
+                    ->options(self::regionOptions())
+                    ->query(fn (Builder $query, array $data): Builder => self::filterByRegion($query, $data['value'] ?? null))
+                    ->visible($isAdmin),
+                // The bot cannot write to the learner (`dm_blocked_at`, the partial index `learners_dm_blocked_at_idx`): admin only.
+                Tables\Filters\TernaryFilter::make('dm_blocked')
+                    ->label(__('admin.learners.filters.dm_blocked'))
+                    ->placeholder(__('admin.common.all'))
+                    ->trueLabel(__('admin.learners.filters.dm_blocked_yes'))
+                    ->falseLabel(__('admin.learners.filters.dm_blocked_no'))
+                    ->queries(
+                        true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNotNull('learners.dm_blocked_at') : $query,
+                        false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.dm_blocked_at') : $query,
                         blank: fn (Builder $query): Builder => $query,
                     )
                     ->visible($isAdmin),
@@ -419,6 +475,34 @@ class LearnerResource extends Resource
             ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now));
     }
 
+    /** @return array<string, string> the choices of the region filter: the regions in the Russian order, `other`, then "not given" */
+    private static function regionOptions(): array
+    {
+        $options = [];
+        foreach ([...Regions::ordered('ru'), Regions::OTHER] as $code) {
+            $options[$code] = Regions::name($code, 'ru');
+        }
+
+        return [...$options, self::REGION_NONE => __('admin.learners.filters.region_none')];
+    }
+
+    /**
+     * @param  Builder<Learner>  $query
+     * @return Builder<Learner>
+     */
+    private static function filterByRegion(Builder $query, mixed $region): Builder
+    {
+        if (! app(PanelDataScope::class)->isAdmin()) {
+            return $query;
+        }
+
+        return match (true) {
+            $region === self::REGION_NONE => $query->whereNull('learners.region_code'),
+            is_string($region) && Regions::isValid($region) => $query->where('learners.region_code', $region),
+            default => $query,
+        };
+    }
+
     /** The one plan caption of the platform view (list column and learner page): "Free", "Pro", "Pro (от центра)". */
     public static function planLabel(Plan $plan, bool $sponsored): string
     {
@@ -439,6 +523,20 @@ class LearnerResource extends Resource
         };
     }
 
+    /** The caption of `learners.dm_blocked_reason`; a row closed before the reason was stored says so. */
+    public static function dmBlockedLabel(?string $reason): string
+    {
+        return in_array($reason, DmReachability::REASONS, true)
+            ? __('admin.learners.dm_blocked_reason.'.$reason)
+            : __('admin.learners.dm_blocked_reason.unknown');
+    }
+
+    /** "с 21.11.2026" under the reason of a closed DM. */
+    private static function dmBlockedSince(DateTimeInterface $since): string
+    {
+        return __('admin.learners.fields.dm_blocked_since', ['date' => AdminDates::date($since)]);
+    }
+
     /** "SM-2" / "FSRS-5", with "(по умолчанию)" when the learner has no bucket of their own. */
     public static function schedulerLabel(Learner $record): string
     {
@@ -456,6 +554,7 @@ class LearnerResource extends Resource
             RelationManagers\ReferralsRelationManager::class,
             RelationManagers\ProductEventsRelationManager::class,
             RelationManagers\DailyStatsRelationManager::class,
+            RelationManagers\ScoreDaysRelationManager::class,
             RelationManagers\CaravanRelationManager::class,
         ];
     }

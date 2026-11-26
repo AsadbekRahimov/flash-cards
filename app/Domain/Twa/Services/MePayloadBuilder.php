@@ -11,6 +11,7 @@ use App\Domain\Game\DTO\GameLimitState;
 use App\Domain\Game\Services\GameAccess;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerSettingsService;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -49,6 +50,7 @@ final class MePayloadBuilder
         private readonly GameAccess $game,
         private readonly LocaleResolver $locales,
         private readonly MeProfileCache $profile,
+        private readonly ProEmojiService $emoji,
     ) {}
 
     /**
@@ -62,7 +64,8 @@ final class MePayloadBuilder
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
      *   practice: PracticeBlock,
-     *   game: GameBlock
+     *   game: GameBlock,
+     *   pro_emoji: string|null
      * }
      */
     public function build(Learner $learner): array
@@ -81,13 +84,15 @@ final class MePayloadBuilder
             'renewal' => $snapshot['renewal'],
             'lapsed' => $snapshot['lapsed'],
             'paywall' => $this->billing->paywall($learner, $now),
-            'settings' => $this->settings->describe($learner, activeCourse: $snapshot['active_course']),
+            'settings' => $this->settings->describe($learner, activeCourse: $snapshot['active_course'], entitlement: $entitlement),
             'practice' => [
                 ...$this->practice->describe($learner, $entitlement),
                 // The Free limits of the day (docs/18 G1): one statement, and only while the practice is open to the learner.
                 'limits' => $this->limits->describe($learner, $this->practice->stateFor($learner, $entitlement), $entitlement, $now),
             ],
             'game' => $this->game->describe($learner, $entitlement, $now),
+            // The emoji next to the name (docs/31 §5а): only while the plan is Pro; the stored choice is in the settings.
+            'pro_emoji' => $this->emoji->visible($learner, $entitlement, $now),
         ];
     }
 

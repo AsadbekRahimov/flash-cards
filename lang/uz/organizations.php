@@ -6,7 +6,7 @@ return [
 
     // `/start org_<code>` (docs/13 §6.2): the confirmation shown after the onboarding (or at once for a learner who has finished it).
     'offer' => [
-        'text' => "«:organization» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?",
+        'text' => "«:organization» o'quv markazi sizni Muhrla'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?",
         'join' => "Qo'shilish",
         'skip' => 'Hozir emas',
     ],
@@ -15,7 +15,7 @@ return [
 
     // A membership offered by the center's staff from the cabinet (audit 2026-11-10 M2): the learner decides in the bot.
     'invite' => [
-        'text' => "«:organization» o'quv markazi sizni taklif qildi. Taklifni qabul qilsangiz, markaz LexiFlow'dagi faolligingizni ko'ra oladi. Bo'sh o'rin bo'lsa, Pro tarifidan markaz hisobidan foydalanasiz. Markazga qo'shilasizmi?",
+        'text' => "«:organization» o'quv markazi sizni taklif qildi. Taklifni qabul qilsangiz, markaz Muhrla'dagi faolligingizni ko'ra oladi. Bo'sh o'rin bo'lsa, Pro tarifidan markaz hisobidan foydalanasiz. Markazga qo'shilasizmi?",
         'accept' => "Qo'shilish",
         'decline' => 'Rad etish',
         'declined' => "Mayli, Siz «:organization» markazining taklifini rad etdingiz. Hech narsa o'zgarmadi.",
@@ -27,12 +27,12 @@ return [
     'joined' => [
         'seated' => "Siz «:organization» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning.",
         'waitlisted' => "Siz «:organization» markazidasiz, lekin hozircha bo'sh joy yo'q. Markaz administratoriga murojaat qiling — joy bo'shashi bilan Pro avtomatik yoqiladi.",
-        'button' => "LexiFlow'ni ochish",
+        'button' => "Muhrla'ni ochish",
     ],
 
     'seated' => [
         'text' => "«:organization» markazida siz uchun joy bo'shadi. Pro faol!",
-        'button' => "LexiFlow'ni ochish",
+        'button' => "Muhrla'ni ochish",
     ],
 
     // Why a link / button was refused, by OrganizationMembershipException::$errorCode.

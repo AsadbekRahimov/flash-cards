@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Domain\Engagement\Enums\FriendDmKind;
 use App\Domain\Engagement\Services\ChallengeService;
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -108,7 +111,7 @@ it('sends the request on agreement: opener -> inviter, the inviter is DMed with 
         ->and($this->tg->edits[0]['message_id'])->toBe(55);
     $toInviter = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9001));
     expect($toInviter)->toHaveCount(1)
-        ->and($toInviter[0]['text'])->toBe("Ali sizni LexiFlow'da do'st sifatida qo'shmoqchi.")
+        ->and($toInviter[0]['text'])->toBe("Ali sizni Muhrla'da do'st sifatida qo'shmoqchi.")
         ->and($toInviter[0]['markup']['inline_keyboard'][0][0]['callback_data'])->toBe("fr1:acc:{$row->id}")
         ->and(end($this->tg->sent)['text'])->toContain('Запрос отправлен');
 
@@ -243,6 +246,7 @@ it('keeps ref_<code> of a NEW learner a plain referral: no friendship, ordinary 
 function frOnboard(int $tgId): void
 {
     frTap($tgId, 'onb1:locale:ru', 1);
+    frTap($tgId, 'onb1:region:none', 2);
     frTap($tgId, 'onb1:goal:general', 2);
     frTap($tgId, 'onb1:level:A1', 3);
     frTap($tgId, 'onb1:timezone:Asia/Tashkent', 4);
@@ -497,6 +501,36 @@ it('lets a DM be retried after a 403 (nothing was delivered) and keeps the marke
     SendFriendDmJob::dispatchSync('challenge_proposed', $c->id);
 
     expect(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(0);
+});
+
+it('drops the marker on a 429 (certainly not delivered) so that the retry sends the DM exactly once', function (): void {
+    [$a, $b] = frFriends();
+    $c = Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => 'x']);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 3;
+
+    expect(fn () => app(FriendsMessenger::class)->notify(FriendDmKind::ChallengeProposed, $c->id))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(0);
+
+    app(FriendsMessenger::class)->notify(FriendDmKind::ChallengeProposed, $c->id);
+    app(FriendsMessenger::class)->notify(FriendDmKind::ChallengeProposed, $c->id);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(1)
+        ->and($b->fresh()?->dm_blocked_at)->toBeNull();
+});
+
+it('keeps the marker after a timeout: the DM may have gone out, the retry stays silent', function (): void {
+    [$a, $b] = frFriends();
+    $c = Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => 'x']);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
+
+    expect(fn () => app(FriendsMessenger::class)->notify(FriendDmKind::ChallengeProposed, $c->id))->toThrow(TelegramApiException::class);
+    app(FriendsMessenger::class)->notify(FriendDmKind::ChallengeProposed, $c->id);
+
+    expect($this->tg->sent)->toHaveCount(0)
+        ->and(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(1);
 });
 
 it('gives every job that waits for the bot-wide budget a finite retry window', function (): void {

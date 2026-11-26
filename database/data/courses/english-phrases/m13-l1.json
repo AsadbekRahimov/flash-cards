@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 13,
+    "title": "Решения и проблемы",
+    "title_uz": "Qarorlar va muammolar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Принять решение",
+    "title_uz": "Qaror qabul qilish"
+  },
+  "words": [
+    {
+      "word": "make up your mind",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "решиться, определиться",
+        "uz": "bir qarorga kelmoq"
+      },
+      "example": "Tea or coffee? Come on, make up your mind!",
+      "example_translations": {
+        "ru": "Чай или кофе? Ну же, определись!",
+        "uz": "Choymi yoki qahvami? Qani, bir qarorga kel!"
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто долго не может выбрать или решить; бывает, с нетерпением",
+        "uz": "Uzoq vaqt tanlay olmayotgan odamga, ba'zan sabrsizlik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mind",
+        "literal": {
+          "ru": "собрать свой ум",
+          "uz": "aqlingni yig'moq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sleep on it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отложить решение до утра",
+        "uz": "bir kecha o'ylab ko'rmoq"
+      },
+      "example": "It's a good offer, but I'd like to sleep on it.",
+      "example_translations": {
+        "ru": "Предложение хорошее, но я хотел бы отложить решение до утра.",
+        "uz": "Taklif yaxshi, lekin bir kecha o'ylab ko'rmoqchiman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не хотят решать сразу и берут ночь на раздумье",
+        "uz": "Darhol qaror qilmay, o'ylash uchun bir kecha vaqt olinganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sleep",
+        "literal": {
+          "ru": "поспать на этом",
+          "uz": "buning ustida uxlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on second thought",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хотя нет, если подумать",
+        "uz": "yo'q, o'ylab qarasam"
+      },
+      "example": "I'll have the cake. On second thought, just a coffee, please.",
+      "example_translations": {
+        "ru": "Мне торт. Хотя нет, если подумать, просто кофе, пожалуйста.",
+        "uz": "Menga tort bering. Yo'q, o'ylab qarasam, faqat qahva bersangiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда тут же меняют только что принятое решение; в Британии чаще on second thoughts",
+        "uz": "Hozirgina aytilgan qarorni darhol o'zgartirganda aytiladi; Britaniyada ko'pincha on second thoughts"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "second",
+        "literal": {
+          "ru": "при второй мысли",
+          "uz": "ikkinchi o'yda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "think it over",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хорошенько обдумать",
+        "uz": "yaxshilab o'ylab ko'rmoq"
+      },
+      "example": "Take a few days to think it over, and then call me.",
+      "example_translations": {
+        "ru": "Возьми несколько дней, чтобы всё обдумать, а потом позвони мне.",
+        "uz": "Yaxshilab o'ylab ko'rish uchun bir necha kun ol, keyin menga qo'ng'iroq qil."
+      },
+      "hooks": {
+        "ru": "Говорят, когда перед решением нужно время, чтобы всё взвесить",
+        "uz": "Qaror qilishdan oldin hammasini o'ylab chiqish uchun vaqt kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "over",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "change your mind",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "передумать, изменить решение",
+        "uz": "fikridan qaytmoq, qarorini o'zgartirmoq"
+      },
+      "example": "I wanted to study law, but I changed my mind.",
+      "example_translations": {
+        "ru": "Я хотел изучать право, но передумал.",
+        "uz": "Huquqshunoslikni o'qimoqchi edim, lekin fikrimdan qaytdim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда решение или мнение стало другим",
+        "uz": "Qaror yoki fikr o'zgarganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "change",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "weigh the pros and cons",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взвесить все за и против",
+        "uz": "yaxshi va yomon tomonlarini o'ylab ko'rmoq"
+      },
+      "example": "Before you buy a car, weigh the pros and cons.",
+      "example_translations": {
+        "ru": "Прежде чем покупать машину, взвесь все за и против.",
+        "uz": "Mashina olishdan oldin uning yaxshi va yomon tomonlarini o'ylab ko'r."
+      },
+      "hooks": {
+        "ru": "Советуют перед важным решением спокойно сравнить плюсы и минусы",
+        "uz": "Muhim qaror oldidan afzallik va kamchiliklarni xotirjam solishtirishni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pros",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's up to you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "решать вам",
+        "uz": "o'zingiz bilasiz"
+      },
+      "example": "Should we eat at home or go out? — I don't mind. It's up to you.",
+      "example_translations": {
+        "ru": "Поедим дома или пойдём куда-нибудь? — Мне всё равно. Решать тебе.",
+        "uz": "Uyda ovqatlanamizmi yoki tashqariga chiqamizmi? — Menga farqi yo'q. O'zing bilasan."
+      },
+      "hooks": {
+        "ru": "Говорят, когда оставляют выбор другому человеку",
+        "uz": "Tanlovni boshqa odamga qoldirganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a tough call",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "трудный выбор",
+        "uz": "qiyin tanlov"
+      },
+      "example": "Both jobs are great, so it's a tough call.",
+      "example_translations": {
+        "ru": "Обе работы отличные, так что выбор трудный.",
+        "uz": "Ikkala ish ham zo'r, shuning uchun tanlash qiyin."
+      },
+      "hooks": {
+        "ru": "Говорят о решении, где оба варианта хороши или оба плохи",
+        "uz": "Ikkala variant ham yaxshi yoki ikkalasi ham yomon bo'lgan qaror haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tough",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the fence",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "колебаться, ещё не решить",
+        "uz": "ikkilanib turmoq"
+      },
+      "example": "Are you coming on the trip? — I'm still on the fence.",
+      "example_translations": {
+        "ru": "Ты едешь в поездку? — Я ещё не решил.",
+        "uz": "Sayohatga borasanmi? — Hali ikkilanib turibman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда человек ещё не выбрал ни одну из сторон",
+        "uz": "Odam hali ikki tomondan birini tanlamagan bo'lsa aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fence",
+        "literal": {
+          "ru": "на заборе",
+          "uz": "to'siq ustida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's now or never",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сейчас или никогда",
+        "uz": "hozir yoki hech qachon"
+      },
+      "example": "The sale ends today. It's now or never!",
+      "example_translations": {
+        "ru": "Распродажа заканчивается сегодня. Сейчас или никогда!",
+        "uz": "Chegirma bugun tugaydi. Hozir yoki hech qachon!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда шанс скоро уйдёт и решать нужно сразу",
+        "uz": "Imkoniyat tez orada qo'ldan ketishi va darhol qaror qilish kerakligida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "never",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

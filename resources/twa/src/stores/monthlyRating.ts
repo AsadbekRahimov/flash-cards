@@ -1,49 +1,34 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { api } from '@/api'
-import { errorMessage } from '@/i18n/errors'
+import { useBoardTable } from '@/stores/ratingBoard'
 import type { MonthlyRatingMeResponse, MonthlyRatingResponse } from '@/api/types'
 
-export type MonthlyRatingStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type { BoardStatus as MonthlyRatingStatus } from '@/stores/ratingBoard'
 
-interface MonthlyRatingState {
-  data: MonthlyRatingResponse | null
-  status: MonthlyRatingStatus
-  errorMessage: string
+/**
+ * The monthly rating (docs/04 A.19, docs/13 §7.6): the whole screen and the learner's own line. The table - its choice (Free / Pro of
+ * a v2 month, the whole category / a region, docs/35 §2.4), the pages after the cursor, the races between them - is the one of
+ * `useBoardTable`, shared with "All time".
+ */
+export const useMonthlyRatingStore = defineStore('monthlyRating', () => {
+  const board = useBoardTable<MonthlyRatingResponse>({
+    fetch: (query) => api.league.month(query),
+    page: (query, after) => api.league.monthPage(query, after),
+  })
+
   /** The light answer for the finish screen; null until fetched or when the request failed. */
-  mine: MonthlyRatingMeResponse | null
-}
+  const mine = ref<MonthlyRatingMeResponse | null>(null)
 
-/** The monthly rating (docs/04 A.19, docs/13 §7.6): the whole screen and the learner's own line. */
-export const useMonthlyRatingStore = defineStore('monthlyRating', {
-  state: (): MonthlyRatingState => ({
-    data: null,
-    status: 'idle',
-    errorMessage: '',
-    mine: null,
-  }),
+  /** The learner's line only, for the finish screen: best effort, a failure leaves nothing to show and says nothing. */
+  async function loadMine(): Promise<void> {
+    mine.value = null
+    try {
+      mine.value = (await api.league.monthMe()) ?? null
+    } catch {
+      mine.value = null
+    }
+  }
 
-  actions: {
-    /** Always refetches (the top moves with every session); a stale screen stays visible while reloading. */
-    async load(): Promise<void> {
-      this.status = this.data === null ? 'loading' : this.status
-      this.errorMessage = ''
-      try {
-        this.data = await api.league.month()
-        this.status = 'ready'
-      } catch (err) {
-        this.status = 'error'
-        this.errorMessage = errorMessage(err, 'settings')
-      }
-    },
-
-    /** The learner's line only, for the finish screen: best effort, a failure leaves nothing to show and says nothing. */
-    async loadMine(): Promise<void> {
-      this.mine = null
-      try {
-        this.mine = (await api.league.monthMe()) ?? null
-      } catch {
-        this.mine = null
-      }
-    },
-  },
+  return { ...board, mine, loadMine }
 })

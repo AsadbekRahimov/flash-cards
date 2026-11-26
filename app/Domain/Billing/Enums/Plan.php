@@ -54,6 +54,17 @@ enum Plan: string
         return $limit === null ? null : max(0, (int) $limit);
     }
 
+    /**
+     * The largest daily goal (graded cards a day) a learner on this plan may have (docs/34 §2б.1); null = no limit. Separate from
+     * {@see newWordsPerDay()}: the goal counts reviews too.
+     */
+    public function dailyGoalMax(): ?int
+    {
+        $limit = config("billing.plans.{$this->value}.limits.daily_goal_max");
+
+        return $limit === null ? null : max(1, (int) $limit);
+    }
+
     public function outranks(self $other): bool
     {
         return $this->rank() > $other->rank();

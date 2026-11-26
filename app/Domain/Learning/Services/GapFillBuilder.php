@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\DTO\GapFill;
 use App\Domain\Practice\DTO\MaterialWord;
 use App\Models\Word;
@@ -16,6 +17,9 @@ use App\Models\Word;
  * {@see MASK}; the first matched form (as written in the example) is what the learner has to type.
  * No example, or the word not in it (irregular form, a paraphrase) → null, and the selector
  * falls back to another exercise. Pure: the same word always gives the same mask.
+ *
+ * A phrase (docs/35 §3.3 b, docs/06 §16) is masked in ITSELF, not in its example: its key word `meta.phrase.gap`, exactly once, as it
+ * stands in the phrase, no inflected forms ({@see forCard()}, {@see inPhrase()}).
  */
 final class GapFillBuilder
 {
@@ -23,7 +27,28 @@ final class GapFillBuilder
 
     public function build(Word $word): ?GapFill
     {
-        return $this->fromText($word->word, $word->example);
+        return $this->forCard($word);
+    }
+
+    /**
+     * The gap of a card: a phrase masks its key word in the phrase itself (the example plays no part); any other word is masked in the
+     * example of this serve (`$example`, else `words.example`). Null - no gap-fill for this card.
+     */
+    public function forCard(Word $word, ?string $example = null): ?GapFill
+    {
+        if (Phrase::isPhraseWord($word)) {
+            return $this->inPhrase($word->word, Phrase::gapOf($word->getAttribute('meta')));
+        }
+
+        return $this->fromText($word->word, $example ?? $word->example);
+    }
+
+    /** The phrase with its key word masked (the game reads its words as {@see MaterialWord}); null without a valid key word. */
+    public function inPhrase(string $phrase, ?string $gap): ?GapFill
+    {
+        $masked = $gap === null ? null : Phrase::mask($phrase, $gap, self::MASK);
+
+        return $masked === null ? null : new GapFill($masked[0], $masked[1]);
     }
 
     /** The same mask from the texts alone (the game reads the words of a run as {@see MaterialWord}, not as models). */

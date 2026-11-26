@@ -7,6 +7,10 @@ use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Filament\Resources\TelegramGroupResource\Pages\EditTelegramGroup;
@@ -51,15 +55,37 @@ beforeEach(function (): void {
 
         public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
 
+        public function sendPhotoMessage(int|string $chatId, PhotoSource $photo, ?string $caption = null, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
+        public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
         public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
         public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void {}
 
+        public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void {}
+
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {
             return 'administrator';
+        }
+
+        public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+        {
+            return new ChatMemberInfo('administrator', true);
+        }
+
+        public function sendGroupMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null, ?int $threadId = null, bool $disableNotification = false): int
+        {
+            return 1;
         }
 
         public function setWebhook(string $url, string $secretHeader): bool
@@ -97,6 +123,13 @@ beforeEach(function (): void {
         {
             return true;
         }
+
+        public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
+        {
+            return new PreparedInlineMessage('prepared', 2_000_000_000);
+        }
+
+        public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void {}
     };
 
     $this->app->instance(TelegramClient::class, $this->api);
@@ -244,7 +277,7 @@ it('lists the learner commands for a learner and the teacher ones only for a lin
     locDispatch(['chat' => ['id' => 43, 'type' => 'private'], 'from' => ['id' => 43, 'language_code' => $languageCode], 'text' => '/help']);
     $learnerText = $this->api->log[0]['text'];
 
-    expect($learnerText)->toContain('«LexiFlow»')->toContain('/today')->toContain('/settings')->toContain('/invite')
+    expect($learnerText)->toContain('«Muhrla»')->toContain('/today')->toContain('/settings')->toContain('/invite')
         ->toContain('/pro —')->toContain('/promo')->toContain('/paysupport')
         ->not->toContain('/start_training')->not->toContain('/stats')->not->toContain($teacherMark)
         // Plain text: it goes out without a parse mode, so there is no markup in it.
@@ -260,15 +293,15 @@ it('lists the learner commands for a learner and the teacher ones only for a lin
     'uz' => ['uz', "Qanday shug'ullanish kerak", "O'qituvchilar uchun"],
 ]);
 
-it('names LexiFlow without the word "Bot" in the group /help', function (string $locale, string $firstLine): void {
+it('names Muhrla without the word "Bot" in the group /help', function (string $locale, string $firstLine): void {
     locGroup(-5020, ['locale' => $locale]);
 
     locDispatch(['chat' => ['id' => -5020, 'type' => 'supergroup'], 'from' => ['id' => 1], 'text' => '/help']);
 
     expect(explode("\n", $this->api->log[0]['text'])[0])->toBe($firstLine);
 })->with([
-    'ru' => ['ru', 'LexiFlow в группе.'],
-    'uz' => ['uz', 'LexiFlow guruh buyruqlari'],
+    'ru' => ['ru', 'Muhrla в группе.'],
+    'uz' => ['uz', 'Muhrla guruh buyruqlari'],
 ]);
 
 it('greets a linked teacher in the default language regardless of Telegram language', function (): void {
@@ -306,8 +339,8 @@ it('renders the teacher stats report from lang files', function (): void {
     locTeacher($group, 706);
     $teacher = User::query()->where('telegram_user_id', 706)->firstOrFail();
 
-    expect($ru->build($teacher))->toContain('Статистика LexiFlow за 7 дней')->toContain('Групп: 1')
-        ->and($ru->build($teacher, 'uz'))->toContain("LexiFlow statistikasi (so'nggi 7 kun)")->toContain('Guruhlar: 1')
+    expect($ru->build($teacher))->toContain('Статистика Muhrla за 7 дней')->toContain('Групп: 1')
+        ->and($ru->build($teacher, 'uz'))->toContain("Muhrla statistikasi (so'nggi 7 kun)")->toContain('Guruhlar: 1')
         ->toContain("Imtihonlardagi to'g'ri javoblar: —");
 });
 
@@ -337,16 +370,16 @@ it('sends the reminder in the learner interface language with correct number for
         ->and($this->api->log[0]['text'])->toBe($expected)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'ru 1' => ['ru', 1, "Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 2' => ['ru', 2, "Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 5' => ['ru', 5, "Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 11' => ['ru', 11, "Пора повторить 11 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 21' => ['ru', 21, "Пора повторить 21 слово в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 22' => ['ru', 22, "Пора повторить 22 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'ru 25' => ['ru', 25, "Пора повторить 25 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "LexiFlow'ni ochish"],
-    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "LexiFlow'ni ochish"],
-    'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
+    'ru 1' => ['ru', 1, "Пора повторить 1 слово в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 2' => ['ru', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 5' => ['ru', 5, "Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 11' => ['ru', 11, "Пора повторить 11 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 21' => ['ru', 21, "Пора повторить 21 слово в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 22' => ['ru', 22, "Пора повторить 22 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 25' => ['ru', 25, "Пора повторить 25 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'uz 5' => ['uz', 5, "Muhrla'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "▶️ Mashg'ulotni boshlash"],
+    'uz 21' => ['uz', 21, "Muhrla'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "▶️ Mashg'ulotni boshlash"],
+    'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
 ]);
 
 it('falls back to the Telegram language when the stored interface locale is unsupported', function (): void {
@@ -357,7 +390,7 @@ it('falls back to the Telegram language when the stored interface locale is unsu
 
     locRunReminder($learner, 5);
 
-    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.");
+    expect($this->api->log[0]['text'])->toBe("Muhrla'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.");
 });
 
 // --- leaderboard (group language, HTML escaping preserved) -----------------

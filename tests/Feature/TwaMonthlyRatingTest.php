@@ -8,9 +8,12 @@ declare(strict_types=1);
  * locale, the previous month; and `league_points` of POST /training/sessions/{id}/finish.
  */
 
+use App\Domain\Engagement\DTO\MonthlyMeView;
+use App\Domain\Engagement\DTO\MonthlyMyLine;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Twa\Services\JwtService;
+use App\Http\Resources\Twa\MonthlyRatingMeResource;
 use App\Models\LeagueMonth;
 use App\Models\LeagueMonthCandidate;
 use App\Models\LeagueMonthScore;
@@ -24,7 +27,7 @@ use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
 
-const MONTH_ME = ['rank', 'points', 'active_days', 'participant', 'eligible', 'missing' => ['active_days', 'account_days']];
+const MONTH_ME = ['rank', 'points', 'active_days', 'participant', 'eligible', 'missing' => ['active_days', 'account_days'], 'not_counted_reason'];
 
 beforeEach(function (): void {
     config([
@@ -83,7 +86,7 @@ it('GET /league/month keeps its exact JSON shape and shows of others a first nam
             'month' => ['starts_on', 'ends_on', 'closes_at', 'days_left', 'status', 'participants'],
             'rules' => ['daily_cap', 'min_active_days', 'min_account_days', 'places', 'top'],
             'prizes' => ['*' => ['place', 'title']],
-            'top' => ['*' => ['rank', 'name', 'points', 'active_days', 'is_me']],
+            'top' => ['*' => ['rank', 'name', 'points', 'active_days', 'is_me', 'pro_emoji']],
             'me' => MONTH_ME,
             'last_month',
         ]);
@@ -94,11 +97,11 @@ it('GET /league/month keeps its exact JSON shape and shows of others a first nam
         ->and($response->json('rules'))->toBe(['daily_cap' => 300, 'min_active_days' => 3, 'min_account_days' => 7, 'places' => 3, 'top' => 50])
         ->and($response->json('prizes.0'))->toBe(['place' => 1, 'title' => 'Telegram Premium на 3 месяца'])
         ->and($response->json('top'))->toBe([
-            ['rank' => 1, 'name' => 'Rival', 'points' => 100, 'active_days' => 1, 'is_me' => false],
-            ['rank' => 2, 'name' => 'Me', 'points' => 60, 'active_days' => 3, 'is_me' => true],
-            ['rank' => 3, 'name' => null, 'points' => 10, 'active_days' => 1, 'is_me' => false],
+            ['rank' => 1, 'name' => 'Rival', 'points' => 100, 'active_days' => 1, 'is_me' => false, 'pro_emoji' => null],
+            ['rank' => 2, 'name' => 'Me', 'points' => 60, 'active_days' => 3, 'is_me' => true, 'pro_emoji' => null],
+            ['rank' => 3, 'name' => null, 'points' => 10, 'active_days' => 1, 'is_me' => false, 'pro_emoji' => null],
         ])
-        ->and($response->json('me'))->toBe(['rank' => 2, 'points' => 60, 'active_days' => 3, 'participant' => true, 'eligible' => true, 'missing' => ['active_days' => 0, 'account_days' => 0]])
+        ->and($response->json('me'))->toBe(['rank' => 2, 'points' => 60, 'active_days' => 3, 'participant' => true, 'eligible' => true, 'missing' => ['active_days' => 0, 'account_days' => 0], 'not_counted_reason' => null])
         ->and($response->json('last_month'))->toBeNull()
         ->and($response->getContent())->not->toContain('rival_secret')
         ->and($response->getContent())->not->toContain('424242');
@@ -134,7 +137,9 @@ it('answers a learner without activity with `me: null`, an opted-out one without
         ->assertJsonPath('me.participant', false)
         ->assertJsonPath('me.rank', null)
         ->assertJsonPath('me.points', 20)
+        ->assertJsonPath('me.not_counted_reason', 'opted_out')
         ->assertJsonPath('top', []);
+    twmGet($out, '/api/twa/league/month/me')->assertOk()->assertJsonPath('me.not_counted_reason', 'opted_out');
 
     config(['leagues.monthly.enabled' => false]);
     twmGet($bare, '/api/twa/league/month')->assertOk()
@@ -154,7 +159,7 @@ it('GET /league/month/me keeps its exact JSON shape and refreshes the viewer\'s 
     twmGet($me, '/api/twa/league/month/me')->assertOk()
         ->assertExactJsonStructure(['enabled', 'month' => ['starts_on', 'ends_on', 'days_left'], 'me' => MONTH_ME])
         ->assertJsonPath('month', ['starts_on' => '2026-11-01', 'ends_on' => '2026-11-30', 'days_left' => 15])
-        ->assertJsonPath('me', ['rank' => 1, 'points' => 18, 'active_days' => 1, 'participant' => true, 'eligible' => false, 'missing' => ['active_days' => 2, 'account_days' => 4]]);
+        ->assertJsonPath('me', ['rank' => 1, 'points' => 18, 'active_days' => 1, 'participant' => true, 'eligible' => false, 'missing' => ['active_days' => 2, 'account_days' => 4], 'not_counted_reason' => null]);
 
     // More grades today → the next call shows them at once (no scheduler run in between).
     LearnerDailyStats::query()->where('learner_id', $me->id)->update(['reviews_count' => 30, 'correct_count' => 20]);
@@ -162,6 +167,28 @@ it('GET /league/month/me keeps its exact JSON shape and refreshes the viewer\'s 
 
     $nobody = twmLearner();
     twmGet($nobody, '/api/twa/league/month/me')->assertOk()->assertJsonPath('me', null);
+});
+
+it('places a learner who studies without the onboarding in the bot and gives no reason for a missing place (docs/34 §3)', function (): void {
+    $fresh = Learner::factory()->create(['onboarding_state' => 'level', 'created_at' => '2026-09-01 00:00:00']);
+    twmDay($fresh, '2026-11-16', 10, 10);
+
+    twmGet($fresh, '/api/twa/league/month')->assertOk()
+        ->assertJsonPath('me.participant', true)
+        ->assertJsonPath('me.rank', 1)
+        ->assertJsonPath('me.not_counted_reason', null)
+        ->assertJsonPath('top.0.is_me', true);
+});
+
+it('renders the reason a blocked learner has no place in the resource of the own line', function (): void {
+    // A blocked learner does not pass TwaAuth, so the line is rendered straight from the DTO.
+    $line = new MonthlyMyLine(rank: null, points: 40, activeDays: 2, participant: false, eligible: false, missingActiveDays: 1, missingAccountDays: 0, notCountedReason: MonthlyMyLine::REASON_BLOCKED);
+    $view = new MonthlyMeView(enabled: true, startsOn: '2026-11-01', endsOn: '2026-11-30', daysLeft: 15, me: $line);
+
+    expect((new MonthlyRatingMeResource($view))->toArray(request())['me'])->toBe([
+        'rank' => null, 'points' => 40, 'active_days' => 2, 'participant' => false, 'eligible' => false,
+        'missing' => ['active_days' => 1, 'account_days' => 0], 'not_counted_reason' => 'blocked',
+    ]);
 });
 
 it('shows the previous month: the confirmed winners by place, or an empty list while the results are checked', function (): void {

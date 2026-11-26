@@ -11,6 +11,7 @@ use App\Domain\Practice\Enums\BattleEndReason;
 use App\Domain\Practice\Enums\BattlePhase;
 use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\Verdict;
+use App\Jobs\ScoreCupDuelJob;
 use App\Models\Battle;
 use App\Models\BattleAnswer;
 use App\Models\BattleParticipant;
@@ -187,6 +188,7 @@ final class BattleClock
             'duration_ms' => max(0, $now->getTimestampMs() - $startedAt->getTimestampMs()),
         ];
         DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleFinished, $props, learner: $this->actor($battle)));
+        $this->scoreCupDuel($battle);
     }
 
     /**
@@ -210,6 +212,7 @@ final class BattleClock
 
         $props = ['battle_id' => $battle->id, 'end_reason' => $reason->value];
         DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleClosed, $props, learner: $this->actor($battle)));
+        $this->scoreCupDuel($battle);
     }
 
     /**
@@ -486,6 +489,19 @@ final class BattleClock
     private function write(Battle $battle, array $attributes): void
     {
         $battle->forceFill([...$attributes, 'state_version' => $battle->state_version + 1])->save();
+    }
+
+    /**
+     * The match of a duel of a cup has ended (docs/33 §5.7): the cup scores it AFTER the commit of this transaction - a job, so the
+     * transaction of the match never takes a lock of the cup (the order `cup_duels → … → battles` stays one-way). The job is idempotent
+     * (`scored_at` under the lock of the duel); `cups:sweep-duels` scores what a lost job left.
+     */
+    private function scoreCupDuel(Battle $battle): void
+    {
+        $duelId = $battle->cup_duel_id;
+        if ($duelId !== null) {
+            DB::afterCommit(static fn () => ScoreCupDuelJob::dispatch($duelId));
+        }
     }
 
     /** The actor of the events of a battle is the challenger (docs/16 §3.4); read after the commit. */

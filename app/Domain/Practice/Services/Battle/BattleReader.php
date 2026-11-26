@@ -7,6 +7,7 @@ namespace App\Domain\Practice\Services\Battle;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Exceptions\FriendshipException;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\DTO\BattleListView;
 use App\Domain\Practice\DTO\BattleOptionsView;
@@ -70,6 +71,7 @@ final class BattleReader
         private readonly CourseCatalogService $catalog,
         private readonly LocaleResolver $locales,
         private readonly DeckTitles $deckTitles,
+        private readonly ProEmojiService $proEmoji,
     ) {}
 
     /**
@@ -83,15 +85,28 @@ final class BattleReader
         return $this->findWithColumns($viewer, $id, ['*']);
     }
 
-    /** @param list<string> $columns */
+    /**
+     * A learner refused the practice (pilot, plan) still sees the match of a duel of a cup he plays (`cup_duel_id`, docs/33 §11.9.1:
+     * the cup decides who plays it); for any other match - or none - he gets the refusal, as before the match was read.
+     *
+     * @param  list<string>  $columns
+     */
     private function findWithColumns(Learner $viewer, int $id, array $columns): Battle
     {
-        $this->access->assertCanPractice($viewer);
+        $denied = null;
+        try {
+            $this->access->assertCanPractice($viewer);
+        } catch (PracticeException $e) {
+            $denied = $e;
+        }
 
         /** @var Battle|null $battle */
         $battle = Battle::query()->with('participants')->whereKey($id)->first($columns);
         if ($battle === null || ! $battle->involves($viewer->id)) {
-            throw BattleException::notFound();
+            throw $denied ?? BattleException::notFound();
+        }
+        if ($denied !== null && $battle->cup_duel_id === null) {
+            throw $denied;
         }
 
         return $battle;
@@ -103,7 +118,7 @@ final class BattleReader
         $battle = $this->findWithColumns($viewer, $id, [
             'id', 'challenger_id', 'opponent_id', 'status', 'end_reason', 'state_version',
             'invite_expires_at', 'room_expires_at', 'accepted_at', 'starts_at',
-            'current_round', 'phase', 'round_deadline_at', 'phase_ends_at', 'meta',
+            'current_round', 'phase', 'round_deadline_at', 'phase_ends_at', 'meta', 'cup_duel_id',
         ]);
 
         return $this->poll($battle, $viewer, $now);
@@ -126,7 +141,7 @@ final class BattleReader
             role: $me->role->value,
             course: ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($me->locale)],
             lesson: $this->lessonOf($battle, $snapshot, $me->locale),
-            opponent: ['first_name' => $this->firstName($other->learner_id)],
+            opponent: $this->person($other->learner_id),
             roundsTotal: $this->settings->rounds(),
             roundSeconds: $this->settings->roundSeconds($battle->mode),
             countdownSeconds: $this->settings->countdownSeconds(),
@@ -273,6 +288,8 @@ final class BattleReader
             ->get();
 
         $names = $this->firstNames([...$incoming->all(), ...$finished->all()], $viewer);
+        // The emoji of Pro next to the names (docs/31 §5а): one statement for the whole list.
+        $emoji = $names === [] ? [] : $this->proEmoji->visibleForMany(array_keys($names), $now);
 
         $incomingRows = [];
         foreach ($incoming as $battle) {
@@ -280,7 +297,7 @@ final class BattleReader
             $incomingRows[] = [
                 'id' => $battle->id,
                 'mode' => $battle->mode->value,
-                'from' => ['first_name' => $names[$battle->challenger_id] ?? null],
+                'from' => ['first_name' => $names[$battle->challenger_id] ?? null, 'pro_emoji' => $emoji[$battle->challenger_id] ?? null],
                 'course' => ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($battle->participant($viewer->id)->locale)],
                 'lesson' => $this->lessonOf($battle, $snapshot, $battle->participant($viewer->id)->locale),
                 'invite_expires_at' => IsoTime::format($battle->invite_expires_at),
@@ -295,7 +312,7 @@ final class BattleReader
             $finishedRows[] = [
                 'id' => $battle->id,
                 'mode' => $battle->mode->value,
-                'opponent' => ['first_name' => $names[$other->learner_id] ?? null],
+                'opponent' => ['first_name' => $names[$other->learner_id] ?? null, 'pro_emoji' => $emoji[$other->learner_id] ?? null],
                 'outcome' => $this->outcome($battle, $viewer),
                 'scores' => ['me' => $me->score, 'opponent' => $other->score],
                 'finished_at' => IsoTime::format($battle->finished_at ?? $battle->updated_at ?? $now),
@@ -346,7 +363,7 @@ final class BattleReader
         }
 
         return new BattleOptionsView(
-            friend: ['first_name' => $friend->first_name],
+            friend: ['first_name' => $friend->first_name, 'pro_emoji' => $this->proEmoji->visibleForMany([$friend->id])[$friend->id] ?? null],
             course: ['slug' => $course->slug, 'title' => $this->catalog->title($course, $viewerLocale)],
             lesson: $lesson === null ? null : ['id' => $lesson->id, 'stage' => $lesson->stage?->number, 'number' => $lesson->number, 'title' => $this->deckTitles->lessonIn($course, $viewerLocale, $lesson->number, $lesson->title, $lesson->title_uz)],
             modes: $modes,
@@ -532,7 +549,7 @@ final class BattleReader
             : "/api/twa/practice/battles/{$battle->id}/audio/{$element->id}";
     }
 
-    /** @return array{id: int, status: string, mode: string, role: string, course: array{slug: string, title: string}, lesson: array{id: int, stage: int|null, number: int|null, title: string|null}|null, opponent: array{first_name: string|null}} */
+    /** @return array{id: int, status: string, mode: string, role: string, course: array{slug: string, title: string}, lesson: array{id: int, stage: int|null, number: int|null, title: string|null}|null, opponent: array{first_name: string|null, pro_emoji: string|null}} */
     private function compact(Battle $battle, Learner $viewer): array
     {
         $me = $battle->participant($viewer->id);
@@ -545,15 +562,20 @@ final class BattleReader
             'role' => $me->role->value,
             'course' => ['slug' => $snapshot->courseSlug, 'title' => $snapshot->courseTitleFor($me->locale)],
             'lesson' => $this->lessonOf($battle, $snapshot, $me->locale),
-            'opponent' => ['first_name' => $this->firstName($battle->otherId($viewer->id))],
+            'opponent' => $this->person($battle->otherId($viewer->id)),
         ];
     }
 
-    private function firstName(int $learnerId): ?string
+    /**
+     * The other player as the screens show him: the first name and the emoji of Pro (docs/31 §5а; null without a live Pro) - two reads.
+     *
+     * @return array{first_name: string|null, pro_emoji: string|null}
+     */
+    private function person(int $learnerId): array
     {
         $name = Learner::query()->whereKey($learnerId)->value('first_name');
 
-        return is_string($name) ? $name : null;
+        return ['first_name' => is_string($name) ? $name : null, 'pro_emoji' => $this->proEmoji->visibleForMany([$learnerId])[$learnerId] ?? null];
     }
 
     /**

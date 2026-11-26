@@ -8,14 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ $title }} — LexiFlow</title>
+    <title>{{ $title }} — {{ config('app.brand') }}</title>
     <link rel="icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 <header class="site-header">
     <div class="wrap bar">
-        <span class="brand">LexiFlow</span>
+        <span class="brand">{{ config('app.brand') }}</span>
     </div>
 </header>
 

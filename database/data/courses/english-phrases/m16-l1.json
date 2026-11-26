@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 16,
+    "title": "Идиомы: тело",
+    "title_uz": "Iboralar: tana a'zolari"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Голова",
+    "title_uz": "Bosh"
+  },
+  "words": [
+    {
+      "word": "off the top of my head",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "навскидку",
+        "uz": "taxminan aytsam"
+      },
+      "example": "How many people work in your company? — Off the top of my head, about two hundred.",
+      "example_translations": {
+        "ru": "Сколько людей работает в вашей компании? — Навскидку, около двухсот.",
+        "uz": "Kompaniyangizda qancha odam ishlaydi? — Taxminan aytsam, ikki yuzga yaqin."
+      },
+      "hooks": {
+        "ru": "Говорят, когда отвечают сразу, не проверяя и не задумываясь: цифра или факт может быть неточным",
+        "uz": "O'ylab yoki tekshirib o'tirmasdan darhol javob berganda aytiladi: javob aniq bo'lmasligi mumkin"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "top",
+        "literal": {
+          "ru": "с макушки моей головы",
+          "uz": "boshimning tepasidan"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "head over heels",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по уши (влюбиться)",
+        "uz": "qattiq sevib qolgan"
+      },
+      "example": "My grandparents met at a summer camp and fell head over heels for each other.",
+      "example_translations": {
+        "ru": "Мои бабушка и дедушка познакомились в летнем лагере и влюбились друг в друга по уши.",
+        "uz": "Buvim bilan bobom yozgi oromgohda tanishib, bir-birini qattiq sevib qolishgan."
+      },
+      "hooks": {
+        "ru": "Говорят о сильной, внезапной влюблённости; обычно в сочетании fall head over heels или head over heels in love",
+        "uz": "Kuchli, birdaniga sevib qolish haqida aytiladi; ko'pincha fall head over heels shaklida"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "heels",
+        "literal": {
+          "ru": "головой над пятками",
+          "uz": "bosh tovon ustida"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep your head above water",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держаться на плаву",
+        "uz": "zo'rg'a eplab turmoq"
+      },
+      "example": "With two jobs and evening classes, I'm just keeping my head above water.",
+      "example_translations": {
+        "ru": "С двумя работами и вечерними занятиями я едва держусь на плаву.",
+        "uz": "Ikki ish va kechki darslar bilan zo'rg'a eplab turibman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда едва справляются с долгами, работой или учёбой и боятся не выдержать",
+        "uz": "Qarz, ish yoki o'qishni arang eplab, bardosh berolmay qolishdan qo'rqqanda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "water",
+        "literal": {
+          "ru": "держать голову над водой",
+          "uz": "boshni suv ustida tutmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "lose your head",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "потерять голову",
+        "uz": "o'zini yo'qotmoq"
+      },
+      "example": "Don't lose your head — just call the bank and block the card.",
+      "example_translations": {
+        "ru": "Не теряй голову — просто позвони в банк и заблокируй карту.",
+        "uz": "O'zingni yo'qotma — bankka qo'ng'iroq qilib, kartani blokla."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто от страха или злости перестал спокойно думать; часто как совет: Don't lose your head",
+        "uz": "Qo'rquv yoki jahldan xotirjam o'ylay olmay qolgan odam haqida aytiladi; ko'pincha maslahat sifatida"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lose",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get your head around something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уложить в голове",
+        "uz": "tushunib yetmoq"
+      },
+      "example": "I still can't get my head around the new tax rules.",
+      "example_translations": {
+        "ru": "Я всё никак не могу уложить в голове новые налоговые правила.",
+        "uz": "Yangi soliq qoidalarini hali ham tushunib yetolmayapman."
+      },
+      "hooks": {
+        "ru": "Говорят о сложной или непривычной вещи, которую трудно понять; чаще с can't",
+        "uz": "Tushunish qiyin yoki g'ayrioddiy narsa haqida aytiladi; ko'pincha can't bilan"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "around",
+        "literal": {
+          "ru": "обернуть голову вокруг чего-то",
+          "uz": "boshni nimadir atrofiga o'ramoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a head start",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "фора",
+        "uz": "boshqalardan oldinroq boshlash"
+      },
+      "example": "Reading the book before the course gave me a head start.",
+      "example_translations": {
+        "ru": "То, что я прочитал книгу до курса, дало мне фору.",
+        "uz": "Kursdan oldin kitobni o'qib chiqqanim uchun boshqalardan oldinroq boshladim."
+      },
+      "hooks": {
+        "ru": "Говорят о преимуществе того, кто начал раньше других: в учёбе, работе, соревновании",
+        "uz": "O'qish, ish yoki musobaqada boshqalardan oldin boshlagan odamning ustunligi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "start",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go over my head",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть выше моего понимания",
+        "uz": "tushunchamdan tashqarida bo'lmoq"
+      },
+      "example": "The lecture on quantum physics went over my head completely.",
+      "example_translations": {
+        "ru": "Лекция по квантовой физике была совершенно выше моего понимания.",
+        "uz": "Kvant fizikasi haqidagi ma'ruzadan hech narsa tushunmadim."
+      },
+      "hooks": {
+        "ru": "Говорят о сложном объяснении, шутке или лекции, которую не поняли",
+        "uz": "Tushunilmagan murakkab tushuntirish, hazil yoki ma'ruza haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "over",
+        "literal": {
+          "ru": "пройти над моей головой",
+          "uz": "boshimning ustidan o'tmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "bury your head in the sand",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прятать голову в песок",
+        "uz": "muammodan qochmoq"
+      },
+      "example": "You can't bury your head in the sand — the bills won't pay themselves.",
+      "example_translations": {
+        "ru": "Нельзя прятать голову в песок — счета сами себя не оплатят.",
+        "uz": "Muammodan qochib bo'lmaydi — hisoblar o'z-o'zidan to'lanib qolmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят с упрёком тому, кто делает вид, что проблемы нет, вместо того чтобы её решать",
+        "uz": "Muammoni hal qilish o'rniga uni ko'rmaslikka olgan odamga tanbeh sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sand",
+        "literal": {
+          "ru": "зарыть голову в песок",
+          "uz": "boshni qumga ko'mmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put our heads together",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вместе пораскинуть мозгами",
+        "uz": "birgalikda bosh qotirmoq"
+      },
+      "example": "If we put our heads together, we'll find a solution by Friday.",
+      "example_translations": {
+        "ru": "Если мы вместе пораскинем мозгами, к пятнице найдём решение.",
+        "uz": "Birgalikda bosh qotirsak, jumagacha yechim topamiz."
+      },
+      "hooks": {
+        "ru": "Предлагают коллегам или друзьям вместе подумать над задачей",
+        "uz": "Hamkasblar yoki do'stlarga muammo ustida birga o'ylashni taklif qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "together",
+        "literal": {
+          "ru": "сложить наши головы вместе",
+          "uz": "boshlarimizni birlashtirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have your head in the clouds",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "витать в облаках",
+        "uz": "xayol surib yurmoq"
+      },
+      "example": "Malika always has her head in the clouds during maths lessons.",
+      "example_translations": {
+        "ru": "Малика на уроках математики вечно витает в облаках.",
+        "uz": "Malika matematika darslarida doim xayol surib o'tiradi."
+      },
+      "hooks": {
+        "ru": "Говорят о мечтательном человеке, который не замечает, что происходит вокруг",
+        "uz": "Atrofida nima bo'layotganini sezmaydigan xayolparast odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "clouds",
+        "literal": {
+          "ru": "держать голову в облаках",
+          "uz": "boshi bulutlarda bo'lmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

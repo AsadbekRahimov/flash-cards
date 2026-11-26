@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases-good",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Приветствия",
+    "title_uz": "Salomlashish"
+  },
+  "words": [
+    {
+      "word": "How's it going?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как дела?",
+        "uz": "ishlar qalay?"
+      },
+      "example": "Hi, Tom! How's it going? — Not bad, thanks.",
+      "example_translations": {
+        "ru": "Привет, Том! Как дела? — Неплохо, спасибо.",
+        "uz": "Salom, Tom! Ishlar qalay? — Yomon emas, rahmat."
+      },
+      "hooks": {
+        "ru": "Дружеское приветствие знакомому; отвечают «Not bad» или «Fine, thanks»",
+        "uz": "Tanish odam bilan do'stona salomlashish; javobi — «Not bad» yoki «Fine, thanks»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "going",
+        "literal": {
+          "ru": "как оно идёт?",
+          "uz": "qanday ketyapti?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Nice to meet you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приятно познакомиться",
+        "uz": "tanishganimdan xursandman"
+      },
+      "example": "This is my sister, Malika. — Nice to meet you, Malika.",
+      "example_translations": {
+        "ru": "Это моя сестра Малика. — Приятно познакомиться, Малика.",
+        "uz": "Bu mening singlim Malika. — Tanishganimdan xursandman, Malika."
+      },
+      "hooks": {
+        "ru": "Говорят при первом знакомстве",
+        "uz": "Birinchi marta tanishganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "meet",
+        "literal": {
+          "ru": "приятно встретить тебя",
+          "uz": "seni uchratish yoqimli"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Long time no see",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сто лет не виделись",
+        "uz": "ko'rishmaganimizga ancha bo'ldi"
+      },
+      "example": "Aziz! Long time no see! How are you?",
+      "example_translations": {
+        "ru": "Азиз! Сто лет не виделись! Как ты?",
+        "uz": "Aziz! Ko'rishmaganimizga ancha bo'ldi! Qalaysan?"
+      },
+      "hooks": {
+        "ru": "Радостно говорят старому знакомому, которого давно не встречали",
+        "uz": "Uzoq vaqt ko'rmagan tanishga quvonib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "long",
+        "literal": {
+          "ru": "долгое время не видеть",
+          "uz": "uzoq vaqt ko'rmaslik"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What's up?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как жизнь?",
+        "uz": "nima gap?"
+      },
+      "example": "Hey, Sam, what's up? — Not much. And you?",
+      "example_translations": {
+        "ru": "Привет, Сэм, как жизнь? — Да ничего. А у тебя?",
+        "uz": "Salom, Sem, nima gap? — Hech narsa. O'zingda-chi?"
+      },
+      "hooks": {
+        "ru": "Очень непринуждённое приветствие друзей; отвечают «Not much»",
+        "uz": "Do'stlar orasidagi juda erkin salomlashish; javobi — «Not much»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Good to see you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рад вас видеть",
+        "uz": "sizni ko'rganimdan xursandman"
+      },
+      "example": "Good to see you again, Mr. Brown. — You too, Anna.",
+      "example_translations": {
+        "ru": "Рада снова вас видеть, мистер Браун. — Взаимно, Анна.",
+        "uz": "Sizni yana ko'rganimdan xursandman, janob Braun. — Men ham, Anna."
+      },
+      "hooks": {
+        "ru": "Говорят знакомому при встрече; новому знакомому — «Nice to meet you»",
+        "uz": "Tanish odamga uchrashganda aytiladi; yangi tanishga esa «Nice to meet you» deyiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "good",
+        "literal": {
+          "ru": "хорошо видеть вас",
+          "uz": "sizni ko'rish yaxshi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How are you doing?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как поживаете?",
+        "uz": "qandaysiz?"
+      },
+      "example": "Hello, Mrs. Green! How are you doing? — Very well, thank you.",
+      "example_translations": {
+        "ru": "Здравствуйте, миссис Грин! Как поживаете? — Очень хорошо, спасибо.",
+        "uz": "Assalomu alaykum, Grin xonim! Qandaysiz? — Juda yaxshi, rahmat."
+      },
+      "hooks": {
+        "ru": "Обычный вопрос при встрече; ответ — коротко: «Fine, thanks»",
+        "uz": "Uchrashganda beriladigan oddiy savol; qisqa javob beriladi: «Fine, thanks»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "doing",
+        "literal": {
+          "ru": "как вы делаете?",
+          "uz": "qanday qilyapsiz?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Good morning",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "доброе утро",
+        "uz": "xayrli tong"
+      },
+      "example": "Good morning, everyone! Let's start the lesson.",
+      "example_translations": {
+        "ru": "Доброе утро всем! Давайте начнём урок.",
+        "uz": "Hammaga xayrli tong! Darsni boshlaymiz."
+      },
+      "hooks": {
+        "ru": "Приветствие до полудня — и в классе, и на работе",
+        "uz": "Tushgacha aytiladigan salom — sinfda ham, ishda ham"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "good",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Hi there",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "привет",
+        "uz": "salom"
+      },
+      "example": "Hi there! Are you the new student? — Yes, I'm Lola.",
+      "example_translations": {
+        "ru": "Привет! Ты новенькая? — Да, я Лола.",
+        "uz": "Salom! Yangi o'quvchimisan? — Ha, men Lolaman."
+      },
+      "hooks": {
+        "ru": "Дружеское «привет» — и знакомому, и тому, чьего имени не знаешь",
+        "uz": "Do'stona «salom» — tanishga ham, ismini bilmagan odamga ham"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "there",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How have you been?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как ты всё это время?",
+        "uz": "shu paytgacha qanday yurding?"
+      },
+      "example": "Hi, Dilnoza! How have you been? — Great, thanks. Busy with work.",
+      "example_translations": {
+        "ru": "Привет, Дильноза! Как ты всё это время? — Отлично, спасибо. Много работы.",
+        "uz": "Salom, Dilnoza! Shu paytgacha qanday yurding? — Zo'r, rahmat. Ish ko'p."
+      },
+      "hooks": {
+        "ru": "Спрашивают того, кого давно не видели",
+        "uz": "Uzoq vaqt ko'rmagan odamdan so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "been",
+        "literal": {
+          "ru": "как ты был?",
+          "uz": "qanday bo'lding?"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Welcome back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с возвращением",
+        "uz": "yana xush kelibsiz"
+      },
+      "example": "Welcome back, Jamshid! How was your holiday?",
+      "example_translations": {
+        "ru": "С возвращением, Джамшид! Как прошёл отпуск?",
+        "uz": "Yana xush kelibsiz, Jamshid! Ta'til qanday o'tdi?"
+      },
+      "hooks": {
+        "ru": "Встречают того, кто вернулся из поездки или после болезни",
+        "uz": "Safardan yoki kasallikdan keyin qaytgan odamni shunday kutib olishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "добро пожаловать обратно",
+          "uz": "orqaga xush kelibsiz"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

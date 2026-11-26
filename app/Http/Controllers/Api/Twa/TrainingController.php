@@ -7,12 +7,15 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\Scoring\SessionScoreService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Exceptions\HardRoundException;
+use App\Domain\Learning\Exceptions\LessonReviewException;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\HardRoundService;
+use App\Domain\Learning\Services\LessonReviewService;
 use App\Domain\Learning\Services\PracticeEntryResolver;
 use App\Domain\Learning\Services\TrainingFlowService;
 use App\Domain\Learning\Services\TrainingSessionService;
@@ -41,6 +44,8 @@ final class TrainingController
         private readonly PracticeEntryResolver $practiceEntries,
         private readonly CourseCatalogService $catalog,
         private readonly HardRoundService $hardRound,
+        private readonly LessonReviewService $lessonReview,
+        private readonly SessionScoreService $sessionScores,
     ) {}
 
     /**
@@ -55,6 +60,12 @@ final class TrainingController
         // The round of hard words spans the learner's words: it takes no lesson (whether the lesson exists is not asked).
         if ($request->string('mode')->toString() === TrainingSession::MODE_HARD_REVIEW && $request->lessonId() !== null) {
             $e = TrainingSessionException::lessonNotAllowed();
+
+            return ApiErrorResource::respond(422, $e->reason, $e->getMessage());
+        }
+        // The review of a lesson (docs/06 §15) is always of one lesson.
+        if ($request->string('mode')->toString() === TrainingSession::MODE_LESSON_REVIEW && $request->lessonId() === null) {
+            $e = TrainingSessionException::lessonRequired();
 
             return ApiErrorResource::respond(422, $e->reason, $e->getMessage());
         }
@@ -73,11 +84,15 @@ final class TrainingController
         $source = $request->source();
 
         try {
-            $session = $mode === TrainingSession::MODE_HARD_REVIEW
-                ? $this->hardRound->open($learner, $source)
-                : $this->sessions->openPersonal($learner, $mode, $lesson, $source);
+            $session = match (true) {
+                $mode === TrainingSession::MODE_HARD_REVIEW => $this->hardRound->open($learner, $source),
+                $mode === TrainingSession::MODE_LESSON_REVIEW && $lesson !== null => $this->lessonReview->open($learner, $lesson, $source),
+                default => $this->sessions->openPersonal($learner, $mode, $lesson, $source),
+            };
         } catch (HardRoundException $e) {
             return ApiErrorResource::respond(409, HardRoundException::CODE, $e->getMessage(), $e->details());
+        } catch (LessonReviewException $e) {
+            return ApiErrorResource::respond(409, LessonReviewException::CODE, $e->getMessage(), $e->details());
         } catch (TrainingSessionException $e) {
             return match ($e->reason) {
                 TrainingSessionException::REASON_LESSON_NOT_AVAILABLE => $this->lessonNotFound(),
@@ -144,10 +159,13 @@ final class TrainingController
             'summary' => $summary,
             'progress' => $this->today->progress($learner),
             'practice_entry' => $this->practiceEntries->forSession($summary->session, $learner),
-            // The invitation to the round of hard words after a daily round / a lesson (docs/06 §14); none after the round itself or while it is off.
-            'hard_round_offer' => $summary->session->mode === TrainingSession::MODE_HARD_REVIEW || ! $this->hardRound->enabled()
+            // The invitation to the round of hard words after a daily round / a lesson (docs/06 §14); none after the round itself, after the
+            // review of a lesson (its step 3 is the game, docs/31 §5б) or while it is off.
+            'hard_round_offer' => in_array($summary->session->mode, [TrainingSession::MODE_HARD_REVIEW, TrainingSession::MODE_LESSON_REVIEW], true) || ! $this->hardRound->enabled()
                 ? null
                 : $this->hardRound->availability($learner)->toArray(),
+            // The word points of the session and the rating day after it (docs/32 §8.2): two reads in `live`, none otherwise.
+            'score' => $this->sessionScores->forSession($summary->session, $summary->reviewed, CarbonImmutable::now()),
         ]))->response();
     }
 

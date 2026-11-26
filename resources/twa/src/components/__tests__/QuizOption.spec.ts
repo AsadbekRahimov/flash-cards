@@ -41,15 +41,15 @@ describe('QuizOption', () => {
     }
   })
 
-  it('draws a check on a correct pick and a cross on an incorrect one, and no icon in the other states', () => {
+  it('draws a check on a correct pick and on the right answer, a cross on an incorrect one, and no mark in the ring of an idle one', () => {
     const icon = (state: 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal') =>
       mount(QuizOption, { props: { label: 'x', index: 0, state } }).findComponent(AppIcon)
 
+    expect(icon('selected').props('name')).toBe('check')
     expect(icon('correct').props('name')).toBe('check')
+    expect(icon('reveal').props('name')).toBe('check')
     expect(icon('incorrect').props('name')).toBe('x-mark')
-    for (const state of ['idle', 'selected', 'reveal'] as const) {
-      expect(icon(state).exists(), state).toBe(false)
-    }
+    expect(icon('idle').exists()).toBe(false)
   })
 
   it('gives a disabled option that has no state yet the quiet look of "dimmed", not the ones that show the verdict', () => {
@@ -70,13 +70,83 @@ describe('QuizOption', () => {
     }
   })
 
-  it('leads with its number, in mono and hidden from the screen reader', () => {
+  it('has no number in front any more: a 24 px round indicator on the right instead (docs/design/2026-11-25-redesign Question)', () => {
     const w = mount(QuizOption, { props: { label: 'apple', index: 2, state: 'idle' } })
-    const number = w.get('[data-testid=option-2] span')
+    const button = w.get('[data-testid=option-2]')
 
-    expect(number.text()).toBe('3')
-    expect(number.classes()).toEqual(expect.arrayContaining(['font-mono', 'text-muted']))
-    expect(number.attributes('aria-hidden')).toBe('true')
+    expect(button.text()).toBe('apple')
+    expect(button.find('.font-mono').exists()).toBe(false)
+    const ring = w.get('[data-testid=option-indicator-2]')
+    expect(button.element.lastElementChild).toBe(ring.element)
+    expect(ring.classes()).toEqual(expect.arrayContaining(['size-6', 'rounded-full', 'border-track']))
+    expect(ring.attributes('aria-hidden')).toBe('true')
+  })
+
+  it('fills the ring by the state: primary for the pick, success for the right answer, danger for a miss', () => {
+    const ring = (state: 'selected' | 'correct' | 'incorrect' | 'reveal') =>
+      mount(QuizOption, { props: { label: 'x', index: 0, state } }).get('[data-testid=option-indicator-0]').classes()
+
+    expect(ring('selected')).toEqual(expect.arrayContaining(['bg-primary', 'text-on-primary']))
+    expect(ring('correct')).toContain('bg-success')
+    expect(ring('reveal')).toContain('bg-success')
+    expect(ring('incorrect')).toContain('bg-danger')
+  })
+
+  it('leaves the ring out of a dimmed option, as the quiet options of the Feedback mock-up', () => {
+    const w = mount(QuizOption, { props: { label: 'x', index: 0, state: 'idle', disabled: true } })
+    expect(w.find('[data-testid=option-indicator-0]').exists()).toBe(false)
+  })
+
+  it('is the box of the mock-up: radius 14 (rounded-option of .option), 18 px text, at least 58 px high (48 in a low window)', () => {
+    const classes = mount(QuizOption, { props: { label: 'x', index: 0, state: 'idle' } }).get('[data-testid=option-0]').classes()
+    expect(classes).toEqual(expect.arrayContaining(['option', 'min-h-[58px]', 'text-[18px]', 'short:min-h-12']))
+  })
+
+  it('is a radio: aria-checked on the picked option, aria-disabled (still focusable) once it can no longer be picked', () => {
+    const option = (state: 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal', disabled = false) =>
+      mount(QuizOption, { props: { label: 'x', index: 0, state, disabled } }).get('[data-testid=option-0]')
+
+    expect(option('idle').attributes('role')).toBe('radio')
+    expect(option('idle').attributes('aria-checked')).toBe('false')
+    expect(option('reveal', true).attributes('aria-checked')).toBe('false')
+    for (const state of ['selected', 'correct', 'incorrect'] as const) {
+      expect(option(state, true).attributes('aria-checked'), state).toBe('true')
+    }
+    expect(option('idle').attributes('aria-disabled')).toBeUndefined()
+    const disabled = option('reveal', true)
+    expect(disabled.attributes('aria-disabled')).toBe('true')
+    // Not the native `disabled`: the screen reader still reaches the option and reads "right answer".
+    expect(disabled.attributes('disabled')).toBeUndefined()
+  })
+
+  it('moves the focus with the arrow keys inside its radio group, around the ends; Enter / Space pick as on a button', async () => {
+    const Group = {
+      components: { QuizOption },
+      emits: ['pick'],
+      template: `<div role="radiogroup" aria-label="q">
+        <QuizOption v-for="i in 3" :key="i" :label="'o' + i" :index="i - 1" state="idle" @pick="$emit('pick', $event)" />
+      </div>`,
+    }
+    const w = mount(Group, { attachTo: document.body })
+    const options = w.findAll('[role=radio]')
+    ;(options[0]!.element as HTMLElement).focus()
+
+    await options[0]!.trigger('keydown', { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(options[1]!.element)
+    await options[1]!.trigger('keydown', { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(options[2]!.element)
+    await options[2]!.trigger('keydown', { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(options[0]!.element)
+    await options[0]!.trigger('keydown', { key: 'ArrowUp' })
+    expect(document.activeElement).toBe(options[2]!.element)
+    await options[2]!.trigger('keydown', { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(options[1]!.element)
+
+    // A native button: the keyboard "click" of Enter / Space is the same click.
+    expect(options[1]!.element.tagName).toBe('BUTTON')
+    await options[1]!.trigger('click')
+    expect(w.emitted('pick')).toEqual([[1]])
+    w.unmount()
   })
 
   it('names the verdict in words, not by colour only: "your answer" on a miss, "right answer" on the right one', () => {

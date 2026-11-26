@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 20,
+    "title": "Мудрость и пословицы",
+    "title_uz": "Hikmatlar va maqollar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "О времени",
+    "title_uz": "Vaqt haqida"
+  },
+  "words": [
+    {
+      "word": "Time is money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время — деньги",
+        "uz": "vaqt — oltindan qimmat"
+      },
+      "example": "Let's take a taxi instead of the bus — time is money.",
+      "example_translations": {
+        "ru": "Давай поедем на такси, а не на автобусе — время — деньги.",
+        "uz": "Avtobus o'rniga taksida boraylik — vaqt oltindan qimmat."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не хотят терять время, особенно в работе и делах",
+        "uz": "Ayniqsa ish va yumushlarda vaqtni yo'qotishni istamaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "money",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Time flies",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как быстро летит время",
+        "uz": "vaqt juda tez o'tadi"
+      },
+      "example": "Is it already June? Time flies!",
+      "example_translations": {
+        "ru": "Уже июнь? Как быстро летит время!",
+        "uz": "Iyun bo'lib qoldimi? Vaqt juda tez o'tadi!"
+      },
+      "hooks": {
+        "ru": "Удивляются, как быстро прошло время; часто Time flies when you're having fun",
+        "uz": "Vaqt qanchalik tez o'tganidan hayratlanganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "flies",
+        "literal": {
+          "ru": "время летает",
+          "uz": "vaqt uchadi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Better late than never",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лучше поздно, чем никогда",
+        "uz": "kech bo'lsa ham, hech qachondan yaxshi"
+      },
+      "example": "Sorry, I'm an hour late. — Better late than never!",
+      "example_translations": {
+        "ru": "Извини, я опоздал на час. — Лучше поздно, чем никогда!",
+        "uz": "Kechirasan, bir soat kechikdim. — Kech bo'lsa ham, hech qachondan yaxshi!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда что-то сделано с опозданием, но всё же сделано; часто с улыбкой",
+        "uz": "Biror ish kechikib bo'lsa ham bajarilganda aytiladi; ko'pincha tabassum bilan"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "late",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "There's no time like the present",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не откладывай на завтра",
+        "uz": "bugungi ishni ertaga qoldirma"
+      },
+      "example": "When should I start learning English? — There's no time like the present!",
+      "example_translations": {
+        "ru": "Когда мне начать учить английский? — Не откладывай на завтра — начни сейчас!",
+        "uz": "Ingliz tilini qachon o'rganishni boshlay? — Bugungi ishni ertaga qoldirma!"
+      },
+      "hooks": {
+        "ru": "Советуют начать дело сейчас, а не ждать удобного момента",
+        "uz": "Qulay paytni kutmay, ishni hozir boshlashni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "present",
+        "literal": {
+          "ru": "нет времени лучше настоящего",
+          "uz": "hozirgidek vaqt yo'q"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Time will tell",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время покажет",
+        "uz": "vaqt ko'rsatadi"
+      },
+      "example": "Do you think the new coach is any good? — Time will tell.",
+      "example_translations": {
+        "ru": "Как думаешь, новый тренер хороший? — Время покажет.",
+        "uz": "Yangi murabbiy yaxshimi, nima deb o'ylaysan? — Vaqt ko'rsatadi."
+      },
+      "hooks": {
+        "ru": "Отвечают, когда пока рано судить, чем всё закончится",
+        "uz": "Oqibati qanday bo'lishini hozircha aytish erta bo'lganda javob sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tell",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "All in good time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всему своё время",
+        "uz": "har narsaning o'z vaqti bor"
+      },
+      "example": "When can I drive the car, Dad? — All in good time, son.",
+      "example_translations": {
+        "ru": "Папа, когда мне можно будет водить машину? — Всему своё время, сынок.",
+        "uz": "Dada, qachon mashina haydasam bo'ladi? — Har narsaning o'z vaqti bor, o'g'lim."
+      },
+      "hooks": {
+        "ru": "Спокойно отвечают нетерпеливому: это случится, но позже",
+        "uz": "Sabrsiz odamga xotirjam javob: bu bo'ladi, lekin keyinroq"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "good",
+        "literal": {
+          "ru": "всё в хорошее время",
+          "uz": "hammasi yaxshi vaqtda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Strike while the iron is hot",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "куй железо, пока горячо",
+        "uz": "temirni qizig'ida bos"
+      },
+      "example": "The shop wants to hire you — strike while the iron is hot and call them today.",
+      "example_translations": {
+        "ru": "Магазин хочет взять тебя на работу — куй железо, пока горячо, позвони им сегодня.",
+        "uz": "Do'kon seni ishga olmoqchi — temirni qizig'ida bos, bugun ularga qo'ng'iroq qil."
+      },
+      "hooks": {
+        "ru": "Советуют действовать сразу, пока есть удобная возможность",
+        "uz": "Qulay imkoniyat bor ekan, darhol harakat qilishni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "iron",
+        "literal": {
+          "ru": "бей, пока железо горячее",
+          "uz": "temir qizigan paytda ur"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Patience is a virtue",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "терпенье — лучшее спасенье",
+        "uz": "sabr tagi — sariq oltin"
+      },
+      "example": "Is the pizza ready yet? — Not yet. Patience is a virtue!",
+      "example_translations": {
+        "ru": "Пицца уже готова? — Ещё нет. Терпенье — лучшее спасенье!",
+        "uz": "Pitsa tayyor bo'ldimi? — Hali yo'q. Sabr tagi — sariq oltin!"
+      },
+      "hooks": {
+        "ru": "Говорят нетерпеливому, часто шутливо, что ждать спокойно — достоинство",
+        "uz": "Sabrsiz odamga, ko'pincha hazil bilan, xotirjam kutish fazilat ekanini eslatganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "virtue",
+        "literal": {
+          "ru": "терпение — это добродетель",
+          "uz": "sabr — fazilat"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Time heals all wounds",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время лечит",
+        "uz": "vaqt — har dardga davo"
+      },
+      "example": "I still feel sad about failing the exam. — It's normal. Time heals all wounds.",
+      "example_translations": {
+        "ru": "Мне всё ещё грустно, что я провалил экзамен. — Это нормально. Время лечит.",
+        "uz": "Imtihondan yiqilganim uchun hali ham xafaman. — Bu tabiiy. Vaqt — har dardga davo."
+      },
+      "hooks": {
+        "ru": "Утешают того, кто переживает обиду, потерю или неудачу",
+        "uz": "Xafagarchilik, yo'qotish yoki omadsizlikni boshdan kechirayotgan odamga taskin berib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wounds",
+        "literal": {
+          "ru": "время лечит все раны",
+          "uz": "vaqt barcha yaralarni davolaydi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Life's too short",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жизнь слишком коротка",
+        "uz": "hayot juda qisqa"
+      },
+      "example": "Should I stay angry with my sister? — Life's too short. Call her.",
+      "example_translations": {
+        "ru": "Мне всё ещё злиться на сестру? — Жизнь слишком коротка. Позвони ей.",
+        "uz": "Opamdan xafa bo'lib yuraveraymi? — Hayot juda qisqa. Unga qo'ng'iroq qil."
+      },
+      "hooks": {
+        "ru": "Говорят, что не стоит тратить время на обиды, скуку или то, что не радует",
+        "uz": "Vaqtni xafagarchilik, zerikish yoki quvontirmaydigan narsaga sarflamaslik kerakligini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "short",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    }
+  ]
+}

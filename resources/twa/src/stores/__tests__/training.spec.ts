@@ -531,3 +531,40 @@ describe('training store — the round of hard words', () => {
     expect(store.summary?.hard_round).toEqual({ total: 10, won: 7 })
   })
 })
+
+describe('training store — the review of a lesson (day plan, step 2)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('opens `lesson_review` for the lesson with the source of the plan', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 77,
+      mode: 'lesson_review',
+      lesson: { stage: 1, lesson: 3, title: 'Напитки' },
+      total_words: 5,
+      card: null,
+      progress: { done: 0, total: 5 },
+      done_reason: 'lesson_review_complete',
+      quota: { new_words_remaining: null },
+    })
+    const store = useTrainingStore()
+
+    expect(await store.openLessonReview(41)).toBe(77)
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson_review', lesson_id: 41, source: 'plan' })
+  })
+
+  it('reads /today again when the review is refused, so the plan matches the server', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('conflict', 409, 'lesson_review_unavailable', 'No new words.', undefined, { reason: 'no_new_words' }),
+    )
+    vi.mocked(api.today.get).mockResolvedValue({ plan: null } as never)
+    const store = useTrainingStore()
+
+    expect(await store.openLessonReview(41, 'reminder')).toBeNull()
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson_review', lesson_id: 41, source: 'reminder' })
+    expect(store.openError).not.toBe('')
+    expect(api.today.get).toHaveBeenCalledTimes(1)
+  })
+})

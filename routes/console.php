@@ -64,12 +64,58 @@ Schedule::command('game:class-caravans-close')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// The friends' cups of the groups (docs/33 §3.2): drafts expire, cups start at their midnight (or wait a day for a second player),
+// tomorrow's snapshots are built, abandoned attempts close, cups finish 30 minutes after their last day - each step under the lock of
+// its cup, so a repeated or parallel run changes nothing twice.
+Schedule::command('cups:advance')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+// The messages of the cups in their chats (docs/33 §3.2, §6.4): the daily summaries (only with new results), the edits of the cards
+// (only with news, at most once in 5 minutes per card) and the outbox (stuck `sending` → `unknown`, `pending` queued again). Every
+// message is claimed by a conditional UPDATE before it is sent, so a repeated or parallel run posts nothing twice.
+Schedule::command('cups:post-summaries')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('cups:refresh-cards')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('cups:send-outbox')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+// The duels of the cups (docs/33 §5.7, D1): open challenges past their 10 minutes expire (one statement per batch), duels whose battle
+// is over and that no job has scored are scored - each under the lock of its duel, so a repeated or parallel run scores nothing twice.
+Schedule::command('cups:sweep-duels')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Poll broadcasts (docs/35 O3): rows stuck in `sending` become `unknown` (never sent twice), an unfinished launch insert is resumed,
+// dead job chains restart, finished polls go `sent`. Idempotent (conditional UPDATEs), so overlap or a repeat changes nothing.
+Schedule::command('polls:sweep')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+// Polls whose `closes_at` has come are closed (docs/35 O7): status, `results_snapshot`, audit. The taps already answer "closed" from
+// `closes_at` on; the closing is under the poll's row lock, so a repeated or parallel run (or a click on «Закрыть») closes once.
+Schedule::command('polls:close-due')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+// The answers of polls closed or stopped more than `polls.retention_days` (365) ago (docs/35 §1.5 "Приватность"): votes and deliveries
+// in chunks, each its own short transaction; the poll and its totals stay. Away from the backups, the prune and the purge.
+Schedule::command('polls:prune')
+    ->dailyAt('03:50')
+    ->withoutOverlapping(30);
 
 // Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
 // unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
@@ -94,6 +140,18 @@ Schedule::command('billing:expire-orders')
 // (or a second scheduler) raises nothing twice.
 Schedule::command('subscriptions:remind-expiring')
     ->dailyAt('06:00')
+    ->withoutOverlapping();
+
+// The offers of Pro after the welcome trial (docs/34 §2д): on the day it ended and 3 / 10 days after, between 11:00 and 19:00 of the
+// learner's clock - hence hourly. A repeated run queues the same jobs again, harmless: the marker of each step is the sender's.
+Schedule::command('billing:trial-offers')
+    ->hourly()
+    ->withoutOverlapping();
+
+// The daily goal above the limit of the plan (Pro ended) comes down for the learners who do not open the Mini App (docs/34 §2б.2): one
+// row lock per learner, re-checked under it, so a repeated or parallel run changes nothing. Lowering only; the return is lazy.
+Schedule::command('learners:enforce-goal-limits')
+    ->dailyAt('03:00')
     ->withoutOverlapping();
 
 // Repair path of the group -> organization membership hook (docs/13 §2.3): any learner in a
@@ -136,6 +194,20 @@ Schedule::command('leagues:close-month')
     ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
     ->withoutOverlapping(30)
     ->runInBackground();
+
+// The retention of the word-points journal `score_credits` (docs/32 §2.7): nightly 04:40 in the league zone (away from the close of the
+// week at 00:00 and of the month at 03:00, from the backups at :20); only days of closed months, batches without a long transaction.
+Schedule::command('leagues:prune-score-credits')
+    ->dailyAt('04:40')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(60);
+
+// The product event `score.credited` (docs/32 S16): one summary of yesterday's rating day, 00:30 in the league zone (after the week's
+// close at 00:00, before the month's at 03:00); a repeated run writes nothing.
+Schedule::command('leagues:report-score-day')
+    ->dailyAt('00:30')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(30);
 
 // Referral rewards (docs/13 §7.1): re-queues the job of a referral left `activated` (not counted), or of a
 // milestone reached and not granted, after a lost / failed job. Idempotent by the data.
@@ -187,6 +259,12 @@ Schedule::command('game:wallets-verify')
 Schedule::command('audio:reconcile')
     ->dailyAt('02:30')
     ->withoutOverlapping(60);
+
+// The share cards (docs/36 §2б): cards unused for a month, the PNG cards of template 1 and leftovers of a killed render. Weekly,
+// Monday 04:50 - away from the purge, the wallets check and the reconciliation of Stars. A removed card is drawn again on demand.
+Schedule::command('achievements:prune-cards')
+    ->weeklyOn(1, '04:50')
+    ->withoutOverlapping(30);
 
 // DB backups via spatie/laravel-backup: hourly, database only (RPO <= 1 h; the code is in the image and nothing in storage
 // needs a backup: audio is regenerable TTS). --isolated so a deploy's pre-migration backup and the schedule never run

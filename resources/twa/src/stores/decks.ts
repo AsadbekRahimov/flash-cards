@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { useTodayStore } from '@/stores/today'
 import type { Deck, DeckDetail, DeckImportFormat, DeckImportResult, DeckLimits } from '@/api/types'
 
 export type DecksStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -149,6 +150,7 @@ export const useDecksStore = defineStore('decks', {
     async activate(slug: string): Promise<boolean> {
       return this.write(async () => {
         await api.courses.select(slug)
+        useTodayStore().invalidate()
         this.decks = this.decks.map((d) => ({ ...d, is_active: d.slug === slug }))
         if (this.detail) this.detail = { ...this.detail, is_active: this.detail.slug === slug }
         return true

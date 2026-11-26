@@ -15,9 +15,12 @@ import {
   type OpenSessionRequest,
   type Quality,
   type ReviewResponse,
+  type SessionSource,
   type SessionSummary,
   type TrainingMode,
   type TrainingStartResponse,
+  type WordScore,
+  type WordScoreDay,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
@@ -78,6 +81,8 @@ interface TrainingState {
   summary: SessionSummary | null
   opening: boolean
   openError: string
+  /** The server's code of the last refused `open()` (`lesson_review_unavailable`, ...); null: none, or not an answer of the server. */
+  openErrorCode: string | null
   /**
    * What `open()` got back for a session the training screen has not entered yet: `start()`
    * consumes it instead of asking the server for the same answer again.
@@ -119,6 +124,14 @@ interface TrainingState {
   /** The last answer that counted for the run; `seq` grows with each, so the screen can react to every one. */
   outcome: { seq: number; kind: OutcomeKind }
   /**
+   * The word points of the last answer (docs/32 §8.1, `score` of `/review`) for the small chip «+3»: `points` - what the weekly count
+   * got (the monthly one when the week gave none); `capped` - this answer found the day at its cap, said once a session. null: the
+   * answer brought nothing worth saying (no points, the rules v2 off, an older server), and while the next answer is on its way.
+   */
+  wordScore: { seq: number; points: number; capped: boolean } | null
+  /** The cap of the day has been said in this session: later answers at the cap stay quiet. */
+  scoreCapNoted: boolean
+  /**
    * When the session began, epoch ms: the SERVER's `started_at` (the start / open answer), so the finish screen can tell "achieved in
    * this session" by one clock; `Date.now()` of the device only for an older server that sends none.
    */
@@ -126,6 +139,9 @@ interface TrainingState {
   /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
   generation: number
 }
+
+/** Grows with every chip of the word points, so the same «+2» twice in a row is drawn anew. */
+let scoreSeq = 0
 
 /** The finish request in flight, so the eager close at the last card and the one of the finish screen are one request. */
 let finishing: { generation: number; promise: Promise<void> } | null = null
@@ -153,6 +169,7 @@ export const useTrainingStore = defineStore('training', {
     summary: null,
     opening: false,
     openError: '',
+    openErrorCode: null,
     preloaded: null,
     opened: null,
     reviewedCount: 0,
@@ -168,6 +185,8 @@ export const useTrainingStore = defineStore('training', {
     combo: 0,
     bestCombo: 0,
     outcome: { seq: 0, kind: 'right' },
+    wordScore: null,
+    scoreCapNoted: false,
     startedAt: 0,
     generation: 0,
   }),
@@ -200,6 +219,7 @@ export const useTrainingStore = defineStore('training', {
       if (this.opening) return null
       this.opening = true
       this.openError = ''
+      this.openErrorCode = null
       try {
         const res = await api.training.open(body)
         this.preloaded = { sessionId: res.session_id, response: res }
@@ -207,12 +227,22 @@ export const useTrainingStore = defineStore('training', {
         return res.session_id
       } catch (err) {
         this.openError = errorMessage(err, 'training')
+        this.openErrorCode = err instanceof ApiClientError && err.code !== '' ? err.code : null
         // The round of hard words was played in another tab (or the words went): "Today" is read again, so its invitation matches the server.
-        if (err instanceof ApiClientError && err.code === 'hard_round_unavailable') void useTodayStore().load()
+        // The same for the review of a lesson (`lesson_review_unavailable`): the plan of the day is read again.
+        if (err instanceof ApiClientError && (err.code === 'hard_round_unavailable' || err.code === 'lesson_review_unavailable')) void useTodayStore().load()
         return null
       } finally {
         this.opening = false
       }
+    },
+
+    /**
+     * Step 2 of the day plan (docs/31 §5б): the review of a lesson studied today (`mode: lesson_review`, docs/06 §15). The session is
+     * played on the ordinary training screen; it moves no schedule and brings no points. Returns the session id, or null with `openError`.
+     */
+    openLessonReview(lessonId: number, source: SessionSource = 'plan'): Promise<number | null> {
+      return this.open({ mode: 'lesson_review', lesson_id: lessonId, source })
     },
 
     async start(sessionId: number): Promise<void> {
@@ -250,6 +280,7 @@ export const useTrainingStore = defineStore('training', {
     /** Forgets a failed-open message when the learner leaves the screen that showed it. */
     clearOpenError(): void {
       this.openError = ''
+      this.openErrorCode = null
     },
 
     async loadNext(): Promise<void> {
@@ -339,6 +370,7 @@ export const useTrainingStore = defineStore('training', {
       const introduction = shown === 'flash' && this.card.card_kind === 'new'
       this.lastExercise = shown
       this.choiceResult = null
+      this.wordScore = null
       this.status = 'submitting'
       try {
         const res = await send(this.sessionId, wordId, timeSpent, serveToken, shown)
@@ -349,6 +381,7 @@ export const useTrainingStore = defineStore('training', {
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
         if (!introduction) this.recordOutcome(shown, selfGrade, res.graded ?? null)
+        this.noteScore(res.score ?? null)
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
           const doneReason = res.done_reason ?? null
@@ -434,6 +467,27 @@ export const useTrainingStore = defineStore('training', {
      * check: it neither goes on nor breaks the run. Nor does the introduction card of a new word (a flash card with its answer
      * open, `card_kind = new`; `submit` does not report it): "Got it" there answers no question.
      */
+    /**
+     * The chip of the word points of an answer (docs/32 §8.1): the points the weekly count got (`score.week`; the monthly one when only
+     * it counts on the v2 rules); the cap of the day (of both counts) - the one reason of "no points" worth a word - once a session. Every other reason
+     * (already today, early, the introduction of a word...) says nothing. The answer itself is not touched.
+     */
+    noteScore(score: WordScore | null): void {
+      if (score === null) {
+        this.wordScore = null
+        return
+      }
+      const points = score.week > 0 ? score.week : Math.max(0, score.month)
+      const day = score.today
+      // The day is at its cap only when the monthly count (`today_month`, sent when it differs from the weekly one) is full too: a
+      // Free week at its cap with a Pro month that still grows gets points.
+      const full = (count: WordScoreDay | null): boolean => count !== null && count.cap !== null && count.points >= count.cap
+      const atCap = full(day) && (score.today_month === null || full(score.today_month))
+      const capped = atCap && !this.scoreCapNoted
+      if (capped) this.scoreCapNoted = true
+      this.wordScore = points > 0 || capped ? { seq: (scoreSeq += 1), points, capped } : null
+    },
+
     recordOutcome(shown: ExerciseType, selfGrade: Quality | undefined, graded: Graded | null): void {
       if (shown === 'pretest') return
       const right = selfGrade !== undefined ? selfGrade >= 4 : graded?.correct
@@ -561,6 +615,8 @@ export const useTrainingStore = defineStore('training', {
       this.advanceWhenAnswered = false
       this.combo = 0
       this.bestCombo = 0
+      this.wordScore = null
+      this.scoreCapNoted = false
       this.startedAt = Date.now()
     },
 

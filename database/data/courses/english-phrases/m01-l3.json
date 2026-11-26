@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Благодарность",
+    "title_uz": "Minnatdorchilik"
+  },
+  "words": [
+    {
+      "word": "Thanks a lot",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "большое спасибо",
+        "uz": "katta rahmat"
+      },
+      "example": "Here's the book you wanted. — Thanks a lot!",
+      "example_translations": {
+        "ru": "Вот книга, которую ты хотел. — Большое спасибо!",
+        "uz": "Mana, sen so'ragan kitob. — Katta rahmat!"
+      },
+      "hooks": {
+        "ru": "Тёплое «спасибо» за помощь или подарок; с иронией значит «ну, спасибо»",
+        "uz": "Yordam yoki sovg'a uchun samimiy rahmat; kinoya bilan aytilsa, norozilik bildiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lot",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You're welcome",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пожалуйста",
+        "uz": "arzimaydi"
+      },
+      "example": "Thank you for your help! — You're welcome.",
+      "example_translations": {
+        "ru": "Спасибо за помощь! — Пожалуйста.",
+        "uz": "Yordamingiz uchun rahmat! — Arzimaydi."
+      },
+      "hooks": {
+        "ru": "Обычный ответ на «Thank you»; не путать с «добро пожаловать»",
+        "uz": "«Thank you» ga odatiy javob; «xush kelibsiz» bilan adashtirmang"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "welcome",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Don't mention it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не за что",
+        "uz": "rahmatga hojat yo'q"
+      },
+      "example": "Thanks for driving me home. — Don't mention it.",
+      "example_translations": {
+        "ru": "Спасибо, что подвёз меня домой. — Не за что.",
+        "uz": "Meni uyga olib borib qo'yganing uchun rahmat. — Rahmatga hojat yo'q."
+      },
+      "hooks": {
+        "ru": "Скромный ответ на благодарность: «это была мелочь»",
+        "uz": "Minnatdorchilikka kamtarona javob: «bu arzimas ish edi»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mention",
+        "literal": {
+          "ru": "не упоминай об этом",
+          "uz": "buni tilga olma"
+        },
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I owe you one",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я твой должник",
+        "uz": "sendan qarzdorman"
+      },
+      "example": "I finished the report for you. — Really? Thanks, I owe you one!",
+      "example_translations": {
+        "ru": "Я доделал за тебя отчёт. — Правда? Спасибо, я твой должник!",
+        "uz": "Hisobotni sening o'rningga tugatdim. — Rostdanmi? Rahmat, sendan qarzdorman!"
+      },
+      "hooks": {
+        "ru": "Говорят другу, который выручил: «помогу и тебе, когда понадобится»",
+        "uz": "Yordam bergan do'stga aytiladi: «kerak bo'lsa, men ham yordam beraman»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "owe",
+        "literal": {
+          "ru": "я должен тебе одну услугу",
+          "uz": "senga bitta yaxshilik qarzman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I really appreciate it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я очень признателен",
+        "uz": "bundan juda minnatdorman"
+      },
+      "example": "I can help you move on Saturday. — Thank you, I really appreciate it!",
+      "example_translations": {
+        "ru": "Я могу помочь тебе с переездом в субботу. — Спасибо, я очень признателен!",
+        "uz": "Shanba kuni ko'chishingga yordam bera olaman. — Rahmat, bundan juda minnatdorman!"
+      },
+      "hooks": {
+        "ru": "Серьёзная благодарность за помощь, время или заботу",
+        "uz": "Yordam, vaqt yoki g'amxo'rlik uchun jiddiy minnatdorchilik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "appreciate",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "No problem",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без проблем",
+        "uz": "muammo emas"
+      },
+      "example": "Thanks for waiting for me. — No problem!",
+      "example_translations": {
+        "ru": "Спасибо, что подождал меня. — Без проблем!",
+        "uz": "Meni kutganing uchun rahmat. — Muammo emas!"
+      },
+      "hooks": {
+        "ru": "Лёгкий ответ на благодарность или просьбу: мне было нетрудно",
+        "uz": "Rahmat yoki iltimosga yengil javob: menga qiyin emas edi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "problem",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Thanks anyway",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё равно спасибо",
+        "uz": "baribir rahmat"
+      },
+      "example": "Sorry, I don't know where the bank is. — Oh, OK. Thanks anyway.",
+      "example_translations": {
+        "ru": "Извините, я не знаю, где банк. — А, ладно. Всё равно спасибо.",
+        "uz": "Kechirasiz, bank qayerdaligini bilmayman. — Mayli. Baribir rahmat."
+      },
+      "hooks": {
+        "ru": "Благодарят за попытку помочь, даже если помочь не смогли",
+        "uz": "Yordam bera olmagan bo'lsa ham, urinish uchun rahmat aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "anyway",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That's very kind of you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "очень любезно с вашей стороны",
+        "uz": "siz juda mehribonsiz"
+      },
+      "example": "Let me carry your bag. — Oh, that's very kind of you.",
+      "example_translations": {
+        "ru": "Давайте я понесу вашу сумку. — О, очень любезно с вашей стороны.",
+        "uz": "Keling, sumkangizni ko'tarib beray. — Voy, siz juda mehribonsiz."
+      },
+      "hooks": {
+        "ru": "Вежливо благодарят малознакомого человека за помощь или предложение",
+        "uz": "Notanish odamga yordami yoki taklifi uchun xushmuomala rahmat aytish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "kind",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I can't thank you enough",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не знаю, как вас благодарить",
+        "uz": "sizga qanday rahmat aytishni bilmayman"
+      },
+      "example": "You found my passport! I can't thank you enough. — I'm glad I could help.",
+      "example_translations": {
+        "ru": "Вы нашли мой паспорт! Не знаю, как вас благодарить. — Рад, что смог помочь.",
+        "uz": "Pasportimni topibsiz! Sizga qanday rahmat aytishni bilmayman. — Yordam bera olganimdan xursandman."
+      },
+      "hooks": {
+        "ru": "Горячая благодарность за большую помощь",
+        "uz": "Katta yordam uchun chin dildan minnatdorchilik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "enough",
+        "literal": {
+          "ru": "я не могу поблагодарить вас достаточно",
+          "uz": "sizga yetarlicha rahmat ayta olmayman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "My pleasure",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне было приятно",
+        "uz": "men uchun mamnuniyat"
+      },
+      "example": "Thank you for the lovely dinner. — My pleasure. Come again soon!",
+      "example_translations": {
+        "ru": "Спасибо за чудесный ужин. — Мне было приятно. Приходите ещё!",
+        "uz": "Mazali kechki ovqat uchun rahmat. — Men uchun mamnuniyat. Yana keling!"
+      },
+      "hooks": {
+        "ru": "Тёплый вежливый ответ на благодарность: мне было приятно помочь",
+        "uz": "Minnatdorchilikka iliq va xushmuomala javob: yordam berish menga yoqdi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pleasure",
+        "literal": {
+          "ru": "моё удовольствие",
+          "uz": "mening zavqim"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

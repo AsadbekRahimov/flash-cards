@@ -92,12 +92,12 @@ it('requires authentication', function (): void {
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
-    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true, 'pairs_timed' => true], 'game.access' => 'off']);
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true, 'pairs_timed' => true], 'game.access' => 'off', 'billing.plans.free.limits.new_words_per_day' => 10]);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
         'due_count' => 0,
-        'new_words_remaining' => 20,
+        'new_words_remaining' => 10,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
         'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null],
         'active_course' => null,
@@ -113,6 +113,12 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
         // In no group of a center: `GET /assignments` is surely empty (docs/04 A.2a).
         'assignments_possible' => false,
+        // The plan of the day (docs/31 §5б): no course - no lesson to start, nothing studied today.
+        'plan' => [
+            'step' => null, 'done' => false,
+            'lesson' => ['done' => false, 'lesson_id' => null, 'next_lesson_id' => null, 'words_left' => null],
+            'training' => null, 'game' => null,
+        ],
     ]);
 });
 
@@ -294,8 +300,9 @@ it('describes the active course with its progress and the next lesson with new w
         'id' => $lessons[0]->stage?->course_id,
         'slug' => Course::query()->findOrFail($lessons[0]->stage?->course_id)->slug,
         'title' => 'Английский A1',
+        'section' => 'courses',
         'progress' => ['learned' => 0, 'total' => 4],
-        'next_lesson' => ['id' => $lessons[0]->id, 'stage' => 1, 'lesson' => 1, 'title' => 'Lesson 1'],
+        'next_lesson' => ['id' => $lessons[0]->id, 'stage' => 1, 'lesson' => 1, 'title' => 'Lesson 1', 'words_left' => 2],
     ]);
 
     // Lesson 1 fully served (one word learned, one only shown): the next lesson with new words is 2.
@@ -307,6 +314,16 @@ it('describes the active course with its progress and the next lesson with new w
         ->assertJsonPath('active_course.progress', ['learned' => 1, 'total' => 4])
         ->assertJsonPath('active_course.next_lesson.id', $lessons[1]->id)
         ->assertJsonPath('active_course.next_lesson.lesson', 2);
+});
+
+it('puts a phrase course into the section of phrases, as the catalog does, and costs no statement more', function (): void {
+    $lessons = todayCourse(1, 2, ['exam_tag' => 'phrases']);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.section', 'phrases');
+    // Warm: the same answer from the cached row of the course (its `exam_tag` is in it).
+    $warm = QueryLog::during(fn () => todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.section', 'phrases'));
+    expect(QueryLog::matching($warm, '/from ["`]courses["`]/'))->toBe([]);
 });
 
 it('reads the progress and the next lesson of the active course with ONE learner statement once the tree is warm', function (): void {
@@ -337,7 +354,7 @@ it('moves the next lesson on as the learner starts the words of a partly studied
 
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('active_course.progress', ['learned' => 2, 'total' => 6])
-        ->assertJsonPath('active_course.next_lesson', ['id' => $lessons['1.2']->id, 'stage' => 1, 'lesson' => 2, 'title' => $lessons['1.2']->title]);
+        ->assertJsonPath('active_course.next_lesson', ['id' => $lessons['1.2']->id, 'stage' => 1, 'lesson' => 2, 'title' => $lessons['1.2']->title, 'words_left' => 1]);
 
     Fx::learn($learner, [$words['1.2']['active'][1]], repetitions: 0);
     todayGet($this, $learner)->assertOk()
@@ -436,6 +453,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'hard_round' => null,
         'corrected' => null, // a corrected mistake is told on the finish of the round of hard words only
         'hard_round_offer' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
+        'lesson_review' => null, // the review of a lesson (docs/06 §15) only
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()->assertExactJson($expected);

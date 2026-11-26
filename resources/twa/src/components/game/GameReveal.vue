@@ -15,6 +15,7 @@ import { computed } from 'vue'
 import { isPracticeElement, practiceOutcomeOf } from '@/components/game/practiceAdapter'
 import AnswerReveal from '@/components/practice/AnswerReveal.vue'
 import StickyActions from '@/components/StickyActions.vue'
+import { isLongGameText } from '@/composables/phraseText'
 import { gameVerdictLabel } from '@/composables/practiceLabels'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -70,6 +71,9 @@ const prompt = computed((): { text: string; lang: string | undefined } | null =>
       return null
   }
 })
+
+/** A phrase (docs/35 §3.3 e) as the question again: a size smaller, wrapping by words. */
+const longPrompt = computed((): boolean => prompt.value !== null && isLongGameText(prompt.value.text))
 
 /** The word and its translation under the right answer, unless they only repeat it or the question (`apple` → `яблоко`, right answer `яблоко`). */
 const same = (a: string | null | undefined, b: string | null | undefined): boolean => (a ?? '').trim() === (b ?? '').trim()
@@ -138,7 +142,13 @@ function next(): void {
       <div class="flex flex-col gap-6 px-5 pt-6 pb-4 short:gap-3 short:pt-2" data-testid="word-reveal">
         <div v-if="prompt" class="flex flex-col items-center gap-1.5 text-center">
           <p class="text-[13px] leading-[18px] text-muted short:hidden">{{ t(`gameRun.task.${outcome.element.kind}` as StringKey) }}</p>
-          <p class="max-w-full text-[28px] leading-[34px] font-semibold tracking-[-0.3px] break-words short:text-[20px] short:leading-[26px]" :lang="prompt.lang" data-testid="reveal-prompt">{{ prompt.text }}</p>
+          <p
+            class="max-w-full font-semibold break-words"
+            :class="longPrompt ? 'text-[20px] leading-[26px] text-balance short:text-[18px] short:leading-6' : 'text-[28px] leading-[34px] tracking-[-0.3px] short:text-[20px] short:leading-[26px]'"
+            :lang="prompt.lang"
+            :data-long="longPrompt ? 'true' : undefined"
+            data-testid="reveal-prompt"
+          >{{ prompt.text }}</p>
         </div>
 
         <ul v-if="options.length > 0" class="flex flex-col gap-2.5 short:gap-2" data-testid="reveal-options">

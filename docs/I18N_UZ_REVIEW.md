@@ -1,5 +1,79 @@
 # Узбекские строки интерфейса — на проверку носителю
 
+## «Область / Viloyat» и сегмент «Неделя / Hafta» (26 ноября 2026 года) — не проверено носителем
+
+Решение владельца: место ученика для рейтинга называется **областью** (uz «viloyat»), а не регионом («hudud»); первый сегмент вкладки рейтинга (таблица недели) — «Неделя» / «Hafta» вместо «Лига» / «Liga» (новый ключ `league.tab`; `league.title` «Liga» остаётся там, где речь о самой лиге). Ключи, `region_code` и `scope=region` не менялись. В списке есть «Toshkent shahri», «Qoraqalpog'iston Respublikasi» и «Boshqa davlat», поэтому фразы с названием не ставят перед ним слово «viloyat»: ««{name}» jadvali», «Saqlandi: :region.». «Xavfli hudud» (`settings.group.danger`, «опасная зона») — не про область, не менялось. Носителю проверить: аффиксы «viloyatingiz», «viloyatingizni», «viloyatim»; ««{name}» reytingida — {rank}-o'rin»; «Hafta» как подпись сегмента.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `onboarding.steps.region` | Qayerda yashaysiz? Bu viloyatingiz reytingi uchun kerak. | Где вы живёте? Это нужно для рейтинга вашей области. |
+| `onboarding.steps.region_list` | Viloyatingizni tanlang | Выберите вашу область |
+| `onboarding.settings.region_saved` | Saqlandi: :region. | Сохранено: :region. |
+| `onboarding.settings.region_none` | viloyat ko'rsatilmagan | область не указана |
+| `onboarding.settings.region_too_soon` | Viloyatni 30 kunda bir marta o'zgartirish mumkin. Viloyatni :date dan boshlab o'zgartirishingiz mumkin. | Область можно менять раз в 30 дней. Сменить область можно с :date. |
+| `onboarding.settings.region_reverted` | Avvalgi viloyat tiklandi. | Прежняя область возвращена. |
+| `onboarding.settings.region_revert_unavailable` | Viloyat o'zgarishini endi bekor qilib bo'lmaydi: … | Отменить смену области уже нельзя: … |
+| `onboarding.settings.buttons.region` | Viloyat | Область |
+| `league.tab` | Hafta | Неделя (первый сегмент вкладки рейтинга) |
+| `board.area.mine` | Mening viloyatim | Моя область |
+| `board.area.other` | Boshqa viloyat… | Другая область… |
+| `board.region_rank` | «{name}» reytingida — {rank}-o'rin | В рейтинге «{name}» — {rank} место |
+| `board.read_only_region` | Bu «{name}» jadvali. Siz «{mine}» jadvalida bellashyapsiz. | Это таблица «{name}». Вы соревнуетесь в таблице «{mine}». |
+| `board.read_only_region_none` | Bu «{name}» jadvali. Siz viloyatingizni ko'rsatmagansiz. | Это таблица «{name}». Вы не указали свою область. |
+| `board.region_card.title` | Qatnashish uchun viloyatingizni ko'rsating | Укажите область, чтобы участвовать |
+| `board.below.title.one/other` | «{name}» jadvalida hozircha {count} tadan {participants} ishtirokchi bor | В таблице «{name}» пока {participants} из {count} участников |
+| `region.sheet.view_title` | Qaysi viloyat jadvali? | Таблица какой области? |
+| `region.sheet.view_pick` | Viloyatni tanlang | Выберите область |
+| `settings.region` | Viloyat | Область |
+| `settings.region.hint` | Viloyatingiz reytingi uchun kerak. Viloyatni 30 kunda bir marta o'zgartirish mumkin. | Нужна для рейтинга вашей области. Сменить область можно раз в 30 дней. |
+| `settings.region.next_change` | Viloyatni {date} dan boshlab o'zgartirish mumkin. | Сменить область можно с {date}. |
+| `region.sheet.lead` | Bu viloyatingiz reytingi uchun kerak. | Это нужно для рейтинга вашей области. |
+| `region.sheet.pick` | Viloyatingizni tanlang | Выберите вашу область |
+| `region.prompt.title` | Viloyatingizni ko'rsating | Укажите область |
+| `region.prompt.text` | Viloyatingiz reytingi paydo bo'ladi. | Появится рейтинг вашей области. |
+| `region.prompt.choose` | Viloyatni tanlash | Выбрать область |
+| `error.code.region_change_too_soon` | Viloyatni 30 kunda bir marta o'zgartirish mumkin. | Область можно менять раз в 30 дней. |
+| `error.code.region_revert_unavailable` | Viloyat o'zgarishini endi bekor qilib bo'lmaydi: … | Отменить смену области уже нельзя: … |
+
+## Переименование LexiFlow → Muhrla (25 ноября 2026 года)
+
+Решение владельца (docs/31 §5г, docs/36 §5): продукт и тариф называются «Muhrla» и «Muhrla Pro». Слово заменено прямой заменой во всех строках `lang/uz/*.php` и `resources/twa/src/i18n/uz.ts` (и в таблицах ниже). Тест-страж (`tests/Feature/BrandTest.php`, `resources/twa/src/__tests__/brand.spec.ts`) не пускает старое название обратно.
+
+Формы с аффиксом вычитаны по одной. «Muhrla» оканчивается на гласную, а узбекские аффиксы `-da`, `-dagi`, `-ni`, `-ga`, `-ning` после гласной не меняются (`-ga` → `-ka`/`-qa` только после `k`/`q`), поэтому окончания остались прежними; апостроф перед аффиксом сохранён, как у прочих иностранных имён собственных (`Pro'ni`). Носителю проверить: читается ли «Muhrla» как имя, а не как глагол «muhrla» (повелительное «запечатай»), и не лучше ли писать аффикс слитно (`Muhrlada`).
+
+| Ключ | Форма | Фрагмент |
+|---|---|---|
+| `achievements.items.first_friend.description` | Muhrla'da | Muhrla'da birinchi do'st paydo bo'ldi |
+| `achievements.share_text` | Muhrla'da | Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini… |
+| `billing.return.open_bot` | Muhrla'ga | Muhrla'ga qaytish |
+| `friends.incoming.text` | Muhrla'da | :name sizni Muhrla'da do'st sifatida qo'shmoqchi. |
+| `friends.dm.button` | Muhrla'ni | Muhrla'ni ochish |
+| `game.card.share_text` | Muhrla'ning | Men Muhrla'ning «Karvon» o'yinida yetib keldim: :city! Telegramd… |
+| `onboarding.course_link.text` | Muhrla'da | «:course» kursi Muhrla'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz… |
+| `onboarding.today.empty` | Muhrla'ni | …ngi so'zlarni o'rganish uchun Muhrla'ni oching. |
+| `onboarding.today.button` | Muhrla'ni | Muhrla'ni ochish |
+| `org.members.invitations.description` | Muhrla'da | …ladi. Kabinet bunday o'quvchi Muhrla'da bor-yo'qligini va u nima deb javob berganini ko'rs… |
+| `org.members.notifications.invited` | Muhrla'da | Agar bunday o'quvchi Muhrla'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'… |
+| `organizations.offer.text` | Muhrla'ga | …nization» o'quv markazi sizni Muhrla'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini… |
+| `organizations.invite.text` | Muhrla'dagi | …lifni qabul qilsangiz, markaz Muhrla'dagi faolligingizni ko'ra oladi. Bo'sh o'rin bo'lsa, … |
+| `organizations.joined.button` | Muhrla'ni | Muhrla'ni ochish |
+| `organizations.seated.button` | Muhrla'ni | Muhrla'ni ochish |
+| `referrals.invite.text` | Muhrla'ga | Do'stlaringizni Muhrla'ga taklif qiling — Pro'ni bepul oling.  :rule  :progr… |
+| `referrals.invite.text_plain` | Muhrla'ga | Do'stlaringizni Muhrla'ga taklif qiling.  Hozircha takliflar uchun mukofot b… |
+| `referrals.invite.share_text` | Muhrla'da | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, birinchi … |
+| `referrals.invite.share_text_plain` | Muhrla'da | Muhrla'da ingliz tilini o'rganyapman — qo'shiling! |
+| `reminders.review` | Muhrla'da | Muhrla'da :count ta so'zni takrorlash vaqti keldi.  Eslatma … |
+| `reminders.never_started` | Muhrla'da | Siz Muhrla'da hali shug'ullanishni boshlamadingiz. Birinchi mash… |
+| `reminders.new_words` | Muhrla'da | Bugun Muhrla'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli.  E… |
+| `reminders.choose_course` | Muhrla'da | …hug'ullanishni boshlash uchun Muhrla'da kursni tanlang.  Eslatma vaqtini o'zgartirish yoki… |
+| `reminders.open_button` | Muhrla'ni | Muhrla'ni ochish |
+| `reminders.quiz.lead.review` | Muhrla'da | Muhrla'da :count ta so'zni takrorlash vaqti keldi. Birinchis… |
+| `reminders.quiz.open_more` | Muhrla'ni | Muhrla'ni ochish |
+| `referrals.share_text` | Muhrla'da | Muhrla'da ingliz tilini o'rganyapman. Havola orqali kiring —… |
+| `friends.invite.share_text` | Muhrla'da | Muhrla'da do'st bo'laylik! Kim ko'proq so'z o'rganarkin? |
+
+Без аффикса (только замена слова, 58 строк): `billing.offer_dm.text`, `billing.offer_dm.text_generic`, `billing.pro.status_pro_until`, `billing.pro.status_pro_forever`, `billing.pro.soon`, `billing.pro.contact`, `billing.pro.errors.already_perpetual`, `billing.paysupport.with_contact`, `billing.paysupport.without_contact`, `billing.stars.invoice.title`, `billing.stars.invoice.label`, `billing.stars.invoice.description_month`, `billing.stars.invoice.description_year`, `billing.stars.invoice.description_month_practice`, `billing.stars.invoice.description_year_practice`, `billing.stars.invoice.description_month_practice_solo`, `billing.stars.invoice.description_year_practice_solo`, `billing.stars.invoice.description_quarter`, `billing.stars.invoice.description_quarter_practice`, `billing.stars.invoice.description_quarter_practice_solo`, `billing.stars.paid`, `billing.stars.renewed`, `billing.stars.paid_forever`, `billing.renewal.dm`, `billing.renewal.trial_dm`, `billing.renewal.mail.body`, `billing.payme.receipt_item`, `billing.return.paid.text`, `bot.help.private`, `bot.help.private_teacher`, `bot.help.group`, `bot.group.welcome`, `bot.group.bot_not_admin`, `bot.link.account_prompt_no_center`, `bot.link.group_next_pending`, `bot.delete_account.confirm`, `bot.promo.success_until`, `bot.promo.success_forever`, `friends.accepted`, `landing.meta.title`, `landing.meta.description`, `landing.how.lead`, `landing.features.title`, `landing.footer.tagline`, `legal.contact_fallback`, `legal.offer.sections.0.text`, `legal.privacy.sections.0.text`, `onboarding.welcome`, `org.invoice.service`, `org.mail.invitation.intro`, `reminders.inactive`, `reminders.inactive_due`, `reminders.quiz.lead.inactive`, `stats.title`, `landing.outside_telegram`, `paywall.contact`, `billing.plan.pro`, `gameRun.summary.card_caption`.
+
 ## Редактура от 20 ноября 2026 года
 
 | Сценарий | Что изменилось |
@@ -29,11 +103,11 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
-| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br>• /delete_account — akkauntni o'chirish<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br>• /delete_account — удалить аккаунт<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
-| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
-| `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
-| `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
+| `bot.start.greeting` | Salom, :name! Siz Muhrla o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель Muhrla. Команды в группе: /help |
+| `bot.help.private` | Muhrla — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «Muhrla» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br>• /delete_account — akkauntni o'chirish<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng Muhrla administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | Muhrla — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «Muhrla» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br>• /delete_account — удалить аккаунт<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора Muhrla активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
+| `bot.help.group` | Muhrla guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | Muhrla в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, Muhrla to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и Muhrla работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
+| `bot.stats.not_linked` | Bu Telegram akkaunt Muhrla o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю Muhrla.<br>Ваш Telegram ID: :id |
 | `errors.teacher_not_linked` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. | Ваш Telegram-аккаунт не привязан к учителю. |
 | `errors.teacher_not_linked_ask_admin` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. Administratordan sizni qo'shishini so'rang. | Ваш Telegram-аккаунт не привязан к учителю. Попросите админа добавить вас. |
 | `errors.group_inactive` | Guruh faollashtirilmagan. Administratordan uni /admin orqali faollashtirishini so'rang. | Группа не активирована. Попросите админа активировать её в /admin. |
@@ -56,10 +130,10 @@
 | `exam.open_button` | 🏁 Imtihonni ochish | 🏁 Открыть экзамен |
 | `exam.leaderboard.title` | 🏁 <b>Imtihon natijalari</b><br>Dars :lesson | 🏁 <b>Итоги экзамена</b><br>Урок :lesson |
 | `exam.leaderboard.nobody` | Hech kim javob bermadi 😅 | Никто не ответил 😅 |
-| `reminders.review` | LexiFlow'da :count ta so'zni takrorlash vaqti keldi. | Пора повторить :count слово в LexiFlow.\|Пора повторить :count слова в LexiFlow.\|Пора повторить :count слов в LexiFlow. |
-| `reminders.open_button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `reminders.review` | Muhrla'da :count ta so'zni takrorlash vaqti keldi. | Пора повторить :count слово в Muhrla.\|Пора повторить :count слова в Muhrla.\|Пора повторить :count слов в Muhrla. |
+| `reminders.open_button` | Muhrla'ni ochish | Открыть Muhrla |
 | `stats.no_groups` | Sizda hozircha biriktirilgan guruhlar yo'q.<br>Administratordan guruhni /admin orqali biriktirishini so'rang. | У вас пока нет привязанных групп.<br>Попросите администратора привязать группу в /admin. |
-| `stats.title` | 📊 LexiFlow statistikasi (so'nggi 7 kun) | 📊 Статистика LexiFlow за 7 дней |
+| `stats.title` | 📊 Muhrla statistikasi (so'nggi 7 kun) | 📊 Статистика Muhrla за 7 дней |
 | `stats.groups` | Guruhlar: :count | Групп: :count |
 | `stats.learners` | Faol o'quvchilar: :count | Активных студентов: :count |
 | `stats.reviews` | Kartochkalarni takrorlashlar: :count | Повторений карточек: :count |
@@ -94,8 +168,8 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `landing.meta.title` | LexiFlow - Telegram orqali inglizcha so'zlarni o'rganing | LexiFlow — английский слово за словом в Telegram |
-| `landing.meta.description` | LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so'zlarni o'rganing. Bepul: :free. | LexiFlow — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: :free. |
+| `landing.meta.title` | Muhrla - Telegram orqali inglizcha so'zlarni o'rganing | Muhrla — английский слово за словом в Telegram |
+| `landing.meta.description` | Muhrla - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so'zlarni o'rganing. Bepul: :free. | Muhrla — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: :free. |
 | `landing.nav.how` | Qanday ishlaydi | Как это работает |
 | `landing.nav.pricing` | Tariflar | Тарифы |
 | `landing.nav.teachers` | O'quv markazlari uchun | Для центров |
@@ -145,7 +219,7 @@
 | `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
 | `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
 | `landing.pricing.centers.contact` | Markazni ulash: | Подключить центр: |
-| `landing.footer.tagline` | LexiFlow - Telegramda ingliz tili. | LexiFlow — английский в Telegram. |
+| `landing.footer.tagline` | Muhrla - Telegramda ingliz tili. | Muhrla — английский в Telegram. |
 | `landing.footer.contact` | Qo'llab-quvvatlash: | Поддержка: |
 | `landing.footer.language` | Til | Язык |
 | `landing.footer.legal_label` | Hujjatlar | Документы |
@@ -247,8 +321,8 @@
 | `bot.promo.use_private` | Promokodni guruhda ko'rsatmaslik yaxshi. Bot bilan shaxsiy chatni oching va /promo KOD yuboring. | Промокод лучше не показывать в группе. Откройте личный чат с ботом и отправьте /promo КОД. |
 | `bot.promo.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
 | `bot.promo.rate_limited` | Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring. | Слишком много попыток. Подождите минуту и повторите. |
-| `bot.promo.success_until` | Tayyor! LexiFlow Pro :date gacha faol. | Готово! LexiFlow Pro активен до :date. |
-| `bot.promo.success_forever` | Tayyor! LexiFlow Pro muddatsiz faol. | Готово! LexiFlow Pro активен без ограничения по сроку. |
+| `bot.promo.success_until` | Tayyor! Muhrla Pro :date gacha faol. | Готово! Muhrla Pro активен до :date. |
+| `bot.promo.success_forever` | Tayyor! Muhrla Pro muddatsiz faol. | Готово! Muhrla Pro активен без ограничения по сроку. |
 | `bot.promo.errors.promo_not_found` | Promokod topilmadi. Xato yozilmaganini tekshiring. | Промокод не найден. Проверьте, нет ли опечатки. |
 | `bot.promo.errors.promo_expired` | Promokodning amal qilish muddati tugagan. | Срок действия промокода истёк. |
 | `bot.promo.errors.promo_exhausted` | Bu promokoddan foydalanish limiti tugagan. | Этим промокодом уже воспользовалось максимальное число людей. |
@@ -273,7 +347,7 @@
 | `paywall.free.many` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
 | `paywall.free.other` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
 | `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
-| `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
+| `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan Muhrla Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить Muhrla Pro: |
 | `paywall.dismiss` | Tushunarli | Понятно |
 | `paywall.open` | Pro haqida bilib oling | Узнать о Pro |
 | `error.code.promo_not_found` | Promokod topilmadi. Xato yozilmaganini tekshiring. | Промокод не найден. Проверьте, нет ли опечатки. |
@@ -326,11 +400,11 @@
 | `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Ваш курс: :course. Нажмите кнопку — первая тренировка займёт пару минут. |
 | `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Нажмите кнопку — первая тренировка займёт пару минут. |
 | `onboarding.done.button` | 🎯 Birinchi mashg'ulotni boshlash | 🎯 Начать первую тренировку |
-| `onboarding.course_link.text` | «:course» kursi LexiFlow'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi. | Курс «:course» доступен в LexiFlow. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете. |
+| `onboarding.course_link.text` | «:course» kursi Muhrla'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi. | Курс «:course» доступен в Muhrla. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете. |
 | `onboarding.course_link.button` | Kursni ochish | Открыть курс |
 | `onboarding.today.due` | Bugun takrorlash uchun: :count ta so'z. | Сегодня к повторению: :count слово.\|Сегодня к повторению: :count слова.\|Сегодня к повторению: :count слов. |
-| `onboarding.today.empty` | Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching. | На сегодня повторений нет. Откройте LexiFlow, чтобы выучить новые слова. |
-| `onboarding.today.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `onboarding.today.empty` | Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun Muhrla'ni oching. | На сегодня повторений нет. Откройте Muhrla, чтобы выучить новые слова. |
+| `onboarding.today.button` | Muhrla'ni ochish | Открыть Muhrla |
 | `onboarding.menu.text` | Keyingi qadam?<br>/today — bugungi mashg'ulot<br>/settings — sozlamalar<br>/promo KOD — Pro uchun promokod<br>/help — yordam | Что дальше?<br>/today — занятие на сегодня<br>/settings — настройки<br>/promo КОД — промокод на Pro<br>/help — справка |
 | `onboarding.settings.menu` | Nimani o'zgartirmoqchisiz? | Что хотите изменить? |
 | `onboarding.settings.saved` | Saqlandi. | Сохранено. |
@@ -686,11 +760,11 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `billing.stars.invoice.title` | LexiFlow Pro — :period | LexiFlow Pro — :period |
-| `billing.stars.invoice.label` | LexiFlow Pro, :period | LexiFlow Pro, :period |
-| `billing.stars.invoice.description_month` | LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка LexiFlow Pro: новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
-| `billing.stars.invoice.description_year` | LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
-| `billing.stars.invoice.description_quarter` | LexiFlow Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.title` | Muhrla Pro — :period | Muhrla Pro — :period |
+| `billing.stars.invoice.label` | Muhrla Pro, :period | Muhrla Pro, :period |
+| `billing.stars.invoice.description_month` | Muhrla Pro obunasi: yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка Muhrla Pro: новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
+| `billing.stars.invoice.description_year` | Muhrla Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | Muhrla Pro на 1 год (365 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter` | Muhrla Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | Muhrla Pro на 3 месяца (90 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 | `billing.stars.precheckout.order_not_found` | Hisob topilmadi. /pro ni oching va yangisini yarating. | Счёт не найден. Откройте /pro и создайте новый. |
 | `billing.stars.precheckout.foreign` | Bu hisob boshqa foydalanuvchiga yozilgan. /pro ni oching va o'zingiznikini yarating. | Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой. |
 | `billing.stars.precheckout.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport. | Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport. |
@@ -700,23 +774,22 @@
 | `billing.stars.precheckout.provider_disabled` | Telegram Stars orqali to'lov hozir mavjud emas. /pro da boshqa usulni tanlang. | Оплата Telegram Stars сейчас недоступна. Выберите другой способ в /pro. |
 | `billing.stars.precheckout.already_subscribed` | Sizda Telegram Stars avtoyangilash allaqachon yoqilgan — ikkinchi hisob kerak emas. /pro ni oching: u yerda uni o'chirish mumkin. | У вас уже включено автопродление Telegram Stars — второй счёт не нужен. Откройте /pro: там его можно отключить. |
 | `billing.stars.precheckout.unavailable` | Xizmat vaqtincha ishlamayapti. Bir daqiqadan keyin urinib ko'ring. | Сервис временно недоступен. Попробуйте через минуту. |
-| `billing.stars.paid` | To'lov qabul qilindi! LexiFlow Pro :date gacha faol. | Оплата получена! LexiFlow Pro активен до :date. |
-| `billing.stars.renewed` | Obuna yangilandi: LexiFlow Pro :date gacha faol. | Подписка продлена: LexiFlow Pro активен до :date. |
-| `billing.stars.paid_forever` | To'lov qabul qilindi! Sizda LexiFlow Pro muddatsiz. | Оплата получена! У вас LexiFlow Pro без ограничения по сроку. |
-| `billing.stars.open_button` | LexiFlow ni ochish | Открыть LexiFlow |
+| `billing.stars.paid` | To'lov qabul qilindi! Muhrla Pro :date gacha faol. | Оплата получена! Muhrla Pro активен до :date. |
+| `billing.stars.renewed` | Obuna yangilandi: Muhrla Pro :date gacha faol. | Подписка продлена: Muhrla Pro активен до :date. |
+| `billing.stars.paid_forever` | To'lov qabul qilindi! Sizda Muhrla Pro muddatsiz. | Оплата получена! У вас Muhrla Pro без ограничения по сроку. |
 | `billing.stars.paid_unresolved` | To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Biz aniqlab, Pro ni yoqamiz yoki Stars ni qaytaramiz. Tezlashtirish uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport. |
 | `billing.stars.refunded` | :amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi. | Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён. |
-| `billing.renewal.dm` | {1} LexiFlow Pro ertaga tugaydi (:date).\|[2,*] LexiFlow Pro :count kundan keyin tugaydi (:date). | {1} LexiFlow Pro заканчивается завтра (:date).\|[2,*] LexiFlow Pro заканчивается через :count дн. (:date). |
+| `billing.renewal.dm` | {1} Muhrla Pro ertaga tugaydi (:date).\|[2,*] Muhrla Pro :count kundan keyin tugaydi (:date). | {1} Muhrla Pro заканчивается завтра (:date).\|[2,*] Muhrla Pro заканчивается через :count дн. (:date). |
 | `billing.renewal.org_dm` | {1} «:organization» markazining obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date). | {1} Подписка центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка центра «:organization» заканчивается через :count дн. (:date). |
 | `billing.renewal.hint` | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang. | Продлите заранее, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.hint_canceled` | Avtoyangilash o'chirilgan, shuning uchun Pro o'zi yangilanmaydi. Cheklovsiz imkoniyatni yo'qotmaslik uchun oldindan yangilang. | Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит. |
-| `billing.renewal.trial_dm` (2C.9, черновик) | {1} Sinov LexiFlow Pro ertaga tugaydi (:date).\|[2,*] Sinov LexiFlow Pro :count kundan keyin tugaydi (:date). | {1} Пробный LexiFlow Pro заканчивается завтра (:date).\|[2,*] Пробный LexiFlow Pro заканчивается через :count дн. (:date). |
+| `billing.renewal.trial_dm` (2C.9, черновик) | {1} Sinov Muhrla Pro ertaga tugaydi (:date).\|[2,*] Sinov Muhrla Pro :count kundan keyin tugaydi (:date). | {1} Пробный Muhrla Pro заканчивается завтра (:date).\|[2,*] Пробный Muhrla Pro заканчивается через :count дн. (:date). |
 | `billing.renewal.hint_trial` (2C.9, черновик) | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun Pro'ni rasmiylashtiring. | Оформите Pro, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.org_hint` | Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo'ladi. | После окончания у участников центра снова будет тариф Free. |
 | `billing.renewal.button` | Pro'ni uzaytirish | Продлить Pro |
 | `billing.renewal.mail.subject` | {1} «:organization» markazining obunasi ertaga tugaydi\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi | {1} Подписка центра «:organization» заканчивается завтра\|[2,*] Подписка центра «:organization» заканчивается через :count дн. |
 | `billing.renewal.mail.greeting` | Assalomu alaykum! | Здравствуйте! |
-| `billing.renewal.mail.body` | {1} «:organization» markazining LexiFlow Pro obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining LexiFlow Pro obunasi :count kundan keyin tugaydi (:date). | {1} Подписка LexiFlow Pro центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка LexiFlow Pro центра «:organization» заканчивается через :count дн. (:date). |
+| `billing.renewal.mail.body` | {1} «:organization» markazining Muhrla Pro obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining Muhrla Pro obunasi :count kundan keyin tugaydi (:date). | {1} Подписка Muhrla Pro центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка Muhrla Pro центра «:organization» заканчивается через :count дн. (:date). |
 | `billing.renewal.mail.keep` | Markaz o'quvchilari Pro ni yo'qotmasligi uchun obunani oldindan yangilang. Tugagach, ularda yana Free tarifi bo'ladi. | Чтобы ученики центра не потеряли Pro, продлите подписку заранее. После окончания у них снова будет тариф Free. |
 | `billing.renewal.mail.action` | Markaz kabinetini ochish | Открыть кабинет центра |
 | `billing.renewal.mail.contact` | To'lov bo'yicha savollar: :contact | Вопросы по оплате: :contact |
@@ -727,9 +800,9 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `billing.payme.receipt_item` | LexiFlow Pro — :period | LexiFlow Pro — :period |
+| `billing.payme.receipt_item` | Muhrla Pro — :period | Muhrla Pro — :period |
 | `billing.return.title` | To'lov holati | Статус оплаты |
-| `billing.return.open_bot` | LexiFlow'ga qaytish | Вернуться в LexiFlow |
+| `billing.return.open_bot` | Muhrla'ga qaytish | Вернуться в Muhrla |
 | `billing.return.note` | Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi. | Эту страницу можно закрыть: статус оплаты виден в боте и в приложении. |
 | `billing.return.support` | To'lov bo'yicha savollar: | Вопросы по оплате: |
 
@@ -741,7 +814,7 @@
 | `billing.report.net_cash` | Pul harakatining sof natijasi :currency | Чистое движение денег :currency |
 | `billing.report.description` | To'lovlar: :charges, brutto :gross · qaytarishlar (qaytarilgan sana bo'yicha): :refund_count, :refunds · kogorta netto (davr to'lovlari ulardan qaytarilganini ayirib): :cohort | Платежи: :charges, брутто :gross · возвраты (по дате возврата): :refund_count, :refunds · когортный нетто (платежи периода за вычетом их возвратов): :cohort |
 | `billing.return.paid.heading` | To'lov qabul qilindi | Оплата получена |
-| `billing.return.paid.text` | LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi. | LexiFlow Pro активирован. Вернитесь в бот или откройте приложение — доступ уже работает. |
+| `billing.return.paid.text` | Muhrla Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi. | Muhrla Pro активирован. Вернитесь в бот или откройте приложение — доступ уже работает. |
 | `billing.return.pending.heading` | To'lov tasdiqlanishini kutmoqdamiz | Ждём подтверждение оплаты |
 | `billing.return.pending.text` | To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi. | Платёж обрабатывается. Обычно это занимает меньше минуты; Pro включится автоматически, как только Payme подтвердит оплату. |
 | `billing.return.expired.heading` | Hisob muddati o'tdi | Срок счёта истёк |
@@ -764,12 +837,12 @@
 | `billing.pro.rate_limited` | Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring. | Слишком много попыток. Подождите минуту и повторите. |
 | `billing.pro.status_free` | Hozir sizda Free tarif: kuniga :count ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: :count новых слов в день, повторения без лимита. |
 | `billing.pro.status_free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения без лимита. |
-| `billing.pro.status_pro_until` | Sizda LexiFlow Pro :date gacha. | У вас LexiFlow Pro до :date. |
-| `billing.pro.status_pro_forever` | Sizda LexiFlow Pro muddatsiz. | У вас LexiFlow Pro без ограничения по сроку. |
+| `billing.pro.status_pro_until` | Sizda Muhrla Pro :date gacha. | У вас Muhrla Pro до :date. |
+| `billing.pro.status_pro_forever` | Sizda Muhrla Pro muddatsiz. | У вас Muhrla Pro без ограничения по сроку. |
 | `billing.pro.renewal_auto` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
 | `billing.pro.renewal_canceled` | Avtoyangilash o'chirilgan — Pro to'langan davr oxirigacha amal qiladi. | Автопродление отключено — Pro действует до конца оплаченного периода. |
-| `billing.pro.soon` | LexiFlow Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring. | LexiFlow Pro скоро откроется. Есть промокод? Отправьте /promo КОД. |
-| `billing.pro.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: :contact | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: :contact |
+| `billing.pro.soon` | Muhrla Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring. | Muhrla Pro скоро откроется. Есть промокод? Отправьте /promo КОД. |
+| `billing.pro.contact` | Markazda o'qiysizmi? Markaz administratoridan Muhrla Pro'ni ulashni so'rang: :contact | Учитесь в центре? Попросите администратора центра подключить Muhrla Pro: :contact |
 | `billing.pro.choose` | Muddat va to'lov usulini tanlang: | Выберите срок и способ оплаты: |
 | `billing.pro.price_line` | :period — :prices | :period — :prices |
 | `billing.pro.offer` | Birinchi to'lovga :pct% chegirma :date gacha amal qiladi. | Скидка :pct% на первый платёж действует до :date. |
@@ -784,7 +857,7 @@
 | `billing.pro.errors.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
 | `billing.pro.errors.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
 | `billing.pro.errors.checkout_conflict` | Sizda Telegram Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni /pro orqali o'chiring. | У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем оформлять новую оплату. |
-| `billing.pro.errors.already_perpetual` | Sizda LexiFlow Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас уже есть LexiFlow Pro без ограничения по сроку — оплачивать ничего не нужно. |
+| `billing.pro.errors.already_perpetual` | Sizda Muhrla Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас уже есть Muhrla Pro без ограничения по сроку — оплачивать ничего не нужно. |
 | `billing.pro.errors.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang. | Pro уже оплачен на длительный срок. Подписку Stars можно оформить ближе к окончанию — в последние дни; пока выберите разовую оплату на год. |
 | `billing.pro.errors.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `billing.pro.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
@@ -797,8 +870,8 @@
 | `billing.pro.errors.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
 | `billing.pro.errors.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
 | `billing.pro.errors.generic` | Amalni bajarib bo'lmadi. Keyinroq urinib ko'ring yoki qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Не получилось выполнить действие. Попробуйте позже или напишите в поддержку: /paysupport. |
-| `billing.paysupport.with_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact<br>Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Вопросы по оплате, возвраты и отмена подписки: :contact<br>Опишите проблему и приложите чек или номер платежа. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
-| `billing.paysupport.without_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Контакт поддержки пока не указан. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.paysupport.with_contact` | Muhrla to'lovlar bo'yicha yordam.<br><br>To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact<br>Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка Muhrla.<br><br>Вопросы по оплате, возвраты и отмена подписки: :contact<br>Опишите проблему и приложите чек или номер платежа. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.paysupport.without_contact` | Muhrla to'lovlar bo'yicha yordam.<br><br>Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка Muhrla.<br><br>Контакт поддержки пока не указан. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
 | `billing.period.month` | 1 oy | 1 месяц |
 | `billing.period.quarter` | 3 oy | 3 месяца |
 | `billing.period.year` | 1 yil | 1 год |
@@ -812,7 +885,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `paywall.title_purchase` | LexiFlow Pro | LexiFlow Pro |
+| `paywall.title_purchase` | Muhrla Pro | Muhrla Pro |
 | `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari. | Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты. |
 | `billing.title` | Obuna | Подписка |
 | `billing.period.month` | Oy | Месяц |
@@ -837,7 +910,7 @@
 | `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Profil → Obuna» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в разделе «Профиль → Подписка». |
 | `billing.perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас Pro без ограничения по сроку — оплачивать ничего не нужно. |
 | `billing.plan.free` | Bepul tarif | Бесплатный тариф |
-| `billing.plan.pro` | LexiFlow Pro | LexiFlow Pro |
+| `billing.plan.pro` | Muhrla Pro | Muhrla Pro |
 | `billing.sponsored` | Pro'ni markazingiz ulagan. | Pro подключён вашим центром. |
 | `billing.until` | {date} gacha amal qiladi. | Действует до {date} |
 | `billing.forever` | Muddatsiz. | Без ограничения по сроку. |
@@ -881,16 +954,16 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `organizations.offer.text` | «:organization» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi? | Учебный центр «:organization» приглашает вас в LexiFlow. Вступить, чтобы получить Pro от центра? |
+| `organizations.offer.text` | «:organization» o'quv markazi sizni Muhrla'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi? | Учебный центр «:organization» приглашает вас в Muhrla. Вступить, чтобы получить Pro от центра? |
 | `organizations.offer.join` | Qo'shilish | Вступить |
 | `organizations.offer.skip` | Hozir emas | Не сейчас |
 | `organizations.already` | Siz allaqachon «:organization» markazidasiz. | Вы уже в центре «:organization». |
 | `organizations.skipped` | Mayli. Markaz havolasi orqali istalgan vaqtda qo'shilishingiz mumkin. | Хорошо. Вступить можно в любой момент по ссылке центра. |
 | `organizations.joined.seated` | Siz «:organization» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning. | Вы в центре «:organization». Pro активен — занимайтесь без ограничений. |
 | `organizations.joined.waitlisted` | Siz «:organization» markazidasiz, lekin hozircha bo'sh joy yo'q. Markaz administratoriga murojaat qiling — joy bo'shashi bilan Pro avtomatik yoqiladi. | Вы в центре «:organization», но свободных мест пока нет. Сообщите администратору центра — как только место освободится, Pro включится автоматически. |
-| `organizations.joined.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.joined.button` | Muhrla'ni ochish | Открыть Muhrla |
 | `organizations.seated.text` | «:organization» markazida siz uchun joy bo'shadi. Pro faol! | В центре «:organization» освободилось место для вас. Pro активен! |
-| `organizations.seated.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.seated.button` | Muhrla'ni ochish | Открыть Muhrla |
 | `organizations.errors.invite_invalid` | Markaz havolasi yaroqsiz yoki o'chirilgan. Administratordan yangisini so'rang. | Ссылка центра недействительна или отключена. Попросите у администратора новую. |
 | `organizations.errors.invite_expired` | Markaz havolasining amal qilish muddati tugagan. Administratordan yangisini so'rang. | Срок действия ссылки центра истёк. Попросите у администратора новую. |
 | `organizations.errors.invite_exhausted` | Markaz havolasi ruxsat etilgan maksimal marta ishlatilgan. Administratordan yangisini so'rang. | Эта ссылка центра уже использована максимальное число раз. Попросите у администратора новую. |
@@ -1169,7 +1242,7 @@
 | `org.invoice.payer_fields.telegram` | Telegram | Telegram |
 | `org.invoice.item` | Xizmat nomi | Наименование услуги |
 | `org.invoice.sum` | Summa | Сумма |
-| `org.invoice.service` | Markaz uchun LexiFlow Pro'ga kirish — «:tier» tarifi | Доступ к LexiFlow Pro для центра — тариф «:tier» |
+| `org.invoice.service` | Markaz uchun Muhrla Pro'ga kirish — «:tier» tarifi | Доступ к Muhrla Pro для центра — тариф «:tier» |
 | `org.invoice.period` | muddat: :period (:days kun) | срок: :period (:days дн.) |
 | `org.invoice.total` | Jami to'lov | Итого к оплате |
 | `org.invoice.note` | To'lov markaz obunasini ko'rsatilgan muddatga uzaytiradi. Summa so'mda ko'rsatilgan. | Оплата продлевает подписку центра на указанный срок. Сумма указана в сумах. |
@@ -1192,7 +1265,7 @@
 | `org.dashboard.new_words_7d` | Yangi so'zlar: :count | Новых слов: :count |
 | `org.mail.invitation.subject` | «:organization» markazi kabinetiga taklif | Приглашение в кабинет центра «:organization» |
 | `org.mail.invitation.heading` | Sizni «:organization» markaziga taklif qilishdi | Вас пригласили в «:organization» |
-| `org.mail.invitation.intro` | :inviter sizni LexiFlow Pro platformasidagi «:organization» markazi kabinetiga qo'shdi. | :inviter добавил вас в кабинет центра «:organization» на платформе LexiFlow Pro. |
+| `org.mail.invitation.intro` | :inviter sizni Muhrla Pro platformasidagi «:organization» markazi kabinetiga qo'shdi. | :inviter добавил вас в кабинет центра «:organization» на платформе Muhrla Pro. |
 | `org.mail.invitation.set_password` | Quyidagi havola orqali parol o'rnating — u :hours soat amal qiladi va bir marta ishlaydi. | Задайте пароль по ссылке ниже — она действует :hours ч. и работает один раз. |
 | `org.mail.invitation.button_set_password` | Parol o'rnatish | Задать пароль |
 | `org.mail.invitation.existing_account` | Odatdagi parolingiz bilan kiring — markaz kabinetda allaqachon mavjud. | Войдите с вашим обычным паролем — центр уже доступен в кабинете. |
@@ -1347,8 +1420,8 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `billing.offer_dm.text` | Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Вы покинули центр «:organization». Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
-| `billing.offer_dm.text_generic` (центр удалён) | Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Ваше место в центре закончилось. Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
+| `billing.offer_dm.text` | Siz «:organization» markazidan chiqdingiz. Shaxsiy Muhrla Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Вы покинули центр «:organization». Личный Muhrla Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
+| `billing.offer_dm.text_generic` (центр удалён) | Markazdagi joyingiz tugadi. Shaxsiy Muhrla Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Ваше место в центре закончилось. Личный Muhrla Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
 
 ## Фаза 2 · задача 2C.1 (рефералка: «Пригласить друга») — на проверку носителю
 
@@ -1359,13 +1432,13 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `referrals.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
-| `referrals.invite.text` | Do'stingizni LexiFlow'ga taklif qiling — :rule\n\nSizning havolangiz:\n:link | Пригласите друга в LexiFlow — :rule\n\nВаша ссылка:\n:link |
+| `referrals.invite.text` | Do'stingizni Muhrla'ga taklif qiling — :rule\n\nSizning havolangiz:\n:link | Пригласите друга в Muhrla — :rule\n\nВаша ссылка:\n:link |
 | `referrals.invite.rule` (2C.9, черновик) | do'stingiz tanishuvdan o'tib bir kunda :reviews ta kartochkani baholagach hisobga olinadi; :milestones do'st uchun har safar :reward kunlik Pro olasiz. | друг засчитывается, когда пройдёт знакомство и оценит :reviews карточек за день; за :milestones друзей вы получите по :reward дней Pro. |
 | `referrals.invite.no_link` | kod :code (havola administrator bot nomini ko'rsatgach paydo bo'ladi) | код :code (ссылка появится, когда администратор укажет имя бота) |
 | `referrals.invite.stats` (2C.9, черновик) | Havolangiz orqali kelganlar: :invited · hisobga olinganlar: :counted | Пришли по вашей ссылке: :invited · засчитаны: :counted |
 | `referrals.invite.next` (2C.9, черновик) | mukofotga yana :remaining ta do'st kerak (:friends tadan) | до награды ещё :remaining (из :friends) |
 | `referrals.invite.share_button` | Havolani ulashish | Поделиться ссылкой |
-| `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
+| `referrals.invite.share_text` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в Muhrla — присоединяйся, получим Pro вместе! |
 | `bot.help.private` (новая строка) | Do'stni taklif qilib Pro olish: /invite | Пригласить друга и получить Pro: /invite |
 
 ### TWA (`resources/twa/src/i18n/uz.ts`)
@@ -1378,7 +1451,7 @@
 | `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
 | `referrals.share` | Ulashish | Поделиться |
 | `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
-| `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
+| `referrals.share_text` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в Muhrla — присоединяйся, получим Pro вместе! |
 | `referrals.counts.invited` | Kelganlar | Пришли |
 | `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
 | `referrals.counts.rewarded` | Mukofotlanganlar | Награждены |
@@ -1460,10 +1533,9 @@
 | `league.tier.gold` | Oltin | Золото |
 | `league.tier.platinum` | Platina | Платина |
 | `league.tier.diamond` | Olmos | Алмаз |
-| `league.points` | {count} ochko | {count} очко / очка / очков |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
 | `league.closes` | Hafta yakuni — {when} | Итоги недели — {when} |
-| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
+| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ballar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Баллы: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
 | `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
 | `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
 | `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
@@ -1497,13 +1569,13 @@
 | `friends.offer.send` | So'rov yuborish | Отправить запрос |
 | `friends.offer.add` | Do'stlarga qo'shish | Добавить в друзья |
 | `friends.offer.skip` | Hozir emas | Не сейчас |
-| `friends.incoming.text` | :name sizni LexiFlow'da do'st sifatida qo'shmoqchi. | :name хочет добавить вас в друзья в LexiFlow. |
+| `friends.incoming.text` | :name sizni Muhrla'da do'st sifatida qo'shmoqchi. | :name хочет добавить вас в друзья в Muhrla. |
 | `friends.incoming.accept` | Qabul qilish | Принять |
 | `friends.incoming.decline` | Rad etish | Отклонить |
 | `friends.request_sent` | So'rov yuborildi: :name. Qabul qilishsa, xabar beramiz. | Запрос отправлен: :name. Мы сообщим, когда его примут. |
 | `friends.already_sent` | Siz :name'ga allaqachon so'rov yuborgansiz — javob kutilmoqda. | Вы уже отправили запрос :name — ждём ответа. |
 | `friends.skipped` | Xo'p, so'rov yuborilmadi. | Хорошо, запрос не отправлен. |
-| `friends.accepted` | Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati LexiFlow ilovasida. | Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow. |
+| `friends.accepted` | Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati Muhrla ilovasida. | Готово: вы с :name теперь друзья. Список друзей — в приложении Muhrla. |
 | `friends.declined` | Xo'p, taklif rad etildi. | Хорошо, приглашение отклонено. |
 | `friends.already` | Siz va :name allaqachon do'stsiz. | Вы с :name уже друзья. |
 | `friends.errors.invalid_link` | Havola yaroqsiz yoki eskirgan. | Ссылка недействительна или устарела. |
@@ -1523,7 +1595,7 @@
 | `friends.dm.challenge_won` | :name bilan musobaqa yakunlandi: siz g'olibsiz! Hisob :mine : :theirs. | Вызов с :name завершён: вы победили! Счёт :mine : :theirs. |
 | `friends.dm.challenge_lost` | :name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Qayta bellashuv — ilovada! | Вызов с :name завершён: победил(а) :name. Счёт :mine : :theirs. Реванш — в приложении! |
 | `friends.dm.challenge_draw` | :name bilan musobaqa durang bilan tugadi: :mine : :theirs. | Вызов с :name завершён вничью: :mine : :theirs. |
-| `friends.dm.button` | LexiFlow ilovasini ochish | Открыть LexiFlow |
+| `friends.dm.button` | Muhrla ilovasini ochish | Открыть Muhrla |
 | `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
 | `friends.challenge.decline` | Rad etish | Отклонить |
 | `friends.challenge.accepted` | Musobaqa qabul qilindi! Boshlanishi — :starts, tugashi — :ends. | Вызов принят! Старт — :starts, финиш — :ends. |
@@ -1545,7 +1617,7 @@
 | `friends.invite.title` | Do'stlikka taklif qilish | Пригласить в друзья |
 | `friends.invite.hint` | Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin. | Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы. |
 | `friends.invite.share` | Havolani ulashish | Поделиться ссылкой |
-| `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
+| `friends.invite.share_text` | Muhrla'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в Muhrla: сравним серии и устроим вызов! |
 | `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
 | `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
 | `friends.outgoing.title` | Javob kutilmoqda | Ждут ответа |
@@ -1642,13 +1714,17 @@
 | `achievements.items.league_top1.title` | Liga g'olibi | Победитель лиги |
 | `achievements.items.league_top1.description` | Haftada liga guruhida birinchi o'rin | Первое место в группе лиги за неделю |
 | `achievements.items.first_friend.title` | Birinchi do'st | Первый друг |
-| `achievements.items.first_friend.description` | LexiFlow'da birinchi do'st paydo bo'ldi | Появился первый друг в LexiFlow |
-| `achievements.card.brand` | LexiFlow | LexiFlow |
+| `achievements.items.first_friend.description` | Muhrla'da birinchi do'st paydo bo'ldi | Появился первый друг в Muhrla |
+| `achievements.card.label` | Yutuq | Достижение |
 | `achievements.card.tagline` | Telegramda ingliz tilini o'rganamiz | Учим английский в Telegram |
+| `achievements.card.invite.label` | Taklif | Приглашение |
+| `achievements.card.invite.title` | Telegramda ingliz tilini o'rganamiz | Учим английский в Telegram |
+| `achievements.card.invite.description` | Birinchi :trial Pro bepul | Первые :trial Pro бесплатно |
+| `achievements.card.invite.description_plain` | Har kuni so'zlar, darslar va o'yin | Слова, уроки и игра каждый день |
 | `achievements.caption` | 🏆 Yangi yutuq: :title<br>:description<br><br>Do'stlaringiz bilan ulashing — bu xabarni uzating yoki pastdagi tugmani bosing. | 🏆 Новое достижение: :title<br>:description<br><br>Поделитесь им с друзьями — перешлите это сообщение или нажмите кнопку ниже. |
 | `achievements.caption_no_link` | 🏆 Yangi yutuq: :title<br>:description<br><br>Maqtanish uchun bu xabarni do'stlaringizga uzating. | 🏆 Новое достижение: :title<br>:description<br><br>Перешлите это сообщение друзьям, чтобы похвастаться. |
 | `achievements.share_button` | Ulashish | Поделиться |
-| `achievements.share_text` | Men LexiFlow'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz. | Я получил(а) достижение «:title» в LexiFlow! Учим английский в Telegram. |
+| `achievements.share_text` | Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz. | Я получил(а) достижение «:title» в Muhrla! Учим английский в Telegram. |
 
 ### TWA, экран «Достижения» (`resources/twa/src/i18n/uz.ts`)
 
@@ -1694,15 +1770,15 @@
 | `profile.plan.pro_until` | Pro {date} gacha | Pro до {date} |
 | `profile.plan.pro_forever` | Pro muddatsiz | Pro без срока |
 | `profile.plan.pro_center` | Markaz bergan Pro | Pro от центра |
-| `profile.plan.free.one` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новое слово в день |
-| `profile.plan.free.few` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слова в день |
-| `profile.plan.free.many` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слов в день |
-| `profile.plan.free.other` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новых слова в день |
+| `profile.plan.free_short.one` | kuniga {count} ta yangi so'z | {count} новое слово в день |
+| `profile.plan.free_short.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день |
+| `profile.plan.free_short.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день |
+| `profile.plan.free_short.other` | kuniga {count} ta yangi so'z | {count} новых слова в день |
 | `profile.plan.free_plain` | Bepul tarif | Бесплатный тариф |
 | `profile.pro.title` | Kunlik limitsiz o'rganing | Учитесь без дневного лимита |
 | `profile.pro.text` | Cheklovsiz yangi so'zlar, o'z to'plamlaringiz, IELTS va SAT sinov testlari, seriyani muzlatish. | Новые слова без ограничений, свои колоды, пробные тесты IELTS и SAT, заморозки серии. |
 | `profile.pro.more` | Pro haqida batafsil | Подробнее о Pro |
-| `profile.friends` | Do'stlar va musobaqalar | Друзья и вызовы |
+| `profile.friends` | Do'stlar va musobaqalar | Друзья и соревнования |
 | `profile.referrals.hint` | Sizga va do'stingizga — bepul Pro | Вам и другу — Pro бесплатно |
 | `profile.support` | Yordam kerakmi? Yozing: | Нужна помощь? Напишите: |
 | `benefits.new_words` | Yangi so'zlar kunlik limitsiz | Новые слова без дневного лимита |
@@ -1763,6 +1839,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `catalog.hint` | Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi | Новые слова для ежедневного занятия берутся из основного курса |
+| `catalog.open_lessons` | Darslarni ochish | Открыть уроки |
 | `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
@@ -1880,7 +1957,7 @@
 
 ## Редизайн 2026-10-28 · бот (меню команд, справка, термин «модуль») — на проверку носителю
 
-> Проверить: единый термин для этапа курса — «modul» (в строках «1-modul · 2-dars»: «:stage-modul, :lesson-dars»; раньше было «Stage» и «bosqich») и «dars» (урок). В справке `/help`: «Qanday shug'ullanish kerak» (как заниматься), «Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi» (кнопка «LexiFlow» слева от поля ввода), «birgalikda Pro oling» (вместе получите Pro), «Pro obuna» (подписка Pro), «O'qituvchilar uchun» (для учителей). Описания команд в меню «/» — короткие подписи до 256 знаков: «Bugungi mashg'ulot» (занятие на сегодня), «Do'stni taklif qilish», «Promokodni faollashtirish», «Imtihonni yakunlash» (завершить экзамен).
+> Проверить: единый термин для этапа курса — «modul» (в строках «1-modul · 2-dars»: «:stage-modul, :lesson-dars»; раньше было «Stage» и «bosqich») и «dars» (урок). В справке `/help`: «Qanday shug'ullanish kerak» (как заниматься), «Xabar yozish maydonining chap tomonidagi «Muhrla» tugmasi» (кнопка «Muhrla» слева от поля ввода), «birgalikda Pro oling» (вместе получите Pro), «Pro obuna» (подписка Pro), «O'qituvchilar uchun» (для учителей). Описания команд в меню «/» — короткие подписи до 256 знаков: «Bugungi mashg'ulot» (занятие на сегодня), «Do'stni taklif qilish», «Promokodni faollashtirish», «Imtihonni yakunlash» (завершить экзамен).
 > Изменённые значения старых ключей (`bot.help.private`, `bot.help.group`, `training.picker.button`, `training.started`, `exam.started`, `errors.stage_not_found`, `errors.exam.not_enough_distractors`, `assignments.announce`, `assignments.remind`, `org.assignments.lesson_option`) исправлены в исходных строках выше; здесь — только новые ключи.
 
 ### Меню команд бота — список по «/» в Telegram (`lang/uz/commands.php`)
@@ -1983,7 +2060,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.help.group` | Muhrla guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | Muhrla в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
 
 ### Групповая тренировка — «trening», а «mashg'ulot» — занятие из `/today` (`lang/uz/bot.php`, `commands.php`, `training.php`, `errors.php`, `landing.php`)
 
@@ -2015,7 +2092,7 @@
 ### TWA: «Подписка» у Free — строка под заголовком (`resources/twa/src/i18n/uz.ts`)
 
 > Заголовок карточки уже говорит «Bepul tarif» (бесплатный тариф), поэтому строка под ним больше не повторяет название тарифа, а говорит, что он
-> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free` — эта строка остаётся в «Профиле», где названия тарифа рядом нет).
+> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free`; с 25.11.2026 в «Профиле» вместо неё `profile.plan.free_short` «kuniga 20 ta yangi so'z» — рядом стоит чип Free).
 
 | Ключ | uz | ru |
 |---|---|---|
@@ -2703,12 +2780,12 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `billing.stars.invoice.description_month_practice` | LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
-| `billing.stars.invoice.description_year_practice` | LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
-| `billing.stars.invoice.description_quarter_practice` | LexiFlow Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
-| `billing.stars.invoice.description_month_practice_solo` | LexiFlow Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
-| `billing.stars.invoice.description_year_practice_solo` | LexiFlow Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
-| `billing.stars.invoice.description_quarter_practice_solo` | LexiFlow Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_month_practice` | Muhrla Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка Muhrla Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice` | Muhrla Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | Muhrla Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter_practice` | Muhrla Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | Muhrla Pro на 3 месяца (90 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_month_practice_solo` | Muhrla Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка Muhrla Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
+| `billing.stars.invoice.description_year_practice_solo` | Muhrla Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | Muhrla Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter_practice_solo` | Muhrla Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | Muhrla Pro на 3 месяца (90 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 
 ## Оферта и политика конфиденциальности 2026-11 · R2 — на проверку носителю и юристу
 
@@ -2722,7 +2799,7 @@
 | `legal.draft_notice` | Qoralama. Matn yurist tekshiruvida va hozircha amaldagi hujjat hisoblanmaydi. | Черновик. Текст находится на проверке у юриста и пока не является действующим документом. |
 | `legal.placeholder` | Bo'lim matni xizmat egasi tomonidan taqdim etiladi. | Текст раздела будет предоставлен владельцем. |
 | `legal.back` | Bosh sahifaga | На главную |
-| `legal.contact_fallback` | LexiFlow botidagi /paysupport buyrug'i | команда /paysupport в боте LexiFlow |
+| `legal.contact_fallback` | Muhrla botidagi /paysupport buyrug'i | команда /paysupport в боте Muhrla |
 | `legal.requisites_missing` | [Xizmat egasi: ijrochi rekvizitlarini kiriting - nomi, STIR, manzil, bank rekvizitlari, telefon, e-mail] | [Владелец сервиса: указать реквизиты исполнителя - наименование, ИНН, адрес, банковские реквизиты, телефон, e-mail] |
 | `legal.requisite.name` | Nomi | Наименование |
 | `legal.requisite.inn` | STIR | ИНН |
@@ -2734,7 +2811,7 @@
 | `legal.requisite.email` | E-mail | E-mail |
 | `legal.offer.title` | Ommaviy oferta | Публичная оферта |
 | `legal.offer.sections.0.title` | Umumiy qoidalar | Общие положения |
-| `legal.offer.sections.0.text` | Ushbu hujjat LexiFlow xizmatidan («Xizmat») foydalanish bo'yicha ommaviy oferta (shartnoma tuzish taklifi) hisoblanadi. Ijrochi — rekvizitlari oxirgi bo'limda ko'rsatilgan shaxs.<br><br>Xizmat ingliz tilidagi so'zlarni o'rganish uchun Telegram-bot va Telegram Mini App'dan, shuningdek o'quv markazlari va o'qituvchilar kabinetidan iborat. Foydalanuvchi («Siz») botdan yoki Mini App'dan foydalanishni boshlash yoki pullik tarif uchun to'lash bilan ofertani qabul qiladi.<br><br>Shartlarga rozi bo'lmasangiz, Xizmatdan foydalanmang. | Настоящий документ — публичная оферта (предложение заключить договор) на пользование сервисом LexiFlow («Сервис»). Исполнитель — лицо, реквизиты которого указаны в последнем разделе.<br><br>Сервис состоит из Telegram-бота и Telegram Mini App для изучения английских слов, а также кабинета учебных центров и учителей. Пользователь («Вы») принимает оферту, начав пользоваться ботом или Mini App, либо оплатив платный тариф.<br><br>Если Вы не согласны с условиями, не пользуйтесь Сервисом. |
+| `legal.offer.sections.0.text` | Ushbu hujjat Muhrla xizmatidan («Xizmat») foydalanish bo'yicha ommaviy oferta (shartnoma tuzish taklifi) hisoblanadi. Ijrochi — rekvizitlari oxirgi bo'limda ko'rsatilgan shaxs.<br><br>Xizmat ingliz tilidagi so'zlarni o'rganish uchun Telegram-bot va Telegram Mini App'dan, shuningdek o'quv markazlari va o'qituvchilar kabinetidan iborat. Foydalanuvchi («Siz») botdan yoki Mini App'dan foydalanishni boshlash yoki pullik tarif uchun to'lash bilan ofertani qabul qiladi.<br><br>Shartlarga rozi bo'lmasangiz, Xizmatdan foydalanmang. | Настоящий документ — публичная оферта (предложение заключить договор) на пользование сервисом Muhrla («Сервис»). Исполнитель — лицо, реквизиты которого указаны в последнем разделе.<br><br>Сервис состоит из Telegram-бота и Telegram Mini App для изучения английских слов, а также кабинета учебных центров и учителей. Пользователь («Вы») принимает оферту, начав пользоваться ботом или Mini App, либо оплатив платный тариф.<br><br>Если Вы не согласны с условиями, не пользуйтесь Сервисом. |
 | `legal.offer.sections.1.title` | Shartnoma predmeti | Предмет договора |
 | `legal.offer.sections.1.text` | Ijrochi Sizga Xizmatdan foydalanish imkonini beradi: oraliqli takrorlash bilan so'z kartochkalari, kundalik mashq, imtihonlar va sinov testlari, mashq va bahslar (battle), ligalar, do'stlar, yutuqlar va referal dasturi. Imkoniyatlar tarifga bog'liq.<br><br>Xizmat — o'quv vositasi. Ijrochi aniq o'qish natijasini (bilim darajasi, imtihon bali) kafolatlamaydi: natija Sizning mashg'ulotlaringizga bog'liq.<br><br>O'quv markazlari va o'qituvchilar alohida kabinetdan (/org) foydalanadi: ular o'z o'quvchilarining natijalarini ko'radi va topshiriq bera oladi. Markazlar uchun shartlar — markazga beriladigan tariflar va hisob-fakturalar — ushbu oferta bilan birga amal qiladi. | Исполнитель предоставляет Вам доступ к Сервису: карточкам слов с интервальным повторением, ежедневной тренировке, экзаменам и пробным тестам, практике и баттлам, лигам, друзьям, достижениям и реферальной программе. Состав возможностей зависит от тарифа.<br><br>Сервис — учебный инструмент. Исполнитель не гарантирует конкретного результата обучения (уровня знаний, балла на экзамене): результат зависит от Ваших занятий.<br><br>Учебные центры и учителя пользуются отдельным кабинетом (/org): они видят прогресс своих учеников и могут назначать задания. Условия для центров — тарифы и счета, выставляемые центру, — действуют наряду с этой офертой. |
 | `legal.offer.sections.2.title` | Ro'yxatdan o'tish va hisob | Регистрация и учётная запись |
@@ -2755,7 +2832,7 @@
 | `legal.offer.sections.9.text` | {requisites}<br><br>Murojaatlar va savollar: {contact} | {requisites}<br><br>Обращения и вопросы: {contact} |
 | `legal.privacy.title` | Maxfiylik siyosati | Политика конфиденциальности |
 | `legal.privacy.sections.0.title` | Umumiy qoidalar | Общие положения |
-| `legal.privacy.sections.0.text` | Ushbu siyosat LexiFlow xizmati (Telegram-bot, Mini App va /org markazlar kabineti) qanday ma'lumotlarni to'plashi, nima uchun va ularni qanday himoya qilishimizni tavsiflaydi. Ma'lumotlar operatori — rekvizitlari ommaviy ofertada ko'rsatilgan Ijrochi.<br><br>Biz o'qish va to'lov uchun zarur bo'lgan minimal ma'lumotni to'playmiz. Reklama ko'rsatmaymiz va ma'lumotlarni reklama tarmoqlariga bermaymiz. | Эта политика описывает, какие данные собирает сервис LexiFlow (Telegram-бот, Mini App и кабинет центров /org), зачем и как мы их защищаем. Оператор данных — Исполнитель, реквизиты которого указаны в публичной оферте.<br><br>Мы собираем минимум данных, необходимый для обучения и оплаты. Мы не показываем рекламу и не передаём данные рекламным сетям. |
+| `legal.privacy.sections.0.text` | Ushbu siyosat Muhrla xizmati (Telegram-bot, Mini App va /org markazlar kabineti) qanday ma'lumotlarni to'plashi, nima uchun va ularni qanday himoya qilishimizni tavsiflaydi. Ma'lumotlar operatori — rekvizitlari ommaviy ofertada ko'rsatilgan Ijrochi.<br><br>Biz o'qish va to'lov uchun zarur bo'lgan minimal ma'lumotni to'playmiz. Reklama ko'rsatmaymiz va ma'lumotlarni reklama tarmoqlariga bermaymiz. | Эта политика описывает, какие данные собирает сервис Muhrla (Telegram-бот, Mini App и кабинет центров /org), зачем и как мы их защищаем. Оператор данных — Исполнитель, реквизиты которого указаны в публичной оферте.<br><br>Мы собираем минимум данных, необходимый для обучения и оплаты. Мы не показываем рекламу и не передаём данные рекламным сетям. |
 | `legal.privacy.sections.1.title` | Qanday ma'lumotlarni qayta ishlaymiz | Какие данные мы обрабатываем |
 | `legal.privacy.sections.1.text` | O'quvchilar (Telegram va Sizning harakatlaringizdan): Telegram identifikatori, ism va familiya, foydalanuvchi nomi (username), Telegram til kodi, interfeys tili, vaqt mintaqasi, maqsad va daraja, kunlik maqsad, eslatma vaqti, o'tish manbasi (masalan, referal havola), texnik belgilar (oxirgi faollik, botni bloklash).<br><br>O'quv faoliyati: o'rganilgan so'zlar va ularni takrorlash jadvali, mashqlar, imtihonlar, amaliyot va bahslardagi javoblar va natijalar, mashg'ulotlar seriyasi, ligalar va ochkolar, yutuqlar, kunlik statistika.<br><br>Ijtimoiy aloqalar: do'stlar va chaqiriqlar, referal takliflar, bot ulangan Telegram guruhlari va markazlarning o'quv guruhlaridagi a'zolik. Bahs raqibi va liga ishtirokchilari Sizning ismingizni ko'radi; username, identifikator va natijalaringiz boshqa foydalanuvchilarga ko'rsatilmaydi.<br><br>To'lovlar: tarif, provayder, summa, valyuta, holat va to'lov identifikatorlari, ishlatilgan promokodlar. Bank kartalari ma'lumotlarini olmaymiz va saqlamaymiz: Stars to'lovini Telegram qabul qiladi.<br><br>Markaz xodimlari: ism, e-mail, parol xeshi, ikki bosqichli autentifikatsiya ma'lumotlari, rol va markaz hamda guruhlarga bog'lanish, harakatlar jurnali (IP-manzil va brauzer ma'lumotlari bilan).<br><br>Jurnallar va analitika: yuborilgan eslatmalar jurnali, foydalanishning shaxsiz hodisalari (masalan, mashq boshlandi), server va xatolar texnik jurnallari. Telefon raqami va profil rasmini saqlamaymiz. | Ученики (из Telegram и Ваших действий): идентификатор Telegram, имя и фамилия, имя пользователя (username), код языка Telegram, язык интерфейса, часовой пояс, цель и уровень, дневная цель, время напоминаний, источник перехода (например, реферальная ссылка), технические отметки (последняя активность, блокировка бота).<br><br>Учебная активность: изученные слова и расписание их повторений, ответы и результаты тренировок, экзаменов, практики и баттлов, серия занятий, лиги и очки, достижения, дневная статистика.<br><br>Социальные связи: друзья и вызовы, реферальные приглашения, членство в группах Telegram, к которым подключён бот, и в учебных группах центров. Соперник по баттлу и участники лиги видят Ваше имя; username, идентификатор и прогресс другим пользователям не показываются.<br><br>Платежи: тариф, провайдер, сумма, валюта, статус и идентификаторы платежей, использованные промокоды. Данных банковских карт мы не получаем и не храним: оплату Stars принимает Telegram.<br><br>Сотрудники центров: имя, e-mail, хэш пароля, данные двухфакторной аутентификации, роль и привязка к центру и группам, журнал действий (с IP-адресом и данными браузера).<br><br>Журналы и аналитика: журнал отправленных напоминаний, обезличенные события использования (например, начата тренировка), технические журналы сервера и ошибок. Телефон и фотографию профиля мы не сохраняем. |
 | `legal.privacy.sections.2.title` | Qayta ishlash maqsadlari va asoslari | Цели и основания обработки |
@@ -2916,7 +2993,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.delete_account.settings_button` | Akkauntni o'chirish | Удалить аккаунт |
-| `bot.delete_account.confirm` | LexiFlow akkauntini o'chirasizmi?<br><br>Ma'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi. | Удалить аккаунт LexiFlow?<br><br>Ваши данные будут окончательно удалены через :days дн. Пока этот срок не прошёл, вы можете вернуться — достаточно отправить боту /start. Платёжные записи хранятся по закону, подписка Pro прекращается. |
+| `bot.delete_account.confirm` | Muhrla akkauntini o'chirasizmi?<br><br>Ma'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi. | Удалить аккаунт Muhrla?<br><br>Ваши данные будут окончательно удалены через :days дн. Пока этот срок не прошёл, вы можете вернуться — достаточно отправить боту /start. Платёжные записи хранятся по закону, подписка Pro прекращается. |
 | `bot.delete_account.yes_button` | Ha, o'chirish | Да, удалить |
 | `bot.delete_account.no_button` | Bekor qilish | Отмена |
 | `bot.delete_account.canceled` | Mayli, akkaunt o'chirilmadi. | Хорошо, аккаунт не удалён. |
@@ -3119,7 +3196,7 @@
 | `gameRun.summary.class_boss_lost_hint` | Aniqlik {accuracy}% — har bir o'quvchiga bitta urinish, natija sinf jadvalida | Точность {accuracy}% — у каждого ученика одна попытка, результат уже в таблице класса |
 | `gameRun.summary.to_class` | Sinf ekraniga | К экрану класса |
 | `gameRun.booster.limit_pro` | Bu haftaning kuchaytirgichlari tugadi. Yangilari — {when}. | Бустеры этой недели закончились. Новые — {when}. |
-| `gameRun.summary.card_caption` | LexiFlow Karvoni | Караван LexiFlow |
+| `gameRun.summary.card_caption` | Muhrla Karvoni | Караван Muhrla |
 | `gameRun.summary.share` | Ulashish | Поделиться |
 | `game.bossScreen.title` | Shahar qorovuli | Босс города |
 | `game.bossScreen.keeper` | Darvoza qo'riqchisi | Хранитель ворот |
@@ -3161,7 +3238,7 @@
 | `achievements.items.game_first_boss.title` | Qo'riqchi yengildi | Хранитель побеждён |
 | `achievements.items.game_first_boss.description` | "Karvon" o'yinida shahar bossi ustidan birinchi g'alaba | Первая победа над боссом города в игре «Караван» |
 | `game.card.caption_no_link` | Men yetib keldim: :city! Darvoza qo'riqchisi yengildi. … | Я дошёл до :city! Хранитель ворот побеждён. … |
-| `game.card.share_text` | Men "Karvon" o'yinida yetib keldim: :city - LexiFlow! Telegramda ingliz tili. | Я дошёл до :city в игре «Караван» — LexiFlow! Учим английский в Telegram. |
+| `game.card.share_text` | Men "Karvon" o'yinida yetib keldim: :city - Muhrla! Telegramda ingliz tili. | Я дошёл до :city в игре «Караван» — Muhrla! Учим английский в Telegram. |
 | `game.cities_gen.1` | Toshkent | Ташкента |
 | `game.cities_gen.2` | Qo'qon | Коканда |
 | `game.cities_gen.3` | Samarqand | Самарканда |
@@ -3370,18 +3447,18 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.help.private_teacher` | LexiFlow — o'qituvchi buyruqlari.<br><br>• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.<br>• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>:caravan• /stats — 7 kunlik hisobotingiz<br>• /org — markaz kabineti | LexiFlow — команды учителя.<br><br>• Добавьте бота в группу и сделайте его администратором. Команды заработают после активации группы: если она ещё не активна, напишите в поддержку.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>:caravan• /stats — ваш отчёт за 7 дней<br>• /org — кабинет центра |
+| `bot.help.private_teacher` | Muhrla — o'qituvchi buyruqlari.<br><br>• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.<br>• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>:caravan• /stats — 7 kunlik hisobotingiz<br>• /org — markaz kabineti | Muhrla — команды учителя.<br><br>• Добавьте бота в группу и сделайте его администратором. Команды заработают после активации группы: если она ещё не активна, напишите в поддержку.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>:caravan• /stats — ваш отчёт за 7 дней<br>• /org — кабинет центра |
 | `bot.help.teacher_hint` | Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact | Вы учитель или владелец центра? Напишите нам: :contact |
 | `bot.support.line` | Qo'llab-quvvatlash xizmati: :contact | Поддержка: :contact |
 | `bot.teacher.learner_command` | Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help | Эта команда — для учеников. Ваши команды учителя: /help |
 | `bot.group.untitled` | Nomsiz guruh | Группа без названия |
-| `bot.group.welcome` | 👋 LexiFlow «:title» guruhiga qo'shildi.<br><br>Keyingi qadamlar:<br>1. Botni guruh administratori qiling.<br>2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | 👋 LexiFlow добавлен в группу «:title».<br><br>Что дальше:<br>1. Сделайте бота администратором группы.<br>2. Группа ждёт активации — после неё заработают команды учителя.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
+| `bot.group.welcome` | 👋 Muhrla «:title» guruhiga qo'shildi.<br><br>Keyingi qadamlar:<br>1. Botni guruh administratori qiling.<br>2. Guruh faollashtirilishi kutilmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | 👋 Muhrla добавлен в группу «:title».<br><br>Что дальше:<br>1. Сделайте бота администратором группы.<br>2. Группа ждёт активации — после неё заработают команды учителя.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
 | `bot.group.pending_command` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi. | Группа ещё не активирована, поэтому команды пока не работают. |
 | `bot.group.pending_help` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.<br><br>Markaz kabineti uchun guruh raqami: <code>:chat_id</code> | Группа ещё не активирована, поэтому команды пока не работают.<br><br>Номер группы для кабинета центра: <code>:chat_id</code> |
 | `exam.picker.prompt` | Imtihon uchun darsni tanlang: | Выберите урок для экзамена: |
 | `exam.picker.duration_prompt` | :stage-modul · :lesson-dars. Imtihon necha daqiqa davom etadi? | Модуль :stage · Урок :lesson. Сколько минут будет идти экзамен? |
 | `exam.picker.minutes_button` | :minutes daq | :minutes мин |
-| `onboarding.welcome` | Salom! Men LexiFlow — kuniga 5–10 daqiqada inglizcha so'zlarni o'rganishga yordam beraman. Bir necha qisqa savol — va boshlaymiz. | 👋 Привет! Я LexiFlow — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём. |
+| `onboarding.welcome` | Salom! Men Muhrla — kuniga 5–10 daqiqada inglizcha so'zlarni o'rganishga yordam beraman. Bir necha qisqa savol — va boshlaymiz. | 👋 Привет! Я Muhrla — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём. |
 | `onboarding.step_counter` | :n/:total-qadam | Шаг :n из :total |
 | `onboarding.invited_by_organization` | Sizni «:organization» markazi taklif qildi | Вас пригласил центр «:organization» |
 | `onboarding.invited_by_learner` | Sizni :name taklif qildi | Вас пригласил(а) :name |
@@ -3391,7 +3468,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `landing.how.lead` | So'z birdan emas, asta-sekin unutiladi. LexiFlow uni unutilishidan oldin qaytaradi — har safar tanaffus uzayib boradi. | Слово забывается не сразу, а постепенно. LexiFlow возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее. |
+| `landing.how.lead` | So'z birdan emas, asta-sekin unutiladi. Muhrla uni unutilishidan oldin qaytaradi — har safar tanaffus uzayib boradi. | Слово забывается не сразу, а постепенно. Muhrla возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее. |
 | `landing.how.timeline.word` | breakfast | breakfast |
 | `landing.how.timeline.points.0.when` | Bugun | Сегодня |
 | `landing.how.timeline.points.0.what` | Yangi so'z | Новое слово |
@@ -3511,7 +3588,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.group.welcome` | 👋 LexiFlow «:title» guruhiga qo'shildi. Keyingi qadamlar: 1. Botni guruh administratori qiling. 2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi. 3. Aks holda guruh LexiFlow administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi. | 👋 LexiFlow добавлен в группу «:title». Что дальше: 1. Сделайте бота администратором группы. 2. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу» — у центра с подпиской она заработает сразу. 3. Иначе группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. |
+| `bot.group.welcome` | 👋 Muhrla «:title» guruhiga qo'shildi. Keyingi qadamlar: 1. Botni guruh administratori qiling. 2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi. 3. Aks holda guruh Muhrla administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi. | 👋 Muhrla добавлен в группу «:title». Что дальше: 1. Сделайте бота администратором группы. 2. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу» — у центра с подпиской она заработает сразу. 3. Иначе группа ждёт активации администратором Muhrla — после неё заработают команды учителя. |
 | `bot.group.pending_help` | Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash». | Группа ещё не активирована, поэтому команды пока не работают. Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу». |
 | `bot.help.group` (последняя строка) | O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash». | Группа учебного центра? Привяжите её из кабинета центра: Группы → «Привязать группу». |
 | `bot.stats.not_linked` | Hisobot o'qituvchilar uchun. Markaz xodimi: Telegramni kabinetda ulang — Profil → «Telegramni ulash». Kabinetsiz o'qituvchi: administratorga Telegram ID raqamingizni bering: :id. Agar Siz o'quvchi bo'lsangiz — /today ni oching. | Отчёт доступен учителям. Сотрудник центра: подключите Telegram в кабинете — Профиль → «Подключить Telegram». Учитель без кабинета: передайте администратору ваш Telegram ID :id. Если вы ученик — откройте /today. |
@@ -3520,14 +3597,14 @@
 | `bot.link.account_refused` | Ulash havolasi yaroqsiz yoki eskirgan. Markaz kabinetini oching → Profil → «Telegramni ulash» va yangi havola oling. | Ссылка для подключения недействительна или устарела. Откройте кабинет центра → Профиль → «Подключить Telegram» и получите новую. |
 | `bot.link.group_linked` | ✅ «:title» guruhi «:organization» markaziga bog'landi. | ✅ Группа «:title» привязана к центру «:organization». |
 | `bot.link.group_next_active` | Guruh faol: o'qituvchi buyruqlari ishlaydi. Endi kabinetda guruh kursini tanlang: Guruhlar → «Guruh kursi». | Группа активна: команды учителя работают. Дальше выберите курс группы в кабинете: Группы → «Курс группы». |
-| `bot.link.group_next_pending` | Guruh LexiFlow administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi». | Группа ждёт активации администратором LexiFlow — после неё заработают команды учителя. Курс группы можно выбрать уже сейчас: кабинет → Группы → «Курс группы». |
+| `bot.link.group_next_pending` | Guruh Muhrla administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi». | Группа ждёт активации администратором Muhrla — после неё заработают команды учителя. Курс группы можно выбрать уже сейчас: кабинет → Группы → «Курс группы». |
 | `bot.link.group_refused` | Guruhni bog'lab bo'lmadi. Markaz kabinetini oching → Guruhlar → «Guruhni bog'lash»: u yerda sababi ko'rinadi va yangi havola olish mumkin. | Не удалось привязать группу. Откройте кабинет центра → Группы → «Привязать группу»: там видна причина, и можно получить новую ссылку. |
 
 ### Бот, предложение центра ученику (`lang/uz/organizations.php`)
 
 | Ключ | uz | ru |
 |---|---|---|
-| `organizations.invite.text` | «:organization» o'quv markazi Sizni qo'shilishga taklif qilmoqda. Qo'shilsangiz, markazda bo'sh o'rin bo'lsa, markaz bergan Pro'ni olasiz, markaz esa LexiFlow'dagi faolligingizni ko'radi. Qo'shilasizmi? | Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в LexiFlow. Вступить? |
+| `organizations.invite.text` | «:organization» o'quv markazi Sizni qo'shilishga taklif qilmoqda. Qo'shilsangiz, markazda bo'sh o'rin bo'lsa, markaz bergan Pro'ni olasiz, markaz esa Muhrla'dagi faolligingizni ko'radi. Qo'shilasizmi? | Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в Muhrla. Вступить? |
 | `organizations.invite.accept` | Qo'shilish | Вступить |
 | `organizations.invite.decline` | Rad etish | Отклонить |
 | `organizations.invite.declined` | Mayli, Siz «:organization» markazining taklifini rad etdingiz. Hech narsa o'zgarmadi. | Хорошо, вы отклонили приглашение центра «:organization». Ничего не изменилось. |
@@ -3547,7 +3624,7 @@
 | `org.members.fields.telegram_help` | O'quvchining @username yoki raqamli Telegram ID'si. Bot unga markazga qo'shilish taklifini yuboradi — o'quvchi rozi bo'lgach a'zo bo'ladi. | @username или числовой Telegram ID ученика. Бот отправит ему предложение вступить в центр — ученик станет участником, когда согласится. |
 | `org.members.errors.invite_not_pending` | Bu taklifga allaqachon javob berilgan yoki u bekor qilingan. | На это приглашение уже ответили, или оно отозвано. |
 | `org.members.errors.rate_limited` | Bir soatda juda ko'p taklif yuborildi. Keyinroq urinib ko'ring. | Слишком много приглашений за час. Попробуйте позже. |
-| `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U botda rozi bo'lgach ro'yxatda paydo bo'ladi; ungacha — «Rozilik kutilmoqda» holatida. | Приглашение отправлено, если такой ученик есть в LexiFlow. Когда он согласится в боте, он появится в списке; до этого — со статусом «Ожидает согласия». |
+| `org.members.notifications.invited` | Agar bunday o'quvchi Muhrla'da bo'lsa, taklif yuborildi. U botda rozi bo'lgach ro'yxatda paydo bo'ladi; ungacha — «Rozilik kutilmoqda» holatida. | Приглашение отправлено, если такой ученик есть в Muhrla. Когда он согласится в боте, он появится в списке; до этого — со статусом «Ожидает согласия». |
 | `org.members.notifications.revoked` | Taklif bekor qilindi. | Приглашение отозвано. |
 | `org.groups.actions.link_help` | «Telegramda ochish» tugmasini bosing — Telegram guruhni tanlashni taklif qiladi va botni unga qo'shadi, shundan so'ng guruh markazga bog'lanadi. Bot guruhda allaqachon bo'lsa, guruhda /link buyrug'ini quyidagi kod bilan yuboring. Faqat Siz yaratuvchi yoki administrator bo'lgan guruhni bog'lash mumkin. | Нажмите «Открыть в Telegram» — Telegram предложит выбрать группу и добавит в неё бота, после чего группа привяжется к центру. Если бот уже в группе, отправьте в ней команду /link с кодом ниже. Привязать можно только группу, где вы создатель или администратор. |
 | `org.groups.actions.unlink_confirm` | Markazga shu guruh orqali qo'shilgan o'quvchilar, boshqa guruhlarda bo'lmasa, o'rnini yo'qotadi. Bog'lashda faollashtirilgan guruh yana faollashtirishni kutadi. | Ученики этой группы, вступившие в центр через неё, потеряют место, если не состоят в других группах центра. Группа, активированная при привязке, снова будет ждать активации. |
@@ -3617,7 +3694,7 @@
 |---|---|---|
 | `bot.help.private_teacher` (новая строка) | • /unlink — bu Telegramni kabinetdan uzish | • /unlink — отключить этот Telegram от кабинета |
 | `bot.link.account_prompt` | Bu Telegramni :centers markazi kabinetiga ulaysizmi? Akkaunt: :name (:email). Ulangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin. | Подключить этот Telegram к кабинету центра :centers? Аккаунт: :name (:email). После подключения бот будет считать вас сотрудником центра: в этом чате он перестанет отвечать вам как ученику. Отключить можно в любой момент командой /unlink. |
-| `bot.link.account_prompt_no_center` | LexiFlow | LexiFlow |
+| `bot.link.account_prompt_no_center` | Muhrla | Muhrla |
 | `bot.link.account_yes` | Ha, ulash | Да, подключить |
 | `bot.link.account_no` | Yo'q | Нет |
 | `bot.link.account_declined` | Mayli, hech narsa ulanmadi. Fikringiz o'zgarsa — kabinetdagi havolani qayta oching. | Хорошо, ничего не подключено. Если передумаете — откройте ссылку из кабинета ещё раз. |
@@ -3639,7 +3716,7 @@
 | `org.members.actions.revoke` | Bekor qilish | Отозвать |
 | `org.members.actions.revoke_confirm` | Taklif amal qilmay qoladi. Istalgan vaqtda qayta taklif qilish mumkin. | Приглашение перестанет действовать. Пригласить снова можно в любой момент. |
 | `org.members.invitations.heading` | O'quvchilarga takliflar | Приглашения учеников |
-| `org.members.invitations.description` | Bu yerda faqat Siz kiritgan ma'lumot va javob muddati ko'rsatiladi. Kabinet bunday o'quvchi LexiFlow'da bor-yo'qligini va u nima deb javob berganini ko'rsatmaydi: taklifni qabul qilgan o'quvchi o'quvchilar ro'yxatida paydo bo'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi. | Здесь только то, что вы ввели, и срок ответа. Кабинет не показывает, есть ли такой ученик в LexiFlow и что он ответил: принявший приглашение появится в списке учеников, остальные приглашения истекают через 7 дней. |
+| `org.members.invitations.description` | Bu yerda faqat Siz kiritgan ma'lumot va javob muddati ko'rsatiladi. Kabinet bunday o'quvchi Muhrla'da bor-yo'qligini va u nima deb javob berganini ko'rsatmaydi: taklifni qabul qilgan o'quvchi o'quvchilar ro'yxatida paydo bo'ladi, qolgan takliflarning muddati 7 kundan keyin tugaydi. | Здесь только то, что вы ввели, и срок ответа. Кабинет не показывает, есть ли такой ученик в Muhrla и что он ответил: принявший приглашение появится в списке учеников, остальные приглашения истекают через 7 дней. |
 | `org.members.invitations.empty` | Hozircha takliflar yo'q. | Приглашений пока нет. |
 | `org.members.invitations.columns.handle` | Kim taklif qilindi | Кого пригласили |
 | `org.members.invitations.columns.sent_at` | Yuborilgan | Отправлено |
@@ -3651,7 +3728,7 @@
 | `org.members.invitations.state.revoked` | Bekor qilingan | Отозвано |
 | `org.members.errors.invite_not_pending` | Bu taklif endi javob kutmaydi: u qabul qilingan, muddati tugagan yoki bekor qilingan. | Это приглашение уже не ждёт ответа: оно принято, истекло или отозвано. |
 | `org.members.errors.telegram_invalid` | O'quvchining @username yoki raqamli Telegram ID'sini kiriting. | Укажите @username или числовой Telegram ID ученика. |
-| `org.members.notifications.invited` | Agar bunday o'quvchi LexiFlow'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'yxatida paydo bo'ladi; o'quvchi botda rozi bo'lgach, u o'quvchilar orasida ko'rinadi. | Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников. |
+| `org.members.notifications.invited` | Agar bunday o'quvchi Muhrla'da bo'lsa, taklif yuborildi. U quyidagi takliflar ro'yxatida paydo bo'ladi; o'quvchi botda rozi bo'lgach, u o'quvchilar orasida ko'rinadi. | Приглашение отправлено, если такой ученик есть в Muhrla. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников. |
 | `org.profile.telegram.superseded` | Telegram uzildi: bu Telegram akkauntini boshqa foydalanuvchi tasdiqladi. O'z Telegramingizni bot orqali ulang. | Telegram отключён: этот аккаунт Telegram подтвердил другой пользователь. Подключите свой Telegram через бота. |
 
 ## Упражнение «выбор значения» (`meaning`, docs/06 §12.1) — на проверку носителю
@@ -3687,11 +3764,11 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `reminders.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
-| `reminders.inactive_due` | LexiFlow: :count kundan beri shug'ullanmadingiz. Takrorlash kerak bo'lgan so'zlar: :due. Qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слов к повторению: :due. Хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
-| `reminders.never_started` | Siz LexiFlow'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot atigi 5 daqiqa oladi. | Вы ещё не начали заниматься в LexiFlow. Первое занятие займёт всего 5 минут. |
-| `reminders.new_words` | Bugun LexiFlow'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli. | Сегодня вас ждут новые слова в LexiFlow. Хватит 5 минут. |
-| `reminders.choose_course` | Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang. | Выберите курс в LexiFlow, чтобы начать заниматься. |
+| `reminders.inactive` | Muhrla: :count kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.inactive_due` | Muhrla: :count kundan beri shug'ullanmadingiz. Takrorlash kerak bo'lgan so'zlar: :due. Qaytish uchun 5 daqiqa yetarli. | Вы :count день не занимались. Слов к повторению: :due. Хватит 5 минут, чтобы вернуться.\|Вы :count дня не занимались. …\|Вы :count дней не занимались. … |
+| `reminders.never_started` | Siz Muhrla'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot atigi 5 daqiqa oladi. | Вы ещё не начали заниматься в Muhrla. Первое занятие займёт всего 5 минут. |
+| `reminders.new_words` | Bugun Muhrla'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli. | Сегодня вас ждут новые слова в Muhrla. Хватит 5 минут. |
+| `reminders.choose_course` | Shug'ullanishni boshlash uchun Muhrla'da kursni tanlang. | Выберите курс в Muhrla, чтобы начать заниматься. |
 
 `:count` — число дней без занятий, `:due` — число слов к повторению. В каждом тексте после пустой строки — прежний хвост «Vaqtni o'zgartirish yoki o'chirish: /settings». Проверить: «kundan beri shug'ullanmadingiz» (N дней не занимались), «takrorlanmasa unutiladi» (без повторения забываются), «Takrorlash kerak bo'lgan so'zlar» (слова к повторению).
 
@@ -3712,6 +3789,7 @@
 | `catalog.selected` | Kurs tanlandi | Курс выбран |
 | `catalog.active` | Siz shu kursni o'rganyapsiz | Вы учите этот курс |
 | `catalog.hint` | Har kuni yangi so'zlar — sizning kursingizdan | Каждый день новые слова — из вашего курса |
+| `catalog.open_lessons` | Darslarni ochish | Открыть уроки |
 | `settings.course` | Mening kursim | Мой курс |
 
 ## Пробный Pro и Pro за приглашения (16.11.2026) — на проверку носителю
@@ -3742,7 +3820,7 @@
 | `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
 | `referrals.share` | Ulashish | Поделиться |
 | `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
-| `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman. Havola orqali kiring — sinov davri uchun Pro'ni bepul olasiz | Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период |
+| `referrals.share_text` | Muhrla'da ingliz tilini o'rganyapman. Havola orqali kiring — sinov davri uchun Pro'ni bepul olasiz | Учу английский в Muhrla. Заходи по ссылке — получишь Pro бесплатно на пробный период |
 | `referrals.counts.invited` | Kelganlar | Пришли |
 | `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
 | `referrals.counts.counted` | Hisobga olinganlar | Засчитаны |
@@ -3777,7 +3855,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `referrals.invite.text` | Do'stlaringizni LexiFlow'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link | Пригласите друзей в LexiFlow — получите Pro бесплатно.\n\n:rule\n\n:progress\n\nВаша ссылка:\n:link |
+| `referrals.invite.text` | Do'stlaringizni Muhrla'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link | Пригласите друзей в Muhrla — получите Pro бесплатно.\n\n:rule\n\n:progress\n\nВаша ссылка:\n:link |
 | `referrals.invite.rule` | Do'st sozlashdan o'tib, bir kunda :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz. | Друг засчитывается, когда пройдёт настройку и оценит :cards за день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro. |
 | `referrals.invite.cards` | :count ta kartochkani | 10 карточек (:count карточку \| :count карточки \| :count карточек) |
 | `referrals.invite.and` | va | и (между вехами: «3 va 6») |
@@ -3785,15 +3863,15 @@
 | `referrals.invite.next` | Hisobga olingan do'stlar: :counted / :target — +:days Pro'gacha yana :remaining ta do'st qoldi. | Засчитано друзей: :counted из :target — до +:days Pro осталось :remaining. |
 | `referrals.invite.owed` | Hisobga olingan do'stlar: :counted — +:days Pro mukofoti rasmiylashtirilmoqda. | Засчитано друзей: :counted — награда +:days Pro уже оформляется. |
 | `referrals.invite.done` | Hisobga olingan do'stlar: :counted. Takliflar uchun barcha mukofotlar olindi — rahmat! | Засчитано друзей: :counted. Все награды за приглашения получены — спасибо! |
-| `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul! | Учу английский в LexiFlow — присоединяйся, первые :trial Pro бесплатно! |
-| `referrals.invite.share_text_plain` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling! | Учу английский в LexiFlow — присоединяйся! |
+| `referrals.invite.share_text` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul! | Учу английский в Muhrla — присоединяйся, первые :trial Pro бесплатно! |
+| `referrals.invite.share_text_plain` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling! | Учу английский в Muhrla — присоединяйся! |
 | `referrals.days` | :count kun | 7 дней (:count день \| :count дня \| :count дней) |
 | `referrals.friends_gen` | :count ta do'stni | 3 друзей (:count друга \| :count друзей \| :count друзей) |
 | `referrals.hint` | Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Пригласите друзей — получите Pro бесплатно: /invite |
 | `referrals.milestone.reached` | 🎉 :count ta do'stingiz o'rganishni boshladi — sizga +:days Pro (:date gacha). | 🎉 :count ваших друга/друзей начали заниматься — вам +:days Pro (до :date). |
 | `referrals.milestone.next` | Keyingi mukofotgacha yana :count ta do'st qoldi. | До следующей награды: ещё :count друга/друзей. |
-| `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite |
-| `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. | 🎁 Вам открыт Pro на :days — бесплатно, до :date. |
+| `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits\n\n:friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits\n\nПригласите :friends — получите ещё :reward Pro: /invite (текст обновлён 25.11.2026, см. раздел «Кнопки бота») |
+| `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits | 🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits |
 | `billing.renewal.hint_trial` | Pro'ni yo'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do'stlaringizni taklif qiling (/invite). | Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite). |
 | `onboarding.settings.language_title` | Tilni tanlang | Выберите язык |
 | `commands.private.language` | Til | Язык / Til |
@@ -3824,6 +3902,7 @@
 | `month.my_noplace` | Hozircha o'rin yo'q · {points} | Пока без места · {points} |
 | `month.start_prompt` | Mashg'ulotni boshlang — oylik reytingga kirasiz | Начните заниматься — и попадёте в рейтинг месяца |
 | `month.opted_out` | Siz reytinglarda qatnashmayapsiz. Sozlamalarda yoqish mumkin | Вы не участвуете в рейтингах. Включить можно в настройках |
+| `month.not_counted_blocked` | Akkauntingiz reytingda qatnashmaydi, qo'llab-quvvatlash xizmatiga yozing | Ваш аккаунт не участвует в рейтинге, напишите в поддержку |
 | `month.missing_days` | Sovrin uchun shu oyda yana {count} kun shug'ullanish kerak | Для приза нужно заниматься ещё {count} дн. в этом месяце |
 | `month.missing_account` | Sovrin uchun akkaunt kamida {count} kunlik bo'lishi kerak | Для приза аккаунту должно быть не меньше {count} дн. |
 | `month.eligible` | Siz sovrinlar o'yinida qatnashyapsiz | Вы участвуете в розыгрыше призов |
@@ -3867,7 +3946,7 @@
 |---|---|---|
 | `referrals.invite.rule_days` | Do'st sozlashdan o'tib, :days kun davomida kuniga kamida :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz. | Друг засчитывается, когда пройдёт настройку и будет заниматься :days дн., оценивая не менее :cards в день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro. (когда `referrals.activation.days` > 1) |
 | `referrals.invite.cards_min` | :count ta kartochkani | :count карточки \| :count карточек (родительный: «не менее 10 карточек») |
-| `referrals.invite.text_plain` | Do'stlaringizni LexiFlow'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link | Пригласите друзей в LexiFlow.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link (когда вехи наград не заданы) |
+| `referrals.invite.text_plain` | Do'stlaringizni Muhrla'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link | Пригласите друзей в Muhrla.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link (когда вехи наград не заданы) |
 
 ## Без выбора часового пояса и цели (16.11.2026) — на проверку носителю
 
@@ -4011,6 +4090,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `readiness.unavailable` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `exam.quiz_closed_title` | Vaqt tugadi | Время вышло |
 | `profile.readiness.hint` | O'zlashtirilgan so'zlar ulushi va hafta testi | Доля освоенных слов и тест недели |
+| `profile.learning` | O'qish natijalarim | Мои результаты |
+| `profile.account` | Hisobim | Мой аккаунт |
 | `error.code.level_quiz_disabled` | Hafta testi hozir mavjud emas. | Тест недели сейчас недоступен. |
 | `error.code.readiness_disabled` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `finished.hard_round.title_none` | Qiyin so'zlar raundi tugadi | Раунд трудных слов пройден (при 0 побеждённых) |
@@ -4038,9 +4119,9 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 
 | Ключ | uz | ru |
 |---|---|---|
-| `reminders.quiz.lead.review` | LexiFlow'da :count ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz. | Пора повторить :count слово. Начнём с одного прямо здесь.\|Пора повторить :count слова. Начнём с одного прямо здесь.\|Пора повторить :count слов. Начнём с одного прямо здесь. |
+| `reminders.quiz.lead.review` | Muhrla'da :count ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz. | Пора повторить :count слово. Начнём с одного прямо здесь.\|Пора повторить :count слова. Начнём с одного прямо здесь.\|Пора повторить :count слов. Начнём с одного прямо здесь. |
 | `reminders.quiz.lead.streak_at_risk` | Ketma-ket :count kun shug'ullandingiz. Natijani saqlash uchun bugungi maqsadni bajaring. Mashq: | Серия — :count день. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дня. Выполните цель дня, чтобы не прервать её. Разминка:\|Серия — :count дней. Выполните цель дня, чтобы не прервать её. Разминка: |
-| `reminders.quiz.lead.inactive` | LexiFlow: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz: | Вы :count день не занимались. Проверим одно слово:\|Вы :count дня не занимались. Проверим одно слово:\|Вы :count дней не занимались. Проверим одно слово: |
+| `reminders.quiz.lead.inactive` | Muhrla: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz: | Вы :count день не занимались. Проверим одно слово:\|Вы :count дня не занимались. Проверим одно слово:\|Вы :count дней не занимались. Проверим одно слово: |
 | `reminders.quiz.lead.new_words` | Yangi so'zlardan oldin mashq: | Разминка перед новыми словами: |
 | `reminders.quiz.question.meaning` | «:word» nima degani? | Что значит «:word»? |
 | `reminders.quiz.question.reverse` | «:translation» inglizchada qanday? | Как по-английски «:translation»? |
@@ -4049,7 +4130,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `reminders.quiz.wrong` | ❌ Unday emas. :word — :answer. | ❌ Не совсем. :word — :answer. |
 | `reminders.quiz.after_due` | Ilovada sizni :count ta so'z kutmoqda — 5 daqiqa yetarli. | В приложении ждут :count слово — хватит 5 минут.\|В приложении ждут :count слова — хватит 5 минут.\|В приложении ждут :count слов — хватит 5 минут. |
 | `reminders.quiz.after_none` | Ilovada davom eting — u yerda yangi so'zlar bor. | Продолжите в приложении — там новые слова. |
-| `reminders.quiz.open_more` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `reminders.quiz.open_more` | Muhrla'ni ochish | Открыть Muhrla |
 | `reminders.quiz.expired` | Bu savol eskirgan. Ilovani oching — u yerda yangi so'zlar bor. | Этот вопрос устарел. Откройте приложение — там свежие слова. |
 
 ## Практика: новые типы 2026-11 (форма слова, найди ошибку) — на проверку носителю
@@ -4209,6 +4290,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `today.list.title` | Bugun uchun | На сегодня |
 | `today.goal.of` | {count} ta so'zdan | из {count} слов (после крупного числа выполненного) |
 | `today.goal.left_short` | {count} ta qoldi | осталось {count} |
+| `today.goal.edit` | Maqsadni o'zgartirish | Изменить цель |
 | `today.streak.short` | {count} kun ketma-ket | серия {count} дней |
 | `today.streak.record` | rekord — {count} kun | рекорд серии — {count} дней |
 | `assignments.progress_short` | {pct}% bajarildi | выполнено {pct}% |
@@ -4252,7 +4334,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `billing.saving` | {pct}% arzonroq | выгоднее на {pct}% (подпись на карточке тарифа: дешевле, чем помесячно) |
 | `billing.pay_cta` | {price} evaziga Pro olish | Оформить Pro за {price} (главная кнопка, {price} — «150 Stars») |
 | `billing.pay_cta_renew` | {price} evaziga Pro'ni uzaytirish | Продлить Pro за {price} |
-| `billing.pay_via` | To'lov {provider} orqali. | Оплата через {provider}. |
+| `billing.pay_via_once` | To'lov {provider} orqali, avtomatik uzaytirishsiz. | Оплата через {provider}, без автопродления. |
+| `billing.pay_via_renews` | To'lov {provider} orqali, har 30 kunda o'zi uzayadi — «Obuna» bo'limida o'chirish mumkin. | Оплата через {provider}, продлевается сама каждые 30 дней — отключить можно в «Подписке». |
 | `billing.pay_other` | Yoki boshqa usulda to'lash | Или оплатить по-другому (над кнопками Payme / Click) |
 | `billing.tariffs` | Tariflar | Тарифы |
 | `paywall.not_now` | Hozir emas | Не сейчас |
@@ -4296,5 +4379,909 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `league.table_all` | Butun jadval · {members} | Вся таблица · {members} |
 | `league.members` | {count} ishtirokchi | {count} участник/участника/участников |
 | `league.table_less` | Jadvalni yig'ish | Свернуть таблицу |
+| `league.daily_plan` | Bugungi rejaga o'tish | К плану на сегодня |
 | `month.title` | Oy reytingi | Рейтинг месяца |
 | `friends.list.streak_words` | ketma-ketlik {streak} · {words} | серия {streak} · {words} (вместо «🔥 {streak}») |
+
+## Кнопки бота и приветствие пробного Pro (25.11.2026) — на проверку носителю
+
+docs/36 §3б и §4б: у каждого сообщения бота, после которого логично действие, одна главная кнопка; тексты кнопок — общий файл `lang/uz/buttons.php`. Кнопки короткие (Telegram обрезает длинную подпись на узком экране), глагол — в форме существительного действия, как у прочих кнопок бота («…ni ochish»). «Musobaqa» — вызов другу на несколько дней (не «bellashuv» — живой баттл). Приветствие пробного Pro теперь перечисляет 4 пункта «что даёт Pro» (`billing.pro_promises.*`, по `ProPromises::top()`); строки о практике и «Караване» есть, только пока они открыты ученику. Носителю проверить: естественно ли «Revansh» (или лучше «Qayta bellashish»), и не длинна ли строка `billing.pro_promises.freezes` в списке.
+
+### Кнопки (`lang/uz/buttons.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `buttons.start_lesson` | ▶️ Mashg'ulotni boshlash | ▶️ Начать занятие |
+| `buttons.first_lesson` | ▶️ Birinchi mashg'ulot | ▶️ Первое занятие |
+| `buttons.choose_course` | 📚 Kursni tanlash | 📚 Выбрать курс |
+| `buttons.open_app` | ▶️ Ilovani ochish | ▶️ Открыть приложение |
+| `buttons.open_challenge` | 🎯 Musobaqani ochish | 🎯 Открыть вызов |
+| `buttons.new_challenge` | 🎯 Yangi musobaqa | 🎯 Новый вызов |
+| `buttons.rematch` | 🔁 Revansh | 🔁 Реванш |
+| `buttons.challenge_friend` | ⚔️ Musobaqaga chaqirish | ⚔️ Бросить вызов |
+| `buttons.friends` | 👥 Do'stlar | 👥 Друзья |
+| `buttons.open_league` | 🏅 Ligani ochish | 🏅 Открыть лигу |
+| `buttons.month_rating` | 🏆 Oy reytingi | 🏆 Рейтинг месяца |
+| `buttons.invite_more` | 👥 Yana taklif qilish | 👥 Пригласить ещё |
+| `buttons.share` | 📤 Ulashish | 📤 Поделиться |
+
+### Что даёт Pro — строки бота (`lang/uz/billing.php`, блок `pro_promises`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.pro_promises.new_words` | Yangi so'zlar — kunlik limitsiz | Новые слова без дневного лимита |
+| `billing.pro_promises.practice` | Mustahkamlash mashqlari va bellashuvlar — kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `billing.pro_promises.practice_solo` | Mustahkamlash mashqlari — kunlik limitsiz | Практика без дневного лимита |
+| `billing.pro_promises.decks` | O'z so'z to'plamlaringiz | Свои колоды слов |
+| `billing.pro_promises.freezes` | Zaxira kunlar: bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | Заморозка серии: пропуск дня не обрывает серию |
+| `billing.pro_promises.game` | Karvon — kunlik limitsiz | Караван без дневного лимита |
+| `billing.pro_promises.exercises` | Yozish va gap to'ldirish mashqlari | Упражнения «Написание слова» и «Пропуск в примере» |
+| `billing.pro_promises.mock_exams` | IELTS va SAT sinov imtihonlari | Пробные тесты IELTS и SAT |
+
+Приветствие целиком (uz, 14 дней, практика закрыта): «🎁 Sizga 14 kun Pro bepul ochildi — 10.12.2026 gacha. / Pro nima beradi: / • Yangi so'zlar — kunlik limitsiz / • O'z so'z to'plamlaringiz / • Zaxira kunlar: … / • Yozish va gap to'ldirish mashqlari / 3 ta do'stni taklif qiling — yana 7 kun Pro olasiz: /invite».
+
+## Цель дня после пробного Pro и предложения после него (docs/34 §2в P4–P7, 25 ноября 2026 года)
+
+### Бот (`lang/uz/billing.php`, блок `trial_offer`; `lang/uz/buttons.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.trial_offer.ended` | Pro sinov muddati tugadi. Endi sizda Free — kuniga: :limits. | Пробный Pro закончился. Теперь у вас Free — в день: :limits. |
+| `billing.trial_offer.ended_generic` | Pro sinov muddati tugadi. Endi sizda Free. | Пробный Pro закончился. Теперь у вас Free. |
+| `billing.trial_offer.limit_words` | :count ta yangi so'z | :count новое слово / новых слова / новых слов |
+| `billing.trial_offer.limit_goal` | maqsad :count tagacha kartochka | цель до :count карточки / карточек |
+| `billing.trial_offer.limit_games` | :count ta so'z o'yini | :count игра / игры / игр со словами |
+| `billing.trial_offer.ended_on` | Pro sinov muddati tugadi (:date). | Пробный Pro закончился :date. |
+| `billing.trial_offer.learned` | Sinov davrida :words o'rgandingiz. | За пробный период вы выучили :words. |
+| `billing.trial_offer.words` | :count ta yangi so'z | :count новое слово / новых слова / новых слов |
+| `billing.trial_offer.best_streak` | Eng uzun ketma-ketlik — :streak. | Лучшая серия — :streak. |
+| `billing.trial_offer.back` | Pro'ni qaytaring — kunlik limitlarsiz o'rganishda davom eting. | Верните Pro — и учитесь дальше без дневных лимитов. |
+| `billing.trial_offer.last` | Pro haqida oxirgi eslatma: sinov muddati tugadi (:date). Bu haqda boshqa yozmaymiz — Pro'ni istalgan vaqtda /pro orqali qaytarishingiz mumkin. | Последнее напоминание о Pro: пробный период закончился :date. Больше писать об этом не будем — Pro можно вернуть в любой момент в /pro. |
+| `billing.trial_offer.benefits` | Pro nima beradi: … | Что даёт Pro: … |
+| `billing.trial_offer.from_month` | Muhrla Pro narxi — oyiga :price. | Muhrla Pro — от :price в месяц. |
+| `billing.trial_offer.savings` | Uzoq muddatga foydaliroq: :items. | Выгоднее на срок: :items. |
+| `billing.trial_offer.saving_item` | :period −:pct % | :period −:pct % |
+| `billing.trial_offer.opted_out` | Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi. | Хорошо, предложений Pro больше не будет. Сообщения об оплате и напоминания о занятиях останутся. |
+| `buttons.invite` | 👥 Do'stlarni taklif qilish | 👥 Пригласить друзей |
+| `buttons.offers_off` | 🔕 Takliflar kerak emas | 🔕 Не присылать предложения |
+
+Носителю проверить: `from_month` — «от» (нижняя цена) передан без слова «-dan» (`:price` оканчивается на «so'm» / «⭐», аффикс к ним не приклеить); `limit_goal` внутри перечисления «kuniga: 10 ta yangi so'z, maqsad 10 tagacha kartochka, 3 ta so'z o'yini».
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.daily_goal.unit` | kuniga nechta kartochka | карточек в день |
+| `settings.daily_goal.locked` | {value} — Pro'da | {value} — в Pro |
+| `paywall.heading.daily_goal` | {max} dan katta maqsad — Pro'da | Цель больше {max} — в Pro |
+| `paywall.heading.trial_ended` | Pro sinov muddati tugadi | Пробный Pro закончился |
+| `paywall.lead_daily_goal` | Bepul tarifda kunlik maqsad — {max} tagacha kartochka. Pro'da — istalgancha. | На бесплатном тарифе цель дня — до {max} карточек. В Pro — любая. |
+| `paywall.lead_trial_ended` | Kunlik maqsad endi {max} ta kartochka — bu Free tarifidagi eng yuqori maqsad. | Цель дня теперь {max} карточек — это максимум на Free. |
+| `paywall.lead_trial_ended_generic` | Endi sizda bepul tarif. Cheklovsiz o'rganish uchun Pro'ni rasmiylashtiring. | Теперь у вас бесплатный тариф. Оформите Pro, чтобы учиться без ограничений. |
+
+## Выпуск 1 · регион ученика и эмодзи Pro (docs/35 R1–R5, docs/31 §5а) — на проверку носителю
+
+Регион — «hudud» в тексте и «viloyat» в названиях областей. **С 26.11.2026 в тексте тоже «viloyat»** — актуальные строки в разделе «Область / Viloyat» в начале документа; таблица ниже — снимок до замены. Носителю проверить: «Hududni :date dan boshlab» (дата `25.12.2026` перед «dan»), «Ko'rsatmaslik» как кнопка отказа указать регион.
+
+### Бот (`lang/uz/regions.php`, `lang/uz/onboarding.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `regions.UZ-TK` | Toshkent shahri | город Ташкент |
+| `regions.UZ-TO` | Toshkent viloyati | Ташкентская область |
+| `regions.UZ-AN` | Andijon viloyati | Андижанская область |
+| `regions.UZ-BU` | Buxoro viloyati | Бухарская область |
+| `regions.UZ-FA` | Farg'ona viloyati | Ферганская область |
+| `regions.UZ-JI` | Jizzax viloyati | Джизакская область |
+| `regions.UZ-NG` | Namangan viloyati | Наманганская область |
+| `regions.UZ-NW` | Navoiy viloyati | Навоийская область |
+| `regions.UZ-QA` | Qashqadaryo viloyati | Кашкадарьинская область |
+| `regions.UZ-QR` | Qoraqalpog'iston Respublikasi | Республика Каракалпакстан |
+| `regions.UZ-SA` | Samarqand viloyati | Самаркандская область |
+| `regions.UZ-SI` | Sirdaryo viloyati | Сырдарьинская область |
+| `regions.UZ-SU` | Surxondaryo viloyati | Сурхандарьинская область |
+| `regions.UZ-XO` | Xorazm viloyati | Хорезмская область |
+| `regions.other` | Boshqa davlat | Другая страна |
+| `onboarding.steps.region` | Qayerda yashaysiz? Bu hududingiz reytingi uchun kerak. | Где вы живёте? Это нужно для рейтинга вашего региона. |
+| `onboarding.steps.region_list` | Hududingizni tanlang | Выберите ваш регион |
+| `onboarding.options.region.uzbekistan` | 🇺🇿 O'zbekiston | 🇺🇿 Узбекистан |
+| `onboarding.options.region.other` | 🌍 Boshqa davlat | 🌍 Другая страна |
+| `onboarding.options.region.none` | Ko'rsatmaslik | Не указывать |
+| `onboarding.options.region.back` | ← Orqaga | ← Назад |
+| `onboarding.settings.region_saved` | Hudud: :region. Saqlandi. | Регион: :region. Сохранено. |
+| `onboarding.settings.region_none` | ko'rsatilmagan | не указан |
+| `onboarding.settings.region_undo` | ↩️ Bekor qilish | ↩️ Отменить |
+| `onboarding.settings.region_too_soon` | Hududni 30 kunda bir marta o'zgartirish mumkin. Hududni :date dan boshlab o'zgartirishingiz mumkin. | Регион можно менять раз в 30 дней. Сменить регион можно с :date. |
+| `onboarding.settings.region_reverted` | Avvalgi hudud tiklandi. | Прежний регион возвращён. |
+| `onboarding.settings.region_revert_unavailable` | Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена. |
+| `onboarding.settings.buttons.region` | Hudud | Регион |
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.region` | Hudud | Регион |
+| `settings.region.none` | Ko'rsatilmagan | Не указан |
+| `settings.region.hint` | Hududingiz reytingi uchun kerak. Hududni 30 kunda bir marta o'zgartirish mumkin. | Нужен для рейтинга вашего региона. Сменить регион можно раз в 30 дней. |
+| `settings.region.next_change` | Hududni {date} dan boshlab o'zgartirish mumkin. | Сменить регион можно с {date}. |
+| `settings.region.undo` | Bekor qilish | Отменить смену |
+| `region.sheet.title` | Qayerda yashaysiz? | Где вы живёте? |
+| `region.sheet.lead` | Bu hududingiz reytingi uchun kerak. | Это нужно для рейтинга вашего региона. |
+| `region.sheet.uzbekistan` | 🇺🇿 O'zbekiston | 🇺🇿 Узбекистан |
+| `region.sheet.other` | 🌍 Boshqa davlat | 🌍 Другая страна |
+| `region.sheet.none` | Ko'rsatmaslik | Не указывать |
+| `region.sheet.pick` | Hududingizni tanlang | Выберите ваш регион |
+| `region.sheet.back` | Orqaga | Назад |
+| `region.prompt.title` | Hududingizni ko'rsating | Укажите регион |
+| `region.prompt.text` | Hududingiz reytingi paydo bo'ladi. | Появится рейтинг вашего региона. |
+| `region.prompt.choose` | Hududni tanlash | Выбрать регион |
+| `region.prompt.later` | Hozir emas | Не сейчас |
+| `settings.pro_emoji` | Ism yonidagi emoji | Эмодзи рядом с именем |
+| `settings.pro_emoji.hint` | Pro bor ekan, ismingiz yonida ko'rinadi. Pro'siz tanlov saqlanib qoladi. | Виден рядом с вашим именем, пока у вас Pro. Без Pro выбор сохраняется. |
+| `settings.pro_emoji.locked` | Ism yonidagi emoji — Pro afzalliklaridan biri. | Эмодзи рядом с именем — одно из преимуществ Pro. |
+| `settings.pro_emoji.none` | Emojisiz | Без эмодзи |
+| `error.code.region_change_too_soon` | Hududni 30 kunda bir marta o'zgartirish mumkin. | Регион можно менять раз в 30 дней. |
+| `error.code.region_revert_unavailable` | Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена. |
+| `error.code.pro_emoji_pro_required` | Ism yonidagi emoji — Pro'da. | Эмодзи рядом с именем — в Pro. |
+
+## Экран «Курс» по макету 25.11.2026 (docs/14 §6.5, T7) — на проверку носителю
+
+Вкладка «Курс» открывает курс ученика: шапка «Мой курс», карточка «120 / 1000 слов · 12%», плоский список уроков с тонкими
+заголовками модулей («Модуль 2 · Еда», «1 из 5 уроков»). Ключи `course.learn`, `course.learn_lesson`, `course.module_of`,
+`course.module_prev`, `course.module_next`, `course.modules`, `course.to_current` удалены (лист модулей и стрелки между модулями
+убраны; кнопка урока теперь «Начать урок» / «Продолжить»).
+
+Проверить: `course.repeat` — подпись у пройденного урока со строчной буквы («takrorlash» = «повторить»); `course.after_lesson` —
+«{number}-darsdan keyin» (после урока N); `course.words_of` идёт после числа: «120 / 1000 ta so'z».
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `course.my_course` | Mening kursim | Мой курс |
+| `course.all_courses` | Barcha kurslar | Все курсы |
+| `course.lessons` | Darslar | Уроки |
+| `course.words_of.one` | / {total} ta so'z | / {total} слова |
+| `course.words_of.few` | _(в uz этой формы нет — используется `other`)_ | / {total} слов |
+| `course.words_of.many` | _(в uz этой формы нет — используется `other`)_ | / {total} слов |
+| `course.words_of.other` | / {total} ta so'z | / {total} слова |
+| `course.module_lessons.one` | {total} ta darsdan {done} tasi | {done} из {total} урока |
+| `course.module_lessons.few` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} уроков |
+| `course.module_lessons.many` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} уроков |
+| `course.module_lessons.other` | {total} ta darsdan {done} tasi | {done} из {total} урока |
+| `course.new_words.one` | {count} ta yangi so'z | {count} новое слово |
+| `course.new_words.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова |
+| `course.new_words.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов |
+| `course.new_words.other` | {count} ta yangi so'z | {count} новых слова |
+| `course.repeat` | takrorlash | повторить |
+| `course.after_lesson` | {number}-darsdan keyin | после урока {number} |
+| `course.start_lesson` | Darsni boshlash | Начать урок |
+| `course.continue_lesson` | Davom etish | Продолжить |
+
+## Выпуск 1 · экраны занятия по макету 25.11 (Question, Feedback) — на проверку носителю
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+Шапка занятия — «3 из 8» и пилюля режима; формулировки заданий приведены к одному стилю («Выберите…», «Напишите…»); под примером
+после ошибки — строка о том, вернётся ли слово. Прошу проверить: естественно ли «8 tadan 3 ta» в маленьком счётчике шапки и «qaytadi»
+для «вернётся» (о слове в уроке).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.progress.counter` | {total} tadan {done} ta | {done} из {total} (счётчик в шапке занятия: «3 из 8») |
+| `exercise.miss.returns_lesson` | So'z shu darsda yana qaytadi. | Слово вернётся ещё раз в этом уроке. (после ошибки в уроке) |
+| `exercise.miss.returns_round` | So'z shu raundda yana qaytadi. | Слово вернётся ещё раз в этом раунде. (после ошибки в ежедневном раунде / раунде трудных слов) |
+| `exercise.miss.neutral` | To'g'ri javobni eslab qoling. | Запомните правильный ответ. (после ошибки, когда слово в этом занятии может не вернуться) |
+| `exercise.meaning.title` | So'zning tarjimasini tanlang | Выберите перевод слова (было «Bu so'z nimani anglatadi?» / «Что значит это слово?») |
+| `exercise.audio.title` | Tinglang va tarjimasini tanlang | Послушайте и выберите перевод (было «Nimani eshitdingiz?» / «Что вы услышали?») |
+| `exercise.pretest.title` | So'zni bilsangiz, tarjimasini tanlang | Выберите перевод, если знаете слово (было «Bu so'zni bilasizmi?» / «Знаете это слово?») |
+
+## Выпуск 1 · напоминание бота после урока (docs/31 §5б) — на проверку носителю
+
+### Бот (`lang/uz/reminders.php`, `lang/uz/buttons.php`)
+
+Через 45 минут после урока с новыми словами, если ученик не сыграл: предложение закрепить слова в игре «Пары на время» (название
+игры — как в Mini App, `practice.mode.pairs_timed.title`). Об очках текст не говорит. Прошу проверить: «mustahkamlang» (закрепите) и
+«esda qoladi» (запомнится).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.lesson_nudge.text` | «:lesson» darsi tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi. | Урок «:lesson» пройден: :count новое слово. Закрепите его в игре «Пары на время» — одна минута, и слово запомнится лучше.\|… :count новых слова. Закрепите их …\|… :count новых слов. Закрепите их … |
+| `reminders.lesson_nudge.text_untitled` | Dars tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi. | Урок пройден: :count новое слово. … (то же без названия урока) |
+| `buttons.lesson_game` | 🎮 O'yinda mustahkamlash | 🎮 Закрепить в игре |
+
+Подвал «Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.» — тот же, что у остальных напоминаний.
+
+## Выпуск 1 · «Урок пройден: что дальше» и «Игры со словами» по макету 25.11 (docs/31 §5б, T6) — на проверку носителю
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+Цепочка дня «урок → тренировка → игра»: после урока — «Начать тренировку» (закрепление слов урока) и «Или сыграйте: пары на время»,
+после тренировки — «Играть». Тренировка-закрепление не даёт баллов лиги и не двигает цель дня — текст об этом честный. Прошу
+проверить: «2-qadam (3 tadan)» для «Шаг 2 из 3», «mustahkamlash» для «закрепление», «Vaqtga juftlar» в строке игры.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.lesson.title` | Dars tugadi! | Урок пройден! |
+| `finished.lesson.new_words.one` | {count} ta yangi so'z | {count} новое слово |
+| `finished.lesson.new_words.other` | {count} ta yangi so'z | {count} новых слова (5 новых слов) |
+| `finished.stats.of` | {total} tadan {done} ta | {done} из {total} (число на плитке итога: «7 из 8») |
+| `finished.stats.correct_answers` | to'g'ri javob | верных ответов (подпись под «7 из 8») |
+| `finished.stats.new_words` | yangi so'z | новых слов (подпись под «+5») |
+| `finished.stats.league_points` | liga bali | баллов лиги (подпись под «+56») |
+| `finished.goal_line` | Kunlik maqsad · {done} / {target} | Цель дня · {done} / {target} |
+| `finished.goal_left` | yana {count} ta | ещё {count} (сколько осталось до цели) |
+| `finished.next.title` | Keyingi qadam | Что дальше |
+| `finished.next.training_title` | So'zlarni mashqda mustahkamlang | Закрепите слова в тренировке |
+| `finished.next.training_text` | So'zlarni darhol takrorlasangiz, ular yaxshiroq esda qoladi. | Слова запоминаются лучше, если повторить их сразу. (дальше — «5 ta yangi so'z.») |
+| `finished.next.training_start` | Mashqni boshlash | Начать тренировку |
+| `finished.next.game_text` | So'z va tarjimasini rekorddan tezroq juftlang — shu dars so'zlarida. | Соедините слово и перевод быстрее рекорда — на словах этого урока. |
+| `finished.next.play` | O'ynash | Играть |
+| `finished.next.game_line` | Yoki o'ynang: vaqtga juftlar | Или сыграйте: пары на время |
+| `finished.next.game_sub` | Dars so'zlari | Слова урока |
+| `finished.lesson_review.title` | So'zlar mustahkamlandi | Слова закреплены (итог тренировки-закрепления) |
+| `finished.lesson_review.won` | so'z mustahkamlandi | слов закреплено (подпись под «5 из 6») |
+| `finished.lesson_review.first_try` | birinchi urinishda | с первой попытки |
+| `error.code.lesson_review_unavailable` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
+| `error.lesson_review.disabled` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
+| `error.lesson_review.no_new_words` | Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q. | Новых слов этого урока сегодня не было — закреплять пока нечего. |
+| `error.lesson_review.no_objective_exercise` | Bu dars so'zlari uchun hozircha mos topshiriqlar yo'q. | Для слов этого урока пока нет подходящих заданий. |
+| `practice.hub.games_title` | So'z o'yinlari | Игры со словами |
+| `practice.hub.learned.one` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученном слове |
+| `practice.hub.learned.other` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученных словах |
+| `practice.hub.learned_unknown` | Allaqachon o'rgangan so'zlaringizda o'ynang | Играйте на словах, которые уже учили |
+| `practice.hub.step.text` | So'z va tarjimasini rekorddan tezroq juftlang. «{lesson}» darsi so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова из урока «{lesson}», около {minutes} мин. |
+| `practice.hub.step.text_plain` | So'z va tarjimasini rekorddan tezroq juftlang. Shu dars so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова этого урока, около {minutes} мин. |
+| `practice.hub.step.play` | O'ynash | Играть |
+| `practice.hub.caravan.title` | Kunlik karvon | Караван дня |
+| `practice.hub.caravan.text` | Kurs so'zlari bo'ylab sayohat | Путешествие по словам курса |
+| `practice.hub.all_modes` | Barcha o'yinlar | Все игры (было «Barcha mashqlar» / «Все режимы») |
+| `practice.hub.battle.title` | Do'st bilan bellashuv | Баттл с другом (было «Yakkama-yakka bellashuv» / «Баттл 1 на 1») |
+
+## Экран «Bugun» по макету 25.11.2026 и лист пробного Pro (W3) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Большая карточка шага плана дня (урок → mashq (закрепление урока) → игра «Vaqtga juftliklar»), карточка «Bugungi reja» с тремя шагами, цель дня, плитки «Takrorlash» / «So'z o'yinlari». Закрепление не даёт баллов лиги — в тексте только «mustahkamlang». Разовый лист пробного Pro: дни и дата — из API, бренд подставляется (`{brand}`). Прошу проверить: «Mashq» для «Тренировка» (шаг 2) и «{total} qadamdan {step}-qadam» для «шаг N из M».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.hero.lesson_eyebrow` | {level} · {number}-dars | {level} · урок {number} |
+| `today.hero.lesson_eyebrow_plain` | {number}-dars | Урок {number} |
+| `today.hero.new_words` | {count} ta yangi so'z | {count} новых слов |
+| `today.hero.lesson_start` | Darsni boshlash | Начать урок |
+| `today.hero.lesson_done` | Dars o'tildi | Урок пройден |
+| `today.hero.lesson_done_named` | «{title}» darsi o'tildi | Урок «{title}» пройден |
+| `today.hero.training_title` | Mashq | Тренировка |
+| `today.hero.training_text` | {count} ta so'zni mustahkamlang | Закрепите {count} слов |
+| `today.hero.training_start` | Mashqni boshlash | Начать тренировку |
+| `today.hero.continue` | Davom ettirish | Продолжить |
+| `today.hero.game_title` | Vaqtga juftliklar | Пары на время |
+| `today.hero.game_text` | Shu dars so'zlari bilan o'yin | Игра на словах этого урока |
+| `today.hero.play` | O'ynash | Играть |
+| `today.hero.done_title` | Bugungi reja bajarildi | План на сегодня выполнен |
+| `today.hero.done_text` | Yangi dars — ertaga. Takrorlash va o'yinlar doim ochiq | Новый урок — завтра. Повторение и игры доступны всегда |
+| `today.hero.review` | {count} ta so'zni takrorlash | Повторить {count} слов |
+| `today.steps.title` | Bugungi reja | План на сегодня |
+| `today.steps.counter` | {total} qadamdan {step}-qadam | шаг {step} из {total} |
+| `today.steps.all_done` | hammasi bajarildi | всё сделано |
+| `today.steps.lesson` | Dars | Урок |
+| `today.steps.training` | Mashq | Тренировка |
+| `today.steps.training_note` | mustahkamlash | закрепить |
+| `today.steps.game` | O'yin | Игра |
+| `today.steps.game_note` | vaqtga juftliklar | пары на время |
+| `today.steps.state.done` | bajarildi | сделано (для экранного диктора) |
+| `today.steps.state.current` | hozir | сейчас (для экранного диктора) |
+| `today.steps.state.upcoming` | navbatda | впереди (для экранного диктора) |
+| `today.goal.count` | {done} / {count} ta so'z | {done} / {count} слов |
+| `today.goal.more` | yana {count} ta so'z | ещё {count} слов |
+| `today.tiles.review` | Takrorlash | Повторение |
+| `today.tiles.review_ready` | {count} ta so'z tayyor | {count} слов готовы |
+| `today.tiles.review_none` | Hozircha yo'q | Пока нечего |
+| `today.tiles.review_continue` | Davom ettirish | Продолжить |
+| `today.tiles.games_note` | Juftliklarni toping | Найдите пары |
+| `today.tiles.games_step` | Bugungi {step}-qadam | Шаг {step} на сегодня |
+| `trialSheet.label` | Pro sinov muddati | Пробный Pro (название листа для экранного диктора) |
+| `trialSheet.badge` | {brand} Pro | {brand} Pro |
+| `trialSheet.title` | {count} kunlik Pro — {date} gacha | Pro на {count} дней — до {date} |
+| `trialSheet.text` | Sinov muddati boshlandi: Pro'ning barcha imkoniyatlari ochiq. Hech narsa to'lash shart emas. | Пробный период уже идёт: всё, что даёт Pro, открыто. Платить ничего не нужно. |
+| `trialSheet.ok` | Tushunarli | Понятно |
+| `trialSheet.more` | Pro haqida batafsil | Подробнее о Pro |
+
+## Поделиться через бота (`share.php`, выпуск 1)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `share.button.start` | 🚀 O'rganishni boshlash | 🚀 Начать изучение |
+| `share.button.add_friend` | 🤝 Do'st bo'lish | 🤝 Добавить в друзья |
+| `share.caption.achievement` | 🏆 Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz. | 🏆 Я получил(а) достижение «:title» в Muhrla! Учим английский прямо в Telegram. |
+| `share.caption.invite` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul! | Учу английский в Muhrla — присоединяйся, первые :trial Pro бесплатно! |
+| `share.caption.invite_plain` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling! | Учу английский в Muhrla — присоединяйся! |
+| `share.caption.friend_invite` | Muhrla'da do'st bo'laylik: seriyalarni solishtiramiz va musobaqa qilamiz! | Давай дружить в Muhrla: сравним серии и устроим вызов! |
+| `share.caption.game_city` | Men Muhrla'ning «Karvon» o'yinida yetib keldim: :city! Telegramda ingliz tilini o'rganamiz. | 🐪 Я дошёл(дошла) до :city в игре «Караван» в Muhrla! Учим английский прямо в Telegram. |
+| `share.title.achievement` | «:title» yutug'i | Достижение «:title» |
+| `share.title.invite` | Muhrla'ga taklif qilish | Пригласить в Muhrla |
+| `share.title.friend_invite` | Muhrla'da do'st bo'lish | Добавить в друзья в Muhrla |
+| `share.title.game_city` | Men yetib keldim: :city | Я дошёл до :city |
+
+## Лига, профиль и подписка по макетам 2026-11-25 (выпуск 1, T9)
+
+Экраны «Лига», «Профиль» и «Подписка Pro» переделаны по макетам `docs/design/2026-11-25-redesign/` (League, Profile, Pro). На экране
+лиги баллы теперь «ball» (`league.score`, как в рейтинге месяца), а не «ochko»; `league.rules` выше обновлена («Ballar:»).
+`league.points` («ochko») удалён: строка лиги экрана «Bugun» тоже пишет «ball» (`league.score`, см. раздел ниже). Носителю проверить:
+естественно ли звучат заголовки-вопросы блока «Как подняться выше» и не короче ли сказать «Kun rejasiga» иначе.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.score.one/other` | {count} ball | {count} балл / балла / баллов |
+| `league.weekly_title` | Haftalik liga | Недельная лига |
+| `league.to_next_short` | {rank}-o'ringacha | до {rank}-го места |
+| `league.climb.title` | Qanday qilib yuqoriga chiqish mumkin | Как подняться выше |
+| `league.climb.title_first` | Birinchi o'rinni qanday saqlab qolish mumkin | Как удержать первое место |
+| `league.climb.title_join` | Ligaga qanday kirish mumkin | Как попасть в лигу |
+| `league.climb.points` | Ballarni darslar va takrorlashlar beradi | Баллы дают уроки и повторения |
+| `league.climb.points_caravan` | Ballarni darslar, takrorlashlar va «Karvon» beradi | Баллы дают уроки, повторения и «Караван» |
+| `league.climb.link` | Kun rejasiga | К плану дня |
+| `profile.more` | Boshqa | Ещё |
+| `profile.pro_emoji` | Pro emojisi | Эмодзи Pro |
+| `profile.pro_emoji.none` | tanlanmagan | не выбран |
+| `profile.pro_emoji.locked` | Pro'da | в Pro |
+| `billing.period.chosen` | tanlangan | выбрано |
+| `billing.benefit.pro_emoji` | Ism yonidagi emoji | Эмодзи у имени |
+| `billing.benefit.pro_emoji.note` | ismingiz yonida o'zingiz tanlagan belgi | свой символ рядом с вашим именем |
+
+## Выпуск 1 · правки по ревью Mini App: «Mashq», шаги плана, лига (25.11.2026) — на проверку носителю
+
+Режим закрепления урока везде называется одним словом «Mashq» (ru «Тренировка»), «Takrorlash» — только ежедневное повторение: шапка
+занятия, подпись на итоге и пояснение под ним. Счётчики «N-qadam (M tadan)» берут N и M из плана дня (без закрепления — «2-qadam (2 tadan)»);
+без плана под рукой — только «Hozir tavsiya qilamiz». «Yangi dars — ertaga» на экране «Bugun» — только когда исчерпан дневной лимит
+Free; иначе нейтральная строка и кнопка «Keyingi dars». `league.points` («ochko») удалён — баллы лиги везде «ball» (`league.score`).
+Старые строки этих ключей в разделах выше убраны. Носителю проверить: естественно ли «Dars mashqi» и «{step}-qadam ({total} tadan)».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.lesson_review_header` | Mashq · {lesson} | Тренировка · {lesson} (шапка занятия и подпись итога; `{lesson}` — «2-modul · 4-dars · …» или название урока) |
+| `training.lesson_review_header_plain` | Dars mashqi | Тренировка урока (то же, когда урок неизвестен) |
+| `finished.lesson_review.note` | Bu mashq: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi. | Это тренировка: расписание повторений, цель дня и баллы лиги не меняются. |
+| `finished.next.step` | {step}-qadam ({total} tadan) · hozir tavsiya qilamiz | Шаг {step} из {total} · советуем сейчас (вместо `finished.next.step2` / `step3`) |
+| `finished.next.now` | Hozir tavsiya qilamiz | Советуем сейчас (то же без плана дня) |
+| `practice.hub.step.eyebrow` | {step}-qadam ({total} tadan) · hozir tavsiya qilamiz | Шаг {step} из {total} · советуем сейчас |
+| `practice.hub.step.now` | Hozir tavsiya qilamiz | Советуем сейчас (карточка игры урока без плана дня: открыта из бота) |
+| `today.hero.done_text_open` | Takrorlash va o'yinlar doim ochiq | Повторение и игры доступны всегда (план выполнен, лимит новых слов не исчерпан) |
+| `today.hero.next_lesson` | Keyingi dars | Следующий урок (вторичная кнопка выполненного плана) |
+
+## Выпуск 2 · достижение «Долгая память» `long_recall_25` (docs/32 §8.4, 26.11.2026) — на проверку носителю
+
+Достижение за 25 слов, вспомненных после перерыва в неделю и больше (длинный повтор). Текст попадает и на PNG-карточку: заголовок — до двух строк, описание — до трёх (проверяет `ShareCardTextsTest`). Носителю проверить: естественно ли «Uzoq xotira» как название и «esga olindi» (вспомнено) в описании.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `achievements.items.long_recall_25.title` | Uzoq xotira | Долгая память |
+| `achievements.items.long_recall_25.description` | 25 ta so'z bir hafta va undan ko'p tanaffusdan keyin esga olindi | 25 слов вспомнено после перерыва в неделю и больше |
+
+## Выпуск 2 · очки за слова v2 в Mini App: «Сегодня N из 100», чип ответа, финиш, неделя и месяц Free / Pro (docs/32 §8, S13, 26.11.2026) — на проверку носителю
+
+Термин один во всём приложении — «ball» (ru «балл»), как у баллов лиги (`league.score`). Числа (баллы, потолок дня, места) приходят с сервера; «5» лучших дней — число сервера (`best_days` в `GET /league`), у старого сервера — константа приложения (`WEEK_BEST_DAYS`). «Free» и «Pro» — названия таблиц, не переводятся. Носителю проверить: естественно ли «Bugungi maksimum», «uzoq: {count}» (сокращение «долгих повторений» в строке таблицы), «ball olgan kunlari» и «bellashyapsiz».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `score.today.title` | Bugungi ballar | Баллы сегодня (заголовок карточки «Сегодня N из 100») |
+| `score.today.count` | {points} / {count} ball | {points} / {count} баллов (`count` — потолок дня из API) |
+| `score.today.more` | yana {count} ball | ещё {count} баллов (сколько осталось до потолка) |
+| `score.today.max` | Bugungi maksimum | Максимум на сегодня |
+| `score.today.capped` | Bugun boshqa ball berilmaydi — so'zlar baribir o'rganiladi | На сегодня баллов больше не будет — слова всё равно учатся (карточка и занятие) |
+| `score.today.day_ends` | Yangi ballar soat {time} dan boshlab | Новые баллы — с {time} (начало следующего рейтингового дня) |
+| `score.today.month` | Oylik reytingga: {points} | В рейтинг месяца: {points} |
+| `score.today.week_capped` | Haftalik reytingga bugun maksimum, oylik reytingga yana {points} | В недельный рейтинг на сегодня максимум, в рейтинг месяца ещё {points} (у месяца свой остаток дня) |
+| `score.today.week_capped_month_open` | Haftalik reytingga bugun maksimum, oylik reytingga ballar hali qo'shiladi | В недельный рейтинг на сегодня максимум, в рейтинг месяца баллы ещё идут (месяц без потолка дня) |
+| `score.category.free` | Free | Free (таблица) |
+| `score.category.pro` | Pro | Pro (таблица) |
+| `score.chip_label` | Berildi: {points} | Начислено: {points} (подпись чипа «+3» для экранного диктора) |
+| `finished.score.week` | haftalik reytingga +{count} | в недельный рейтинг +{count} |
+| `finished.score.month` | oylik reytingga +{count} | в месяц +{count} |
+| `finished.score.both` | haftalik va oylik reytingga +{count} | в неделю и месяц +{count} |
+| `finished.score.capped` | {count} ball kunlik limitlardan oshgani uchun hisoblanmadi | {count} баллов сверх дневных лимитов не засчитаны (потолок дня и лимиты штук: новых слов, повторений) |
+| `finished.score.today` | Bugun: {count} | Сегодня: {count} |
+| `league.category` | {category} guruhi | Группа {category} |
+| `league.shared_first` | Siz birinchi o'rinni boshqalar bilan bo'lishyapsiz | Вы делите первое место |
+| `league.to_next_above` | yuqoridagi o'ringacha | до места выше (над строкой «N баллов», когда места выше нет среди строк) |
+| `league.last.unranked` | {tier}: hisobdan tashqari, {points} | {tier}: вне зачёта, {points} (прошлая неделя ученика вне рангов: отказ от лиг, блокировка) |
+| `league.row.days` | {count} kun | {count} дн. (дни с баллами в строке таблицы) |
+| `league.row.long` | uzoq: {count} | долгих: {count} (долгие повторения в строке таблицы) |
+| `league.rules_v2` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. |
+| `league.rules_v2.points` | Ballarni darslar va takrorlashlar beradi: yangi so'z, o'z vaqtidagi takrorlash va uzoq takrorlash (bir hafta va undan ko'proq tanaffusdan keyin). Bitta so'z uchun kuniga bir martadan ko'p emas, kunning chegarasi bor. | Баллы дают уроки и повторения: новое слово, повторение в срок и долгое повторение (через неделю и больше). За одно слово — не чаще раза в день, у дня есть потолок. |
+| `league.rules_v2.points_caravan` | Ballarni darslar, takrorlashlar va «Karvon» beradi: … (как выше) | Баллы дают уроки, повторения и «Караван»: … (то же, когда игра открыта) |
+| `league.rules_v2.best_days` | Hafta hisobiga eng yaxshi {days} kun kiradi. Ballar teng bo'lsa, uzoq takrorlashlari ko'proq, so'ng ball olgan kunlari ko'proq bo'lgan yuqorida turadi. | В зачёт недели идут {days} лучших дней. При равных баллах выше тот, у кого больше долгих повторений, затем — дней с баллами. |
+| `month.category_switch` | Oylik jadval | Таблица месяца (подпись переключателя Free / Pro) |
+| `month.read_only` | Bu {category} jadvali. Siz {mine} jadvalida bellashyapsiz. | Это таблица {category}. Вы соревнуетесь в таблице {mine}. |
+| `month.prizes_category` | Sovrinlar · {category} | Призы · {category} |
+| `month.next_gap_plain` | Yuqoridagi o'ringacha — {points} | До места выше — {points} (участника выше нет среди показанных строк) |
+| `month.long_words` | Uzoq takrorlashlar: {count} | Долгих повторений: {count} |
+| `month.more` | Yana ko'rsatish | Показать ещё |
+| `month.neighbours` | Sizga yaqinlar | Рядом с вами (подпись группы соседей) |
+| `month.rules_points_v2` | Ballar haftalik ligadagi kabi: yangi so'zlar va takrorlashlar uchun. Free va Pro alohida jadvallarda bellashadi, har birining o'z sovrinlari bor. | Баллы те же, что в недельной лиге: за новые слова и повторения. Free и Pro соревнуются в отдельных таблицах, у каждой свои призы. |
+
+## Выпуск 4 · опросы в боте: кнопки и ответы на нажатие (docs/35 O3, O5) — на проверку носителю
+
+### Бот (`lang/uz/polls.php`)
+
+Кнопка под опросом с несколькими ответами (отмеченные варианты уходят после неё) и тексты после нажатия. После ответа ученик видит
+только «Rahmat» — без своего ответа. `thanks` заменяет подпись под вопросом; `closed` и `unavailable` — всплывающие окна (alert);
+`empty`, `limit`, `locked` — короткие уведомления вверху чата. `:max` — число («2»). Прошу проверить «so'rovnoma» (опрос) и
+«yakunlandi» (завершён).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `polls.submit` | ✅ Yuborish | ✅ Отправить |
+| `polls.change` | ✏️ Javobni o'zgartirish | ✏️ Изменить ответ |
+| `polls.thanks` | ✅ Rahmat! Javobingiz qabul qilindi. | ✅ Спасибо! Ответ принят. |
+| `polls.closed` | So'rovnoma yakunlandi. | Опрос завершён. |
+| `polls.unavailable` | So'rovnoma mavjud emas. | Опрос недоступен. |
+| `polls.empty` | Kamida bitta variantni tanlang. | Выберите хотя бы один вариант. |
+| `polls.limit` | Ko'pi bilan :max ta variant tanlash mumkin. | Можно выбрать не больше :max. |
+| `polls.locked` | Javob allaqachon qabul qilingan, uni o'zgartirib bo'lmaydi. | Ответ уже принят, изменить его нельзя. |
+
+## Выпуск 2 · картинка победителя месяца (docs/36 A5) и напоминание следующего дня про баллы (docs/31 §5б) — на проверку носителю
+
+### Бот (`lang/uz/leagues.php`, `lang/uz/reminders.php`, `lang/uz/buttons.php`)
+
+Картинка победителя месяца (её пересылают; имени ученика на ней нет): метка над заголовком (на картинке — заглавными), заголовок с местом,
+описание с месяцем и баллами. `:month` — «2026-yil oktyabr» (`leagues.month.label`), `:points` — «900 ball». Напоминание следующего дня
+заменяет обычное «пора повторить» в день после урока, когда слова урока пришли на повторение и баллы считаются. Прошу проверить
+«o'z vaqtida takrorlash» (повторение в срок) и «reyting ballari» (баллы рейтинга).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.month.card.label` | Oy reytingi | Рейтинг месяца |
+| `leagues.month.card.label_category` | Oy reytingi · :category | Рейтинг месяца · :category (Free / Pro) |
+| `leagues.month.card.category.free` | Free | Free |
+| `leagues.month.card.category.pro` | Pro | Pro |
+| `leagues.month.card.title` | :place-o'rin | :place место |
+| `leagues.month.card.description` | :month reytingida — :points | в рейтинге за :month — :points |
+| `reminders.score_due` | Kechagi dars so'zlarini takrorlash vaqti keldi. Ularni bugun takrorlang: o'z vaqtida takrorlash uchun reyting ballari beriladi. | Слова вчерашнего урока пришли на повторение. Повторите их сегодня: за повторение в срок начисляются баллы рейтинга. |
+| `reminders.quiz.lead.score_due` | Kechagi dars so'zlarini takrorlash vaqti keldi — o'z vaqtida takrorlash uchun ball beriladi. Birinchisidan shu yerning o'zida boshlaymiz. | Слова вчерашнего урока пришли на повторение — за повторение в срок начисляются баллы. Начнём с одного прямо здесь. |
+| `buttons.review_words` | 🔁 So'zlarni takrorlash | 🔁 Повторить слова |
+
+Подвал `reminders.score_due` «Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.» — тот же, что у остальных напоминаний.
+
+## Выпуск 3 · «За всё время» и рейтинг региона в Mini App (docs/35 R8, docs/32 S13b, 25.11.2026) — на проверку носителю
+
+Термины прежние: «ball» (балл), «hudud» (регион; с 26.11.2026 — «viloyat», см. начало документа), «jadval» (таблица), «bellashyapsiz». Числа (баллы, места, участники, порог региона) — с сервера; названия регионов приходят с сервера на языке интерфейса. «Free» и «Pro» не переводятся. Носителю проверить: естественно ли «Barcha vaqt» как название вкладки (рус. «За всё время»), «{date} dan beri hisoblanadi» и «{count} tadan {participants} ishtirokchi bor» (рус. «пока 3 из 5 участников»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `alltime.tab` | Barcha vaqt | За всё время (сегмент вкладки «Лига») |
+| `alltime.title` | Barcha vaqt reytingi | Рейтинг за всё время |
+| `alltime.counted_since` | {date} dan beri hisoblanadi | Считается с {date} |
+| `alltime.category_switch` | Barcha vaqt jadvali | Таблица за всё время (подпись переключателя Free / Pro) |
+| `alltime.my_total` | Barcha vaqtdagi ballarim: {points} | Мои баллы за всё время: {points} |
+| `alltime.my_total_split` | Barcha vaqtdagi ballarim: {points} (Free {free} + Pro {pro}) | Мои баллы за всё время: {points} (Free {free} + Pro {pro}) |
+| `alltime.start_prompt` | Shug'ullaning — ballar barcha vaqt reytingiga tushadi | Занимайтесь — баллы попадут в рейтинг за всё время |
+| `alltime.no_points_category` | {category} jadvalida hozircha ballaringiz yo'q | В таблице {category} у вас пока нет баллов |
+| `alltime.top` | Barcha vaqt peshqadamlari | Лучшие за всё время |
+| `alltime.empty` | Hozircha hech kim ball to'plamagan | Пока никто не набрал баллов |
+| `board.area_switch` | Qaysi jadval | Чья таблица (подпись переключателя «Все / Мой регион / Другой регион») |
+| `board.area.all` | Hammasi | Все |
+| `board.area.mine` | Mening hududim | Мой регион |
+| `board.area.other` | Boshqa hudud… | Другой регион… |
+| `board.region_rank` | «{name}» hududi: {rank}-o'rin | Регион «{name}»: {rank} место |
+| `board.read_only_region` | Bu «{name}» hududi jadvali. Siz «{mine}» hududida bellashyapsiz. | Это таблица региона «{name}». Вы соревнуетесь в регионе «{mine}». |
+| `board.read_only_region_none` | Bu «{name}» hududi jadvali. Siz hududingizni ko'rsatmagansiz. | Это таблица региона «{name}». Вы не указали свой регион. |
+| `board.region_card.title` | Qatnashish uchun hududingizni ko'rsating | Укажите регион, чтобы участвовать |
+| `board.below.title.one/other` | «{name}» hududida hozircha {count} tadan {participants} ishtirokchi bor | В регионе «{name}» пока {participants} из {count} участников (`count` — порог) |
+| `board.below.text` | Jadval {min} ishtirokchi bo'lganda paydo bo'ladi. Do'stlaringizni taklif qiling | Таблица появится, когда участников будет {min}. Пригласите друзей |
+| `board.below.invite` | Do'stlarni taklif qilish | Пригласить друзей |
+| `region.sheet.view_title` | Qaysi hudud jadvali? | Таблица какого региона? (лист выбора чужого региона, без сохранения) |
+| `region.sheet.view_pick` | Hududni tanlang | Выберите регион |
+
+## Выпуск 5 · кубок друзей в группе: бот (docs/33 K6, 25.11.2026) — на проверку носителю
+
+Сообщения в группе — на языке кубка, тосты под кнопками — на языке нажавшего. Простой текст, без HTML. Термины: «kubok» (кубок), «Do'stlar kubogi» (Кубок друзей), «raund» (раунд), «ball» (очко), «ishtirokchi» (участник), «jadval» (таблица), «daraja» (уровень). `:brand` — название продукта из конфигурации (Muhrla). Носителю проверить: порядок «:days kundan :day-kun» (рус. «День :day из :days»), «kun yakuni :time da» (рус. «сводка в :time»), «ta eng yaxshi kun hisobga olinadi» (рус. «в зачёт идут N лучших дней»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.photo.label` | Guruhdagi turnir | Турнир в группе |
+| `cup.photo.title` | Do'stlar kubogi | Кубок друзей |
+| `cup.photo.description` | :days · kuniga :tasks ta so'z · :best hisobga olinadi | :days · :tasks слов в день · в зачёт :best |
+| `cup.photo.final_title` | Kubok yakunlari | Итоги кубка |
+| `cup.photo.final_description` | Do'stlar kubogi · :level daraja | Кубок друзей · уровень :level |
+| `cup.days` | :count kun | :count день\|:count дня\|:count дней |
+| `cup.best_days` | :count ta eng yaxshi kun | :count лучший день\|:count лучших дня\|:count лучших дней |
+| `cup.proposal.text` | 🏆 :brand do'stlar kubogi<br>«:group» · :level daraja<br><br>Ketma-ket :days — har kuni :tasks ta so'zdan iborat raund, har bir to'g'ri javob uchun 2 ball. :best hisobga olinadi. Bu chatdagi har kim qatnashishi mumkin.<br><br>Kubokni chat administratori e'lon qila oladi. | 🏆 Кубок друзей :brand<br>«:group» · уровень :level<br><br>:days подряд — раунд из :tasks слов в день, за верный ответ 2 очка. В зачёт идут :best. Участвовать может каждый в этом чате.<br><br>Опубликовать кубок может администратор чата. |
+| `cup.card.title` | 🏆 :brand do'stlar kubogi · «:group» · :level | 🏆 Кубок друзей :brand · «:group» · :level |
+| `cup.card.scheduled` | Boshlanish :start, 00:00 · yakun :end, 00:00 | Старт :start в 00:00 · финиш :end, 00:00 |
+| `cup.card.running` | :days kundan :day-kun · yakun :end, 00:00 | День :day из :days · финиш :end, 00:00 |
+| `cup.card.finished` | Kubok yakunlandi | Кубок завершён |
+| `cup.card.canceled` | Kubok bekor qilindi | Кубок отменён |
+| `cup.card.expired` | Taklif muddati o'tdi | Предложение истекло |
+| `cup.card.no_players` | Kubok bekor qilindi: ikki ishtirokchi to'planmadi | Кубок отменён: не набралось двух участников |
+| `cup.card.join_hint` | «Qatnashish» tugmasini bosing. Boshlash uchun kamida ikki ishtirokchi kerak. | Нажмите «Участвовать». Для старта нужно хотя бы два участника. |
+| `cup.card.empty` | Hozircha hech kim ball to'plamadi. | Пока никто не набрал очков. |
+| `cup.card.row` | :place. :name — :points | :place. :name — :points |
+| `cup.card.left` | (chiqib ketgan) | (вышел(а)) |
+| `cup.card.more` | …va yana :count | …и ещё :count |
+| `cup.card.participants` | Ishtirokchilar: :count | Участников: :count |
+| `cup.card.summary_at` | kun yakuni :time da | сводка в :time |
+| `cup.card.bot_not_admin` | ⚠️ Bot chat administratori emas — ishtirokni tekshirib bo'lmaydi. Botni administrator qiling. | ⚠️ Бот не администратор чата — участие проверить нельзя. Сделайте бота администратором. |
+| `cup.summary.title` | 📊 Do'stlar kubogi · :days kundan :day-kun yakunlari | 📊 Кубок друзей · итоги дня :day из :days |
+| `cup.summary.footer` | Yakun :end, 00:00. Yangi kun raundi yarim tunda ochiladi. | Финиш :end, 00:00. Раунд нового дня откроется в полночь. |
+| `cup.summary.footer_last` | Bu oxirgi kun: raundni yarim tungacha o'ynash mumkin. Yakun :end, 00:00 — undan keyin kubok natijalari. | Это последний день: раунд можно сыграть до полуночи. Финиш :end, 00:00 — после него итоги кубка. |
+| `cup.final.title` | 🏆 Do'stlar kubogi yakunlandi! | 🏆 Кубок друзей завершён! |
+| `cup.final.group` | «:group» · :level daraja | «:group» · уровень :level |
+| `cup.final.winner` | Tabriklaymiz: :names! | Поздравляем: :names! |
+| `cup.final.empty` | Hech kim ball to'plamadi. | Никто не набрал очков. |
+| `cup.duel.open_any` | ⚔️ :challenger kubokning istalgan ishtirokchisini duelga chaqiradi | ⚔️ :challenger вызывает на дуэль любого участника кубка |
+| `cup.duel.open_to` | ⚔️ :challenger duelga chaqiradi: :opponent | ⚔️ :challenger вызывает на дуэль: :opponent |
+| `cup.duel.rated` | Hisobli duel: har kimga o'z to'g'ri javobi uchun kubok bali, :max tagacha. | Зачётная дуэль: каждому — очко кубка за свой верный ответ, до :max. |
+| `cup.duel.friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel.until` | Chaqiruv :time gacha amal qiladi. | Вызов действует до :time. |
+| `cup.duel.playing` | ⚔️ Duel davom etmoqda: :challenger — :opponent | ⚔️ Дуэль идёт: :challenger — :opponent |
+| `cup.duel.result` | ⚔️ Duel: :challenger :challenger_points : :opponent_points :opponent | ⚔️ Дуэль: :challenger :challenger_points : :opponent_points :opponent |
+| `cup.duel.winner` | G'alaba: :name | Победа: :name |
+| `cup.duel.draw` | Durang | Ничья |
+| `cup.duel.not_counted` | Natija kubok yakunlangandan keyin keldi va hisobga olinmadi. | Результат пришёл после финиша кубка и в зачёт не вошёл. |
+| `cup.duel.friendly_done` | O'rtoqlik o'yini, kubok ballarisiz. | Товарищеский матч, без очков кубка. |
+| `cup.duel.fell_through` | Chaqiruv bo'lib o'tmadi. | Вызов не состоялся. |
+| `cup.command.exists` | Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali. | В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже. |
+| `cup.command.draft` | Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin. | В чате уже есть черновик кубка «:group». Администратор чата может настроить и опубликовать его по кнопке ниже. |
+| `cup.command.material` | Hozir kubok mavjud emas: bu daraja uchun so'zlar yetarli emas. | Сейчас кубок недоступен: для уровня не хватает слов. |
+| `cup.welcome.line` | 🏆 Do'stlar bilan bellashmoqchimisiz? Do'stlar kubogini yarating: shu chatning o'zida bir hafta qisqa raundlar. | 🏆 Хотите соревноваться с друзьями? Создайте кубок друзей: неделя коротких раундов прямо в этом чате. |
+| `cup.toast.not_admin` | Buni faqat chat administratori qila oladi. | Это может сделать только администратор чата. |
+| `cup.toast.stale` | Bu tugma endi ishlamaydi. | Эта кнопка больше не действует. |
+| `cup.toast.exists` | Bu chatda allaqachon kubok bor — uning kartasini ko'ring. | В этом чате уже есть кубок — смотрите его карточку. |
+| `cup.toast.published` | Kubok e'lon qilindi! | Кубок опубликован! |
+| `cup.toast.canceled` | Kubok bekor qilindi. | Кубок отменён. |
+| `cup.toast.bot_not_admin` | Botni chat administratori qiling. Maxsus huquqlar kerak emas. | Сделайте бота администратором чата. Особые права не нужны. |
+| `cup.toast.unverifiable` | Huquqlarni tekshirib bo'lmadi, yana urinib ko'ring. | Не удалось проверить права, попробуйте ещё раз. |
+| `cup.toast.material` | Bu daraja uchun hozircha so'zlar yetarli emas. | Для этого уровня пока не хватает слов. |
+| `cup.toast.cooldown` | Kubokni 10 daqiqada bir marta taklif qilish mumkin. | Предложить кубок можно раз в 10 минут. |
+| `cup.toast.paused` | Bu chatda kuboklar hozir mavjud emas. | Кубки в этом чате сейчас недоступны. |
+| `cup.toast.failed` | Bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+| `buttons.cup_create` | 🏆 Do'stlar kubogini yaratish | 🏆 Создать кубок друзей |
+| `buttons.cup_publish` | ✅ E'lon qilish | ✅ Опубликовать |
+| `buttons.cup_setup` | ⚙️ Sozlash | ⚙️ Настроить |
+| `buttons.cup_cancel` | ✖️ Bekor qilish | ✖️ Отменить |
+| `buttons.cup_join` | 🏆 Qatnashish | 🏆 Участвовать |
+| `buttons.cup_play` | ▶️ Bugun o'ynash | ▶️ Играть сегодня |
+| `buttons.cup_table` | 📊 Jadval | 📊 Таблица |
+| `buttons.cup_rules` | 📖 Qoidalar | 📖 Правила |
+| `buttons.cup_final_table` | 🏆 Yakuniy jadval | 🏆 Итоговая таблица |
+| `buttons.cup_open` | 🏆 Kubokni ochish | 🏆 Открыть кубок |
+| `buttons.cup_duel_accept` | ⚔️ Chaqiruvni qabul qilish | ⚔️ Принять вызов |
+
+## Выпуск 6 · дуэли кубка: личные сообщения бота (docs/33 D2, 26.11.2026) — на проверку носителю
+
+Личное сообщение тому, кого вызвали (личный вызов), и вызвавшему, когда вызов приняли (комната матча ждёт 30 секунд). Язык — язык получателя. Простой текст. Термины — как у кубка: «duel», «chaqiruv» (вызов), «hisobli duel» (зачётная дуэль), «o'rtoqlik o'yini» (товарищеский матч). Носителю проверить: «:name … chaqiruvingizni qabul qildi» (рус. «принял(а) ваш вызов»), «30 soniya ichida kiring» (рус. «заходите в течение 30 секунд»), кнопка «Duelga» (рус. «К дуэли»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.duel_dm.challenged` | ⚔️ :name sizni «:group» kubogida duelga chaqirmoqda. | ⚔️ :name вызывает вас на дуэль в кубке «:group». |
+| `cup.duel_dm.rated` | Hisobli duel: har bir o'z to'g'ri javobingiz uchun kubok bali. | Зачётная дуэль: очко кубка за каждый свой верный ответ. |
+| `cup.duel_dm.friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel_dm.accepted` | ⚔️ :name «:group» kubogidagi chaqiruvingizni qabul qildi. O'yin kutmoqda — 30 soniya ichida kiring. | ⚔️ :name принял(а) ваш вызов в кубке «:group». Матч уже ждёт — заходите в течение 30 секунд. |
+| `buttons.cup_duel_open` | ⚔️ Chaqiruvni ochish | ⚔️ Открыть вызов |
+| `buttons.cup_duel_play` | ⚔️ Duelga | ⚔️ К дуэли |
+
+## Выпуск 6 · дуэли кубка: экраны Mini App (docs/33 D2, 26.11.2026) — на проверку носителю
+
+Блок «Дуэли» на экране кубка, список дуэлей, вызов, экран вызова и ожидания. Термины — как у ЛС бота (D2): «duel», «chaqiruv» (вызов), «hisobli duel» / «Hisobli» (зачётная), «o'rtoqlik o'yini» / «O'rtoqlik» (товарищеский матч), «raqib» (соперник), «o'yin» (матч). Числа, лимиты и время — с сервера. Носителю проверить: «{name}ni chaqirasizmi?» (рус. «Вызвать {name}?» — аффикс после имени), «Kun hisobingizga» (рус. «Вам в зачёт дня»), «xonaga o'z vaqtida kirilmadi» (рус. «в комнату не зашли вовремя»), «{time} gacha» (рус. «до {time}»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.duel.title` | Duel | Дуэль |
+| `cup.duel.off_title` | Duellar mavjud emas | Дуэли недоступны |
+| `cup.duel.open_cup` | Kubokni ochish | Открыть кубок |
+| `cup.duel.anybody` | Guruhning istalgan ishtirokchisi | Любой участник группы |
+| `cup.duel.versus` | qarshi | против |
+| `cup.duel.time_left` | Qoldi | Осталось |
+| `cup.duel.waiting_hint` | Raqib chaqiruvni qabul qilishi bilan darhol o'yinga o'tasiz. Bu ekranni yopmang. | Как только соперник примет вызов, вы сразу перейдёте в матч. Не закрывайте этот экран. |
+| `cup.duel.to_match_hint` | Chaqiruv qabul qilindi — o'yinga o'tyapmiz. | Вызов принят — переходим в матч. |
+| `cup.duel.to_match` | O'yinga | В матч |
+| `cup.duel.my_points` | Kun hisobingizga: {points} | Вам в зачёт дня: {points} |
+| `cup.duel.list_title` | Kubok duellari | Дуэли кубка |
+| `cup.duel.accept` | Qabul qilish | Принять |
+| `cup.duel.decline` | Rad etish | Отклонить |
+| `cup.duel.cancel` | Chaqiruvni bekor qilish | Отменить вызов |
+| `cup.duel.challenge` | Duelga chaqirish | Вызвать на дуэль |
+| `cup.duel.open_mine` | Chaqiruvimni ochish | Открыть мой вызов |
+| `cup.duel.until` | {time} gacha | до {time} |
+| `cup.duel.empty` | Hozircha chaqiruvlar yo'q. | Пока вызовов нет. |
+| `cup.duel.group.incoming` | Menga chaqiruvlar | Вызовы мне |
+| `cup.duel.group.open` | Guruhdagi hammaga chaqiruvlar | Вызовы всем в группе |
+| `cup.duel.group.mine` | Mening chaqiruvim | Мой вызов |
+| `cup.duel.group.today` | Bugungi duellarim | Мои дуэли сегодня |
+| `cup.duel.challenges_left.one/other` | Bugun yana {count} ta chaqiruv yuborish mumkin | Сегодня можно отправить ещё {count} вызов / Сегодня можно отправить ещё {count} вызова / Сегодня можно отправить ещё {count} вызовов |
+| `cup.duel.incoming_count.one/other` | Sizga {count} ta chaqiruv | {count} вызов вам / {count} вызова вам / {count} вызовов вам |
+| `cup.duel.block_title` | Duellar | Дуэли |
+| `cup.duel.block_waiting` | Chaqiruvingiz raqibni kutmoqda. | Ваш вызов ждёт соперника. |
+| `cup.duel.block_rated` | Hisobli duel — har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta. | Зачётная дуэль — очко кубка за каждый свой верный ответ. Одна в день. |
+| `cup.duel.block_rated_played` | Bugungi hisobli duel o'ynalgan — o'rtoqlik o'yinini o'ynash mumkin. | Зачётная дуэль сегодня уже сыграна — можно сыграть товарищеский матч. |
+| `cup.duel.kind.rated` | Hisobli | Зачётная |
+| `cup.duel.kind.friendly` | O'rtoqlik | Товарищеская |
+| `cup.duel.kind.rated_hint` | Har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta hisobli duel. | Очко кубка за каждый свой верный ответ. Одна зачётная дуэль в день. |
+| `cup.duel.kind.friendly_hint` | Kubok ballarisiz. Free tarifida chaqirgan kishining kunlik bepul o'yinlaridan birini sarflaydi. | Без очков кубка. На тарифе Free тратит одну из бесплатных игр дня у того, кто вызвал. |
+| `cup.duel.state.open` | Chaqiruv javob kutmoqda | Вызов ждёт ответа |
+| `cup.duel.state.accepted` | Chaqiruv qabul qilindi | Вызов принят |
+| `cup.duel.state.waiting` | Raqibni kutyapmiz | Ждём соперника |
+| `cup.duel.state.open_to_all` | {name} guruhdagi hammani chaqirmoqda | {name} вызывает всех в группе |
+| `cup.duel.state.challenged` | {name} sizni duelga chaqirmoqda | {name} вызывает вас на дуэль |
+| `cup.duel.state.done` | Duel o'ynaldi | Дуэль сыграна |
+| `cup.duel.state.not_played` | Duel bo'lmadi | Дуэль не состоялась |
+| `cup.duel.outcome.done_rated` | To'g'ri javoblar uchun ballar kun hisobiga qo'shildi. | Очки за верные ответы пошли в зачёт дня. |
+| `cup.duel.outcome.done_friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel.outcome.done_cup_closed` | Kubok allaqachon yakunlangan — ballar berilmadi. | Кубок уже завершился — очки не начислены. |
+| `cup.duel.outcome.void` | O'yin bo'lmadi: xonaga o'z vaqtida kirilmadi, javoblar bo'lmadi. Qayta chaqirish mumkin. | Матч не состоялся: в комнату не зашли вовремя, ответов не было. Можно вызвать снова. |
+| `cup.duel.outcome.void_material` | O'yin bo'lmadi: topshiriqlar uchun so'zlar yetmadi. | Матч не состоялся: не хватило слов для заданий. |
+| `cup.duel.outcome.void_battle_gone` | O'yin to'xtab qoldi. Qayta chaqirish mumkin. | Матч прервался. Можно вызвать снова. |
+| `cup.duel.outcome.declined` | Raqib chaqiruvni rad etdi. | Соперник отклонил вызов. |
+| `cup.duel.outcome.declined_by_me` | Siz chaqiruvni rad etdingiz. | Вы отклонили вызов. |
+| `cup.duel.outcome.expired` | Hech kim chaqiruvni o'z vaqtida qabul qilmadi. | Никто не принял вызов вовремя. |
+| `cup.duel.outcome.cup_over` | Kubok kuni tugadi — chaqiruv yopildi. | День кубка закончился — вызов закрыт. |
+| `cup.duel.outcome.canceled` | Chaqiruv bekor qilindi. | Вызов отменён. |
+| `cup.duel.outcome.canceled_by_me` | Siz chaqiruvni bekor qildingiz. | Вы отменили вызов. |
+| `cup.duel.outcome.canceled_left` | Chaqiruv bekor qilindi: o'yinchi guruhdan chiqib ketdi. | Вызов отменён: игрок вышел из группы. |
+| `cup.duel.outcome.canceled_limit` | Chaqiruv bekor qilindi: chaqirgan kishining bugungi bepul o'yinlari tugadi. | Вызов отменён: у того, кто вызвал, закончились бесплатные игры на сегодня. |
+| `cup.duel.outcome.cup_closed` | Kubok yakunlandi — chaqiruv yopildi. | Кубок завершился — вызов закрыт. |
+| `cup.duel.outcome.taken` | Chaqiruv allaqachon qabul qilingan. | Вызов уже принят. |
+| `cup.duel.reason.left` | Siz guruhdan chiqqansiz — duellar mavjud emas. | Вы вышли из группы — дуэли недоступны. |
+| `cup.duel.reason.paused` | Kubok to'xtatilgan — hozir duelga chaqirib bo'lmaydi. | Кубок на паузе — вызывать на дуэль сейчас нельзя. |
+| `cup.duel.reason.not_started` | Duellar kubok bilan birga boshlanadi. | Дуэли начнутся вместе с кубком. |
+| `cup.duel.reason.not_running` | Duellar faqat kubok davom etayotganda. | Дуэли — только пока идёт кубок. |
+| `cup.duel.reason.no_challenges` | Bugungi chaqiruvlar tugadi. | Вызовы на сегодня закончились. |
+| `cup.duel.reason.other` | Bugun duelga chaqirib bo'lmaydi. | Сегодня вызвать на дуэль нельзя. |
+| `cup.duel.failure.disabled` | Kubok duellari hozircha mavjud emas. | Дуэли кубка сейчас недоступны. |
+| `cup.duel.failure.not_found` | Chaqiruv topilmadi. | Вызов не найден. |
+| `cup.duel.failure.unavailable` | Hozir buni qilib bo'lmaydi: ishtirokchi duel uchun mavjud emas. | Сейчас это сделать нельзя: участник недоступен для дуэли. |
+| `cup.duel.failure.not_recipient` | Bu chaqiruv sizga emas. | Этот вызов адресован не вам. |
+| `cup.duel.failure.closed` | Chaqiruv allaqachon yopilgan. | Вызов уже закрыт. |
+| `cup.duel.failure.own` | Bu sizning chaqiruvingiz — uni raqib qabul qiladi. | Это ваш вызов — его примет соперник. |
+| `cup.duel.failure.already_open` | Sizda ochiq chaqiruv allaqachon bor. | У вас уже есть открытый вызов. |
+| `cup.duel.failure.rating_changed` | Chaqiruv shartlari o'zgardi. Tekshiring va yana qabul qiling. | Условия вызова изменились. Проверьте и примите ещё раз. |
+| `cup.duel.failure.rating_changed_rated` | Chaqiruv shartlari o'zgardi: endi bu hisobli duel. Tekshiring va yana qabul qiling. | Условия вызова изменились: теперь это зачётная дуэль. Проверьте и примите ещё раз. |
+| `cup.duel.failure.rating_changed_friendly` | Chaqiruv shartlari o'zgardi: endi bu kubok ballarisiz o'rtoqlik o'yini. Tekshiring va yana qabul qiling. | Условия вызова изменились: теперь это товарищеский матч без очков кубка. Проверьте и примите ещё раз. |
+| `cup.duel.failure.limit` | Bugungi chaqiruvlar chegarasi tugadi. | Лимит вызовов на сегодня исчерпан. |
+| `cup.duel.failure.limit_daily.one/other` | Bugun ko'pi bilan {count} ta chaqiruv yuborish mumkin. | Сегодня можно отправить не больше {count} вызова. / Сегодня можно отправить не больше {count} вызовов. |
+| `cup.duel.failure.limit_pair.one/other` | Bitta ishtirokchiga kuniga ko'pi bilan {count} ta chaqiruv. | Одному участнику — не больше {count} вызова в день. / Одному участнику — не больше {count} вызовов в день. |
+| `cup.duel.failure.limit_public_participant.one/other` | Guruhdagi hammaga chaqiruv — kuniga ko'pi bilan {count} ta. Ishtirokchini shaxsan chaqiring. | Вызовов всем в группе — не больше {count} в день. Вызовите участника лично. |
+| `cup.duel.failure.limit_public_chat.one/other` | Guruhda bugun hammaga {count} ta chaqiruv bo'ldi — boshqa mumkin emas. Ishtirokchini shaxsan chaqiring. | В группе сегодня уже {count} вызов всем — больше нельзя. Вызовите участника лично. / В группе сегодня уже {count} вызова всем — больше нельзя. Вызовите участника лично. / В группе сегодня уже {count} вызовов всем — больше нельзя. Вызовите участника лично. |
+| `cup.duel.failure.opponent_busy` | Raqib hozir boshqa o'yinda. Birozdan keyin urinib ko'ring. | Соперник сейчас в другом матче. Попробуйте чуть позже. |
+| `cup.duel.failure.self` | O'zingizni chaqirib bo'lmaydi. | Нельзя вызвать самого себя. |
+| `cup.duel.failure.mode_invalid` | Bu format duel uchun mos emas. | Этот формат не подходит для дуэли. |
+| `cup.duel.failure.battle_busy` | Sizda allaqachon o'yin bor. Chaqiruvni qabul qilish uchun uni yakunlang. | У вас уже идёт матч. Завершите его, чтобы принять вызов. |
+| `cup.duel.failure.not_participant` | Duellar kubok ishtirokchilari uchun. Guruhdagi havola orqali kubokka qo'shiling. | Дуэли — для участников кубка. Вступите в кубок по ссылке из группы. |
+| `cup.duel.new.title` | Duelga chaqiruv | Вызов на дуэль |
+| `cup.duel.new.whom` | Kimni chaqirish | Кого вызвать |
+| `cup.duel.new.public` | Guruhdagi hammani | Всех в группе |
+| `cup.duel.new.public_hint` | Chaqiruv guruh chatida chiqadi, uni kubokning istalgan ishtirokchisi qabul qilishi mumkin | Вызов появится в чате группы, принять может любой участник кубка |
+| `cup.duel.new.no_candidates` | Kubokda hozircha boshqa ishtirokchilar yo'q — guruhdagi hammani chaqiring. | В кубке пока нет других участников — вызовите всех в группе. |
+| `cup.duel.new.kind` | Duel turi | Вид дуэли |
+| `cup.duel.new.rated_note` | Agar raqib bugun hisobli duelni o'ynagan bo'lsa, bu o'rtoqlik o'yini bo'ladi. | Если соперник уже сыграл зачётную дуэль сегодня, это будет товарищеский матч. |
+| `cup.duel.new.next` | Keyingi | Далее |
+| `cup.duel.new.confirm_public` | Guruhdagi hammani chaqirasizmi? | Вызвать всех в группе? |
+| `cup.duel.new.confirm_personal` | {name}ni chaqirasizmi? | Вызвать {name}? |
+| `cup.duel.new.confirm_public_text` | Bot chaqiruvni guruh chatida e'lon qiladi. Chaqiruv javobni cheklangan vaqt kutadi — ekranda taymer bo'ladi. | Бот опубликует вызов в чате группы. Вызов ждёт ответа ограниченное время — на экране будет таймер. |
+| `cup.duel.new.confirm_personal_text` | Raqib chaqiruvni kubokda ko'radi, bot unga shaxsiy xabar yozadi. Chaqiruv javobni cheklangan vaqt kutadi — ekranda taymer bo'ladi. | Соперник увидит вызов в кубке, бот напишет ему в личные сообщения. Вызов ждёт ответа ограниченное время — на экране будет таймер. |
+| `cup.duel.new.send` | Chaqiruvni yuborish | Отправить вызов |
+| `cup.duel.new.back` | Orqaga | Назад |
+
+## Выпуск 5 · кубок друзей в группе: экраны Mini App (docs/33 K8, 25.11.2026) — на проверку носителю
+
+Экраны приглашения, кубка, раунда дня, настройки и «Мои кубки», карточка на «Bugun» и строка в профиле. Термины те же, что у бота (K6): «kubok», «Do'stlar kubogi», «raund», «ball», «ishtirokchi», «jadval», «daraja»; «{brand}» — название продукта (Muhrla). Числа, даты и время — с сервера. Носителю проверить: «O'ynayapman: {group}» (рус. «Играю за: …»), «chiqib ketgan» как пометку в таблице (рус. «вышел(а)»), «xato yozilgan javob» (рус. «ответ с опечаткой»), «{total} tadan {correct}» (рус. «Верно: 7 из 10»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.title` | Do'stlar kubogi | Кубок друзей |
+| `cup.brand_title` | {brand} do'stlar kubogi | Кубок друзей {brand} |
+| `cup.level` | {level} daraja | Уровень {level} |
+| `cup.period` | {from} – {to} | {from} – {to} |
+| `cup.off_title` | Kuboklar mavjud emas | Кубки недоступны |
+| `cup.points.one/other` | {count} ball | {count} очко / {count} очка / {count} очков |
+| `cup.my_place` | Sizning o'rningiz: {rank} | Ваше место: {rank} |
+| `cup.final_place` | Yakuniy o'rin: {rank} | Итоговое место: {rank} |
+| `cup.status.draft` | Kubok hali e'lon qilinmagan | Кубок ещё не опубликован |
+| `cup.status.scheduled` | Boshlanish: {date}, 00:00 | Ждём старта: {date}, 00:00 |
+| `cup.status.scheduled_soon` | Boshlanishini kutyapmiz | Ждём старта |
+| `cup.status.running` | {days} kundan {day}-kun | День {day} из {days} |
+| `cup.status.running_closing` | Yakunlar chiqarilmoqda | Подводим итоги |
+| `cup.status.finished` | Kubok yakunlandi | Кубок завершён |
+| `cup.status.canceled` | Kubok bekor qilindi | Кубок отменён |
+| `cup.status.paused` | Kubok to'xtatilgan | Кубок на паузе |
+| `cup.status.paused_bot_removed` | Kubok to'xtatilgan: bot guruhdan o'chirildi | Кубок на паузе: бота удалили из группы |
+| `cup.failure.unavailable` | Kubok guruh chatidagi havola orqali va faqat uning a'zolari uchun ochiladi. | Кубок открывается по ссылке из чата группы и только для её участников. |
+| `cup.failure.off` | Do'stlar kuboklari hozircha mavjud emas. | Кубки друзей сейчас недоступны. |
+| `cup.failure.telegram` | Telegram hozir javob bermayapti, guruhdagi a'zolikni tekshira olmayapmiz. Keyinroq urinib ko'ring. | Telegram сейчас не отвечает, и мы не можем проверить участие в группе. Попробуйте позже. |
+| `cup.failure.busy` | Guruhdagi a'zolikni tekshiryapmiz. Bir necha soniya kuting va «Qayta urinib ko'rish»ni bosing. | Проверяем участие в группе. Подождите несколько секунд и нажмите «Повторить». |
+| `cup.failure.bot_not_admin` | Bot ishtirokchilarni tekshira olmaydi: u guruh administratori emas. Guruh adminidan botni administrator qilishni so'rang. | Бот не может проверить участников: он не администратор группы. Попросите админа группы сделать бота администратором. |
+| `cup.failure.bot_not_admin_publish` | Botni guruh administratori qiling (maxsus huquqlar kerak emas) va kubokni qayta e'lon qiling. | Сделайте бота администратором группы (особые права не нужны) и опубликуйте кубок снова. |
+| `cup.failure.paused` | Bu guruhda kuboklar hozircha mavjud emas. | Кубки в этой группе сейчас недоступны. |
+| `cup.failure.paused_bot_removed` | Kubok to'xtatilgan: bot guruhdan o'chirildi. Guruh adminidan botni qaytarishni so'rang. | Кубок на паузе: бота удалили из группы. Попросите админа группы вернуть бота. |
+| `cup.failure.not_admin` | Buni faqat guruh administratori qila oladi. | Это может сделать только администратор группы. |
+| `cup.failure.closed` | Kubok allaqachon yakunlangan. | Кубок уже завершён. |
+| `cup.failure.not_open` | Kubok hali e'lon qilinmagan. E'lon qilingandan keyin qatnashish mumkin. | Кубок ещё не опубликован. Участвовать можно после публикации. |
+| `cup.failure.not_started` | Kubok hali boshlanmagan. | Кубок ещё не начался. |
+| `cup.failure.round_unavailable` | Bugun raund yo'q. | Сегодня раунда нет. |
+| `cup.failure.round_done` | Bugungi raund allaqachon o'ynalgan. | Раунд сегодня уже сыгран. |
+| `cup.failure.name_invalid` | Ism 1 dan 32 tagacha belgidan iborat bo'lsin, xizmat belgilarisiz. | Имя — от 1 до 32 символов, без служебных знаков. |
+| `cup.failure.name_link` | Ism havola yoki sayt manziliga o'xshamasligi kerak. | Имя не должно быть похоже на ссылку или адрес сайта. |
+| `cup.failure.name_marks` | Ismda harflar ustidagi belgilar juda ko'p. | В имени слишком много значков над буквами. |
+| `cup.failure.rename_limit` | Ismni bir kubokda ko'pi bilan 3 marta o'zgartirish mumkin. | Имя можно сменить не больше 3 раз за кубок. |
+| `cup.failure.material` | Bu daraja uchun hozircha so'zlar yetarli emas. Boshqasini tanlang. | Для этого уровня пока не хватает слов. Выберите другой. |
+| `cup.failure.level_invalid` | Darajani ro'yxatdan tanlang. | Выберите уровень из списка. |
+| `cup.failure.already_published` | E'lon qilingandan keyin daraja va til o'zgarmaydi. | Уровень и язык после публикации не меняются. |
+| `cup.failure.already_active` | Guruhda allaqachon kubok ketmoqda. | В группе уже идёт кубок. |
+| `cup.rules.title` | Qoidalar | Правила |
+| `cup.rules.round` | Har kuni {tasks} ta so'zdan iborat raund, unga {minutes} daqiqa. Kuniga bitta urinish. | Каждый день — раунд из {tasks} слов, на него {minutes} минут. Одна попытка в день. |
+| `cup.rules.points` | To'g'ri javob uchun — {points}, xato yozilgan javob uchun — {typo}. | За верный ответ — {points}, ответ с опечаткой — {typo}. |
+| `cup.rules.best.one/other` | {days} kundan {count} ta eng yaxshi kun hisobga olinadi. | В зачёт идёт {count} лучший день из {days}. / В зачёт идут {count} лучших дня из {days}. / В зачёт идут {count} лучших дней из {days}. |
+| `cup.rules.max` | Ko'pi bilan kuniga {day} va kubokda {total}. | Максимум — {day} за день и {total} за кубок. |
+| `cup.rules.day_tashkent` | Kubok kuni — Toshkent vaqti bilan 00:00 dan 24:00 gacha. | День кубка — с 00:00 до 24:00 по Ташкенту. |
+| `cup.rules.day_zone` | Kubok kuni — {zone} vaqt mintaqasi bo'yicha 00:00 dan 24:00 gacha. | День кубка — с 00:00 до 24:00 по часовому поясу {zone}. |
+| `cup.rules.summary` | Kun yakunlarini bot guruhda {time} da e'lon qiladi. | Итоги дня бот публикует в группе в {time}. |
+| `cup.invite.join` | Qatnashish | Участвовать |
+| `cup.invite.rejoin` | Kubokka qaytish | Вернуться в кубок |
+| `cup.invite.name_label` | Turnirdagi ism | Имя в турнире |
+| `cup.invite.name_hint` | Bu ismni guruh chatida ko'rishadi. | Это имя увидят в чате группы. |
+| `cup.invite.draft` | Kubok hali e'lon qilinmagan. Guruh admini uni e'lon qilganda qatnashish mumkin. | Кубок ещё не опубликован. Участвовать можно, когда админ группы его опубликует. |
+| `cup.invite.closed` | Kubok allaqachon tugagan, unga qo'shilib bo'lmaydi. | Кубок уже закончился, вступить в него нельзя. |
+| `cup.invite.unavailable_title` | Kubok mavjud emas | Кубок недоступен |
+| `cup.invite.check_title` | A'zolikni tekshirib bo'lmadi | Не удалось проверить участие |
+| `cup.invite.bot_title` | Guruh admini kerak | Нужен админ группы |
+| `cup.invite.paused_title` | Kubok to'xtatilgan | Кубок на паузе |
+| `cup.table.title` | Jadval | Таблица |
+| `cup.table.empty` | Hozircha hech kim qo'shilmagan. | Пока никто не вступил. |
+| `cup.table.left` | chiqib ketgan | вышел(а) |
+| `cup.table.place` | {rank}-o'rin | {rank} место |
+| `cup.table.place_shared` | {rank}-o'rin (umumiy) | {rank} место (общее) |
+| `cup.today.play` | Kun raundini o'ynash | Играть раунд дня |
+| `cup.today.continue` | Raundni davom ettirish | Продолжить раунд |
+| `cup.today.active_until` | Raund {time} gacha davom etadi | Раунд идёт до {time} |
+| `cup.today.done` | Raund o'ynaldi: {points}. Keyingisi — ertaga {time} da. | Раунд сыгран: {points}. Следующий — завтра в {time}. |
+| `cup.today.done_last` | Raund o'ynaldi: {points}. Bu kubokning oxirgi kuni edi. | Раунд сыгран: {points}. Это был последний день кубка. |
+| `cup.me.left` | Siz guruhdan chiqdingiz: yangi raundlar mavjud emas, ballar jadvalda qoladi. | Вы вышли из группы: новые раунды недоступны, очки остаются в таблице. |
+| `cup.me.not_joined` | Siz hali bu kubokda qatnashmayapsiz. | Вы ещё не участвуете в этом кубке. |
+| `cup.days.title` | Mening kunlarim | Мои дни |
+| `cup.days.hint.one/other` | Ramka bilan hisobga olinadigan kunlar belgilangan: {count} ta eng yaxshi. | Рамкой отмечен день, который идёт в зачёт: {count} лучший. / Рамкой отмечены дни, которые идут в зачёт: {count} лучших. / Рамкой отмечены дни, которые идут в зачёт: {count} лучших. |
+| `cup.days.counted` | {day}-kun: {points}, hisobga olinadi | День {day}: {points}, в зачёте |
+| `cup.days.played` | {day}-kun: {points} | День {day}: {points} |
+| `cup.days.not_played` | {day}-kun: o'ynalmagan | День {day}: не сыгран |
+| `cup.days.unavailable` | {day}-kun: qo'shilishdan oldin | День {day}: до вступления |
+| `cup.name.change` | O'zgartirish | Изменить |
+| `cup.name.title` | Turnirdagi ism | Имя в турнире |
+| `cup.name.save` | Saqlash | Сохранить |
+| `cup.name.left.one/other` | Ismni yana {count} marta o'zgartirish mumkin. | Сменить имя можно ещё {count} раз. / Сменить имя можно ещё {count} раза. / Сменить имя можно ещё {count} раз. |
+| `cup.cancel.open` | Kubokni bekor qilish | Отменить кубок |
+| `cup.cancel.title` | Kubok bekor qilinsinmi? | Отменить кубок? |
+| `cup.cancel.text` | Kubok barcha ishtirokchilar uchun to'xtaydi, yakunlar e'lon qilinmaydi. Uni qaytarib bo'lmaydi. | Кубок остановится для всех участников, итоги не будут опубликованы. Вернуть его нельзя. |
+| `cup.cancel.keep` | Bekor qilmaslik | Не отменять |
+| `cup.cancel.confirm` | Kubokni bekor qilish | Отменить кубок |
+| `cup.list.title` | Do'stlar kuboklari | Кубки друзей |
+| `cup.list.open` | Davom etmoqda | Идут |
+| `cup.list.over` | Yakunlangan | Завершённые |
+| `cup.list.empty` | Siz hozircha kuboklarda qatnashmayapsiz. Kubok bot bor Telegram guruhida yaratiladi. | Вы пока не участвуете в кубках. Кубок создают в группе Telegram, где есть бот. |
+| `cup.round.playing_for` | O'ynayapman: {group} | Играю за: {group} |
+| `cup.round.playing_for_day` | O'ynayapman: {group} · {day}-kun | Играю за: {group} · День {day} |
+| `cup.round.confirm_title` | Kun raundi | Раунд дня |
+| `cup.round.confirm_text` | Bitta urinish: {tasks} ta topshiriq, {minutes} daqiqa. Vaqt darhol boshlanadi va to'xtamaydi. | Одна попытка: {tasks} заданий, {minutes} минут. Время пойдёт сразу и не остановится. |
+| `cup.round.confirm_points` | To'g'ri javob uchun — 2 ball, xato yozilgan javob uchun — 0. | За верный ответ — 2 очка, ответ с опечаткой — 0. |
+| `cup.round.start` | Raundni boshlash | Начать раунд |
+| `cup.round.later` | Hozir emas | Не сейчас |
+| `cup.round.time_left` | Qoldi: {time} | Осталось {time} |
+| `cup.round.exit_title` | Raunddan chiqasizmi? | Выйти из раунда? |
+| `cup.round.exit_text` | Vaqt to'xtamaydi. {time} gacha qaytib, oxirigacha o'ynash mumkin. | Время не остановится. Вернуться и доиграть можно до {time}. |
+| `cup.round.exit_stay` | Raundni davom ettirish | Продолжить раунд |
+| `cup.round.exit_leave` | Chiqish | Выйти |
+| `cup.round.done_title` | Raund o'ynaldi | Раунд сыгран |
+| `cup.round.expired_title` | Vaqt tugadi | Время вышло |
+| `cup.round.expired_text` | Berilgan javoblar uchun ballar saqlandi. | Очки за данные ответы сохранены. |
+| `cup.round.correct` | To'g'ri: {total} tadan {correct} | Верно: {correct} из {total} |
+| `cup.round.review_title` | Tahlil | Разбор |
+| `cup.round.no_answer` | Javobsiz | Без ответа |
+| `cup.round.to_table` | Kubok jadvaliga | К таблице кубка |
+| `cup.round.to_cup` | Kubokka | К кубку |
+| `cup.round.unavailable_title` | Hozir raund yo'q | Раунда сейчас нет |
+| `cup.round.not_participant` | Faqat kubok ishtirokchilari o'ynay oladi. | Играть могут только участники кубка. |
+| `cup.round.not_available` | Hozir raund yo'q: kubok hali boshlanmagan, allaqachon tugagan yoki siz guruhdan chiqqansiz. | Сейчас раунда нет: кубок ещё не начался, уже закончился или вы вышли из группы. |
+| `cup.setup.title` | Kubok sozlamalari | Настройка кубка |
+| `cup.setup.not_admin_title` | Faqat guruh admini uchun | Только для админа группы |
+| `cup.setup.level` | So'zlar darajasi | Уровень слов |
+| `cup.setup.locale` | Guruhdagi xabarlar tili | Язык сообщений в группе |
+| `cup.setup.locale_ru` | Rus tili | Русский |
+| `cup.setup.locale_uz` | O'zbek tili | Узбекский |
+| `cup.setup.publish_hint` | E'lon qilingandan keyin daraja va til o'zgarmaydi. Boshlanish — kamida 6 soat qolgan eng yaqin yarim tunda. | После публикации уровень и язык не меняются. Старт — в ближайшую полночь, до которой не меньше 6 часов. |
+| `cup.setup.publish` | Kubokni e'lon qilish | Опубликовать кубок |
+| `cup.setup.summaries` | Guruhda kun yakunlari | Итоги дня в группе |
+| `cup.setup.summary_time` | Yakunlar vaqti | Время итогов |
+| `cup.setup.save` | Saqlash | Сохранить |
+| `cup.setup.to_cup` | Kubokni ochish | Открыть кубок |
+| `today.cup.title` | «{group}» kubogi | Кубок «{group}» |
+| `today.cup.play` | {days} kundan {day}-kun · kun raundini o'ynang | День {day} из {days} · сыграйте раунд дня |
+| `today.cup.played` | {days} kundan {day}-kun · raund o'ynaldi | День {day} из {days} · раунд сыгран |
+| `today.cup.go` | O'ynash | Играть |
+| `profile.cups` | Do'stlar kuboklari | Кубки друзей |
+
+## Выпуск 5 · кубок друзей: правки экранов Mini App по ревью контракта (docs/04 A.23, 25.11.2026) — на проверку носителю
+
+Причины отказа имени (`cup_display_name_invalid {reason}`) — по одной фразе на причину (`cup.failure.name_symbol` убран: вместо него `name_mention` / `name_command` / `name_tag`); вступление по id без участия — «по ссылке-приглашению»; точное состояние раунда дня на «Bugun» и в «Мои кубки»; время следующего раунда — с сервера. Носителю проверить: «eslatma» (рус. «упоминание», @имя), «buyruq» (рус. «команда», /start), «teg» (рус. «тег», #слово), «taklif havolasi» (рус. «ссылка-приглашение»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.failure.name_empty` | Ismni kiriting. | Введите имя. |
+| `cup.failure.name_too_long` | Ism juda uzun: ko'pi bilan {max} ta belgi. | Имя слишком длинное: не больше {max} символов. |
+| `cup.failure.name_mention` | Ismda @ bilan boshlanadigan so'z bo'lmasin — chatda bu eslatmaga aylanadi. | В имени не может быть слов с @ в начале — в чате это станет упоминанием. |
+| `cup.failure.name_command` | Ismda / bilan boshlanadigan so'z bo'lmasin — chatda bu buyruqqa aylanadi. | В имени не может быть слов с / в начале — в чате это станет командой. |
+| `cup.failure.name_tag` | Ismda # bilan boshlanadigan so'z yoki lotin harfi oldida $ bo'lmasin — chatda bu tegga aylanadi. | В имени не может быть слов с # в начале или $ перед латинской буквой — в чате это станет тегом. |
+| `cup.failure.join_by_link` | Guruhdagi taklif havolasi orqali qo'shilish mumkin. | Вступить можно по ссылке-приглашению из группы. |
+| `cup.today.done_open` | Raund o'ynaldi: {points}. Yangi kun raundi allaqachon ochiq. | Раунд сыгран: {points}. Раунд нового дня уже доступен. |
+| `cup.today.refresh` | Yangilash | Обновить |
+| `cup.round.next_at` | Keyingi raund — ertaga {time} da. | Следующий раунд — завтра в {time}. |
+| `cup.round.next_last` | Bu kubokning oxirgi kuni edi. | Это был последний день кубка. |
+| `cup.round.next_open` | Yangi kun raundi kubokda allaqachon ochiq. | Раунд нового дня уже доступен в кубке. |
+| `cup.list.today_play` | kun raundini o'ynang | сыграйте раунд дня |
+| `cup.list.today_continue` | raundni davom ettiring | продолжите раунд |
+| `cup.list.today_done` | raund o'ynaldi | раунд сыгран |
+| `today.cup.continue` | {days} kundan {day}-kun · raundni davom ettiring | День {day} из {days} · продолжите раунд |
+| `today.cup.day` | {days} kundan {day}-kun | День {day} из {days} |
+| `today.cup.go_continue` | Davom ettirish | Продолжить |
+| `today.cup.open` | Ochish | Открыть |
+
+## Выпуск 7 · разговорные фразы в Mini App: карточка, метки, каталог, «Сегодня» (docs/35 F3, 25.11.2026) — на проверку носителю
+
+Фраза по-узбекски — «ibora» (мн. «iboralar»): раздел каталога «Iboralar», счёт «300 ta ibora». Носителю проверить: подходит ли «ibora» для
+английского устойчивого выражения в целом (идиома, формула, фразовый глагол); метки регистра («so'zlashuv» — разговорное, «rasmiy» — официальное,
+«qo'pol» — грубоватое); «so'zma-so'z» как «буквально»; «so'zlashuv iborasi» для разговорной формулы (*How's it going?*), «turg'un ibora» для
+устойчивого выражения; порядок слов в «iboralar 3-darsi» (рус. «урок фраз 3»). «UK» / «US» не переводятся.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.meaning.title_phrase` | Iboraning tarjimasini tanlang | Выберите перевод фразы |
+| `exercise.reverse.title_phrase` | Inglizcha iborani tanlang | Выберите английскую фразу |
+| `exercise.gap_fill.title_phrase` | Iboradagi tushib qolgan so'zni yozing | Вставьте пропущенное слово во фразу |
+| `exercise.pretest.title_phrase` | Iborani bilsangiz, tarjimasini tanlang | Выберите перевод, если знаете фразу |
+| `exercise.pretest.known_phrase` | Siz bu iborani allaqachon bilasiz — uni kamroq ko'rsatamiz. | Вы уже знаете эту фразу — покажем её реже. |
+| `exercise.pretest.learn_phrase` | Yangi ibora. Uni eslab qoling | Новая фраза. Запомните её |
+| `exercise.miss.returns_lesson_phrase` | Ibora shu darsda yana qaytadi. | Фраза вернётся ещё раз в этом уроке. |
+| `exercise.miss.returns_round_phrase` | Ibora shu raundda yana qaytadi. | Фраза вернётся ещё раз в этом раунде. |
+| `phrase.labels` | Ibora belgilari | Метки фразы |
+| `phrase.literal` | So'zma-so'z | Буквально |
+| `phrase.register.neutral` | neytral | нейтральное |
+| `phrase.register.informal` | so'zlashuv | разговорное |
+| `phrase.register.formal` | rasmiy | официальное |
+| `phrase.register.slang` | sleng | сленг |
+| `phrase.register.rude` | qo'pol | грубоватое |
+| `phrase.variant.uk` | UK | UK |
+| `phrase.variant.us` | US | US |
+| `phrase.kind.formula` | so'zlashuv iborasi | разговорная формула |
+| `phrase.kind.fixed` | turg'un ibora | устойчивое выражение |
+| `phrase.kind.idiom` | idioma | идиома |
+| `phrase.kind.phrasal_verb` | frazali fe'l | фразовый глагол |
+| `phrase.kind.proverb` | maqol | пословица |
+| `catalog.phrases.one/other` | {count} ta ibora | {count} фраза / фразы / фраз |
+| `catalog.phrases_title` | Iboralar | Фразы |
+| `catalog.phrases_hint` | Jonli iboralar: idiomalar, frazali fe'llar, so'zlashuv iboralari. Iboralar darsini asosiy kursni o'zgartirmasdan o'tish mumkin. | Живые выражения: идиомы, фразовые глаголы, разговорные формулы. Урок фраз можно пройти, не меняя основной курс. |
+| `catalog.goal.phrases` | So'zlashuv iboralari | Разговорные фразы |
+| `course.phrases_of.one/other` | / {total} ta ibora | / {total} фразы / фраз |
+| `course.new_phrases.one/other` | {count} ta yangi ibora | {count} новая фраза / новые фразы / новых фраз |
+| `course.lesson_phrases.one/other` | {total} ta iboradan {done} tasi | {done} из {total} фразы / фраз |
+| `course.choose_hint_phrases` | Kunlik mashg'ulotdagi yangi iboralar shu kursdan bo'ladi | Новые фразы в ежедневном занятии будут из этого курса |
+| `today.hero.lesson_eyebrow_phrases` | {level} · iboralar {number}-darsi | {level} · урок фраз {number} |
+| `today.hero.lesson_eyebrow_phrases_plain` | Iboralar {number}-darsi | Урок фраз {number} |
+| `today.hero.new_phrases.one/other` | {count} ta yangi ibora | {count} новая фраза / новые фразы / новых фраз |
+| `today.hero.training_text_phrases.one/other` | {count} ta iborani mustahkamlang | Закрепите {count} фразу / фразы / фраз |
+| `today.hero.game_text_phrases` | Shu dars iboralari bilan o'yin | Игра на фразах этого урока |
+
+## Выпуск 8 · кубок: вид дуэли при вызове и «Выйти из кубка» (docs/33 §11.12, 27.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`. Строки бота не менялись (вид дуэли в сообщениях бота уже называется строками `cup.duel.*` /
+`cup.duel_dm.*` выпуска 6).
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `cup.duel.new.kind_rated_hint` | Har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta. | Очко кубка за каждый свой верный ответ. Одна в день. |
+| `cup.duel.new.rated_gone` | Bugungi hisobli duel o'ynalgan — o'rtoqlik o'yiniga chaqirish mumkin. | Зачётная дуэль сегодня уже сыграна — можно вызвать на товарищеский матч. |
+| `cup.duel.outcome.canceled_left` (изменено) | Chaqiruv bekor qilindi: o'yinchi kubokdan chiqib ketdi. | Вызов отменён: игрок вышел из кубка. |
+| `cup.leave.open` | Kubokdan chiqish | Выйти из кубка |
+| `cup.leave.title` | Kubokdan chiqilsinmi? | Выйти из кубка? |
+| `cup.leave.text` | Ballaringiz jadvalda «chiqib ketgan» belgisi bilan qoladi, lekin boshqa o'ynay olmaysiz va jadvalni ko'ra olmaysiz. Ochiq duel chaqiruvlari bekor qilinadi. Bu kubokka qaytib bo'lmaydi. | Ваши очки останутся в таблице с пометкой «вышел(а)», но играть дальше и видеть таблицу вы не сможете. Открытые вызовы на дуэль отменятся. Вернуться в этот кубок будет нельзя. |
+| `cup.leave.keep` | Qolish | Остаться |
+| `cup.leave.confirm` | Chiqish | Выйти |
+

@@ -125,7 +125,8 @@ describe('BillingView', () => {
       expect(wrapper.get('h1').text()).toBe('Подписка')
       expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Бесплатный тариф')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Free')
-      expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-neutral')
+      expect(wrapper.get('[data-testid=plan-chip]').attributes('data-plan')).toBe('free')
+      expect(wrapper.get('[data-testid=plan-card]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
       expect(wrapper.get('[data-testid=plan-free]').text()).toBe('20 новых слов в день, повторения без ограничений')
       expect(wrapper.find('[data-testid=plan-until]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
@@ -164,15 +165,15 @@ describe('BillingView', () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.find('[data-testid=plan-card] .icon-tile').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Muhrla Pro')
     })
 
     it('shows Pro with its end, the provider and the running auto-renewal with a cancel button only', async () => {
       const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
 
-      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Muhrla Pro')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
-      expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-accent')
+      expect(wrapper.get('[data-testid=plan-chip]').attributes('data-plan')).toBe('pro')
       expect(wrapper.get('[data-testid=plan-until]').text()).toBe('Действует до 1 декабря 2026 г.')
       expect(wrapper.get('[data-testid=plan-provider]').text()).toBe('Оплата: Telegram Stars.')
       expect(wrapper.find('[data-testid=plan-free]').exists()).toBe(false)
@@ -190,7 +191,7 @@ describe('BillingView', () => {
   })
 
   describe('what Pro gives', () => {
-    it('lists the five benefits of Pro under «What Pro gives» for a Free learner who has no practice', async () => {
+    it('lists the six benefits of Pro under «What Pro gives» for a Free learner who has no practice, the emoji of Pro last', async () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Что даёт Pro')
@@ -200,7 +201,18 @@ describe('BillingView', () => {
         'Свои колоды',
         'Заморозка серии',
         'Пробные тесты',
+        'Эмодзи у имени',
       ])
+    })
+
+    it('says what the emoji of Pro is, in both languages', async () => {
+      const ru = await render(me(), catalog())
+      expect(ru.wrapper.get('[data-benefit="billing.benefit.pro_emoji"]').text()).toBe('Эмодзи у именисвой символ рядом с вашим именем')
+
+      setActivePinia(createPinia())
+      setLocale('uz')
+      const uz = await render(me(), catalog())
+      expect(uz.wrapper.get('[data-benefit="billing.benefit.pro_emoji"] [data-testid=benefit-name]').text()).toBe('Ism yonidagi emoji')
     })
 
     it('adds practice and battles without a daily limit, second, when the practice is available to the learner', async () => {
@@ -213,17 +225,18 @@ describe('BillingView', () => {
         'Свои колоды',
         'Заморозка серии',
         'Пробные тесты',
+        'Эмодзи у имени',
       ])
     })
 
     it('sells no such line where there is no practice (PRACTICE_ACCESS=off, a pilot the learner is not in), and keeps it behind Pro', async () => {
       const off = await render(me({ practice: { ...PRACTICE, available: false, modes: [], battle: false, pro_promise: 'none' } }), catalog())
-      expect(off.wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(off.wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
       expect(off.wrapper.text()).not.toContain('Практика и баттлы')
 
       setActivePinia(createPinia())
       const proOnly = await render(me({ practice: { ...PRACTICE, pro_required: true } }), catalog())
-      expect(proOnly.wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
+      expect(proOnly.wrapper.findAll('[data-testid=benefit]')).toHaveLength(7)
     })
 
     it('says the practice alone for `solo` and nothing for `none`, as the server decides', async () => {
@@ -233,7 +246,7 @@ describe('BillingView', () => {
 
       setActivePinia(createPinia())
       const none = await render(me({ practice: { ...PRACTICE, pro_promise: 'none' } }), catalog())
-      expect(none.wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(none.wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
       expect(none.wrapper.text()).not.toContain('Практика')
     })
 
@@ -241,7 +254,7 @@ describe('BillingView', () => {
       const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing, practice: PRACTICE }), catalog(summary()))
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Ваши возможности')
-      expect(wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
+      expect(wrapper.findAll('[data-testid=benefit]')).toHaveLength(7)
     })
 
     it('says it in Uzbek', async () => {
@@ -295,6 +308,21 @@ describe('BillingView', () => {
       await flushPromises()
 
       expect(wrapper.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
+    })
+
+    it('takes the saving from the catalog (saving_pct), not from the prices or a mock-up, and draws it in green on a white card', async () => {
+      const { wrapper } = await render(me(), {
+        ...catalog(),
+        items: [
+          { plan: 'pro', tier: null, period: 'month', days: 30, prices: { XTR: 150 }, list_prices: { XTR: 150 }, saving_pct: 0 },
+          { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { XTR: 390 }, list_prices: { XTR: 390 }, saving_pct: 20 },
+        ],
+      })
+
+      expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=saving]').text()).toBe('выгоднее на 20%')
+      expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=saving]').classes()).toContain('text-success-ink')
+      expect(wrapper.find('[data-testid=tariff-month] [data-testid=saving]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=tariff-quarter]').classes()).toEqual(expect.arrayContaining(['rounded-card', 'border-hairline', 'bg-surface']))
     })
 
     it('lists the quarter in sums when only Payme / Click sell, with the saving of the sums prices, and the sheet offers Payme / Click for it', async () => {
@@ -692,7 +720,7 @@ describe('BillingView', () => {
 
       expect(api.promo.redeem).toHaveBeenCalledWith('PRO30')
       expect(wrapper.get('[data-testid=promo-success]').text()).toMatch(/^Pro активен до .*2026/)
-      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Muhrla Pro')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Ваши возможности')
       expect(api.billing.catalog).toHaveBeenCalledTimes(1)

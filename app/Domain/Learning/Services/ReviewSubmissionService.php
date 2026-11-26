@@ -12,10 +12,16 @@ use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
+use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learning\Contracts\AnswerScoreRecorder;
 use App\Domain\Learning\DTO\AcceptedReview;
+use App\Domain\Learning\DTO\CardStateBefore;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
+use App\Domain\Learning\DTO\ScoredAnswer;
 use App\Domain\Learning\DTO\SpellingVerdict;
+use App\Domain\Learning\Enums\AnswerVerdict;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
@@ -64,7 +70,8 @@ use Illuminate\Support\Facades\DB;
  *   - spelling / gap-fill: `answer`, graded with SpellingGrader against the word or the form in the example of this
  *     serve; `quality` is refused (422 `quality_not_accepted`).
  * The plan and the settings are read BEFORE the transaction: the review transaction holds
- * `training_sessions → word_repetitions → learner_daily_stats` only.
+ * `training_sessions → word_repetitions → [learner_lexemes → learner_score_days] → learner_daily_stats` only - the bracket is the word
+ * points ({@see AnswerScoreRecorder}, docs/32 §3.7), nothing with `leagues.scoring.mode = off`.
  *
  * The ladder (docs/06 §12.1): a lapse of a `review` card writes `meta.ladder_floor` = the rung below the one it failed at,
  * a pass at the top clears it; `meta.last_exercise` remembers the exercise of this grade. Both ride in the scheduler's
@@ -101,6 +108,7 @@ final class ReviewSubmissionService
         private readonly WordExamples $examples,
         private readonly ProductEventRecorder $events,
         private readonly WordAudioService $audio,
+        private readonly AnswerScoreRecorder $scores,
     ) {}
 
     /**
@@ -124,7 +132,26 @@ final class ReviewSubmissionService
         ?Entitlement $entitlement = null,
         ?ExerciseType $declared = null,
     ): WordRepetition {
-        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement, $declared)->repetition;
+        return $this->submitQuality($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared)->repetition;
+    }
+
+    /**
+     * {@see submit()} with everything the grade applied: the card, the exercise and the word points of the answer (`score`).
+     *
+     * @throws ReviewSubmissionException
+     */
+    public function submitQuality(
+        TrainingSession $session,
+        Learner $learner,
+        int $wordId,
+        int $quality,
+        int $timeSpentMs,
+        ?string $serveToken = null,
+        ?CarbonImmutable $now = null,
+        ?Entitlement $entitlement = null,
+        ?ExerciseType $declared = null,
+    ): AcceptedReview {
+        return $this->accept($session, $learner, $wordId, $quality, null, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
     }
 
     /**
@@ -284,6 +311,12 @@ final class ReviewSubmissionService
             // First grade of a card that was only served so far (docs/12 §3.3).
             $isNewCard = $repetition->state === RepetitionState::New;
             $intervalBefore = (int) $repetition->interval_days;
+            // The card as it stood before the grade: the scheduled due of the word points (docs/32 §3.3).
+            $before = new CardStateBefore(
+                $repetition->state,
+                $intervalBefore,
+                $repetition->last_reviewed_at === null ? null : CarbonImmutable::instance($repetition->last_reviewed_at),
+            );
 
             $mismatch = $this->stampLadder($repetition, $exercise, $quality);
 
@@ -302,6 +335,20 @@ final class ReviewSubmissionService
                 'created_at' => $now,
             ]);
 
+            // The word points (docs/32 §3.7): `learner_lexemes → learner_score_days` after the card's lock and BEFORE the day row of
+            // the v1 stats - the one order of every answering transaction. Off: no statement.
+            $score = $this->scores->record(new ScoredAnswer(
+                learnerId: (int) $learner->id,
+                lexemeId: $word->lexeme_id === null ? null : (int) $word->lexeme_id,
+                wordId: $wordId,
+                source: $session->mode === TrainingSession::MODE_GROUP_LESSON ? ScoreSource::GroupLesson : ScoreSource::Training,
+                sourceId: (int) $session->id,
+                verdict: self::scoreVerdict($exercise, $answer !== null, $quality, $isNewCard),
+                before: $before,
+                plan: $entitlement->plan,
+                now: $now,
+            ));
+
             $this->dailyStats->recordReview($learner, $quality, $timeSpentMs, $isNewCard, $now);
 
             if ($mismatch !== null) {
@@ -314,12 +361,30 @@ final class ReviewSubmissionService
                 ], learner: $learner));
             }
 
-            if (! $exercise->hidesChoiceAnswer()) {
-                return new AcceptedReview($repetition, $exercise, $verdict);
+            if (! $exercise->revealsAfterAnswer(Phrase::isPhraseWord($word))) {
+                return new AcceptedReview($repetition, $exercise, $verdict, score: $score);
             }
 
-            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech, $exampleTranslation);
+            return new AcceptedReview($repetition, $exercise, $verdict, $word, $translation, $example, $showsHook, $wasLeech, $exampleTranslation, $score);
         });
+    }
+
+    /**
+     * What the grade is worth to the word points (docs/32 §3.2): an answer the server graded (a pick of four options, a typed text) is a
+     * check - passed at quality >= 3 (a typo of a typed answer included, docs/31 §5 В8), else failed; the learner's own grade of a flash
+     * is the first meeting of a new card (the attempt of the day stays open) or a reveal (it closes it); the legacy `quality` of a
+     * four-option card is not checked (it closes it).
+     */
+    private static function scoreVerdict(ExerciseType $exercise, bool $serverGraded, int $quality, bool $isNewCard): AnswerVerdict
+    {
+        if ($serverGraded) {
+            return $quality >= SpacedRepetitionEngine::PASS_QUALITY ? AnswerVerdict::Passed : AnswerVerdict::Failed;
+        }
+        if ($exercise->selfGraded()) {
+            return $isNewCard ? AnswerVerdict::Introductory : AnswerVerdict::Revealed;
+        }
+
+        return AnswerVerdict::NotChecked;
     }
 
     /**
@@ -383,9 +448,13 @@ final class ReviewSubmissionService
 
         $expected = $word->word;
         if ($exercise === ExerciseType::GapFill) {
-            $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
+            $gap = $this->gapFill->forCard($word, $example);
             if ($gap !== null) {
                 $expected = $gap->expected;
+                // A phrase answered with the whole phrase: its key word is the answer (docs/06 §16).
+                if (Phrase::isPhraseWord($word)) {
+                    $answer = Phrase::keyWordTyped($gap->masked, GapFillBuilder::MASK, $answer) ?? $answer;
+                }
             }
         }
 

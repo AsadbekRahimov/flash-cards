@@ -174,20 +174,20 @@ it('creates the group row itself when the /start grp_ arrives before my_chat_mem
 
     // The bot-added update still records the event but sends no "group number for the cabinet" welcome: the link's own answer was the message.
     expect(count($this->tg->sent))->toBe($sent)
-        ->and(collect($this->tg->sent)->filter(fn (array $m): bool => str_contains($m['text'], 'LexiFlow добавлен'))->count())->toBe(0);
+        ->and(collect($this->tg->sent)->filter(fn (array $m): bool => str_contains($m['text'], 'Muhrla добавлен'))->count())->toBe(0);
 });
 
 it('welcomes a group that is not linked (the bot added first) and then confirms the link — two different messages, no repeat', function (): void {
     $this->group->delete();
     $this->tg->chatMemberStatus = 'administrator';
     oglBotAdded();
-    expect(oglLastText())->toContain('LexiFlow добавлен')->toContain('Привяжите её из кабинета центра')->not->toContain('-1001234');
+    expect(oglLastText())->toContain('Muhrla добавлен')->toContain('Привяжите её из кабинета центра')->not->toContain('-1001234');
 
     $link = oglLink();
     oglSend('/link '.$link->code);
 
     expect(oglLastText())->toStartWith('✅ Группа «Class 7B» привязана')
-        ->and(collect($this->tg->sent)->filter(fn (array $m): bool => str_contains($m['text'], 'LexiFlow добавлен'))->count())->toBe(1);
+        ->and(collect($this->tg->sent)->filter(fn (array $m): bool => str_contains($m['text'], 'Muhrla добавлен'))->count())->toBe(1);
 });
 
 it('is idempotent for a group already linked to this center: says linked again, asks Telegram nothing, spends the token', function (): void {
@@ -228,7 +228,7 @@ it('leaves the group pending for a center without a live subscription, or when t
     $link = oglLink();
     oglSend('/link '.$link->code);
     expect($this->group->fresh()?->status)->toBe('pending')
-        ->and(oglLastText())->toContain('ждёт активации администратором LexiFlow');
+        ->and(oglLastText())->toContain('ждёт активации администратором Muhrla');
 
     // Flag off: a sponsoring center still waits for the platform.
     $this->group->refresh()->update(['organization_id' => null]);

@@ -13,6 +13,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -100,8 +101,8 @@ it('sends "N words to review" with the TWA button to the Today screen and logs i
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(777001)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=reminder');
 
     $log = NotificationLog::query()->where('learner_id', $learner->id)->sole();
@@ -122,7 +123,7 @@ it('reminds about a single due word — the threshold is 1 (docs/12 §7.5)', fun
     rmDue($learner, 1);
 
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings");
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в Muhrla.\n\nИзменить время или отключить: /settings");
 });
 
 it('warns about the streak when nothing is due but yesterday\'s streak has not been extended today', function (): void {
@@ -150,7 +151,7 @@ it('prefers the review text over the streak warning when both apply', function (
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings")
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->value('type'))->toBe('review_reminder');
 });
 
@@ -177,8 +178,8 @@ it('speaks the learner\'s interface language', function (): void {
     rmDue($learner, 21);
 
     rmSend($learner);
-    expect($this->tg->sent[0]['text'])->toBe("LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
-        ->and($this->tg->sent[0]['button'])->toBe("LexiFlow'ni ochish");
+    expect($this->tg->sent[0]['text'])->toBe("Muhrla'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
+        ->and($this->tg->sent[0]['button'])->toBe("▶️ Mashg'ulotni boshlash");
 
     $streak = rmLearner(['telegram_user_id' => 777004, 'interface_locale' => 'uz']);
     rmStreakAtRisk($streak, 7);
@@ -332,6 +333,8 @@ it('logs the send before calling Telegram: an ambiguous failure propagates, and 
     $learner = rmLearner();
     rmDue($learner, 3);
     $this->tg->failSends = 1;
+    // Ambiguous = no answer from the Bot API (timeout / 5xx). A 4xx answer is a definite refusal: see the 429 test below.
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => rmSend($learner))->toThrow(TelegramApiException::class)
         // The row stays: Telegram may have delivered the message before the timeout.
@@ -344,6 +347,45 @@ it('logs the send before calling Telegram: an ambiguous failure propagates, and 
         ->and($this->tg->sent)->toBe([])
         ->and(NotificationLog::count())->toBe(1)
         ->and(ProductEvent::count())->toBe(0);
+});
+
+it('deletes the log row on a 429 and rethrows: the job is put back for retry_after and the retry delivers exactly once', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 12;
+
+    // The job as the worker runs it: the middleware turns the 429 into a release, nothing is thrown out of the job.
+    $queueJob = Mockery::mock(QueueJobContract::class);
+    $queueJob->shouldReceive('release')->once()->with(Mockery::on(fn (int $delay): bool => $delay >= 12 && $delay <= 15));
+    $job = new SendLearnerReminderJob($learner->id, CarbonImmutable::parse('2026-10-18 14:00:00', 'UTC'));
+    $job->job = $queueJob;
+    $handled = (new ThrottleTelegramOutbound(new TelegramMessageRateLimiter(globalPerSecond: 0)))
+        ->handle($job, fn (SendLearnerReminderJob $j) => $j->handle(app(ReminderSender::class)));
+
+    expect($handled)->toBeNull()
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull()
+        ->and(ProductEvent::count())->toBe(0);
+
+    // The released job comes back: one message, one row.
+    expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(1);
+    // And a duplicate delivery of the same job stays quiet.
+    expect(rmSend($learner))->toBe(ReminderOutcome::SkippedRecent)->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('deletes the log row on another 4xx refusal and rethrows it (retried by backoff, then failed_jobs)', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+    $this->tg->failSends = 1; // the fake's 4xx refusal (isApiResponse = true)
+
+    expect(fn () => rmSend($learner))->toThrow(TelegramApiException::class)
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull();
+
+    expect(rmSend($learner))->toBe(ReminderOutcome::Sent)->and($this->tg->sent)->toHaveCount(1);
 });
 
 it('writes the notifications_log row before the Telegram call, under the same lock', function (): void {
@@ -425,7 +467,7 @@ it('goes from the dispatcher through the job to a Telegram message', function ()
 
     expect($report->queued)->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings")
         ->and($learner->fresh()?->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 });
 
@@ -457,7 +499,7 @@ it('ignores fresh minute-step learning cards when counting due words', function 
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 4 слова в LexiFlow.\n\nИзменить время или отключить: /settings")
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 4 слова в Muhrla.\n\nИзменить время или отключить: /settings")
         ->and(app(LearnerStatsService::class)->dueCount($learner))->toBe(4);
 });
 
@@ -505,7 +547,7 @@ it('counts (re)learning cards abandoned longer than abandoned_after_hours, but n
 
     rmSend($learner);
 
-    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
         // Same number the learner sees in GET /me and on the Today screen.
         ->and(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
@@ -524,7 +566,7 @@ it('does not count a relearning card abandoned less than abandoned_after_hours a
     // Two hours later the same card crosses the 12h line.
     $this->travel(2)->hours();
     expect(rmSend($learner, CarbonImmutable::now()->subMinutes(5)))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в LexiFlow.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 1 слово в Muhrla.\n\nИзменить время или отключить: /settings")
         ->and($abandoned->fresh()?->state)->toBe(RepetitionState::Relearning);
 });
 
@@ -570,7 +612,7 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
         ->toBe([RepetitionState::Relearning]);
 
     rmSend($learner);
-    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
+    expect($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
         ->and(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
 

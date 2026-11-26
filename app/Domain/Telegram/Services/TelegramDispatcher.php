@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Handlers\AccountLinkCallbackHandler;
+use App\Domain\Telegram\Handlers\BillingOffersCallbackHandler;
 use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
+use App\Domain\Telegram\Handlers\ChatMigrationHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\CupCallbackHandler;
+use App\Domain\Telegram\Handlers\CupCommandHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
 use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
@@ -24,6 +28,7 @@ use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
 use App\Domain\Telegram\Handlers\OrganizationCallbackHandler;
 use App\Domain\Telegram\Handlers\OrgCommandHandler;
 use App\Domain\Telegram\Handlers\PaySupportCommandHandler;
+use App\Domain\Telegram\Handlers\PollCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCommandHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
@@ -86,15 +91,22 @@ final class TelegramDispatcher
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
         ProCallbackHandler $proCallback,
+        BillingOffersCallbackHandler $billingOffersCallback,
         OrganizationCallbackHandler $organizationCallback,
         FriendsCallbackHandler $friendsCallback,
         DeleteAccountCallbackHandler $deleteAccountCallback,
         AccountLinkCallbackHandler $accountLinkCallback,
         ReminderQuizCallbackHandler $reminderQuizCallback,
+        PollCallbackHandler $pollCallback,
+        ChatMigrationHandler $chatMigration,
+        CupCommandHandler $cupCommand,
+        CupCallbackHandler $cupCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
         $this->messageHandlers = [
+            // A group became a supergroup (docs/33 §4.6): the row must follow before anything else reads it by chat id.
+            $chatMigration,
             // Money first (docs/13 §4.1): a Stars payment / refund message is never a DM command.
             $successfulPayment,
             $refundedPayment,
@@ -112,6 +124,8 @@ final class TelegramDispatcher
             $invite,
             $paySupport,
             $org,
+            // `/cup` and `/start cup` in a group (docs/33 §3.2): before the group link and the private `/start`.
+            $cupCommand,
             // `/start grp_…` / `/link …` in a group: before the private-chat `/start` (which does not match groups anyway).
             $groupLink,
             $start,
@@ -130,11 +144,16 @@ final class TelegramDispatcher
             $startExamCallback,
             $onboardingCallback,
             $proCallback,
+            $billingOffersCallback,
             $organizationCallback,
             $friendsCallback,
             $deleteAccountCallback,
             $accountLinkCallback,
             $reminderQuizCallback,
+            // Poll buttons `pl1:` (docs/04 B.5b).
+            $pollCallback,
+            // The friends' cup in a group `cup:` (docs/04 B.16).
+            $cupCallback,
         ];
     }
 
@@ -241,6 +260,11 @@ final class TelegramDispatcher
         // Money is never dropped: Telegram delivers `successful_payment` / `refunded_payment` once we
         // answer 200, and PaymentApplier is idempotent anyway (docs/13 §4.1).
         if (isset($update['message']['successful_payment']) || isset($update['message']['refunded_payment'])) {
+            return true;
+        }
+
+        // Neither is the move of a group to its supergroup: lost, it would leave the group on a dead chat id.
+        if (ChatMigrationHandler::isMigration($update)) {
             return true;
         }
 

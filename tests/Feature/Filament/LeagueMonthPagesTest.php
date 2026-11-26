@@ -26,6 +26,7 @@ use Filament\Actions\Testing\TestAction;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 use function Pest\Livewire\livewire;
@@ -354,7 +355,9 @@ it('edits the prizes of a month: its own list, none at all, and back to the defa
     lmpReview($month)
         ->callAction('editPrizes', ['ru_1' => 'Книга', 'uz_1' => 'Kitob', 'ru_2' => '', 'uz_2' => '', 'ru_3' => 'Сертификат', 'uz_3' => ''])
         ->assertNotified('Призы сохранены');
-    expect($month->fresh()?->prizes)->toBe([['place' => 1, 'ru' => 'Книга', 'uz' => 'Kitob'], ['place' => 3, 'ru' => 'Сертификат', 'uz' => '']]);
+    // toEqual: `prizes` is jsonb on PostgreSQL, which keeps the keys of an object in its own order (shorter first: ru, uz, place) -
+    // the same value, a different PHP array order; the order of the LIST (the places) is still compared.
+    expect($month->fresh()?->prizes)->toEqual([['place' => 1, 'ru' => 'Книга', 'uz' => 'Kitob'], ['place' => 3, 'ru' => 'Сертификат', 'uz' => '']]);
 
     lmpReview($month)->callAction('clearPrizes')->assertNotified('Призы сохранены')->assertSee('Призы не заданы');
     expect($month->fresh()?->prizes)->toBe([]);
@@ -453,28 +456,30 @@ it('does not warn in the confirmation when everybody can be reached', function (
 });
 
 it('sends the congratulations again: the ones already served get nothing, the missed one gets the DM', function (): void {
+    // The congratulation is a photo with a caption (docs/36 A5): the cards go to a fake disk.
+    Storage::fake('public');
     $tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $tg);
     ['month' => $month, 'candidates' => $c] = lmpMonth(3);
     app(MonthlyRatingReviewService::class)->confirm($month, $this->admin);
-    expect($tg->sent)->toHaveCount(3);
+    expect($tg->photoMessages)->toHaveCount(3);
 
     // The DM of the third winner was lost (the event failed after the commit): its log row is gone.
     NotificationLog::query()->where('learner_id', $c[2]->learner_id)->where('type', 'league_month_won')->delete();
-    $tg->sent = [];
+    $tg->photoMessages = [];
 
     lmpReview($month->fresh() ?? $month)
         ->callAction('resend')
         ->assertNotified('Поздравления отправлены повторно');
 
-    expect($tg->sent)->toHaveCount(1)
-        ->and($tg->sent[0]['chat_id'])->toBe($c[2]->learner->telegram_user_id)
+    expect($tg->photoMessages)->toHaveCount(1)
+        ->and($tg->photoMessages[0]['chat_id'])->toBe($c[2]->learner->telegram_user_id)
         ->and(AuditLog::query()->where('action', MonthlyRatingReviewService::ACTION_CONGRATS_RESENT)->count())->toBe(1);
 
     // A second press: nobody gets anything again.
-    $tg->sent = [];
+    $tg->photoMessages = [];
     lmpReview($month->fresh() ?? $month)->callAction('resend');
-    expect($tg->sent)->toBe([]);
+    expect($tg->photoMessages)->toBe([]);
 });
 
 it('offers the resend only for a confirmed month, and refuses a month that is not confirmed and a teacher', function (): void {

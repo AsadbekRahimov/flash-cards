@@ -496,9 +496,10 @@ it('drops the lesson cache after a successful commit', function (): void {
 
     expect(app(VocabularyImporter::class)->importAsSystem(sampleJson())->ok())->toBeTrue();
 
-    // The word count and the pool of distractors of the lesson go in one call (LearningCache::forgetLesson).
+    // The word count and the pool of distractors of the lesson go in one call (LearningCache::forgetLesson) - and with them, in
+    // the same command, the shared pool of the platform the words of the lesson may stand in (PlatformDistractorPool).
     $id = Lesson::sole()->id;
-    $pure->shouldHaveReceived('deleteMultiple')->with(["lesson:{$id}:word_count", "lesson:{$id}:distractors:v1"]);
+    $pure->shouldHaveReceived('deleteMultiple')->with(["lesson:{$id}:word_count", "lesson:{$id}:distractors:v1", 'content:platform-distractors:v1:words', 'content:platform-distractors:v1:phrases']);
 });
 
 it('drops the lesson cache only once the import transaction has closed', function (): void {

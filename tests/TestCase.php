@@ -9,6 +9,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use Illuminate\Cache\RedisStore;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -40,6 +41,12 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         Cache::flush();
+        // The locks of the Redis store live on their own connection (`lock_connection`, docs/19 §4): `flush()` does not reach them,
+        // and a unique job's lock (an hour) would outlive the test and the database ids it names.
+        $store = Cache::getStore();
+        if ($store instanceof RedisStore) {
+            $store->lockConnection()->flushdb();
+        }
         if (config('cache.pure_store') !== config('cache.default')) {
             PureCache::store()->flush();
         }

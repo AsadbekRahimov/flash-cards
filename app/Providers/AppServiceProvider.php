@@ -16,6 +16,8 @@ use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleServiceAccount;
+use App\Domain\Engagement\Services\Scoring\WordScoreHooks;
+use App\Domain\Learning\Contracts\AnswerScoreRecorder;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\HardRoundPolicy;
@@ -127,6 +129,10 @@ class AppServiceProvider extends ServiceProvider
 
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
         $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
+
+        // The word points of an answer (docs/32 §3.1): the training and the game hand their answers to the contract, not to Engagement;
+        // WordScoreHooks wraps WordScoreService with the follow-ups after the commit (achievement long_recall_25, score.day_capped).
+        $this->app->bind(AnswerScoreRecorder::class, WordScoreHooks::class);
 
         // Payment providers register themselves here as they land (2A.3 Stars, 2A.4 Payme,
         // 2A.5 Click); whether one is sellable is `billing.providers.<key>.enabled` (docs/13 §2.2).
@@ -383,6 +389,28 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-friends|'.$key);
         });
 
+        // "Share" through the bot (docs/36 §1в, docs/07 §6): every prepare may be a Bot API call (savePreparedInlineMessage), cached
+        // answers count too. Over it the Mini App falls back to `t.me/share/url`.
+        RateLimiter::for('twa-share', function (Request $request): array {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return [
+                Limit::perMinute(max(1, (int) config('share.prepare.per_minute', 20)))->by('twa-share|m|'.$key),
+                Limit::perDay(max(1, (int) config('share.prepare.per_day', 100)))->by('twa-share|d|'.$key),
+            ];
+        });
+
+        // The client's events of "share" (analytics only, docs/36 H7).
+        RateLimiter::for('twa-share-event', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(max(1, (int) config('share.events_per_minute', 30)))->by('twa-share-event|'.$key);
+        });
+
         // Practice and battle (docs/16 §7.5), all keyed by the learner. `twa-practice-answer` and the creation limiters sit
         // on top of `twa-api`; the audio and the battle poll are OUTSIDE it, with a bucket of their own.
         foreach ([
@@ -394,12 +422,29 @@ class AppServiceProvider extends ServiceProvider
             'twa-battle-poll' => 90,     // a poll every 2 s is 30 a minute, two tabs 60: a bucket of its own, not "no limit"
             'twa-game-start' => 10,      // a run = a snapshot + the queries of the material (docs/18 §12.8)
             'twa-game-answer' => 120,    // an answer or a hint of a run; `twa-api` (60) applies too
+            // The cup of a group (docs/33 §7.2, docs/07 §6, K7): the invitation and the table may call Telegram (getChatMember).
+            'twa-cup-read' => 30,        // by-code, the table, the state of today
+            'twa-cup-join' => 10,        // joining (a fresh getChatMember) and the name
+            'twa-cup-start' => 10,       // the start of the round of the day (a fresh getChatMember, maybe the snapshot of the day)
+            'twa-cup-answer' => 90,      // an answer of a round; `twa-api` (60) applies too
+            'twa-cup-admin' => 10,       // setup, publish, settings, cancel: a getChatMember of the administrator every time
         ] as $name => $perMinute) {
             RateLimiter::for($name, function (Request $request) use ($name, $perMinute): Limit {
                 /** @var array{learner_id:int}|null $ctx */
                 $ctx = $request->attributes->get('twa');
 
                 return Limit::perMinute($perMinute)->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
+            });
+        }
+
+        // The duels of a cup (docs/04 A.23d, docs/07 §6, D2), by the learner: a challenge, an acceptance, a decline, a withdrawal (a
+        // getChatMember of the one who acts, a battle at the acceptance); the poll of one duel by the waiting screen - a bucket of its own.
+        foreach (['twa-cup-duel' => 'cup.duel.http.actions_per_minute', 'twa-cup-duel-poll' => 'cup.duel.http.polls_per_minute'] as $name => $key) {
+            RateLimiter::for($name, function (Request $request) use ($name, $key): Limit {
+                /** @var array{learner_id:int}|null $ctx */
+                $ctx = $request->attributes->get('twa');
+
+                return Limit::perMinute(max(1, (int) config($key, 20)))->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
             });
         }
     }

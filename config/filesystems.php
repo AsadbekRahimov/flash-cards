@@ -134,6 +134,8 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        // The word audio at `/audio/<hash>.mp3` without nginx (`php artisan serve`; docs/31 §5д): nginx serves it by an alias.
+        public_path('audio') => storage_path('app/public/audio'),
     ],
 
 ];

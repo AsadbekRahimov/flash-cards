@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 12,
+    "title": "Здоровье и отдых",
+    "title_uz": "Salomatlik va dam olish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Победы и поражения",
+    "title_uz": "G'alaba va mag'lubiyat"
+  },
+  "words": [
+    {
+      "word": "Win some, lose some",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "то выигрываешь, то проигрываешь",
+        "uz": "goh yutasan, goh yutqazasan"
+      },
+      "example": "We lost the final, but we won the two games before it. — Oh well, win some, lose some.",
+      "example_translations": {
+        "ru": "Мы проиграли финал, но выиграли две игры до него. — Ну что ж, то выигрываешь, то проигрываешь.",
+        "uz": "Finalda yutqazdik, lekin undan oldingi ikki o'yinda yutgandik. — Nima ham derdik, goh yutasan, goh yutqazasan."
+      },
+      "hooks": {
+        "ru": "Спокойно говорят после неудачи: в жизни бывают и победы, и поражения",
+        "uz": "Muvaffaqiyatsizlikdan keyin xotirjam aytiladi: hayotda g'alaba ham, mag'lubiyat ham bo'ladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "win",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a close call",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на волоске (от беды)",
+        "uz": "qil ustida qolish"
+      },
+      "example": "The car stopped right in front of us. — That was a close call!",
+      "example_translations": {
+        "ru": "Машина остановилась прямо перед нами. — Мы были на волоске!",
+        "uz": "Mashina to'ppa-to'g'ri oldimizda to'xtadi. — Qil ustida qoldik-a!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда беды или поражения избежали в последний момент",
+        "uz": "Baxtsizlik yoki mag'lubiyatdan so'nggi lahzada qutulib qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "close",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a neck-and-neck race",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "борьба ноздря в ноздрю",
+        "uz": "teng-baravar kurash"
+      },
+      "example": "It was a neck-and-neck race until the very end.",
+      "example_translations": {
+        "ru": "До самого конца шла борьба ноздря в ноздрю.",
+        "uz": "Oxirigacha teng-baravar kurash bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о гонке, матче или конкурсе, где соперники идут почти вровень",
+        "uz": "Raqiblar deyarli teng ketayotgan poyga, o'yin yoki tanlov haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "race",
+        "literal": {
+          "ru": "гонка шея в шею",
+          "uz": "bo'yinma-bo'yin poyga"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a sore loser",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тот, кто не умеет проигрывать",
+        "uz": "yutqazishni ko'tara olmaydigan odam"
+      },
+      "example": "He threw the board game on the floor when he lost. — What a sore loser!",
+      "example_translations": {
+        "ru": "Он бросил настольную игру на пол, когда проиграл. — Совсем не умеет проигрывать!",
+        "uz": "Yutqazgach, stol o'yinini yerga uloqtirdi. — Yutqazishni umuman ko'tara olmas ekan!"
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о том, кто злится и обижается, когда проигрывает",
+        "uz": "Yutqazganda jahli chiqib, xafa bo'ladigan odam haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sore",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "steal the show",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "затмить всех",
+        "uz": "hammaning diqqatini o'ziga tortmoq"
+      },
+      "example": "The youngest player stole the show with two amazing goals.",
+      "example_translations": {
+        "ru": "Самый юный игрок затмил всех, забив два потрясающих гола.",
+        "uz": "Eng yosh o'yinchi ikkita ajoyib gol urib, hammaning diqqatini o'ziga tortdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто выступил ярче всех и стал главным героем матча, концерта, праздника",
+        "uz": "O'yin, konsert yoki bayramda hammadan yorqin chiqib, asosiy qahramonga aylangan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "steal",
+        "literal": {
+          "ru": "украсть шоу",
+          "uz": "shouni o'g'irlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "end in a draw",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "закончиться вничью",
+        "uz": "durang bilan tugamoq"
+      },
+      "example": "The final ended in a draw, so they played extra time.",
+      "example_translations": {
+        "ru": "Финал закончился вничью, поэтому назначили дополнительное время.",
+        "uz": "Final durang bilan tugadi, shuning uchun qo'shimcha vaqt o'ynaldi."
+      },
+      "hooks": {
+        "ru": "Говорят о матче или игре, где никто не победил; в США чаще end in a tie",
+        "uz": "Hech kim g'olib bo'lmagan o'yin haqida aytiladi; AQShda ko'pincha end in a tie"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "draw",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Well played!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хорошо сыграли!",
+        "uz": "zo'r o'ynadingiz!"
+      },
+      "example": "We won the game! — Well played, everyone!",
+      "example_translations": {
+        "ru": "Мы выиграли! — Хорошо сыграли, молодцы!",
+        "uz": "Yutdik! — Hammangiz zo'r o'ynadingiz!"
+      },
+      "hooks": {
+        "ru": "Хвалят игроков после матча; так говорят и сопернику, если он сыграл хорошо",
+        "uz": "O'yindan keyin o'yinchilarni maqtashadi; raqib yaxshi o'ynasa, unga ham aytishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "played",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "come first",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "занять первое место",
+        "uz": "birinchi o'rinni egallamoq"
+      },
+      "example": "Our school came first in the chess competition.",
+      "example_translations": {
+        "ru": "Наша школа заняла первое место в шахматном турнире.",
+        "uz": "Maktabimiz shaxmat musobaqasida birinchi o'rinni egalladi."
+      },
+      "hooks": {
+        "ru": "Говорят о победе в соревновании, конкурсе, гонке",
+        "uz": "Musobaqa, tanlov yoki poygada g'olib bo'lish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "first",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the underdog",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заведомо слабый соперник",
+        "uz": "zaif deb hisoblangan tomon"
+      },
+      "example": "Nobody expected us to win; we were the underdog.",
+      "example_translations": {
+        "ru": "Никто не ждал, что мы победим: нас считали заведомо слабыми.",
+        "uz": "Hech kim g'alaba qozonishimizni kutmagandi: bizni zaif tomon deb hisoblashardi."
+      },
+      "hooks": {
+        "ru": "Говорят о команде или человеке, которого все считают слабее и от которого не ждут победы",
+        "uz": "Hamma kuchsizroq deb biladigan va g'alaba kutilmaydigan jamoa yoki odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "underdog",
+        "literal": {
+          "ru": "собака, которая внизу",
+          "uz": "pastda qolgan it"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a winning streak",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "серия побед",
+        "uz": "ketma-ket g'alabalar"
+      },
+      "example": "Our team is on a five-game winning streak.",
+      "example_translations": {
+        "ru": "Наша команда выиграла пять матчей подряд.",
+        "uz": "Jamoamiz ketma-ket beshta o'yinda g'alaba qozondi."
+      },
+      "hooks": {
+        "ru": "Говорят о нескольких победах или удачах подряд",
+        "uz": "Ketma-ket bir necha g'alaba yoki omad haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "streak",
+        "literal": {
+          "ru": "выигрышная полоса",
+          "uz": "yutuqli chiziq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

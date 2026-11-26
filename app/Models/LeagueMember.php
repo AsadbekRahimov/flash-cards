@@ -23,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property int|null $final_points
  * @property int|null $final_rank
  * @property string|null $result
+ * @property string|null $category the category of the learner's week (v2, docs/32 §2.6); NULL in a v1 week
+ * @property int|null $final_long_words tie-break facts of the v2 final (docs/32 §5.3): lexemes with a credited long repetition
+ * @property int|null $final_days and the counted days with points
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read LeagueGroup|null $group
@@ -35,7 +38,7 @@ class LeagueMember extends Model
     use HasFactory;
 
     /** @var list<string> */
-    protected $fillable = ['league_group_id', 'league_week_id', 'learner_id', 'tier_before', 'final_points', 'final_rank', 'result'];
+    protected $fillable = ['league_group_id', 'league_week_id', 'learner_id', 'tier_before', 'final_points', 'final_rank', 'result', 'category', 'final_long_words', 'final_days'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -47,6 +50,8 @@ class LeagueMember extends Model
             'tier_before' => 'integer',
             'final_points' => 'integer',
             'final_rank' => 'integer',
+            'final_long_words' => 'integer',
+            'final_days' => 'integer',
         ];
     }
 

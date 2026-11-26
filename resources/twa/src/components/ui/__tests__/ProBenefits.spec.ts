@@ -5,10 +5,22 @@ import { createPinia, setActivePinia } from 'pinia'
 import ProBenefits from '../ProBenefits.vue'
 import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
+import { useSettingsStore } from '@/stores/settings'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import type { PracticeAccess, ProPromise } from '@/api/types'
 
-/** The rows by their keys (`data-benefit`); what each says is checked below. */
-const FIVE = ['benefits.new_words', 'benefits.exercises', 'benefits.decks', 'benefits.freezes', 'benefits.mock_exams']
+/**
+ * The rows by their keys (`data-benefit`); what each says is checked below. The name stayed from the five lines of before: the emoji of Pro
+ * (docs/31 §5а) is the sixth line that is always there, the last one.
+ */
+const FIVE = [
+  'benefits.new_words',
+  'benefits.exercises',
+  'benefits.decks',
+  'benefits.freezes',
+  'benefits.mock_exams',
+  'billing.benefit.pro_emoji',
+]
 
 /** The sixth line sits second, after the new words: both are a daily limit that Pro lifts. */
 const SIX = [FIVE[0], 'benefits.practice', ...FIVE.slice(1)]
@@ -61,7 +73,20 @@ describe('ProBenefits', () => {
       'Свои колоды | до 20 колод по 2000 слов',
       'Заморозка серии | пропуск дня не обрывает серию',
       'Пробные тесты | IELTS и SAT',
+      'Эмодзи у имени | свой символ рядом с вашим именем',
     ])
+  })
+
+  it('leaves the emoji of Pro out when the server sends an empty set of emoji', () => {
+    useSettingsStore().adopt(settingsFixture({ options: { ...settingsFixture().options, pro_emojis: [] } }))
+
+    expect(texts(mount(ProBenefits))).toEqual(FIVE.slice(0, -1))
+  })
+
+  it('keeps the emoji of Pro while the set has emoji in it', () => {
+    useSettingsStore().adopt(settingsFixture({ options: { ...settingsFixture().options, pro_emojis: [{ code: 'fire', emoji: '🔥' }] } }))
+
+    expect(texts(mount(ProBenefits))).toContain('billing.benefit.pro_emoji')
   })
 
   it('quotes the Free limit in the note on the new words while /me knows it', () => {
@@ -91,7 +116,7 @@ describe('ProBenefits', () => {
       const w = mount(ProBenefits)
 
       expect(texts(w)).toEqual(SIX)
-      expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
+      expect(w.findAll('[data-testid=benefit]')).toHaveLength(7)
     })
 
     it("'solo': the practice alone", () => {
@@ -171,20 +196,26 @@ describe('ProBenefits', () => {
     expect(w.attributes('data-testid')).toBe('pro-benefits')
   })
 
-  it('draws rows between hairlines, the name on the left and the note on the right, without check marks (docs/design Pro)', () => {
+  it('draws a green tick in a soft circle, the name and the note under it, no lines between the items (docs/design/2026-11-25-redesign Pro)', () => {
     const w = mount(ProBenefits)
 
-    expect(w.find('svg').exists()).toBe(false)
-    expect(w.classes()).toEqual(expect.arrayContaining(['border-t', 'border-hairline']))
-    for (const item of w.findAll('[data-testid=benefit]')) expect(item.classes()).toEqual(expect.arrayContaining(['border-b', 'border-divider']))
+    expect(w.classes()).not.toContain('border-t')
+    for (const item of w.findAll('[data-testid=benefit]')) {
+      const tick = item.get('span[aria-hidden=true]')
+      expect(tick.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-success-soft', 'text-success-ink']))
+      expect(tick.find('svg').exists()).toBe(true)
+      expect(item.classes()).not.toContain('border-b')
+      expect(item.get('[data-testid=benefit-name]').classes()).toEqual(expect.arrayContaining(['text-base', 'font-bold']))
+      expect(item.get('[data-testid=benefit-note]').classes()).toContain('text-muted')
+    }
   })
 
   it('compact: tighter rows', () => {
     const regular = mount(ProBenefits)
     const compact = mount(ProBenefits, { props: { compact: true } })
 
-    expect(regular.get('li').classes()).toEqual(expect.arrayContaining(['py-3.5', 'justify-between']))
-    expect(compact.get('li').classes()).toEqual(expect.arrayContaining(['py-2.5']))
+    expect(regular.classes()).toContain('gap-3.5')
+    expect(compact.classes()).toContain('gap-3')
   })
 
   describe('the line about the game is the word of the server: game.pro_promise', () => {
@@ -223,10 +254,11 @@ describe('ProBenefits', () => {
     know(BOTH)
     const w = mount(ProBenefits)
 
-    expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
+    expect(w.findAll('[data-testid=benefit]')).toHaveLength(7)
     expect(rows(w)[0]).toBe("Yangi so'zlar | kuniga 20 ta o'rniga cheklovsiz")
     expect(rows(w)[1]).toBe('Mashqlar va bellashuvlar | kunlik cheklovsiz')
     expect(rows(w)[5]).toBe('Sinov imtihonlari | IELTS va SAT')
+    expect(rows(w)[6]).toBe("Ism yonidagi emoji | ismingiz yonida o'zingiz tanlagan belgi")
   })
 
   it('speaks Uzbek: the practice alone for solo, and no practice line for none', () => {
@@ -234,14 +266,14 @@ describe('ProBenefits', () => {
     know(SOLO)
     const solo = mount(ProBenefits)
 
-    expect(solo.findAll('[data-testid=benefit]')).toHaveLength(6)
+    expect(solo.findAll('[data-testid=benefit]')).toHaveLength(7)
     expect(rows(solo)[1]).toBe('Mashqlar | kunlik cheklovsiz')
     expect(solo.text()).not.toContain('bellashuv')
 
     know(NONE)
     const none = mount(ProBenefits)
 
-    expect(none.findAll('[data-testid=benefit]')).toHaveLength(5)
+    expect(none.findAll('[data-testid=benefit]')).toHaveLength(6)
     expect(none.text()).not.toContain('bellashuv')
     expect(none.text()).not.toContain('Mashqlar')
   })

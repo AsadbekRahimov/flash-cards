@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 5,
+    "title": "Город и дорога",
+    "title_uz": "Shahar va yo'l"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Такси и пробки",
+    "title_uz": "Taksi va tirbandlik"
+  },
+  "words": [
+    {
+      "word": "rush hour",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "час пик",
+        "uz": "tig'iz soatlar"
+      },
+      "example": "Don't drive into the city during rush hour.",
+      "example_translations": {
+        "ru": "Не езди в город в час пик.",
+        "uz": "Tig'iz soatlarda shaharga mashinada borma."
+      },
+      "hooks": {
+        "ru": "Время, когда все едут на работу или домой и дороги забиты",
+        "uz": "Hamma ishga yoki uyga ketadigan, yo'llar tirband bo'ladigan vaqt"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "rush",
+        "literal": {
+          "ru": "час спешки",
+          "uz": "shoshilish soati"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "stuck in traffic",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "застрять в пробке",
+        "uz": "tirbandlikda qolib ketmoq"
+      },
+      "example": "Sorry I'm late. I was stuck in traffic for an hour.",
+      "example_translations": {
+        "ru": "Простите за опоздание. Я час простоял в пробке.",
+        "uz": "Kechikkanim uchun uzr. Bir soat tirbandlikda qolib ketdim."
+      },
+      "hooks": {
+        "ru": "Самое частое объяснение опоздания в большом городе",
+        "uz": "Katta shaharda kechikishning eng ko'p aytiladigan sababi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stuck",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pull over",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "остановиться у обочины",
+        "uz": "yo'l chetiga to'xtamoq"
+      },
+      "example": "Could you pull over here, please? I'll get out.",
+      "example_translations": {
+        "ru": "Остановитесь здесь, пожалуйста, у обочины. Я выйду.",
+        "uz": "Shu yerda yo'l chetiga to'xtab bera olasizmi? Tushaman."
+      },
+      "hooks": {
+        "ru": "Просят водителя остановиться у края дороги",
+        "uz": "Haydovchidan yo'l chetida to'xtashni so'rash"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pull",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "drop off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "высадить кого-то",
+        "uz": "biror joyda tushirib qo'ymoq"
+      },
+      "example": "Can you drop me off at the station? — Sure, no problem.",
+      "example_translations": {
+        "ru": "Можете высадить меня у вокзала? — Конечно, без проблем.",
+        "uz": "Meni vokzal oldida tushirib qo'ya olasizmi? — Albatta, muammo emas."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кого куда довезли и высадили",
+        "uz": "Kimnidir biror joyga olib borib, tushirib qo'yish haqida"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "drop",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pick up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заехать за кем-то",
+        "uz": "mashinada olib ketmoq"
+      },
+      "example": "I'll pick you up at seven, OK? — Great, I'll be ready.",
+      "example_translations": {
+        "ru": "Я заеду за тобой в семь, хорошо? — Отлично, буду готова.",
+        "uz": "Soat yettida seni olib ketaman, xo'pmi? — Zo'r, tayyor bo'laman."
+      },
+      "hooks": {
+        "ru": "Обещают заехать за кем-то на машине",
+        "uz": "Kimnidir mashinada olib ketishga va'da berish"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pick",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "give someone a lift",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подвезти кого-то",
+        "uz": "birovni mashinada olib bormoq"
+      },
+      "example": "It's raining. Do you want me to give you a lift home?",
+      "example_translations": {
+        "ru": "Идёт дождь. Хочешь, я подвезу тебя домой?",
+        "uz": "Yomg'ir yog'yapti. Seni uyga mashinada olib borib qo'yaymi?"
+      },
+      "hooks": {
+        "ru": "Предлагают подвезти на своей машине; в США — «give someone a ride»",
+        "uz": "O'z mashinasida olib borishni taklif qilish; AQShda — «give someone a ride»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "lift",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How long will it take?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сколько времени это займёт?",
+        "uz": "qancha vaqt ketadi?"
+      },
+      "example": "How long will it take to get to the airport? — About forty minutes.",
+      "example_translations": {
+        "ru": "Сколько времени займёт дорога до аэропорта? — Минут сорок.",
+        "uz": "Aeroportgacha qancha vaqt ketadi? — Taxminan qirq daqiqa."
+      },
+      "hooks": {
+        "ru": "Спрашивают таксиста или водителя о времени в пути",
+        "uz": "Taksichi yoki haydovchidan yo'l vaqtini so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "long",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a traffic jam",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пробка",
+        "uz": "tirbandlik"
+      },
+      "example": "There was a huge traffic jam on the bridge this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром на мосту была огромная пробка.",
+        "uz": "Bugun ertalab ko'prikda katta tirbandlik bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о заторе машин на дороге",
+        "uz": "Yo'ldagi mashinalar tiqilinchi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "jam",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you call me a taxi?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вызовите мне такси",
+        "uz": "menga taksi chaqirib bera olasizmi?"
+      },
+      "example": "Could you call me a taxi, please? — Of course. Where are you going?",
+      "example_translations": {
+        "ru": "Вызовите мне, пожалуйста, такси. — Конечно. Куда вы едете?",
+        "uz": "Menga taksi chaqirib bera olasizmi? — Albatta. Qayerga borasiz?"
+      },
+      "hooks": {
+        "ru": "Просят в гостинице или кафе вызвать такси",
+        "uz": "Mehmonxona yoki kafeda taksi chaqirib berishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "call",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Step on it!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жми на газ!",
+        "uz": "gazni bos!"
+      },
+      "example": "We're late for the flight! Step on it, please!",
+      "example_translations": {
+        "ru": "Мы опаздываем на рейс! Жмите на газ, пожалуйста!",
+        "uz": "Reysga kechikyapmiz! Gazni bosing, iltimos!"
+      },
+      "hooks": {
+        "ru": "Шутливо или в спешке просят водителя ехать быстрее",
+        "uz": "Hazil bilan yoki shoshilib haydovchidan tezroq haydashni so'rash"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "step",
+        "literal": {
+          "ru": "наступи на это!",
+          "uz": "uni bos!"
+        },
+        "cefr": "B1",
+        "frequency": 3
+      }
+    }
+  ]
+}

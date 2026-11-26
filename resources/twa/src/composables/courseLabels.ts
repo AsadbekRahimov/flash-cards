@@ -1,13 +1,14 @@
 import { t, tn } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { SegmentedNavItem } from '@/components/ui/SegmentedNav.vue'
-import type { Progress } from '@/api/types'
+import type { CourseSection, Progress } from '@/api/types'
 
 const GOAL_KEYS: Record<string, StringKey> = {
   general: 'catalog.goal.general',
   school: 'catalog.goal.school',
   ielts: 'catalog.goal.ielts',
   sat: 'catalog.goal.sat',
+  phrases: 'catalog.goal.phrases',
 }
 
 /** Goals of the exam-preparation courses: their chip is highlighted in the accent colour (docs/14 §6.5). */
@@ -23,18 +24,25 @@ export interface CourseChip {
   tone: 'neutral' | 'accent'
 }
 
+/** A course of the "Phrases" section of the catalog (docs/35 §3.3 a); a course without the field (an older server) is a usual one. */
+export function isPhraseCourse(course: { section?: CourseSection } | null | undefined): boolean {
+  return course?.section === 'phrases'
+}
+
 /**
  * Chips of a course: level ("A1"), goal ("General English"; "IELTS" / "SAT" in the accent colour) and size
- * ("900 words"). Level and goal are left out when the course has none.
+ * ("900 words"; "300 phrases" in a course of phrases). Level and goal are left out when the course has none; a course of phrases has
+ * no goal chip - its section already says what it is.
  */
-export function courseChips(course: { level: string | null; exam_tag: string | null; words_count: number }): CourseChip[] {
+export function courseChips(course: { level: string | null; exam_tag: string | null; words_count: number; section?: CourseSection }): CourseChip[] {
   const chips: CourseChip[] = []
+  const phrases = isPhraseCourse(course)
   if (course.level !== null && course.level !== '') chips.push({ key: 'level', label: course.level, tone: 'neutral' })
 
-  const goal = goalLabel(course.exam_tag)
+  const goal = phrases ? null : goalLabel(course.exam_tag)
   if (goal !== null) chips.push({ key: 'goal', label: goal, tone: EXAM_GOALS.includes(course.exam_tag ?? '') ? 'accent' : 'neutral' })
 
-  chips.push({ key: 'words', label: tn('catalog.words', course.words_count), tone: 'neutral' })
+  chips.push({ key: 'words', label: tn(phrases ? 'catalog.phrases' : 'catalog.words', course.words_count), tone: 'neutral' })
   return chips
 }
 

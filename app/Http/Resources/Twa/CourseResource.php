@@ -22,6 +22,7 @@ final class CourseResource extends TwaResource
      *   description: string|null,
      *   level: string|null,
      *   exam_tag: string|null,
+     *   section: string,
      *   words_count: int,
      *   is_featured: bool,
      *   is_active: bool,
@@ -39,6 +40,8 @@ final class CourseResource extends TwaResource
             'description' => $course->description,
             'level' => $course->level,
             'exam_tag' => $course->examTag,
+            // The section of the catalog (docs/35 §3.3 a): `phrases` - the course of phrases, `courses` - every other.
+            'section' => $course->section(),
             'words_count' => $course->wordsCount,
             'is_featured' => $course->isFeatured,
             'is_active' => $listing->isActive,

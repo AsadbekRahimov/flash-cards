@@ -6,6 +6,7 @@ export type PlayerState = 'invited' | 'not_ready' | 'ready' | 'answering' | 'ans
 <script setup lang="ts">
 import { computed } from 'vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PlayerName from '@/components/PlayerName.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
 import type { StringKey } from '@/i18n/ru'
@@ -19,6 +20,7 @@ import { useI18n } from '@/i18n'
  * - `name` — already localized ("You", or the name of the opponent).
  * - `state` — see `PlayerState`; `null` shows no chip.
  * - `accent` — the avatar in the accent colour (the learner).
+ * - `emoji` — the emoji of Pro of the opponent (`pro_emoji`, docs/31 §5а), after the name; nothing for null / absent.
  *
  * The chip is a polite live region: the change of the state of the opponent is heard by a screen reader.
  */
@@ -27,6 +29,7 @@ const props = defineProps<{
   /** `null`: just the person, no chip. */
   state: PlayerState | null
   accent?: boolean
+  emoji?: string | null
 }>()
 
 const { t } = useI18n()
@@ -52,7 +55,7 @@ const look = computed(() => (props.state === null ? null : LOOKS[props.state]))
 <template>
   <div class="flex items-center gap-3" data-testid="player-status" :data-state="state">
     <InitialAvatar :name="name" :accent="accent" />
-    <span class="min-w-0 flex-1 truncate text-[15px] leading-5 font-semibold" data-testid="player-name">{{ name }}</span>
+    <PlayerName :name="name" :emoji="emoji" class="flex-1 text-[15px] leading-5 font-semibold" data-testid="player-name" />
     <span v-if="look" class="chip shrink-0" :class="look.chip" role="status" data-testid="player-chip">
       <AppIcon :name="look.icon" :size="14" />
       {{ t(look.label) }}

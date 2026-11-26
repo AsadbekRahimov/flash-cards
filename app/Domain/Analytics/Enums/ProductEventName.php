@@ -12,6 +12,8 @@ enum ProductEventName: string
     case OnboardingCompleted = 'onboarding.completed';
     case CourseSelected = 'course.selected';
     case SettingsChanged = 'settings.changed';
+    /** The region of the learner changed (props: from, to - a code or null; via - onboarding / settings / prompt / undo; docs/35 §2.3). */
+    case RegionSet = 'region.set';
     case TrainingSessionOpened = 'training.session_opened';
     case TrainingSessionFinished = 'training.session_finished';
     case ExamStarted = 'exam.started';
@@ -26,12 +28,18 @@ enum ProductEventName: string
     case ReminderFailed = 'reminder.failed';
     /** The reminder was a question (props: kind, word_id, exercise, due_count); sent together with `reminder.sent`. */
     case ReminderQuizSent = 'reminder.quiz_sent';
+    /** The reminder after a lesson went out in the bot: "fix the words in a game" (props: lesson_id, words — docs/31 §5б). */
+    case LessonNudgeSent = 'lesson_nudge.sent';
     /** The learner tapped an answer, once per question (props: kind, word_id, exercise, correct, picked, latency_s, due_count). */
     case ReminderQuizAnswered = 'reminder.quiz_answered';
     /** A tap on a question that is no longer there (props: reason — missing / token_mismatch / no_message). */
     case ReminderQuizExpired = 'reminder.quiz_expired';
     /** The learner turned the personal reminders off: `reminder_time` went from a time to null (props: via — settings / onboarding). */
     case RemindersDisabled = 'reminders.disabled';
+    /** The bot cannot write to the learner any more, on the transition only (props: reason - bot_blocked / not_started / user_deactivated / chat_not_found / forbidden / kicked, via - send / my_chat_member; docs/34 §4в п. 3). */
+    case BotDmClosed = 'bot.dm_closed';
+    /** The private chat of the learner is open again, on the transition only (props: via - dm / start / my_chat_member). */
+    case BotDmReopened = 'bot.dm_reopened';
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';
@@ -80,7 +88,15 @@ enum ProductEventName: string
     case TrialGranted = 'trial.granted';
     /** A learner eligible by the row was refused the trial (props: reason — already_used: this Telegram account had one before). */
     case TrialRefused = 'trial.refused';
+    /** An offer after the welcome trial went out in the bot (props: step — 0 / 3 / 10 days after its end, subscription_id, priced — with prices or "Pro is coming"; docs/34 §2д). */
+    case TrialOfferSent = 'trial_offer.sent';
+    /** The learner tapped "Do not send offers" under an offer (no props; only on the change false -> true; docs/34 §2д). */
+    case TrialOfferOptedOut = 'trial_offer.opted_out';
     case DailyGoalMet = 'daily_goal.met';
+    /** The daily goal was lowered to the limit of the plan - Pro ended (props: from, to, via — today / settings / training / command; docs/34 §2б.2). */
+    case DailyGoalLimited = 'daily_goal.limited';
+    /** The goal lowered by the limit came back - Pro is back (props: from, to, via). */
+    case DailyGoalRestored = 'daily_goal.restored';
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
     case StreakFrozen = 'streak.frozen';
@@ -96,6 +112,17 @@ enum ProductEventName: string
     case LeagueMonthCandidateReinstated = 'league.month_candidate_reinstated';
     /** A prize of a confirmed winner was marked as delivered (props: month_id, candidate_id, place; actor = the user, the learner). */
     case LeagueMonthPrizeDelivered = 'league.month_prize_delivered';
+    /**
+     * Word points v2 (docs/32 S16): an answer took a count of the rating day to its cap - once per learner, rating day and count
+     * (props: count — week / month, rating_day, category, cap). Recorded after the commit of the answer, only on the v2 rules.
+     */
+    case ScoreDayCapped = 'score.day_capped';
+    /**
+     * Word points v2 (docs/32 S16, the architect's decision): ONE summary of a rating day, written by the nightly
+     * `leagues:report-score-day` for yesterday - no learner (props: rating_day, learners, credits, {free|pro}_learners,
+     * {free|pro}_credits, {week|month}_{free|pro}_{p50|p90|capped_share}). At most one per rating day (`INSERT … WHERE NOT EXISTS`).
+     */
+    case ScoreCredited = 'score.credited';
     /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
     case FriendRequested = 'friend.requested';
     /** A friend request was accepted (props: friendship_id); actor = the acceptor. */
@@ -112,6 +139,12 @@ enum ProductEventName: string
     case AchievementUnlocked = 'achievement.unlocked';
     /** The learner shared an achievement from the TWA, once per (learner, key) (props: key). */
     case AchievementShared = 'achievement.shared';
+    /** The server prepared a message to share "through the bot" and gave its id (props: kind, subject, via - mini_app, cached, photo; docs/36 §1в, H7). */
+    case SharePrepared = 'share.prepared';
+    /** The Mini App says the prepared message was sent (`shareMessage` → sent; props: kind; docs/36 H7). Reported by the client. */
+    case ShareSent = 'share.sent';
+    /** The Mini App opened `t.me/share/url` instead (props: kind, reason - old_client / error; docs/36 H7). Reported by the client. */
+    case ShareFallback = 'share.fallback';
     /** A solo practice session was created (props: session_id, mode, course_id, lesson_id, source, total, retry — docs/16 §3.4). */
     case PracticeSessionStarted = 'practice.session_started';
     /** A solo session ended, once, by whoever finished it (props: session_id, mode, total, answered, correct_first, hints, mismatches, reason — completed / expired / replaced, duration_ms). */
@@ -192,4 +225,45 @@ enum ProductEventName: string
      * class, and the millisecond offsets auth_ready, today_received, button_ready, first_tap, first_answer_ack, first_audio - each only when set).
      */
     case ClientTiming = 'client.timing';
+    /**
+     * A learner answered a poll of the bot, first time or a change (docs/35 §1.5, O7; props: poll_id, delivery_id, changed). Not the
+     * administrator's test send. No actor: the tap is matched by the delivery's token and Telegram id, the learner is the delivery's.
+     */
+    case PollAnswered = 'poll.answered';
+    /** A cup of a group was proposed as a draft (docs/33 §8; props: cup_id); actor - the group. */
+    case CupProposed = 'cup.proposed';
+    /** An administrator of the chat published a cup (props: cup_id, level, days); actor - the group. */
+    case CupPublished = 'cup.published';
+    /** A cup started at the midnight of its day 1 (props: cup_id, participants); actor - the group. */
+    case CupStarted = 'cup.started';
+    /**
+     * A learner opened the invitation of a cup by its link and was let in - a member of the chat or a participant (docs/33 §8, K7;
+     * props: cup_id, joined, status). Once per learner and cup an hour: the pilot report counts the unique learners.
+     */
+    case CupInviteViewed = 'cup.invite_viewed';
+    /** A learner joined a cup (props: cup_id, participant_id, first_day). */
+    case CupJoined = 'cup.joined';
+    /** A participant started the round of a day (props: cup_id, attempt_id, day). */
+    case CupRoundStarted = 'cup.round_started';
+    /** The round of a day ended, once (props: cup_id, attempt_id, day, points, reason - completed / expired). */
+    case CupRoundFinished = 'cup.round_finished';
+    /** A cup finished (props: cup_id, participants); actor - the group. */
+    case CupFinished = 'cup.finished';
+    /** A cup was canceled (props: cup_id, reason - draft_expired / chat_admin / platform_admin / no_players); actor - the group. */
+    case CupCanceled = 'cup.canceled';
+    /** The summary of a day of a cup was posted in its chat (docs/33 §6.1, K6; props: cup_id, day); actor - the group. */
+    case CupSummaryPosted = 'cup.summary_posted';
+    /**
+     * A participant left the cup himself - «Выйти из кубка» (docs/33 §11.12; props: cup_id, participant_id, status - scheduled / running,
+     * duels_closed).
+     */
+    case CupLeft = 'cup.left';
+    /** A participant challenged to a duel (docs/33 §5.7, D1; props: cup_id, duel_id, public, addressed, rated_offered, kind - rated / friendly / null, mode). */
+    case CupDuelChallenged = 'cup.duel_challenged';
+    /** A challenge was accepted - the match is on (props: cup_id, duel_id, battle_id, rated). */
+    case CupDuelAccepted = 'cup.duel_accepted';
+    /** The result of a duel was taken (props: cup_id, duel_id, rated, credited, challenger_points, opponent_points). */
+    case CupDuelScored = 'cup.duel_scored';
+    /** An accepted duel was void - nobody answered before the match closed; the slots are free again (props: cup_id, duel_id, reason). */
+    case CupDuelVoid = 'cup.duel_void';
 }

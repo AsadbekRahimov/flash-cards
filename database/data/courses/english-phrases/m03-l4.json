@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 3,
+    "title": "Просьбы и предложения",
+    "title_uz": "Iltimos va takliflar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Принять или отказаться",
+    "title_uz": "Rozi bo'lish yoki rad etish"
+  },
+  "words": [
+    {
+      "word": "Sounds good",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "годится",
+        "uz": "ma'qul"
+      },
+      "example": "Let's meet at six by the cinema. — Sounds good!",
+      "example_translations": {
+        "ru": "Встретимся в шесть у кинотеатра. — Годится!",
+        "uz": "Soat oltida kinoteatr oldida uchrashaylik. — Ma'qul!"
+      },
+      "hooks": {
+        "ru": "Коротко соглашаются с предложением или планом",
+        "uz": "Taklif yoki rejaga qisqa rozilik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sounds",
+        "literal": {
+          "ru": "звучит хорошо",
+          "uz": "yaxshi eshitiladi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'd love to",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с удовольствием",
+        "uz": "jonim bilan"
+      },
+      "example": "Would you like to see my photos? — I'd love to!",
+      "example_translations": {
+        "ru": "Хочешь посмотреть мои фотографии? — С удовольствием!",
+        "uz": "Suratlarimni ko'rishni xohlaysanmi? — Jonim bilan!"
+      },
+      "hooks": {
+        "ru": "Тепло принимают приглашение или предложение",
+        "uz": "Taklifni iliq qabul qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "love",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Maybe next time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "может, в другой раз",
+        "uz": "balki keyingi safar"
+      },
+      "example": "Do you want to come to the cinema? — Not tonight. Maybe next time.",
+      "example_translations": {
+        "ru": "Пойдёшь в кино? — Сегодня нет. Может, в другой раз.",
+        "uz": "Kinoga borasanmi? — Bugun emas. Balki keyingi safar."
+      },
+      "hooks": {
+        "ru": "Мягко отказываются, оставляя надежду на будущее",
+        "uz": "Kelajakka umid qoldirib, muloyim rad etish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "next",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm afraid I can't",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "к сожалению, не смогу",
+        "uz": "afsuski, imkonim yo'q"
+      },
+      "example": "Can you come to the meeting tomorrow? — I'm afraid I can't. I have a doctor's appointment.",
+      "example_translations": {
+        "ru": "Вы сможете прийти завтра на встречу? — К сожалению, не смогу. Я записан к врачу.",
+        "uz": "Ertaga yig'ilishga kela olasizmi? — Afsuski, imkonim yo'q. Shifokor qabuliga yozilganman."
+      },
+      "hooks": {
+        "ru": "Вежливый отказ; «I'm afraid» здесь значит «к сожалению», а не страх",
+        "uz": "Xushmuomala rad javobi; «I'm afraid» bu yerda qo'rquv emas, «afsuski» degani"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "afraid",
+        "literal": {
+          "ru": "я боюсь, что не могу",
+          "uz": "qo'rqamanki, qila olmayman"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Why not?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "почему бы и нет?",
+        "uz": "nega endi yo'q?"
+      },
+      "example": "Shall we walk home? It's a nice evening. — Why not?",
+      "example_translations": {
+        "ru": "Пойдём домой пешком? Вечер хороший. — Почему бы и нет?",
+        "uz": "Uyga piyoda boraylikmi? Kech juda yoqimli. — Nega endi yo'q?"
+      },
+      "hooks": {
+        "ru": "Легко соглашаются на неожиданное предложение",
+        "uz": "Kutilmagan taklifga yengil rozi bo'lish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "why",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Count me in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я с вами",
+        "uz": "meni ham qo'shinglar"
+      },
+      "example": "We're playing football after school. Who wants to play? — Count me in!",
+      "example_translations": {
+        "ru": "После уроков играем в футбол. Кто хочет? — Я с вами!",
+        "uz": "Darsdan keyin futbol o'ynaymiz. Kim xohlaydi? — Meni ham qo'shinglar!"
+      },
+      "hooks": {
+        "ru": "Охотно присоединяются к общему делу или игре",
+        "uz": "Umumiy ish yoki o'yinga ishtiyoq bilan qo'shilish"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "count",
+        "literal": {
+          "ru": "посчитай и меня",
+          "uz": "meni ham hisobga qo'sh"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I'll pass",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я пас",
+        "uz": "menga kerakmas"
+      },
+      "example": "Do you want some more cake? — No, thanks, I'll pass. I've had enough.",
+      "example_translations": {
+        "ru": "Хочешь ещё торта? — Нет, спасибо, я пас. Мне хватит.",
+        "uz": "Yana tort olasanmi? — Yo'q, rahmat, menga kerakmas. Yetarli."
+      },
+      "hooks": {
+        "ru": "Неформально отказываются от предложения, еды или участия",
+        "uz": "Taklif, ovqat yoki ishtirokdan norasmiy voz kechish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pass",
+        "literal": {
+          "ru": "я пропущу",
+          "uz": "men o'tkazib yuboraman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That would be great",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "было бы здорово",
+        "uz": "juda zo'r bo'lardi"
+      },
+      "example": "I can lend you my bike. — That would be great, thanks!",
+      "example_translations": {
+        "ru": "Могу одолжить тебе велосипед. — Было бы здорово, спасибо!",
+        "uz": "Senga velosipedimni berib turishim mumkin. — Juda zo'r bo'lardi, rahmat!"
+      },
+      "hooks": {
+        "ru": "С радостью принимают предложенную помощь",
+        "uz": "Taklif qilingan yordamni xursand bo'lib qabul qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "great",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'd rather not",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я бы не хотел",
+        "uz": "yaxshisi, yo'q"
+      },
+      "example": "Do you want to talk about it? — I'd rather not, if that's OK.",
+      "example_translations": {
+        "ru": "Хочешь поговорить об этом? — Я бы не хотел, если можно.",
+        "uz": "Bu haqda gaplashishni xohlaysanmi? — Yaxshisi, yo'q, agar mumkin bo'lsa."
+      },
+      "hooks": {
+        "ru": "Мягко, но твёрдо отказываются что-то делать",
+        "uz": "Muloyim, ammo qat'iy rad etish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "rather",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Sure thing",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без вопросов",
+        "uz": "bo'pti"
+      },
+      "example": "Can you help me with my homework later? — Sure thing!",
+      "example_translations": {
+        "ru": "Поможешь мне потом с домашкой? — Без вопросов!",
+        "uz": "Keyin uy vazifamga yordam berasanmi? — Bo'pti!"
+      },
+      "hooks": {
+        "ru": "Охотно и коротко соглашаются на просьбу",
+        "uz": "Iltimosga ishtiyoq bilan qisqa rozilik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "thing",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

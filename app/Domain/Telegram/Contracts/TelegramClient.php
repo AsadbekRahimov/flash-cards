@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Contracts;
 
+use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use InvalidArgumentException;
 
 interface TelegramClient
 {
@@ -18,6 +24,27 @@ interface TelegramClient
         ?string $parseMode = null,
         ?array $replyMarkup = null,
     ): void;
+
+    /**
+     * Sends a message to a group chat AT ONCE and returns its `message_id` (docs/33 §6.4, K1): a message that is edited later (the
+     * card of a cup) needs the id. Unlike {@see sendMessage()} it never defers into the queue - the calling job takes the slots of
+     * the per-chat and bot-wide budgets itself and puts itself back. `$threadId` is the topic of a forum group
+     * (`message_thread_id`), `$disableNotification` sends it silently. A group that became a supergroup is followed, as by every send.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when the bot cannot write to the chat (removed from the group, chat not found)
+     * @throws TelegramApiException on any other failed Bot API call ({@see TelegramRateLimitedException} for a 429); also when
+     *                              Telegram's answer carried no `message_id` (as a transport failure: it may have been posted)
+     */
+    public function sendGroupMessage(
+        int|string $chatId,
+        string $text,
+        ?string $parseMode = null,
+        ?array $replyMarkup = null,
+        ?int $threadId = null,
+        bool $disableNotification = false,
+    ): int;
 
     public function sendWebAppButton(
         int|string $chatId,
@@ -45,6 +72,38 @@ interface TelegramClient
     ): void;
 
     /**
+     * Sends a photo with an optional plain-text caption (no `parse_mode`; Telegram allows 0-1024 characters) AT ONCE and returns
+     * the sent message: its `message_id` and the `file_id` of the largest size (docs/35 §1.6, O1). Like {@see sendGroupMessage()}
+     * it never defers into the queue - the calling job takes its slot of the bot-wide budget itself. The photo is a local file
+     * (multipart upload), a `file_id` of this bot or an http(s) URL ({@see PhotoSource}). {@see sendPhoto()} stays as it was.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when the recipient cannot be reached (blocked bot / no dialog / chat not found)
+     * @throws TelegramApiException on any other failed Bot API call ({@see TelegramRateLimitedException} for a 429), an unreadable
+     *                              file, or an answer without a `message_id` (as a transport failure: it may have been sent)
+     */
+    public function sendPhotoMessage(
+        int|string $chatId,
+        PhotoSource $photo,
+        ?string $caption = null,
+        ?array $replyMarkup = null,
+    ): SentMessage;
+
+    /**
+     * Sends a plain-text message (no `parse_mode`) AT ONCE and returns it (docs/35 §1.6, O1): the same call as
+     * {@see sendGroupMessage()} without a topic, for any chat, answering a {@see SentMessage} (no photo) like
+     * {@see sendPhotoMessage()} so a sender of either kind keeps one result.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when the recipient cannot be reached
+     * @throws TelegramApiException on any other failed Bot API call ({@see TelegramRateLimitedException} for a 429), or an answer
+     *                              without a `message_id`
+     */
+    public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage;
+
+    /**
      * Answers a tapped inline button. Without a text it only dismisses the spinner; with one the tapper alone sees it
      * (a toast, or a modal alert with `$showAlert`) and nothing is posted to the chat. Telegram cuts the text at 200 characters.
      */
@@ -65,9 +124,21 @@ interface TelegramClient
      *
      * @param  array<string, mixed>|null  $replyMarkup
      *
-     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified")
+     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified" -
+     *                              {@see TelegramApiException::isMessageNotModified()}, which a caller may count as success)
      */
     public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void;
+
+    /**
+     * Replaces the plain-text caption (and the inline keyboard) of an already sent photo (docs/35 §1.5 "После ответа", O1). The
+     * keyboard goes away when `$replyMarkup` is null.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified" -
+     *                              {@see TelegramApiException::isMessageNotModified()}; {@see TelegramRateLimitedException} for a 429)
+     */
+    public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void;
 
     /**
      * Status of a user in a chat (`creator`, `administrator`, `member`, `restricted`, `left`, `kicked`).
@@ -75,6 +146,14 @@ interface TelegramClient
      * @throws TelegramApiException when Telegram refuses or cannot be reached
      */
     public function getChatMemberStatus(int|string $chatId, int $userId): string;
+
+    /**
+     * A user's status in a chat together with `is_member` (docs/33 §4.2, K1): the one answer that tells a muted user still in the
+     * chat (`restricted`, `is_member = true`) from one who left it (`restricted`, `is_member = false`).
+     *
+     * @throws TelegramApiException when Telegram refuses or cannot be reached
+     */
+    public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo;
 
     public function setWebhook(string $url, string $secretHeader): bool;
 
@@ -138,11 +217,44 @@ interface TelegramClient
 
     /**
      * The menu button of the bot's private chats (`setChatMenuButton` without `chat_id`: the default one for
-     * every private chat), e.g. `['type' => 'web_app', 'text' => 'LexiFlow', 'web_app' => ['url' => 'https://…']]`.
+     * every private chat), e.g. `['type' => 'web_app', 'text' => 'Muhrla', 'web_app' => ['url' => 'https://…']]`.
      *
      * @param  array<string, mixed>  $menuButton  a MenuButton object
      *
      * @throws TelegramApiException
      */
     public function setChatMenuButton(array $menuButton): bool;
+
+    /**
+     * Stores a message the user `$userId` can send from the Mini App with `WebApp.shareMessage` (`savePreparedInlineMessage`,
+     * Bot API 8.0; docs/36 §1в). `$result` is ONE InlineQueryResult (`InlineQueryResultPhoto` with a JPEG `photo_url` or
+     * `InlineQueryResultArticle`), sent as JSON; the `allow*` flags say into which chats it may go (at least one should be true).
+     * The prepared message expires - when, Telegram says in the answer.
+     *
+     * @param  array<string, mixed>  $result  an InlineQueryResult object
+     *
+     * @throws TelegramRateLimitedException on a 429
+     * @throws TelegramApiException on any other failed Bot API call, or an answer without an id / expiration date
+     */
+    public function savePreparedInlineMessage(
+        int $userId,
+        array $result,
+        bool $allowUserChats = false,
+        bool $allowBotChats = false,
+        bool $allowGroupChats = false,
+        bool $allowChannelChats = false,
+    ): PreparedInlineMessage;
+
+    /**
+     * Answers an inline query (`answerInlineQuery`; docs/36 §1в п. 3) with at most 50 InlineQueryResult objects, sent as JSON.
+     * An empty list is a valid "nothing" answer. `$cacheTime` is how long Telegram may serve the same results again (seconds,
+     * Telegram's default 300), `$isPersonal` keeps that cache per user.
+     *
+     * @param  list<array<string, mixed>>  $results
+     *
+     * @throws InvalidArgumentException more than 50 results
+     * @throws TelegramRateLimitedException on a 429
+     * @throws TelegramApiException on any other failed Bot API call (the query is too old, a result is invalid)
+     */
+    public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void;
 }

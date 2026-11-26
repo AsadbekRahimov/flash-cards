@@ -5,8 +5,6 @@ import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import ListGroup from '@/components/ui/ListGroup.vue'
-import ListRow from '@/components/ui/ListRow.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -19,6 +17,7 @@ import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { trialEndsAt } from '@/composables/trial'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { BRAND_PRO } from '@/brand'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { errorMessage } from '@/i18n/errors'
@@ -32,8 +31,10 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * code (moved here from the end-of-session screen) and the support contact. The history of payments is task 2A.7.
  * A page of the Profile tab: the system "Back" button leads to the Profile.
  *
- * The tariffs (month → quarter → year, as the catalog sends them) are rows with the price and the saving; a tap opens the purchase
- * sheet on that period. The look follows the Pro mock-up (docs/design Pro): rows between lines, no coloured tiles.
+ * The tariffs (month → quarter → year, as the catalog sends them) are cards with the price and the saving (the catalog's `saving_pct`,
+ * never a number of the mock-up); a tap opens the purchase sheet on that period. The look follows the Pro mock-up
+ * (docs/design/2026-11-25-redesign Pro): "Muhrla Pro" (`BRAND_PRO`) above the title, the plan in the big tinted card, the benefits with
+ * green ticks, the tariffs as white cards with the saving in green.
  *
  * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
  * server refuses a payment then — the grace gets a warning instead), not for a perpetual grant and not for the Pro a
@@ -208,7 +209,7 @@ onMounted(() => {
 
 <template>
   <div class="page" data-testid="billing-view">
-    <PageHeader :eyebrow="t('billing.plan.pro')" :title="t('billing.title')" />
+    <PageHeader :eyebrow="BRAND_PRO" :title="t('billing.title')" />
 
     <ErrorState v-if="status === 'error'" :message="errorText" @retry="load" />
 
@@ -223,12 +224,17 @@ onMounted(() => {
         @invite="router.push({ name: 'referrals', query: { from: 'billing' } })"
       />
 
-      <section class="card space-y-1" data-testid="plan-card">
+      <section class="space-y-1 rounded-hero bg-highlight p-4" data-testid="plan-card">
         <div class="flex items-center gap-2">
-          <h2 class="min-w-0 truncate text-[17px] leading-[22px] font-semibold" data-testid="plan-name">
-            {{ isPro ? t('billing.plan.pro') : t('billing.plan.free') }}
+          <h2 class="min-w-0 truncate text-[22px] leading-7 font-extrabold tracking-[-0.3px]" data-testid="plan-name">
+            {{ isPro ? BRAND_PRO : t('billing.plan.free') }}
           </h2>
-          <span class="chip shrink-0" :class="isPro ? 'chip-accent' : 'chip-neutral'" data-testid="plan-chip">
+          <span
+            class="inline-flex h-[22px] shrink-0 items-center rounded-full border px-[9px] text-[13px] leading-none font-bold"
+            :class="isPro ? 'border-primary bg-primary text-on-primary' : 'border-accent-line bg-surface text-accent'"
+            :data-plan="isPro ? 'pro' : 'free'"
+            data-testid="plan-chip"
+          >
             {{ t(isPro ? 'profile.chip.pro' : 'profile.chip.free') }}
           </span>
         </div>
@@ -244,8 +250,8 @@ onMounted(() => {
 
       <InlineAlert v-if="grace" tone="warning" :message="graceMessage" data-testid="grace-alert" />
 
-      <section class="card space-y-3" data-testid="benefits-card">
-        <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="benefits-title">
+      <section class="card space-y-4" data-testid="benefits-card">
+        <h2 class="text-lg leading-6 font-extrabold" data-testid="benefits-title">
           {{ isPro ? t('billing.benefits_title_pro') : t('billing.benefits_title') }}
         </h2>
         <ProBenefits />
@@ -299,22 +305,27 @@ onMounted(() => {
         </div>
       </section>
 
-      <!-- The tariffs: a tap opens the purchase sheet on that period. -->
-      <ListGroup v-if="canBuy && tariffs.length > 0" :header="t('billing.tariffs')" data-testid="tariffs">
-        <ListRow
-          v-for="row in tariffs"
-          :key="row.period"
-          :title="t(`billing.period.${row.period}`)"
-          :subtitle="row.saving || undefined"
-          :chevron="true"
-          :data-testid="`tariff-${row.period}`"
-          @click="openPaywall(row.period)"
-        >
-          <template #trailing>
-            <span class="shrink-0 text-[15px] leading-5" data-testid="tariff-price">{{ row.price }}</span>
-          </template>
-        </ListRow>
-      </ListGroup>
+      <!-- The tariffs: white cards of the Pro mock-up, the saving in green; a tap opens the purchase sheet on that period. -->
+      <section v-if="canBuy && tariffs.length > 0" data-testid="tariffs">
+        <h2 class="px-1 pb-2.5 text-lg leading-6 font-extrabold">{{ t('billing.tariffs') }}</h2>
+        <div class="flex flex-col gap-2.5">
+          <button
+            v-for="row in tariffs"
+            :key="row.period"
+            type="button"
+            class="flex min-h-14 w-full items-center gap-3 rounded-card border border-hairline bg-surface px-3.5 py-3 text-left active:bg-fill"
+            :data-testid="`tariff-${row.period}`"
+            @click="openPaywall(row.period)"
+          >
+            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="text-sm leading-[18px] text-muted">{{ t(`billing.period.${row.period}`) }}</span>
+              <span v-if="row.saving" class="text-[13px] leading-[18px] font-bold text-success-ink" data-testid="saving">{{ row.saving }}</span>
+            </span>
+            <span class="shrink-0 text-[22px] leading-[26px] font-extrabold whitespace-nowrap" data-testid="tariff-price">{{ row.price }}</span>
+            <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
+          </button>
+        </div>
+      </section>
 
       <!-- The one primary button is "Resume" while it is on the screen (a canceled Stars renewal): paying again is the other way. -->
       <button
@@ -344,7 +355,7 @@ onMounted(() => {
       </p>
 
       <section class="card space-y-2" data-testid="promo-card">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('billing.promo_title') }}</h2>
+        <h2 class="text-lg leading-6 font-extrabold">{{ t('billing.promo_title') }}</h2>
         <PromoRedeem @redeemed="onRedeemed" />
       </section>
 

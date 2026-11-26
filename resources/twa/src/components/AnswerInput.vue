@@ -56,7 +56,7 @@ function submit(value: string): void {
       <div class="mt-1 flex items-center gap-2">
         <button
           type="button"
-          class="btn btn-plain btn-lg w-28 shrink-0 px-2 text-[15px] text-muted"
+          class="btn btn-plain btn-lg w-28 shrink-0 px-2 text-base font-semibold text-muted"
           :disabled="disabled || sent"
           data-testid="skip-btn"
           @click="submit('')"

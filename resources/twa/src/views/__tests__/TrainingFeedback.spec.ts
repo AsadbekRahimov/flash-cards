@@ -127,7 +127,7 @@ describe('the lesson comes alive (docs/14 §6.2)', () => {
     it('leaves the progress counter and the bar as they were', async () => {
       const w = await render(flash(1))
 
-      expect(w.get('[data-testid=progress]').text()).toBe('0 / 30')
+      expect(w.get('[data-testid=progress]').text()).toBe('0 из 30')
       expect(w.get('[data-testid=progress-bar] .progress-fill').attributes('style')).toContain('width: 0%')
     })
 

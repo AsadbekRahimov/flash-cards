@@ -13,13 +13,18 @@ use App\Domain\Learners\Enums\ReminderOutcome;
 use App\Domain\Learners\Enums\ReminderVariant;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Domain\Telegram\Services\ReminderQuizMessenger;
+use App\Domain\Telegram\Support\TwaScreen;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -31,12 +36,14 @@ use Throwable;
  *  1. the learner still exists, is not banned, DM not blocked, reminders still on
  *     (a `/settings` change between claim and send wins);
  *  2. the claim is fresh (`max_delay_minutes`): a reminder hours late is spam;
- *  3. under a per-learner cache lock, `notifications_log` says no reminder of any kind
- *     went out on the learner's local day, nor within the last `min_interval_hours`
- *     (a floor that also covers midnight and a changed reminder time) — this is what
+ *  3. under a per-learner cache lock, `notifications_log` says no message about studies (a reminder of any kind or the
+ *     reminder after a lesson, {@see StudyMessageLimit}) went out on the learner's local day, nor within the last
+ *     `min_interval_hours` (a floor that also covers midnight and a changed reminder time) — this is what
  *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
  *     level);
- *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing);
+ *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing); on the day after a lesson whose words came up for
+ *     review, while the word points count, a `Review` reminder is worded "they earn points" instead ({@see ReviewScoreHint}: the
+ *     dispatcher found the words, `$scoreHint`) - in the plain text and in the lead of the question alike, no second message;
  *  5. {@see ReminderQuizBuilder} may turn it into a question with four answers (owner decision 2026-11-17): then the
  *     state of the question is stored BEFORE the Telegram call (a tap can only come after it) and the message has the
  *     answer buttons instead of the one app button. Whatever goes wrong while building or storing it, the reminder goes
@@ -52,6 +59,11 @@ use Throwable;
  * row stays, the exception propagates, and the queue's retry meets the row and ends in
  * {@see ReminderOutcome::SkippedRecent} — a missed reminder is better than a double one.
  *
+ * A definite refusal by Telegram (`TelegramApiException::isApiResponse()`: a 429 {@see TelegramRateLimitedException}, or any
+ * other 4xx) means certainly NOT delivered: the row and the stored question are deleted and the exception is rethrown, so the
+ * retry sends the reminder (docs/34 §4в, "Спецификация для отправителей"). A 429 puts the job back for `retry_after`
+ * ({@see ThrottleTelegramOutbound}); another 4xx is retried by `backoff` up to `maxExceptions` and then lands in `failed_jobs`.
+ *
  * Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) or 400 `chat not found`
  * means certainly not delivered: the row (and the stored question) is deleted again and `dm_blocked_at` is set —
  * the learner leaves the dispatcher's selection until they write to the bot (any DM
@@ -62,21 +74,26 @@ use Throwable;
  */
 final class ReminderSender
 {
-    public const TWA_PATH = '/twa/?from=reminder';
+    /** `from=` of the button of a reminder (the Mini App opens the daily review on it, `TodayView`). */
+    public const FROM = 'reminder';
 
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly ReminderContentResolver $contents,
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
-        private readonly LearnerClock $clock,
         private readonly ReminderQuizBuilder $quizzes,
         private readonly ReminderQuizStore $quizStore,
         private readonly ReminderQuizMessenger $quizMessenger,
         private readonly ReminderExperiment $experiment,
+        private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
+        private readonly StudyMessageLimit $limit,
+        private readonly ReviewScoreHint $scoreHint,
     ) {}
 
-    public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
+    /** @param  bool  $scoreHint  the dispatcher found yesterday's lesson words due ({@see ReviewScoreHint::learnerIds()}) */
+    public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null, bool $scoreHint = false): ReminderOutcome
     {
         $now = ($now ?? CarbonImmutable::now())->utc();
 
@@ -96,8 +113,8 @@ final class ReminderSender
             return ReminderOutcome::SkippedStale;
         }
 
-        return Cache::lock("reminders:send:{$learner->id}", 120)->block(10, function () use ($learner, $scheduledFor, $now): ReminderOutcome {
-            if ($this->recentlyReminded($learner, $now)) {
+        return $this->limit->lock($learner->id)->block(10, function () use ($learner, $scheduledFor, $now, $scoreHint): ReminderOutcome {
+            if ($this->limit->reached($learner, $now)) {
                 return ReminderOutcome::SkippedRecent;
             }
 
@@ -105,6 +122,12 @@ final class ReminderSender
             if ($content === null) {
                 return ReminderOutcome::SkippedNothingToSay;
             }
+            // The day after a lesson: the same reminder, worded "yesterday's words came up for review and earn points" (docs/31 §5б).
+            if ($this->scoreHint->applies($scoreHint, $content, $now)) {
+                $content = $content->withScoreHint();
+            }
+            // Only on the reminder that says it: the payload and the props of the others stay exactly what they were.
+            $hint = $content->scoreHint ? ['score_hint' => true] : [];
 
             $locale = $this->locales->forLearner($learner);
             $variant = $this->experiment->variantFor($learner, $content, $now);
@@ -124,6 +147,7 @@ final class ReminderSender
                     'quiz' => $quiz === null ? null : ['word_id' => $quiz->wordId, 'exercise' => $quiz->exercise->value],
                     'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
                     ...$arm,
+                    ...$hint,
                 ],
                 'sent_at' => $now,
             ]);
@@ -133,11 +157,12 @@ final class ReminderSender
                     $view = $this->quizMessenger->question($content, $quiz, $locale);
                     $this->telegram->sendMessage($learner->telegram_user_id, $view['text'], null, $view['reply_markup']);
                 } else {
+                    [$button, $screen] = $this->button($content);
                     $this->telegram->sendWebAppButton(
                         chatId: $learner->telegram_user_id,
                         text: $this->text($content, $locale),
-                        buttonText: __('reminders.open_button', [], $locale),
-                        url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                        buttonText: __($button, [], $locale),
+                        url: $this->buttons->twaUrl($screen, query: ['from' => self::FROM]),
                     );
                 }
             } catch (TelegramForbiddenException $e) {
@@ -146,7 +171,7 @@ final class ReminderSender
                 if ($quiz !== null) {
                     $this->forgetQuiz($learner);
                 }
-                $this->markDmBlocked($learner, $now);
+                $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason, $now);
 
                 Log::warning('telegram.reminder_forbidden', [
                     'learner_id' => $learner->id,
@@ -159,6 +184,17 @@ final class ReminderSender
                 );
 
                 return ReminderOutcome::Forbidden;
+            } catch (TelegramApiException $e) {
+                if ($e->isApiResponse()) {
+                    // Definitely not delivered (flood control or a refused request): the retry must find no row, and no question.
+                    $log->delete();
+                    if ($quiz !== null) {
+                        $this->forgetQuiz($learner);
+                    }
+                }
+
+                // A timeout / 5xx may have been delivered: the row stays and the retry ends in SkippedRecent (at most once).
+                throw $e;
             }
 
             // `quiz` only on a question: the props of a plain reminder stay exactly what they were. `quiz_built` only in the quiz arm.
@@ -170,6 +206,7 @@ final class ReminderSender
                     ...($quiz === null ? [] : ['quiz' => true]),
                     ...$arm,
                     ...($variant === ReminderVariant::Quiz ? ['quiz_built' => $quiz !== null] : []),
+                    ...$hint,
                 ],
                 learner: $learner,
             );
@@ -217,8 +254,32 @@ final class ReminderSender
         }
     }
 
+    /**
+     * The one button of a plain reminder says what to do (docs/36 §3а, N5): a lesson for the kinds that call to learn, the first lesson
+     * for one who has never started, the catalogue for one without a course; "review the words" for the day after a lesson (the same
+     * screen: `from=reminder` opens the daily review).
+     *
+     * @return array{0: string, 1: TwaScreen}
+     */
+    private function button(ReminderContent $content): array
+    {
+        if ($content->scoreHint) {
+            return ['buttons.review_words', TwaScreen::Today];
+        }
+
+        return match ($content->kind) {
+            ReminderKind::NeverStarted => ['buttons.first_lesson', TwaScreen::Today],
+            ReminderKind::ChooseCourse => ['buttons.choose_course', TwaScreen::Courses],
+            ReminderKind::Review, ReminderKind::StreakAtRisk, ReminderKind::Inactive, ReminderKind::NewWords => ['buttons.start_lesson', TwaScreen::Today],
+        };
+    }
+
     private function text(ReminderContent $content, string $locale): string
     {
+        if ($content->scoreHint) {
+            return __('reminders.score_due', [], $locale);
+        }
+
         return match ($content->kind) {
             ReminderKind::Review => trans_choice('reminders.review', $content->dueCount, [], $locale),
             ReminderKind::StreakAtRisk => trans_choice('reminders.streak_at_risk', $content->streakCurrent, [], $locale),
@@ -235,40 +296,8 @@ final class ReminderSender
         };
     }
 
-    private function recentlyReminded(Learner $learner, CarbonImmutable $now): bool
-    {
-        // Either one is enough: a reminder already today (the learner's local calendar day,
-        // not the quota window), or one inside the floor — i.e. since the earlier of the two.
-        $dayStart = $this->clock->dayBoundsUtc($learner, $now)->startUtc;
-        $floor = $now->subHours($this->minIntervalHours());
-        $since = $dayStart->isBefore($floor) ? $dayStart : $floor;
-
-        return NotificationLog::query()
-            ->where('learner_id', $learner->id)
-            ->whereIn('type', ReminderKind::notificationTypes())
-            ->where('sent_at', '>=', $since)
-            ->exists();
-    }
-
-    /**
-     * Single-column UPDATE, no lock: an inbound DM clears the flag with its own conditional
-     * UPDATE, and the millisecond race between a 403 and a DM is harmless in both orders
-     * (worst case one more 403 tomorrow, or silence until the learner writes again).
-     */
-    private function markDmBlocked(Learner $learner, CarbonImmutable $now): void
-    {
-        Learner::query()
-            ->whereKey($learner->id)
-            ->update(['dm_blocked_at' => $now->format('Y-m-d H:i:s')]);
-    }
-
     private function maxDelayMinutes(): int
     {
         return max(15, (int) config('learning.reminders.max_delay_minutes', 120));
-    }
-
-    private function minIntervalHours(): int
-    {
-        return max(1, (int) config('learning.reminders.min_interval_hours', 2));
     }
 }

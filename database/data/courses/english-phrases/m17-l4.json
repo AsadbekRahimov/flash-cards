@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 17,
+    "title": "Успех и неудача",
+    "title_uz": "Muvaffaqiyat va omadsizlik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Не сдаваться",
+    "title_uz": "Taslim bo'lmaslik"
+  },
+  "words": [
+    {
+      "word": "Every cloud has a silver lining",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "нет худа без добра",
+        "uz": "har yomonlikning bir yaxshi tomoni bor"
+      },
+      "example": "I missed my flight, but I met my future business partner at the airport. Every cloud has a silver lining!",
+      "example_translations": {
+        "ru": "Я опоздал на самолёт, но в аэропорту познакомился с будущим деловым партнёром. Нет худа без добра!",
+        "uz": "Samolyotga kechikdim, lekin aeroportda bo'lajak sherigim bilan tanishdim. Har yomonlikning bir yaxshi tomoni bor!"
+      },
+      "hooks": {
+        "ru": "Утешают себя или другого, находя что-то хорошее в неприятности",
+        "uz": "Noxush voqeadan ham yaxshi tomon topib, o'zini yoki boshqani yupatganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lining",
+        "literal": {
+          "ru": "у каждой тучи есть серебряная подкладка",
+          "uz": "har bir bulutning kumush astari bor"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Where there's a will, there's a way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "где хотенье, там и уменье",
+        "uz": "intilganga tole yor"
+      },
+      "example": "I want to study abroad, but it's so expensive. — Where there's a will, there's a way.",
+      "example_translations": {
+        "ru": "Я хочу учиться за границей, но это так дорого. — Где хотенье, там и уменье.",
+        "uz": "Chet elda o'qigim keladi, lekin juda qimmat. — Intilganga tole yor."
+      },
+      "hooks": {
+        "ru": "Подбадривают того, кто сомневается: если очень хотеть, способ найдётся",
+        "uz": "Ikkilanayotgan odamga dalda berib aytiladi: chin dildan istasang, yo'li topiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "will",
+        "literal": {
+          "ru": "где есть воля, там есть путь",
+          "uz": "iroda bor joyda yo'l bor"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Rome wasn't built in a day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "Москва не сразу строилась",
+        "uz": "katta ish bir kunda bitmaydi"
+      },
+      "example": "I've been learning the guitar for a month and still play badly. — Relax, Rome wasn't built in a day.",
+      "example_translations": {
+        "ru": "Я учусь играть на гитаре уже месяц и всё ещё играю плохо. — Не переживай, Москва не сразу строилась.",
+        "uz": "Bir oydan beri gitara chalishni o'rganyapman, hali ham yomon chalaman. — Xavotir olma, katta ish bir kunda bitmaydi."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто ждёт быстрых результатов в большом деле",
+        "uz": "Katta ishda tez natija kutayotgan odamni tinchlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "built",
+        "literal": {
+          "ru": "Рим не был построен за один день",
+          "uz": "Rim bir kunda qurilmagan"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "throw in the towel",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "опустить руки",
+        "uz": "qo'l siltamoq"
+      },
+      "example": "After three failed attempts, Tom almost threw in the towel, but he tried once more and passed.",
+      "example_translations": {
+        "ru": "После трёх неудачных попыток Том чуть не опустил руки, но попробовал ещё раз и сдал.",
+        "uz": "Uch marta muvaffaqiyatsiz urinishdan keyin Tom qo'l siltashiga oz qoldi, lekin yana urinib ko'rib, o'tdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто сдаётся и прекращает борьбу",
+        "uz": "Kurashni to'xtatib, taslim bo'lgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "towel",
+        "literal": {
+          "ru": "бросить полотенце",
+          "uz": "sochiqni tashlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "bounce back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быстро оправиться",
+        "uz": "tezda o'ziga kelmoq"
+      },
+      "example": "The team lost the first match but bounced back to win the cup.",
+      "example_translations": {
+        "ru": "Команда проиграла первый матч, но быстро оправилась и выиграла кубок.",
+        "uz": "Jamoa birinchi o'yinda yutqazdi, lekin tezda o'ziga kelib, kubokni yutdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто после неудачи или болезни быстро вернулся в форму",
+        "uz": "Muvaffaqiyatsizlik yoki kasallikdan keyin tez tiklangan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bounce",
+        "literal": {
+          "ru": "отскочить назад",
+          "uz": "orqaga sakramoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "see it through",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "довести дело до конца",
+        "uz": "ishni oxiriga yetkazmoq"
+      },
+      "example": "It's a hard course, but I've started it, so I'll see it through.",
+      "example_translations": {
+        "ru": "Курс трудный, но я его начал, так что доведу дело до конца.",
+        "uz": "Kurs qiyin, lekin uni boshlaganman, shuning uchun oxiriga yetkazaman."
+      },
+      "hooks": {
+        "ru": "Говорят о решимости закончить трудное дело, не бросая его",
+        "uz": "Qiyin ishni tashlab qo'ymay, oxiriga yetkazish qat'iyati haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "through",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "back on track",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "снова в норме",
+        "uz": "yana izga tushmoq"
+      },
+      "example": "After a difficult month, the project is back on track.",
+      "example_translations": {
+        "ru": "После трудного месяца проект снова идёт по плану.",
+        "uz": "Qiyin oydan keyin loyiha yana izga tushdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дело после сбоя снова идёт по плану",
+        "uz": "Uzilishdan keyin ish yana reja bo'yicha ketayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "track",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "light at the end of the tunnel",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "свет в конце тоннеля",
+        "uz": "umid uchquni"
+      },
+      "example": "We've paid back half the loan — finally there's light at the end of the tunnel.",
+      "example_translations": {
+        "ru": "Мы вернули половину кредита — наконец-то виден свет в конце тоннеля.",
+        "uz": "Qarzning yarmini qaytardik — nihoyat umid uchquni paydo bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда после долгих трудностей появилась надежда на их конец",
+        "uz": "Uzoq qiyinchiliklardan keyin ularning tugashiga umid paydo bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tunnel",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "stick with it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не бросать",
+        "uz": "tashlab qo'ymaslik"
+      },
+      "example": "Learning to swim is hard at first, but stick with it and you'll love it.",
+      "example_translations": {
+        "ru": "Учиться плавать сначала трудно, но не бросай — и тебе понравится.",
+        "uz": "Suzishni o'rganish avvaliga qiyin, lekin tashlab qo'yma, keyin yoqib qoladi."
+      },
+      "hooks": {
+        "ru": "Советуют не бросать трудное занятие, даже если сначала не получается",
+        "uz": "Boshida chiqmasa ham, qiyin mashg'ulotni tashlamaslikni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "stick",
+        "literal": {
+          "ru": "прилипнуть к этому",
+          "uz": "bunga yopishib olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pick yourself up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "собраться с силами",
+        "uz": "o'zini qo'lga olmoq"
+      },
+      "example": "After losing the final, she picked herself up and started training again.",
+      "example_translations": {
+        "ru": "Проиграв финал, она собралась с силами и снова начала тренироваться.",
+        "uz": "Finalda yutqazgach, u o'zini qo'lga olib, yana mashg'ulotlarni boshladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто после поражения не сдался и продолжил",
+        "uz": "Mag'lubiyatdan keyin taslim bo'lmay, davom etgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pick",
+        "literal": {
+          "ru": "поднять себя",
+          "uz": "o'zini ko'tarmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

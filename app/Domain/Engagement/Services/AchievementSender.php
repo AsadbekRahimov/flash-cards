@@ -6,8 +6,9 @@ namespace App\Domain\Engagement\Services;
 
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Jobs\SendAchievementJob;
 use App\Models\Achievement;
 use App\Models\Learner;
@@ -18,14 +19,15 @@ use Throwable;
 /**
  * Sends the card of a new achievement in a DM (docs/13 §7.4) — the body of {@see SendAchievementJob}.
  *
- * The message is the PNG ({@see AchievementCardRenderer}) with a caption and, when the bot's username is
+ * The message is the JPEG card ({@see AchievementCardRenderer}) with a caption and, when the bot's username is
  * known, a "Share" button that opens Telegram's share dialog with the learner's invite link (a plain URL
  * button: no inline mode is needed). Without a link the caption asks to forward the message.
  *
  * At most once per achievement: a `notifications_log` row of type `achievement` is written BEFORE the
  * Telegram call (as {@see LeagueResultSender}), so a job retried after an ambiguous error only skips.
  * A failure BEFORE the call (the card cannot be drawn) deletes nothing — no row exists yet — and the job
- * is retried; a 403 deletes the row, closes the DMs of the learner and ends the job.
+ * is retried; a 403 deletes the row, closes the DMs of the learner and ends the job. A definite refusal (429, another 4xx) deletes
+ * the row and rethrows, so the retry sends; a timeout / 5xx keeps it (docs/34 §4в п. 8).
  */
 final class AchievementSender
 {
@@ -36,7 +38,7 @@ final class AchievementSender
         private readonly LocaleResolver $locales,
         private readonly AchievementCardRenderer $cards,
         private readonly ReferralService $referrals,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -84,10 +86,19 @@ final class AchievementSender
             );
         } catch (TelegramForbiddenException $e) {
             $log->delete();
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
             Log::warning('telegram.achievement_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 
             return 'forbidden';
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no row and send.
+                $log->delete();
+            }
+
+            // A timeout / 5xx may have been delivered: the row stays, the retry only skips (at most once). A 429 is put back
+            // by ThrottleTelegramOutbound for `retry_after` (docs/34 §4в п. 8).
+            throw $e;
         }
 
         return 'sent';

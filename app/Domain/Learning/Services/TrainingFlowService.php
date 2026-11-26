@@ -14,6 +14,8 @@ use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
+use App\Domain\Learners\Services\DailyGoalLimiter;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\DTO\AcceptedReview;
@@ -94,6 +96,8 @@ final class TrainingFlowService
         private readonly SprintPolicy $sprint,
         private readonly LearningPolicy $learning,
         private readonly TrainingSessionService $sessions,
+        private readonly DailyGoalLimiter $goals,
+        private readonly LessonReviewService $lessonReview,
     ) {}
 
     /**
@@ -103,9 +107,17 @@ final class TrainingFlowService
      */
     public function start(TrainingSession $session, Learner $learner, ?Lesson $lesson = null): ?TrainingStart
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // The review of a lesson (docs/06 §15) is served by its own service: no picker, no schedule, no quota.
+            return $this->lessonReview->start($session, $learner, $lesson);
+        }
+
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
+            // The round's size is the goal in line with the plan (docs/34 §2б.2): resolved once, handed to the first step.
+            $entitlement = $this->entitlements->for($learner, CarbonImmutable::now());
+            $this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_TRAINING);
             $goal = $this->dailyGoal($learner);
-            $step = $this->nextStep($session, $learner, $goal);
+            $step = $this->nextStep($session, $learner, $goal, $entitlement);
 
             // `total_words` of a daily session: the round's size with a sprint, the daily goal without one.
             return new TrainingStart($session, null, $this->sprint->enabled ? $step->progress['total'] : $goal, $step);
@@ -146,6 +158,10 @@ final class TrainingFlowService
      */
     public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null, ?Entitlement $entitlement = null): TrainingStep
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            return $this->lessonReview->nextStep($session, $learner, $entitlement);
+        }
+
         $now = CarbonImmutable::now();
         $scope = TrainingScope::forSession($session);
         $entitlement ??= $this->entitlements->for($learner, $now);
@@ -368,12 +384,17 @@ final class TrainingFlowService
         ?string $serveToken = null,
         ?ExerciseType $declared = null,
     ): ReviewOutcome {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // A flash card of the review (a word without three distractors): the learner's own grade, counted in the round only.
+            return $this->lessonReview->answer($session, $learner, $wordId, null, $quality, $serveToken, $declared);
+        }
+
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
-        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
+        $accepted = $this->reviews->submitQuality($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
 
-        return new ReviewOutcome($repetition, $this->nextStep($session, $learner, null, $entitlement));
+        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner, null, $entitlement), score: $accepted->score);
     }
 
     /**
@@ -391,6 +412,10 @@ final class TrainingFlowService
         ?string $serveToken = null,
         ?ExerciseType $declared = null,
     ): ReviewOutcome {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            return $this->lessonReview->answer($session, $learner, $wordId, $answer, null, $serveToken, $declared);
+        }
+
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
@@ -401,12 +426,16 @@ final class TrainingFlowService
             $this->nextStep($session, $learner, null, $entitlement),
             $accepted->verdict,
             $this->revealed($accepted),
+            $accepted->score,
         );
     }
 
     /**
      * What the answered meaning / reverse / audio card was sent without (docs/06 §12.2). Read after the grade is committed: the
      * hook comes from the cache and the confusable pair from one indexed query, neither belongs under the row locks.
+     *
+     * A phrase on gap_fill / pretest (docs/06 §16) comes back too, for its literal translation (`phrase.literal`): from the row and
+     * the translation the grade already read - no statement; no example (none is shown after these), hook or confusable pair.
      */
     private function revealed(AcceptedReview $accepted): ?RevealedCard
     {
@@ -416,21 +445,22 @@ final class TrainingFlowService
             return null;
         }
 
-        $reverse = $accepted->exercise === ExerciseType::Reverse;
+        $choice = $accepted->exercise->hidesChoiceAnswer();
+        $example = $choice ? $accepted->example : null;
 
         return new RevealedCard(
             word: $word->word,
             translation: $translation->text,
-            // The right option exactly as it stands among the options: reverse — the word; meaning / audio — the translation.
-            correct: $reverse ? trim($word->word) : trim($translation->text),
-            example: $accepted->example,
-            exampleTranslation: $accepted->exampleTranslation,
+            correct: RevealedCard::correctOf($accepted->exercise, $word->word, $translation->text),
+            example: $example,
+            exampleTranslation: $choice ? $accepted->exampleTranslation : null,
             transcription: $word->transcription,
             audioUrl: $this->audio->urlFor($word),
-            hook: $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
+            hook: $choice && $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
             note: $this->ladder->hooksEnabled ? self::text($accepted->repetition->note) : null,
-            confusedWith: $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
-            exampleAudioUrl: $this->audio->exampleUrlFor($word, $accepted->example),
+            confusedWith: $choice && $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
+            exampleAudioUrl: $choice ? $this->audio->exampleUrlFor($word, $example) : null,
+            phrase: Phrase::forCard($word, $translation->locale, true),
         );
     }
 }

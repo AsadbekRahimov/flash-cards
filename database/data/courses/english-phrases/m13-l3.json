@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 13,
+    "title": "Решения и проблемы",
+    "title_uz": "Qarorlar va muammolar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Решить проблему",
+    "title_uz": "Muammoni hal qilish"
+  },
+  "words": [
+    {
+      "word": "figure out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разобраться, понять",
+        "uz": "tushunib olmoq"
+      },
+      "example": "I can't figure out how this coffee machine works.",
+      "example_translations": {
+        "ru": "Не могу разобраться, как работает эта кофемашина.",
+        "uz": "Bu qahva mashinasi qanday ishlashini tushunib ololmayapman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда пытаются понять что-то сложное или найти ответ",
+        "uz": "Murakkab narsani tushunishga yoki javob topishga harakat qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "figure",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sort out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уладить, разобраться с",
+        "uz": "hal qilmoq, tartibga solmoq"
+      },
+      "example": "There's a problem with your ticket, but we'll sort it out.",
+      "example_translations": {
+        "ru": "С вашим билетом проблема, но мы всё уладим.",
+        "uz": "Chiptangizda muammo bor, lekin biz uni hal qilamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда обещают решить проблему или навести порядок",
+        "uz": "Muammoni hal qilish yoki tartib o'rnatishni va'da qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sort",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "work it out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "найти выход, всё уладить",
+        "uz": "bir yechimga kelmoq"
+      },
+      "example": "Don't worry about the argument. We'll work it out together.",
+      "example_translations": {
+        "ru": "Не переживай из-за ссоры. Мы вместе найдём выход.",
+        "uz": "Janjal haqida qayg'urma. Birgalikda bir yechimga kelamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда верят, что проблему или спор можно решить",
+        "uz": "Muammo yoki kelishmovchilikni hal qilsa bo'lishiga ishonganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "work",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "deal with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заняться, справиться с",
+        "uz": "... bilan shug'ullanmoq"
+      },
+      "example": "I'm busy now, but I'll deal with your request this afternoon.",
+      "example_translations": {
+        "ru": "Сейчас я занят, но займусь вашей просьбой сегодня днём.",
+        "uz": "Hozir bandman, lekin so'rovingiz bilan bugun tushdan keyin shug'ullanaman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы взяться за проблему, задачу или трудного человека",
+        "uz": "Muammo, vazifa yoki qiyin odam bilan ishlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "deal",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "come up with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "придумать",
+        "uz": "o'ylab topmoq"
+      },
+      "example": "We need to come up with a better plan.",
+      "example_translations": {
+        "ru": "Нам нужно придумать план получше.",
+        "uz": "Yaxshiroq reja o'ylab topishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда нужно придумать идею, план или решение",
+        "uz": "G'oya, reja yoki yechim o'ylab topish kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "come",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get to the bottom of something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "докопаться до сути",
+        "uz": "tagiga yetmoq"
+      },
+      "example": "Someone took money from the box. We'll get to the bottom of this.",
+      "example_translations": {
+        "ru": "Кто-то взял деньги из коробки. Мы докопаемся до сути.",
+        "uz": "Kimdir qutidan pul olibdi. Buning tagiga yetamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда хотят выяснить настоящую причину проблемы или загадки",
+        "uz": "Muammo yoki jumboqning asl sababini aniqlamoqchi bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bottom",
+        "literal": {
+          "ru": "добраться до дна чего-то",
+          "uz": "biror narsaning tubiga yetmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "find a way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "найти способ",
+        "uz": "yo'lini topmoq"
+      },
+      "example": "The road is closed, but don't worry; we'll find a way to get there.",
+      "example_translations": {
+        "ru": "Дорога закрыта, но не волнуйся: мы найдём способ туда добраться.",
+        "uz": "Yo'l yopiq, lekin xavotir olma: u yerga yetib borishning yo'lini topamiz."
+      },
+      "hooks": {
+        "ru": "Говорят с уверенностью, что выход из трудного положения найдётся",
+        "uz": "Qiyin vaziyatdan chiqish yo'li topilishiga ishonch bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the root of the problem",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "корень проблемы",
+        "uz": "muammoning ildizi"
+      },
+      "example": "Lack of sleep is the root of the problem.",
+      "example_translations": {
+        "ru": "Корень проблемы — в нехватке сна.",
+        "uz": "Muammoning ildizi — uyquning yetishmasligi."
+      },
+      "hooks": {
+        "ru": "Говорят о главной, глубинной причине трудностей",
+        "uz": "Qiyinchiliklarning asosiy, chuqur sababi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "root",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a quick fix",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быстрое временное решение",
+        "uz": "vaqtinchalik yechim"
+      },
+      "example": "Tape is just a quick fix; we need a new pipe.",
+      "example_translations": {
+        "ru": "Скотч — это лишь временное решение, нам нужна новая труба.",
+        "uz": "Skotch — vaqtinchalik yechim, xolos, bizga yangi quvur kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, часто неодобрительно, о решении, которое помогает лишь ненадолго",
+        "uz": "Faqat qisqa vaqtga yordam beradigan yechim haqida, ko'pincha norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fix",
+        "literal": {
+          "ru": "быстрая починка",
+          "uz": "tezkor tuzatish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "make things right",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё исправить",
+        "uz": "hammasini to'g'rilamoq"
+      },
+      "example": "I made a mistake with your order, but I'll make things right today.",
+      "example_translations": {
+        "ru": "Я ошибся с вашим заказом, но сегодня всё исправлю.",
+        "uz": "Buyurtmangizda xato qildim, lekin bugun hammasini to'g'rilayman."
+      },
+      "hooks": {
+        "ru": "Говорят, обещая исправить свою ошибку или плохую ситуацию",
+        "uz": "O'z xatosini yoki yomon vaziyatni tuzatishni va'da qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "right",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -177,7 +177,7 @@ it('warns about a TTS_DRIVER nobody knows and prints the driver it reads, withou
 
     $this->artisan('audio:sample', ['--dir' => $this->dir])
         ->expectsOutputToContain('driver gogle,')
-        ->expectsOutputToContain('TTS_DRIVER is none of google, http or null')
+        ->expectsOutputToContain('TTS_DRIVER is none of deepgram, google, http or null')
         ->expectsOutputToContain(SpeechSynthesisException::NOT_CONFIGURED)
         ->assertFailed();
 });

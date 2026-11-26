@@ -640,7 +640,7 @@ BILLING_PRICE_CENTER_M_MONTH_UZS=84900000
 PRACTICE_ACCESS=all                         # по умолчанию off
 PRACTICE_PLAN=all
 PRACTICE_BATTLE=true
-PRACTICE_FREE_SESSIONS_PER_DAY=2            # сессий практики в день у Free; у Pro без лимита
+PRACTICE_FREE_SESSIONS_PER_DAY=3            # сессий практики в день у Free; у Pro без лимита
 PRACTICE_FREE_BATTLES_PER_DAY=1             # вызовов на баттл в день у Free; у Pro без лимита
 
 # --- Безопасность (проверьте до открытия запуска) ---

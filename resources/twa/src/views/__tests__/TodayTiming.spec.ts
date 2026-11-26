@@ -195,6 +195,37 @@ describe('TodayView — timing marks', () => {
     expect(timingMarks()).toEqual({ today_received: 0 })
   })
 
+  it('marks the done card of the plan only when it has a button', async () => {
+    const plan = {
+      step: null, done: true,
+      lesson: { done: true, lesson_id: 40, next_lesson_id: null, words_left: null },
+      training: { lesson_id: 40, title: 'Food', words: 5, done: true, open_session_id: null },
+      game: null,
+    }
+    const pro = { plan: 'pro', source: 'subscription', until: null } as const
+    const finished = (overrides: Partial<TodayResponse> = {}) => {
+      const response = today({ due_count: 0, entitlement: pro, assignments_possible: false, plan, ...overrides })
+      response.active_course = { ...response.active_course!, next_lesson: null }
+      return response
+    }
+
+    started()
+    window.localStorage.setItem(ASSIGNMENTS_POSSIBLE_KEY, '0')
+    const bare = await render(finished())
+    expect(bare.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('done')
+    expect(bare.find('[data-testid=lesson-hero] button').exists()).toBe(false)
+    expect(timingMarks()).toEqual({ today_received: 0 })
+    bare.unmount()
+
+    resetTimingMarks()
+    setActivePinia(createPinia())
+    started()
+    clock = 500
+    const due = await render(finished({ due_count: 3 }))
+    expect(due.find('[data-testid=hero-review]').exists()).toBe(true)
+    expect(timingMarks()).toEqual({ today_received: 500, button_ready: 500 })
+  })
+
   it('takes no mark at all without a started open (the other specs of the screen)', async () => {
     const w = await render(today())
     await w.get('[data-testid=review-btn]').trigger('click')

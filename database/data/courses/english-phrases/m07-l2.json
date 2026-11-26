@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 7,
+    "title": "Эмоции",
+    "title_uz": "His-tuyg'ular"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Удивление",
+    "title_uz": "Hayrat"
+  },
+  "words": [
+    {
+      "word": "No way!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не может быть!",
+        "uz": "nahotki!"
+      },
+      "example": "I've won a trip to London! — No way!",
+      "example_translations": {
+        "ru": "Я выиграл поездку в Лондон! — Не может быть!",
+        "uz": "Londonga sayohat yutib oldim! — Nahotki!"
+      },
+      "hooks": {
+        "ru": "Восклицают, услышав что-то очень неожиданное; в другом контексте — «ни за что»",
+        "uz": "Juda kutilmagan narsani eshitganda aytiladi; boshqa vaziyatda — «hech qachon»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "way",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You're kidding!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "шутишь!",
+        "uz": "hazillashyapsan-ku!"
+      },
+      "example": "Aziz is moving to Canada. — You're kidding! Since when?",
+      "example_translations": {
+        "ru": "Азиз переезжает в Канаду. — Шутишь! С каких пор?",
+        "uz": "Aziz Kanadaga ko'chib ketyapti. — Hazillashyapsan-ku! Qachondan beri?"
+      },
+      "hooks": {
+        "ru": "Говорят другу, когда трудно поверить в его слова",
+        "uz": "Do'stning gapiga ishonish qiyin bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "kidding",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I can't believe it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могу поверить",
+        "uz": "ishonolmayman"
+      },
+      "example": "We won the final! I can't believe it!",
+      "example_translations": {
+        "ru": "Мы выиграли финал! Не могу поверить!",
+        "uz": "Finalda g'alaba qozondik! Ishonolmayman!"
+      },
+      "hooks": {
+        "ru": "Говорят о новости — радостной или плохой, — в которую трудно поверить",
+        "uz": "Ishonish qiyin bo'lgan — quvonchli yoki yomon — xabar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "believe",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What a surprise!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вот так сюрприз!",
+        "uz": "qanday kutilmagan hol!"
+      },
+      "example": "Dilnoza! What a surprise! I didn't know you were in town.",
+      "example_translations": {
+        "ru": "Дильноза! Вот так сюрприз! Я не знал, что ты в городе.",
+        "uz": "Dilnoza! Qanday kutilmagan hol! Shaharda ekaningni bilmagan edim."
+      },
+      "hooks": {
+        "ru": "Говорят при неожиданной встрече или неожиданном подарке",
+        "uz": "Kutilmagan uchrashuv yoki kutilmagan sovg'a paytida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "surprise",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Are you serious?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "серьёзно?",
+        "uz": "rostdanmi?"
+      },
+      "example": "The tickets cost two hundred dollars. — Are you serious?",
+      "example_translations": {
+        "ru": "Билеты стоят двести долларов. — Серьёзно?",
+        "uz": "Chiptalar ikki yuz dollar turadi. — Rostdanmi?"
+      },
+      "hooks": {
+        "ru": "Переспрашивают в удивлении, часто с недоверием",
+        "uz": "Hayron bo'lib, ko'pincha ishonmay qayta so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "serious",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Oh my goodness!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ничего себе!",
+        "uz": "voy-bo'!"
+      },
+      "example": "Oh my goodness! Look how tall you've grown!",
+      "example_translations": {
+        "ru": "Ничего себе! Как ты вырос!",
+        "uz": "Voy-bo'! Qanchalik bo'y cho'zib qolibsan!"
+      },
+      "hooks": {
+        "ru": "Восклицают от удивления; вежливая замена Oh my God",
+        "uz": "Hayratdan aytiladigan xitob; Oh my God o'rniga ishlatiladigan odobli variant"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "goodness",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Who would have thought?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кто бы мог подумать?",
+        "uz": "kim o'ylabdi?"
+      },
+      "example": "Our shy little Bobur is now a TV presenter. Who would have thought?",
+      "example_translations": {
+        "ru": "Наш застенчивый Бобур теперь телеведущий. Кто бы мог подумать?",
+        "uz": "Bizning uyatchan Boburimiz endi teleboshlovchi. Kim o'ylabdi?"
+      },
+      "hooks": {
+        "ru": "Говорят о неожиданном повороте событий или судьбы",
+        "uz": "Voqealar yoki taqdirning kutilmagan burilishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "thought",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I'm speechless",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня нет слов",
+        "uz": "tilim tutilib qoldi"
+      },
+      "example": "You organised all this for me? I'm speechless.",
+      "example_translations": {
+        "ru": "Ты всё это устроил для меня? У меня нет слов.",
+        "uz": "Bularning hammasini men uchun tayyorladingmi? Tilim tutilib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда удивлены так сильно, что не знают, что сказать",
+        "uz": "Shunchalik hayron bo'lganki, nima deyishni bilmay qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "speechless",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That's amazing!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "потрясающе!",
+        "uz": "ajoyib-ku!"
+      },
+      "example": "My little sister can speak four languages. — That's amazing!",
+      "example_translations": {
+        "ru": "Моя младшая сестра говорит на четырёх языках. — Потрясающе!",
+        "uz": "Singlim to'rt tilda gapira oladi. — Ajoyib-ku!"
+      },
+      "hooks": {
+        "ru": "Восхищённо отвечают на удивительную новость",
+        "uz": "Hayratlanarli xabarga qoyil qolib javob berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "amazing",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "my jaw dropped",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня челюсть отвисла",
+        "uz": "og'zim ochilib qoldi"
+      },
+      "example": "When I saw the price, my jaw dropped.",
+      "example_translations": {
+        "ru": "Когда я увидел цену, у меня челюсть отвисла.",
+        "uz": "Narxni ko'rib, og'zim ochilib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о сильном, почти шоковом удивлении",
+        "uz": "Kuchli, deyarli shok darajasidagi hayrat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "jaw",
+        "literal": {
+          "ru": "моя челюсть упала",
+          "uz": "jag'im tushib ketdi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

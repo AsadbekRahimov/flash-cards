@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 19,
+    "title": "Разговорный английский",
+    "title_uz": "So'zlashuv ingliz tili"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Время и случай",
+    "title_uz": "Vaqt va tasodif"
+  },
+  "words": [
+    {
+      "word": "out of the blue",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как гром среди ясного неба",
+        "uz": "kutilmaganda"
+      },
+      "example": "My old school friend called me out of the blue last night.",
+      "example_translations": {
+        "ru": "Вчера вечером мне ни с того ни с сего позвонил старый школьный друг.",
+        "uz": "Kecha kechqurun eski maktabdoshim kutilmaganda qo'ng'iroq qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о событии, которое случилось совершенно неожиданно",
+        "uz": "Mutlaqo kutilmaganda yuz bergan voqea haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "blue",
+        "literal": {
+          "ru": "из синевы",
+          "uz": "moviylikdan"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "once in a blue moon",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "раз в сто лет",
+        "uz": "juda kamdan-kam"
+      },
+      "example": "My brother lives abroad, so we see him once in a blue moon.",
+      "example_translations": {
+        "ru": "Брат живёт за границей, поэтому мы видим его раз в сто лет.",
+        "uz": "Akam chet elda yashaydi, shuning uchun uni juda kamdan-kam ko'ramiz."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что случается очень редко",
+        "uz": "Juda kam yuz beradigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "moon",
+        "literal": {
+          "ru": "раз в синюю луну",
+          "uz": "ko'k oyda bir marta"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in the blink of an eye",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в мгновение ока",
+        "uz": "ko'z ochib-yumguncha"
+      },
+      "example": "The summer holidays went by in the blink of an eye.",
+      "example_translations": {
+        "ru": "Летние каникулы пролетели в мгновение ока.",
+        "uz": "Yozgi ta'til ko'z ochib-yumguncha o'tib ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что произошло или прошло очень быстро",
+        "uz": "Juda tez yuz bergan yoki o'tib ketgan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "blink",
+        "literal": {
+          "ru": "за одно моргание глаза",
+          "uz": "ko'zning bir pirpirashida"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "every now and then",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "изредка",
+        "uz": "ora-sira"
+      },
+      "example": "I don't eat fast food often, but every now and then I have a burger.",
+      "example_translations": {
+        "ru": "Я нечасто ем фастфуд, но изредка съедаю бургер.",
+        "uz": "Fastfudni kam yeyman, lekin ora-sira burger yeyman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что бывает иногда, нерегулярно",
+        "uz": "Ba'zan, muntazam bo'lmagan holda yuz beradigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "now",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in the nick of time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как раз вовремя",
+        "uz": "aynan o'z vaqtida"
+      },
+      "example": "The doctor arrived in the nick of time.",
+      "example_translations": {
+        "ru": "Врач приехал как раз вовремя.",
+        "uz": "Shifokor aynan o'z vaqtida yetib keldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда успели в последний момент, перед тем как стало бы поздно",
+        "uz": "Kech bo'lishidan oldin, so'nggi lahzada ulgurilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nick",
+        "literal": {
+          "ru": "в зарубку времени",
+          "uz": "vaqt kertigida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the spot",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на месте, сразу же",
+        "uz": "shu zahoti"
+      },
+      "example": "They liked my portfolio and offered me the job on the spot.",
+      "example_translations": {
+        "ru": "Им понравилось моё портфолио, и мне сразу же предложили работу.",
+        "uz": "Ularga portfoliom yoqdi va shu zahoti ishga taklif qilishdi."
+      },
+      "hooks": {
+        "ru": "Говорят о решении или действии, сделанном немедленно, там же",
+        "uz": "O'sha joyning o'zida, darhol qilingan qaror yoki harakat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "spot",
+        "literal": {
+          "ru": "на пятне",
+          "uz": "dog' ustida"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a stroke of luck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "счастливая случайность",
+        "uz": "kutilmagan omad"
+      },
+      "example": "By a stroke of luck, there was one free room left in the hotel.",
+      "example_translations": {
+        "ru": "По счастливой случайности, в гостинице остался один свободный номер.",
+        "uz": "Kutilmagan omad tufayli mehmonxonada bitta bo'sh xona qolgan ekan."
+      },
+      "hooks": {
+        "ru": "Говорят о неожиданной удаче, которая очень помогла",
+        "uz": "Juda asqotgan kutilmagan omad haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stroke",
+        "literal": {
+          "ru": "удар удачи",
+          "uz": "omad zarbasi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as luck would have it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по счастливой случайности",
+        "uz": "tasodifni qarangki"
+      },
+      "example": "As luck would have it, the shop was still open when we arrived.",
+      "example_translations": {
+        "ru": "К счастью, когда мы пришли, магазин ещё работал.",
+        "uz": "Tasodifni qarangki, biz yetib kelganimizda do'kon hali ochiq edi."
+      },
+      "hooks": {
+        "ru": "Вводят в рассказ случайность — удачную или, реже, неудачную",
+        "uz": "Hikoyaga tasodifni — omadli yoki, kamroq, omadsizni — kiritganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "luck",
+        "literal": {
+          "ru": "как распорядилась бы удача",
+          "uz": "omad xohlaganidek"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "at the eleventh hour",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в последний момент",
+        "uz": "so'nggi daqiqada"
+      },
+      "example": "The singer cancelled the concert at the eleventh hour.",
+      "example_translations": {
+        "ru": "Певец отменил концерт в последний момент.",
+        "uz": "Xonanda konsertni so'nggi daqiqada bekor qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о решении или событии, которое случилось в самый последний момент",
+        "uz": "Eng oxirgi lahzada yuz bergan qaror yoki voqea haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eleventh",
+        "literal": {
+          "ru": "в одиннадцатый час",
+          "uz": "o'n birinchi soatda"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "against the clock",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "наперегонки со временем",
+        "uz": "vaqt bilan poyga qilib"
+      },
+      "example": "We worked against the clock to finish the report by noon.",
+      "example_translations": {
+        "ru": "Мы работали наперегонки со временем, чтобы закончить отчёт к полудню.",
+        "uz": "Hisobotni tushgacha tugatish uchun vaqt bilan poyga qilib ishladik."
+      },
+      "hooks": {
+        "ru": "Говорят о работе в спешке, когда времени очень мало",
+        "uz": "Vaqt juda kam bo'lganda shoshib ishlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "clock",
+        "literal": {
+          "ru": "против часов",
+          "uz": "soatga qarshi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

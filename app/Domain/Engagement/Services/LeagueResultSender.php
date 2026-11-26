@@ -10,10 +10,13 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueMember;
-use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Log;
@@ -34,13 +37,13 @@ final class LeagueResultSender
 {
     public const NOTIFICATION_TYPE = 'league_result';
 
-    public const TWA_PATH = '/twa/league';
-
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly LeagueService $leagues,
         private readonly TelegramMessageRateLimiter $outbound,
+        private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -55,8 +58,10 @@ final class LeagueResultSender
      * {@see send()} for a batch, in order. Every message first takes a slot of the bot-wide send budget
      * ({@see TelegramMessageRateLimiter::awaitGlobal()}, `telegram.outbound.sync_wait_ms` at most); a Bot API
      * failure of ONE member (`TelegramApiException`: transport error, 5xx, an odd 4xx) is reported and the
-     * batch goes on — its log row stays, so the retry of the old one-member job and this loop lose that DM
-     * alike rather than doubling it. Anything else (the database away) propagates and fails the job.
+     * batch goes on — after a transport error its log row stays, so the retry of the old one-member job and this
+     * loop lose that DM alike rather than doubling it; after a definite refusal the row is gone. A 429 stops the
+     * batch: that member and the rest go back as `remaining` (docs/34 §4в п. 8). Anything else (the database away)
+     * propagates and fails the job.
      *
      * Stops early — and returns the members not reached yet as `remaining` — when no slot came within the wait
      * or `$budgetSeconds` are spent; the caller queues them again.
@@ -93,6 +98,12 @@ final class LeagueResultSender
 
             try {
                 $outcome[$this->deliver($message, ($now ?? CarbonImmutable::now())->utc())]++;
+            } catch (TelegramRateLimitedException) {
+                // Flood control: the rest would get a 429 too. This member's marker is already gone (deliver), so the member
+                // goes back with the others; the job queues them after the pause (`globalRetryDelay()`). Not reported.
+                $outcome['remaining'] = array_slice($memberIds, $i);
+
+                break;
             } catch (TelegramApiException $e) {
                 $outcome['failed']++;
                 report($e);
@@ -153,14 +164,22 @@ final class LeagueResultSender
                 chatId: $learner->telegram_user_id,
                 text: $this->text($message->member, $message->group->tier, $message->result, $locale),
                 buttonText: __('leagues.open_button', [], $locale),
-                url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                url: $this->buttons->twaUrl(TwaScreen::League),
             );
         } catch (TelegramForbiddenException $e) {
             $log->delete();
-            Learner::query()->whereKey($learner->id)->update(['dm_blocked_at' => $now->format('Y-m-d H:i:s')]);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason, $now);
             Log::warning('telegram.league_result_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 
             return 'forbidden';
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no row and send.
+                $log->delete();
+            }
+
+            // A timeout / 5xx may have been delivered: the row stays, the retry only skips (docs/34 §4в п. 8).
+            throw $e;
         }
 
         return 'sent';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Support;
 
+use App\Domain\Engagement\Enums\ScoringMode;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Services\ExerciseSelector;
 use App\Models\WordRepetition;
@@ -113,9 +114,37 @@ final readonly class LadderPolicy
             pretestEnabled: (bool) $get('pretest.enabled', false),
             earlyEnabled: (bool) $get('ladder.early.enabled', true),
             earlyRecognition: self::exerciseList($get('ladder.early.recognition', null), self::DEFAULT_EARLY_RECOGNITION),
-            earlyForm: self::exerciseList($get('ladder.early.form', null), self::DEFAULT_EARLY_FORM),
+            earlyForm: self::scoringForm(self::exerciseList($get('ladder.early.form', null), self::DEFAULT_EARLY_FORM)),
             earlyAudioRequiresFile: (bool) $get('ladder.early.audio_requires_file', true),
         );
+    }
+
+    /**
+     * The form list of rung 2 while the word points record answers (owner's decision В3, docs/31 §5; docs/06 §13.1, docs/32 §3.2): a
+     * self-graded flash on a mature card earns nothing and closes the attempt of the day, so with `leagues.scoring.mode` other than
+     * `off` the flash of the list becomes the checked choice of the translation (`meaning`): `reverse,audio,flash` →
+     * `reverse,audio,meaning`. A list that has `meaning` already just loses its flash; one that would be left empty keeps `meaning`.
+     * With the points off the list is the configured one, unchanged.
+     *
+     * @param  list<ExerciseType>  $form
+     * @return list<ExerciseType>
+     */
+    public static function scoringForm(array $form): array
+    {
+        $mode = config('leagues.scoring.mode', 'off');
+        if ((ScoringMode::tryFrom(is_string($mode) ? strtolower(trim($mode)) : '') ?? ScoringMode::Off) === ScoringMode::Off) {
+            return $form;
+        }
+
+        $list = [];
+        foreach ($form as $type) {
+            $type = $type === ExerciseType::Flash ? ExerciseType::Meaning : $type;
+            if (! in_array($type, $list, true)) {
+                $list[] = $type;
+            }
+        }
+
+        return $list;
     }
 
     /**

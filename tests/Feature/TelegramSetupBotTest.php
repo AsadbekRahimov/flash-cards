@@ -7,7 +7,7 @@ use App\Domain\Telegram\Services\BotMenuBuilder;
 
 /*
  * `php artisan telegram:setup-bot` (docs/04 B.3): the "/" command list for private chats and groups in ru and uz,
- * and the permanent "LexiFlow" Mini App button. The base TestCase binds a recording FakeTelegramClient.
+ * and the permanent Mini App button captioned with the brand (`app.brand`). The base TestCase binds a recording FakeTelegramClient.
  *
  * The "/" menu of a group is shown to every member: `all_group_chats` holds `/help` only, the teacher's commands go to
  * `all_chat_administrators` (a learner must not be offered commands that answer "not linked to a teacher").
@@ -115,10 +115,20 @@ it('sets the Mini App as the menu button of every private chat, with a single sl
 
     expect($this->telegram->menuButtons)->toBe([[
         'type' => 'web_app',
-        'text' => 'LexiFlow',
+        'text' => 'Muhrla',
         'web_app' => ['url' => 'https://twa.test/twa/'],
     ]]);
 })->with(['no trailing slash' => 'https://twa.test', 'trailing slash' => 'https://twa.test/', 'several slashes' => 'https://twa.test//']);
+
+it('captions the menu button with the brand from config (docs/36 §5б)', function (): void {
+    config(['app.brand' => 'Brandy']);
+
+    $this->artisan('telegram:setup-bot')
+        ->expectsOutputToContain('Menu button: "Brandy" opens https://twa.test/twa/')
+        ->assertSuccessful();
+
+    expect($this->telegram->menuButtons[0]['text'])->toBe('Brandy');
+});
 
 it('reports what it has set', function (): void {
     $this->artisan('telegram:setup-bot')
@@ -128,7 +138,7 @@ it('reports what it has set', function (): void {
         ->expectsOutputToContain('Commands all_group_chats, uz: /help')
         ->expectsOutputToContain('Commands all_chat_administrators, default (ru): /start_training /start_exam /close_exam /help')
         ->expectsOutputToContain('Commands all_chat_administrators, uz: /start_training /start_exam /close_exam /help')
-        ->expectsOutputToContain('Menu button: "LexiFlow" opens https://twa.test/twa/')
+        ->expectsOutputToContain('Menu button: "Muhrla" opens https://twa.test/twa/')
         ->assertSuccessful();
 });
 
@@ -153,7 +163,7 @@ it('fails, but still tries the menu button, when Telegram refuses the commands',
 
     $this->artisan('telegram:setup-bot')
         ->expectsOutputToContain('Commands all_private_chats, default (ru) not set: Bad Request: invalid commands')
-        ->expectsOutputToContain('Menu button: "LexiFlow" opens https://twa.test/twa/')
+        ->expectsOutputToContain('Menu button: "Muhrla" opens https://twa.test/twa/')
         ->assertFailed();
 
     expect($this->telegram->myCommands)->toBe([])

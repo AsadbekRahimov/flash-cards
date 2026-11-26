@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Runs;
 
+use App\Domain\Engagement\Enums\ScorePeriod;
 use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Engagement\Services\LeagueService;
+use App\Domain\Engagement\Services\Scoring\ScoreRules;
 use App\Domain\Game\DTO\RunFinishOutcome;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\Enums\LedgerKind;
@@ -61,6 +63,7 @@ final class RunFinisher
         private readonly LeagueService $leagues,
         private readonly AchievementService $achievements,
         private readonly ClassCaravanService $caravans,
+        private readonly ScoreRules $scoreRules,
     ) {}
 
     /**
@@ -141,10 +144,13 @@ final class RunFinisher
         $this->touchProfile($learner->id, $firstClear ? 1 : 0, $bossFirst ? 1 : 0, $now);
 
         // 5. The day of the start of the run (`local_date`), last: the league points under the cap, the day held by the game.
+        //    The word points v2 (docs/32 §3.6): a week on v2 does not count `game_points` - its points are the word credits of the answers,
+        //    summed into `league_points` by the answers; the v1 game points are still written while the week or the month of now counts by v1.
+        [$weekV2, $monthV2] = $this->v2Periods($now);
         $day = $this->lockedDay($learner->id, $run->local_date->toDateString(), $now);
         $earned = $run->correct * $this->league('correct') + ($run->typos + $run->wrong + $run->hints) * $this->league('answer');
         $cap = max(0, (int) config('game.league.daily_cap', 40));
-        $leaguePoints = max(0, min($cap, $day->game_points + $earned) - $day->game_points);
+        $leaguePoints = $weekV2 && $monthV2 ? 0 : max(0, min($cap, $day->game_points + $earned) - $day->game_points);
         $heldDay = $day->game_held_at === null;
         $goalMetBefore = $day->goal_met_at !== null;
         $firstRunOfDay = $day->game_runs_count === 0;
@@ -177,7 +183,7 @@ final class RunFinisher
             'stars' => $stars,
             'active_learner_id' => null,
             'coins_awarded' => $amount,
-            'league_points' => $leaguePoints,
+            'league_points' => $weekV2 ? (int) $run->league_points : $leaguePoints,
         ])->save();
 
         $outcome = new RunFinishOutcome(
@@ -198,7 +204,7 @@ final class RunFinisher
         // 7. After the commit, each on its own (a failed hook is reported, never a failed finish).
         $localDate = $run->local_date->toDateString();
         $isBossFight = $run->kind === RunKind::Boss;
-        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind, $outcome, $localDate, $now, $isBossFight): void {
+        DB::afterCommit(function () use ($run, $learner, $entry, $amount, $kind, $outcome, $localDate, $now, $isBossFight, $weekV2): void {
             $this->hook(fn () => $this->events->finished($run, $learner));
             if ($entry->applied) {
                 $this->hook(fn () => $this->events->coinsEarned($run, $learner, $amount, $kind, $entry->balance));
@@ -209,8 +215,9 @@ final class RunFinisher
                 $this->hook(fn () => $this->streaks->apply($learner, $localDate, $now, StreakHeldBy::Game));
             }
             // The league: a run as the first activity of the day seats the learner in this week's group (a no-op once placed;
-            // leagues off, opt-out and a block are place()'s own checks).
-            if ($outcome->firstRunOfDay && $outcome->reviewsCount === 0) {
+            // leagues off, opt-out and a block are place()'s own checks). A week on the word points v2 seats at the first credit of the
+            // week instead (docs/32 §5.1, S8).
+            if (! $weekV2 && $outcome->firstRunOfDay && $outcome->reviewsCount === 0) {
                 $this->hook(fn () => $this->leagues->place($learner, $now));
             }
             // The counting achievements (streak) - after the streak hook: evaluate() reads `streak_best` fresh from the database.
@@ -358,6 +365,35 @@ final class RunFinisher
 
         return LearnerDailyStats::query()->where('learner_id', $learnerId)->where('date', $stored)->lockForUpdate()->first()
             ?? throw new RuntimeException("The day {$localDate} of learner {$learnerId} vanished after its insert.");
+    }
+
+    /**
+     * Whether the week and the month of now count by the word points v2 (docs/32 §6.1, S8/S9): the version written into the period's
+     * own row (`league_weeks` / `league_months.rules_version` - what the tables and the closes count by, and what the learners' periods
+     * copy), read by the unique `starts_on` in ONE statement; a period whose row is not created yet gets the version the row will get
+     * ({@see ScoreRules::versionFor()}). `off` - no statement: every period is v1.
+     *
+     * @return array{0: bool, 1: bool}
+     */
+    private function v2Periods(CarbonImmutable $now): array
+    {
+        if (! $this->scoreRules->records()) {
+            return [false, false];
+        }
+        $day = $this->scoreRules->ratingDay($now);
+        $week = $this->scoreRules->periodStart(ScorePeriod::Week, $day)->toDateString();
+        $month = $this->scoreRules->periodStart(ScorePeriod::Month, $day)->toDateString();
+
+        $stored = DB::selectOne(
+            'select (select w.rules_version from league_weeks w where w.starts_on = ?) as week_version, '
+            .'(select m.rules_version from league_months m where m.starts_on = ?) as month_version',
+            [StoredDate::of($week), StoredDate::of($month)],
+        );
+        $stored = is_object($stored) ? get_object_vars($stored) : [];
+        $weekVersion = is_numeric($stored['week_version'] ?? null) ? (int) $stored['week_version'] : $this->scoreRules->versionFor($week);
+        $monthVersion = is_numeric($stored['month_version'] ?? null) ? (int) $stored['month_version'] : $this->scoreRules->versionFor($month);
+
+        return [$weekVersion >= 2, $monthVersion >= 2];
     }
 
     private function economy(string $key): int

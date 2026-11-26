@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 14,
+    "title": "Идиомы: еда",
+    "title_uz": "Iboralar: ovqat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Люди в образах еды",
+    "title_uz": "Ovqat timsolidagi odamlar"
+  },
+  "words": [
+    {
+      "word": "a smart cookie",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "умница",
+        "uz": "farosatli odam"
+      },
+      "example": "Malika solved the problem in five minutes. She's a smart cookie.",
+      "example_translations": {
+        "ru": "Малика решила задачу за пять минут. Она умница.",
+        "uz": "Malika masalani besh daqiqada yechdi. U juda farosatli qiz."
+      },
+      "hooks": {
+        "ru": "Одобрительно говорят о сообразительном человеке, которого трудно обмануть",
+        "uz": "Aldash qiyin bo'lgan zukko odam haqida ma'qullab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cookie",
+        "literal": {
+          "ru": "умное печенье",
+          "uz": "aqlli pechenye"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a big cheese",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "большая шишка",
+        "uz": "katta amaldor"
+      },
+      "example": "Who's the man in the grey suit? — Oh, he's a big cheese from the head office.",
+      "example_translations": {
+        "ru": "Кто этот человек в сером костюме? — А, это большая шишка из головного офиса.",
+        "uz": "Kulrang kostyumdagi kishi kim? — E, u bosh ofisdan kelgan katta amaldor."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о важном, влиятельном человеке в компании или организации",
+        "uz": "Kompaniya yoki tashkilotdagi muhim, nufuzli odam haqida hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cheese",
+        "literal": {
+          "ru": "большой сыр",
+          "uz": "katta pishloq"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "full of beans",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "полон энергии",
+        "uz": "g'ayratga to'la"
+      },
+      "example": "The children were full of beans after their holiday.",
+      "example_translations": {
+        "ru": "После каникул дети были полны энергии.",
+        "uz": "Ta'tildan keyin bolalar g'ayratga to'la edi."
+      },
+      "hooks": {
+        "ru": "Говорят о бодром, весёлом человеке, чаще о детях",
+        "uz": "Tetik, quvnoq odam, ko'pincha bolalar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "beans",
+        "literal": {
+          "ru": "полный бобов",
+          "uz": "loviyaga to'la"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as cool as a cucumber",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "спокоен как удав",
+        "uz": "pinagini ham buzmaydigan"
+      },
+      "example": "Everyone was nervous before the exam, but Aziz was as cool as a cucumber.",
+      "example_translations": {
+        "ru": "Перед экзаменом все волновались, а Азиз был спокоен как удав.",
+        "uz": "Imtihon oldidan hamma hayajonda edi, Aziz esa pinagini ham buzmadi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который сохраняет спокойствие в трудной или напряжённой ситуации",
+        "uz": "Qiyin yoki keskin vaziyatda xotirjamligini yo'qotmaydigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cucumber",
+        "literal": {
+          "ru": "прохладный как огурец",
+          "uz": "bodringdek salqin"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bad apple",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тот, кто портит всех вокруг",
+        "uz": "boshqalarni ham buzadigan odam"
+      },
+      "example": "Most of the players are great; there's just one bad apple in the team.",
+      "example_translations": {
+        "ru": "Почти все игроки отличные, просто в команде есть один, кто портит остальных.",
+        "uz": "O'yinchilarning deyarli hammasi zo'r, faqat jamoada boshqalarni ham buzadigan bitta odam bor."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который плохо ведёт себя и портит всю группу",
+        "uz": "O'zini yomon tutib, butun guruhni buzadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bad",
+        "literal": {
+          "ru": "гнилое яблоко",
+          "uz": "chirigan olma"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the cream of the crop",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лучшие из лучших",
+        "uz": "saralarning sarasi"
+      },
+      "example": "Only the cream of the crop get into this university.",
+      "example_translations": {
+        "ru": "В этот университет попадают только лучшие из лучших.",
+        "uz": "Bu universitetga faqat saralarning sarasi kiradi."
+      },
+      "hooks": {
+        "ru": "Говорят о самых лучших людях или вещах в группе",
+        "uz": "Guruhdagi eng yaxshi odamlar yoki narsalar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cream",
+        "literal": {
+          "ru": "сливки урожая",
+          "uz": "hosilning qaymog'i"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a sweet tooth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть сладкоежкой",
+        "uz": "shirinlikka o'ch bo'lmoq"
+      },
+      "example": "I have a sweet tooth, so I can't say no to chocolate.",
+      "example_translations": {
+        "ru": "Я сладкоежка, поэтому не могу отказаться от шоколада.",
+        "uz": "Men shirinlikka o'chman, shuning uchun shokoladdan voz kecha olmayman."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который очень любит сладкое",
+        "uz": "Shirinliklarni juda yaxshi ko'radigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tooth",
+        "literal": {
+          "ru": "иметь сладкий зуб",
+          "uz": "shirin tishi bor bo'lmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "two peas in a pod",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "похожи как две капли воды",
+        "uz": "bir olmaning ikki pallasi"
+      },
+      "example": "The twins look alike and think alike. They are like two peas in a pod.",
+      "example_translations": {
+        "ru": "Близнецы и выглядят, и думают одинаково. Похожи как две капли воды.",
+        "uz": "Egizaklar tashqi ko'rinishda ham, fikrlashda ham o'xshash. Bir olmaning ikki pallasi."
+      },
+      "hooks": {
+        "ru": "Говорят о двух людях, очень похожих внешне или характером",
+        "uz": "Tashqi ko'rinishi yoki fe'li juda o'xshash ikki odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "peas",
+        "literal": {
+          "ru": "две горошины в одном стручке",
+          "uz": "bir qo'zoqdagi ikki no'xat"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "butter someone up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подлизываться к кому-то",
+        "uz": "kimgadir xushomad qilmoq"
+      },
+      "example": "He's been buttering the teacher up all week because he wants a better mark.",
+      "example_translations": {
+        "ru": "Он всю неделю подлизывается к учителю, потому что хочет оценку получше.",
+        "uz": "U yaxshiroq baho olish uchun hafta bo'yi o'qituvchiga xushomad qilyapti."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о лести ради выгоды",
+        "uz": "Manfaat uchun qilingan xushomad haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "butter",
+        "literal": {
+          "ru": "намазать кого-то маслом",
+          "uz": "kimnidir sariyog' bilan moylamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "nuts about something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без ума от чего-то",
+        "uz": "biror narsaning ishqibozi"
+      },
+      "example": "My son is nuts about football; he watches every match.",
+      "example_translations": {
+        "ru": "Мой сын без ума от футбола: смотрит каждый матч.",
+        "uz": "O'g'lim futbolning ashaddiy ishqibozi: har bir o'yinni tomosha qiladi."
+      },
+      "hooks": {
+        "ru": "Разговорно говорят о сильном увлечении чем-то или кем-то",
+        "uz": "Biror narsaga juda qattiq qiziqish haqida so'zlashuvda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "nuts",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 14,
+    "title": "Идиомы: еда",
+    "title_uz": "Iboralar: ovqat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Суть и секреты",
+    "title_uz": "Mohiyat va sirlar"
+  },
+  "words": [
+    {
+      "word": "spill the beans",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проболтаться, выдать секрет",
+        "uz": "sirni ochib qo'ymoq"
+      },
+      "example": "We're planning a surprise party for Mum, so don't spill the beans!",
+      "example_translations": {
+        "ru": "Мы готовим маме сюрприз, так что не проболтайся!",
+        "uz": "Oyimga syurpriz tayyorlayapmiz, sirni ochib qo'yma!"
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто случайно или нарочно выдал секрет",
+        "uz": "Sirni bilib-bilmay oshkor qilib qo'ygan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "beans",
+        "literal": {
+          "ru": "рассыпать бобы",
+          "uz": "loviyani to'kib yubormoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in a nutshell",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в двух словах",
+        "uz": "qisqa qilib aytganda"
+      },
+      "example": "So what happened at the meeting? — In a nutshell, we need a new plan.",
+      "example_translations": {
+        "ru": "Так что было на собрании? — В двух словах: нам нужен новый план.",
+        "uz": "Majlisda nima bo'ldi? — Qisqa qilib aytganda, bizga yangi reja kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда коротко передают суть длинной истории или объяснения",
+        "uz": "Uzun hikoya yoki tushuntirishning mohiyatini qisqa aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nutshell",
+        "literal": {
+          "ru": "в ореховой скорлупе",
+          "uz": "yong'oq po'chog'ida"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a hot potato",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "острая тема, которую все обходят",
+        "uz": "hamma chetlab o'tadigan nozik masala"
+      },
+      "example": "Nobody at the meeting wanted to talk about salaries; it was a real hot potato.",
+      "example_translations": {
+        "ru": "На собрании никто не хотел говорить о зарплатах: это была очень острая тема.",
+        "uz": "Majlisda hech kim maosh haqida gapirishni istamadi: bu juda nozik masala edi."
+      },
+      "hooks": {
+        "ru": "Говорят о неприятном, спорном вопросе, за который никто не хочет браться",
+        "uz": "Hech kim hal qilishni istamaydigan noxush, bahsli masala haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hot",
+        "literal": {
+          "ru": "горячая картошка",
+          "uz": "issiq kartoshka"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the apple of my eye",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "моя отрада, свет в окошке",
+        "uz": "ko'zimning oq-u qorasi"
+      },
+      "example": "My little granddaughter is the apple of my eye.",
+      "example_translations": {
+        "ru": "Моя маленькая внучка — свет в окошке.",
+        "uz": "Kichkina nevaram — ko'zimning oq-u qorasi."
+      },
+      "hooks": {
+        "ru": "Говорят о самом любимом человеке, чаще о ребёнке или внуке",
+        "uz": "Eng sevimli odam, ko'pincha farzand yoki nevara haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "apple",
+        "literal": {
+          "ru": "яблоко моего глаза",
+          "uz": "ko'zimning olmasi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "food for thought",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пища для размышлений",
+        "uz": "o'ylab ko'rishga arziydigan narsa"
+      },
+      "example": "Thanks for your advice; it gave me a lot of food for thought.",
+      "example_translations": {
+        "ru": "Спасибо за совет: он дал мне много пищи для размышлений.",
+        "uz": "Maslahatingiz uchun rahmat: u menga o'ylab ko'radigan ko'p narsa berdi."
+      },
+      "hooks": {
+        "ru": "Говорят об идее или разговоре, над которыми стоит серьёзно подумать",
+        "uz": "Jiddiy o'ylab ko'rishga arziydigan g'oya yoki suhbat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "food",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "sugarcoat something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приукрашивать что-то",
+        "uz": "bo'yab-bejab ko'rsatmoq"
+      },
+      "example": "Don't sugarcoat it. Tell me what the doctor really said.",
+      "example_translations": {
+        "ru": "Не приукрашивай. Скажи, что на самом деле сказал врач.",
+        "uz": "Bo'yab-bejab ko'rsatma. Shifokor aslida nima deganini ayt."
+      },
+      "hooks": {
+        "ru": "Говорят, когда неприятную правду хотят услышать прямо, без смягчений",
+        "uz": "Noxush haqiqatni yumshatmasdan, to'g'ridan-to'g'ri eshitishni istaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sugarcoat",
+        "literal": {
+          "ru": "покрыть сахаром",
+          "uz": "shakar bilan qoplamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "walk on eggshells",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "бояться сказать лишнее слово",
+        "uz": "har bir so'zini o'ylab gapirmoq"
+      },
+      "example": "He's been so angry lately that we're all walking on eggshells.",
+      "example_translations": {
+        "ru": "Он в последнее время такой злой, что мы все боимся сказать лишнее слово.",
+        "uz": "U keyingi paytda shunchalik jahldorki, hammamiz har bir so'zimizni o'ylab gapiryapmiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда приходится быть очень осторожным, чтобы не расстроить или не разозлить кого-то",
+        "uz": "Kimnidir xafa qilmaslik yoki jahlini chiqarmaslik uchun juda ehtiyot bo'lishga to'g'ri kelganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eggshells",
+        "literal": {
+          "ru": "ходить по яичной скорлупе",
+          "uz": "tuxum po'chog'i ustida yurmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a tough nut to crack",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "крепкий орешек",
+        "uz": "yechish qiyin jumboq"
+      },
+      "example": "This puzzle is a tough nut to crack.",
+      "example_translations": {
+        "ru": "Эта головоломка — крепкий орешек.",
+        "uz": "Bu boshqotirma yechish qiyin jumboq ekan."
+      },
+      "hooks": {
+        "ru": "Говорят о трудной задаче или о человеке, которого трудно понять или убедить",
+        "uz": "Qiyin vazifa yoki tushunish, ko'ndirish qiyin bo'lgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nut",
+        "literal": {
+          "ru": "твёрдый орех, который надо расколоть",
+          "uz": "chaqish qiyin yong'oq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "cook up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "состряпать, выдумать",
+        "uz": "to'qib chiqarmoq"
+      },
+      "example": "He cooked up a story about a broken bus to explain why he was late.",
+      "example_translations": {
+        "ru": "Он состряпал историю про сломанный автобус, чтобы объяснить опоздание.",
+        "uz": "U kechikkanini oqlash uchun avtobus buzilgani haqida hikoya to'qib chiqardi."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о выдуманной истории, отговорке или хитром плане",
+        "uz": "To'qib chiqarilgan hikoya, bahona yoki ayyorona reja haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cook",
+        "literal": {
+          "ru": "сварить, приготовить",
+          "uz": "pishirib chiqarmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a storm in a teacup",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "буря в стакане воды",
+        "uz": "arzimas narsadan katta g'avg'o"
+      },
+      "example": "They argued all morning about the parking space, but it was just a storm in a teacup.",
+      "example_translations": {
+        "ru": "Они всё утро спорили из-за парковки, но это была буря в стакане воды.",
+        "uz": "Ular ertalabdan mashina qo'yish joyi uchun tortishdi, lekin bu arzimas narsadan katta g'avg'o edi."
+      },
+      "hooks": {
+        "ru": "Говорят о большом шуме или ссоре из-за пустяка; в США говорят a tempest in a teapot",
+        "uz": "Arzimas narsa sababli ko'tarilgan katta shov-shuv yoki janjal haqida aytiladi; AQShda a tempest in a teapot"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "teacup",
+        "literal": {
+          "ru": "буря в чайной чашке",
+          "uz": "choy piyoladagi bo'ron"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

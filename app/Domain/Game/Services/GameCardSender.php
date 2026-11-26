@@ -11,8 +11,9 @@ use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Game\Support\CityNames;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Jobs\SendGameCardJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -27,7 +28,8 @@ use Throwable;
  *
  * At most once per learner and city: a `notifications_log` row of type `game_card` with `payload.key = boss:{stage_id}` is written
  * BEFORE the call to Telegram (as {@see AchievementSender}); a failure before the call leaves no row and the job is retried, a 403
- * deletes the row, closes the DMs of the learner and ends the job.
+ * deletes the row, closes the DMs of the learner and ends the job; a 429 / another 4xx deletes the row and rethrows, a timeout keeps it
+ * (docs/34 §4в п. 8).
  */
 final class GameCardSender
 {
@@ -39,7 +41,7 @@ final class GameCardSender
         private readonly AchievementCardRenderer $cards,
         private readonly AchievementSender $achievements,
         private readonly ReferralService $referrals,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -64,13 +66,7 @@ final class GameCardSender
 
         $locale = $this->locales->forLearner($learner);
         $params = ['city' => CityNames::toward($stage->number, $locale)];
-        $path = $this->cards->renderSpec(new CardSpec(
-            key: 'boss_'.$stage->number,
-            palette: 'game',
-            badge: 'BOSS',
-            title: __('game.card.title', $params, $locale),
-            description: __('game.card.description', [], $locale),
-        ), $locale);
+        $path = $this->cards->renderSpec($this->cardSpec($stage->number, $locale), $locale);
         $share = $this->share($learner, $stage->number);
 
         $log = NotificationLog::query()->create([
@@ -92,10 +88,19 @@ final class GameCardSender
             );
         } catch (TelegramForbiddenException $e) {
             $log->delete();
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
             Log::warning('telegram.game_card_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 
             return 'forbidden';
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no row and send.
+                $log->delete();
+            }
+
+            // A timeout / 5xx may have been delivered: the row stays, the retry only skips (at most once). A 429 is put back
+            // by ThrottleTelegramOutbound for `retry_after` (docs/34 §4в п. 8).
+            throw $e;
         }
 
         return 'sent';
@@ -119,6 +124,21 @@ final class GameCardSender
         $params = ['city' => CityNames::toward($stageNumber, $locale)];
 
         return ['link' => $link, 'text' => __('game.card.share_text', $params, $locale), 'title' => __('game.card.title', $params, $locale)];
+    }
+
+    /**
+     * What the card of the boss of city number `$stageNumber` shows ("I got to Samarkand"): the picture of the DM and of a message shared
+     * from the Mini App (docs/36 §1в) - one spec, so both point to the same cached file.
+     */
+    public function cardSpec(int $stageNumber, string $locale): CardSpec
+    {
+        return new CardSpec(
+            key: 'boss_'.$stageNumber,
+            palette: 'game',
+            badge: 'BOSS',
+            title: __('game.card.title', ['city' => CityNames::toward($stageNumber, $locale)], $locale),
+            description: __('game.card.description', [], $locale),
+        );
     }
 
     private function shareLink(Learner $learner): ?string

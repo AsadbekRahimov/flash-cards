@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Domain\Engagement\Events\ReferralMilestoneReached;
+use App\Domain\Engagement\Services\ReferralMilestoneSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Listeners\Engagement\SendReferralMilestoneMessage;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -120,7 +123,44 @@ it('closes the DM and keeps no marker when Telegram answers 403, so nothing is c
         ->and(NotificationLog::query()->count())->toBe(0);
 });
 
+it('drops the marker on a 429 so that the retry tells the inviter exactly once, and keeps it after a timeout', function (): void {
+    [$inviter, $subscription] = msInviter();
+    $sender = app(ReferralMilestoneSender::class);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 2;
+
+    expect(fn () => $sender->send($inviter->id, 3, 7, $subscription->id, null))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->count())->toBe(0);
+
+    expect($sender->send($inviter->id, 3, 7, $subscription->id, null))->toBe('sent')
+        ->and($sender->send($inviter->id, 3, 7, $subscription->id, null))->toBe('skipped')
+        ->and($this->tg->sent)->toHaveCount(1);
+
+    // The next milestone times out: the marker stays, the retry is silent.
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = null;
+    $this->tg->failSendsAsTransport = true;
+    expect(fn () => $sender->send($inviter->id, 6, 7, $subscription->id, null))->toThrow(TelegramApiException::class);
+    expect($sender->send($inviter->id, 6, 7, $subscription->id, null))->toBe('skipped')
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->count())->toBe(2);
+});
+
 it('is picked up by the event system without a manual registration', function (): void {
     Event::fake();
     Event::assertListening(ReferralMilestoneReached::class, SendReferralMilestoneMessage::class);
+});
+
+it('puts "Invite more" under the reward, to the Referrals screen (docs/36 §3а, W4)', function (): void {
+    config(['twa.base_url' => 'https://twa.test']);
+    [$inviter, $subscription] = msInviter();
+    [$uz, $uzSubscription] = msInviter(['interface_locale' => 'uz']);
+
+    msRaise($inviter, 3, $subscription->id);
+    msRaise($uz, 3, $uzSubscription->id);
+
+    expect($this->tg->sent[0]['markup'])->toBe(['inline_keyboard' => [[
+        ['text' => '👥 Пригласить ещё', 'web_app' => ['url' => 'https://twa.test/twa/referrals?from=milestone']],
+    ]]])
+        ->and($this->tg->sent[1]['markup']['inline_keyboard'][0][0]['text'])->toBe('👥 Yana taklif qilish');
 });

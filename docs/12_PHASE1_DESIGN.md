@@ -4,7 +4,7 @@
 > База: ветка `claude/magical-pascal-qz05gz` после приёмки Фазы 0 (Pest 409, Larastan 8, CI на PostgreSQL 16, локально sqlite).
 > Этот документ **уточняет и в части Фазы 1 заменяет** [11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) §5–§6, §10. Там — стратегия; здесь — схема, контракты сервисов, план миграции и нарезка на задачи. Где docs/11 расходится с кодом или с решениями владельца — сказано прямо (§13).
 
-**Решения владельца, зафиксированные в проекте:** B2C-first; платные тарифы для всех; ученик центра получает полный Pro; языки интерфейса и переводов — uz (латиница) и ru; изучаемый язык — только английский; **оплата (Telegram Stars, Payme/Click) в Фазе 1 не реализуется** — Pro выдаётся вручную суперадмином (с аудитом) и промокодом; **Free-лимит — 20 новых слов в день**, повторения не ограничиваются никогда.
+**Решения владельца, зафиксированные в проекте:** B2C-first; платные тарифы для всех; ученик центра получает полный Pro; языки интерфейса и переводов — uz (латиница) и ru; изучаемый язык — только английский; **оплата (Telegram Stars, Payme/Click) в Фазе 1 не реализуется** — Pro выдаётся вручную суперадмином (с аудитом) и промокодом; **Free-лимит — 10 новых слов в день** (до 25.11.2026 — 20), повторения не ограничиваются никогда.
 
 ---
 
@@ -605,7 +605,7 @@ return [
     'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
     'grace_days' => (int) env('BILLING_GRACE_DAYS', 3),
     'plans' => [
-        'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
+        'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
         'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze' /* Фаза 2 */]],
     ],
     'prices' => [ /* заполняется при подключении оплаты: ['pro' => ['month' => ['XTR' => …, 'UZS' => …], 'year' => […]]] */ ],
@@ -738,7 +738,9 @@ liveUntil(s) = current_period_ends_at (+ grace_days, если provider авто�
 
 Ключ **версионный**: `entitlement:learner:{id}:v{n}`, где `n` — целое из `entitlement:ver:{id}` (нет ключа = 0); TTL 300 с, хранится `Entitlement::toArray()`. `forget*()` не удаляет снимок, а делает `Cache::increment` версии: все последующие читатели смотрят в новый (пустой) ключ. Зачем: при обычном «forget → put» запрос, который начал `resolve()` по старым данным, параллельная запись сделала `forget`, а затем запрос положил устаревший снимок — и он жил до конца TTL. С версией `for()` читает `n` **до** `resolve()` и пишет в ключ с этим `n`; если за время вычисления версия выросла, запись ложится в мёртвый ключ, который никто не читает (тест «never caches a snapshot computed before a concurrent invalidation»). Старые снимки доживают TTL сами (одна лишняя запись на learner'а ≤ 5 мин); ключ версии без TTL (несколько байт на learner'а; при вытеснении читатели вернутся к `v0` — устаревшим он может быть только в пределах одного TTL от самого первого forget learner'а). `forgetMany`/`forgetOrganization`/`forgetGroup` — инкремент на каждого участника (chunk 500 по SQL; на Фазе 1 это сотни ключей). Снимок, чей `until` уже прошёл, пересчитывается при чтении без инвалидации — план не переживает подписку даже при опоздании планировщика. `forget()` вызывают **после commit** (`DB::afterCommit`, вне транзакции — сразу): `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `PromoCodeService` (через `grantFromPromo`), `GroupMembershipService::join/leave` (только при реальном изменении статуса членства), `TelegramGroupObserver` (смена `organization_id`/`status`, удаление группы → `forgetGroup`/`forgetMany`), `OrganizationObserver` (смена `status`, удаление → `forgetOrganization`/`forgetMany`). Observers зарегистрированы в `AppServiceProvider::boot` — любой путь привязки группы к организации (relation manager, форма группы, консоль) инвалидирует кэш без кода в Filament. Обновления через query builder (`TelegramGroup::where()->update()` в `MyChatMemberHandler`) observers не ловят — там допустима задержка до TTL. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо. **С R12i (04.11.2026) `entitlement:ver:{id}` — версия ученика в целом:** по ней же ключуется снимок `/me` (`Twa\Services\MeProfileCache`, docs/19 §5.1 K9), поэтому любой `forget*()` сбрасывает и его; запись маркера напоминания о продлении (`SubscriptionService::remindOne`) тоже вызывает `forget()`, хотя план не меняется — `reminder_sent` живёт в снимке.
 
-### 5.3 Лимит новых слов (Free = 20/день)
+### 5.3 Лимит новых слов (Free = 10/день)
+
+> **25.11.2026 (docs/34 §1):** умолчание `BILLING_FREE_NEW_WORDS_PER_DAY` снижено с 20 до 10; механика квоты не менялась.
 
 - **Что считается:** первая выдача карточки — создание строки `word_repetitions` (`state = new`) — в окне квоты learner'а (`word_repetitions.created_at`, обычно его **локальный** день; `learner_daily_stats.new_words_count` для квоты не используется, это аналитика первых оценок). Повторения (`due`, `learning`, learn-ahead) **никогда** не ограничиваются — ни Free, ни лимитом сессии (`max_cards_per_session` остаётся защитой от зацикливания клиента и считает оценки, как сейчас).
 - **Где:** `CardPicker::pickNewInTransaction` получает `NewCardBudget`; при `remaining <= 0` шаг «new» пропускается, пикер идёт к learn-ahead, затем `null` с `doneReason = new_quota_exhausted` (только если именно квота остановила — то есть в scope были невыданные слова). Клиент показывает paywall-лист (§5.4), но сессия не завершается, пока есть learning-карточки.
@@ -751,6 +753,7 @@ liveUntil(s) = current_period_ends_at (+ grace_days, если provider авто�
   Отвергнуто: `min(startUtc, сохранённое начало)` пока сохранённому < 24 ч — даёт устойчиво 40/сутки (истечение защиты и ближайшая полуночь нового пояса — два сброса подряд); скользящее окно 24 ч — ломает обещание «новая квота в полночь» и экран «Сегодня»; «не переносить день без карточек» — противник меняет пояс ровно в свою полночь на пояс, чей день кончается через час.
 - **Групповые уроки вне квоты.** Сессии `mode = group_lesson` (урок ведёт учитель) квотой **не ограничиваются** и её **не расходуют**: `TrainingFlowService::nextStep` отдаёт пикеру `NewCardBudget::unlimited()` (порядок блокировок не меняется — бюджет резолвится до транзакции пикера), `quota.new_words_remaining = null` в групповой сессии; слово, впервые выданное в группе, помечается `word_repetitions.introduced_mode = 'group_lesson'` (`TrainingScope::$sessionMode` из сессии → `CardPicker`), и личная квота его не считает. Спонсорский Pro центра (§5.1) по-прежнему снимает лимит и в личных режимах.
 - Лимит и фичи — только в `config/billing.php`; Pro — `null` (безлимит).
+- **Лимит цели дня (25.11.2026, docs/34 §2б.1–2б.3, решение владельца docs/31 §5г).** Отдельное от новых слов число: `billing.plans.*.limits.daily_goal_max` (Free — `BILLING_FREE_DAILY_GOAL_MAX`, умолчание 10; Pro — `null`), `Plan::dailyGoalMax()`, `Entitlement::$dailyGoalMax` (считается из плана, в снимок кэша не пишется). Цель дня считает **все оценки** (повторения и новые), поэтому с квотой новых слов не сливается. Лимит Free обязан входить в `learners.daily_goal_options`, а `learners.default_daily_goal` не может быть больше него (тест согласованности конфига). Когда Pro кончается (любой источник: пробный, платный, центр, возврат), `DailyGoalLimiter::enforce()` снижает `learners.daily_goal` до лимита и запоминает прежний выбор в `learners.daily_goal_before_limit`; при возвращении Pro цель возвращается сама. Ручной выбор цели в настройках стирает запомненное значение. Правила записи и порядок блокировок — docs/06 §4.2, API — docs/04 A.2b.
 
 > **Реализация 1.4b (2026-10-19).**
 > - `NewWordQuota` (`app/Domain/Billing/Services`) привязан к `NewCardBudgetResolver` в `AppServiceProvider::register`. `budgetFor()` вызывает `EntitlementResolver::for` до транзакции пикера (кэш; при промахе читает подписки) — замыкание под блокировкой learner'а делает один `COUNT(*)` по `word_repetitions (learner_id, created_at)` (индекс есть), без других блокировок (docs/06 §4.2). `CardPicker`, `TrainingScope` и сервисы оценки не менялись.
@@ -763,6 +766,8 @@ liveUntil(s) = current_period_ends_at (+ grace_days, если provider авто�
 ### 5.4 Paywall в Фазе 1
 
 `EntitlementResolver` отдаёт `paywall.mode` из конфига. Режим `coming_soon` (старт): лист «Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Pro скоро откроется. Есть промокод? [Ввести код]. Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: {contact}». Фраза про контакт показывается **только если** `config('billing.paywall.contact')` непустой (`BILLING_SUPPORT_CONTACT` владелец задаст позже); `/me.entitlement`/`/today` отдают `paywall: {mode, contact: string|null}`. Кнопки: «Повторить due-слова», «Ввести промокод», «Напомнить завтра» (просто закрывает). Событие `paywall.shown {reason}`. Режим `purchase` появится вместе с провайдером — та же компонента, другой текст и кнопка оплаты.
+
+> **Причина `daily_goal` (25.11.2026, docs/34 §2б.3).** Free-ученик в настройках видит значения цели больше `settings.options.daily_goal_max` с замком; нажатие не сохраняет цель, а открывает пейвол с причиной `daily_goal` (место показа `paywall_daily_goal`). Сервер отвечает 403 `daily_goal_pro_required` `{max}` на попытку сохранить такое значение (docs/04 A.2b). После пробного Pro добавится причина `trial_ended` (docs/34 §2б.4, задача P7).
 
 ### 5.5 Способы получить Pro без оплаты (Фаза 1)
 
@@ -844,7 +849,8 @@ flowchart TD
     C --> D{onboarding_state}
     D -- done --> H["/today: кнопка «Открыть LexiFlow»"]
     D -- иначе --> E["Шаг locale: 🇺🇿 O'zbekcha / 🇷🇺 Русский"]
-    E --> F["Шаг goal: Общий английский / IELTS / SAT / Школа"]
+    E --> R["Шаг region (25.11.2026): 🇺🇿 Узбекистан → 14 регионов / 🌍 Другая страна / Не указывать"]
+    R --> F["Шаг goal: Общий английский / IELTS / SAT / Школа (только если целей несколько)"]
     F --> G["Шаг level: A1 / A2 / B1 / B2 / C1 / C2 / Не знаю (→A1)"]
     G --> I["(Шаг timezone — убран 2026-11-16)"]
     I --> J["Шаг reminder: 08:00 / 13:00 / 19:00 / 21:00 / Без напоминаний"]
@@ -853,6 +859,7 @@ flowchart TD
 ```
 
 - Каждый шаг — одно сообщение с inline-клавиатурой, `callback_data = onb:<step>:<value>` (≤ 64 байт). После выбора бот редактирует клавиатуру (убирает кнопки) и шлёт следующий шаг; повторное нажатие старой кнопки — `OnboardingService::apply` отвергает шаг ≠ текущему (идемпотентно, `answerCallbackQuery` без текста).
+- **Шаг `region` (25.11.2026, docs/35 §2.3, R3)** — сразу после языка, подписи уже на языке ученика. Экран 1: «Где вы живёте? Это нужно для рейтинга вашего региона» — `onb1:region:uz` / `onb1:region:other` / `onb1:region:none`. «Узбекистан» шаг не завершает: бот **правит то же сообщение** (`editMessageText`) — 14 регионов в два столбца (порядок языка, первым город Ташкент) и «← Назад» (`onb1:region:back`); состояние остаётся `region` (`OnboardingService::regionScreen`). Регион (`onb1:region:UZ-TK` …), «Другая страна» (`other`) и «Не указывать» (`NULL`) завершают шаг через `LearnerRegionService::applyLocked` (событие `region.set {via: onboarding}`, кроме «Не указывать» у ученика без региона). Старая кнопка «Узбекистан» / «Назад» после ответа — `staleStep`: ничего не меняет и не переспрашивает (старый ответ шага — как у любого шага: повтор текущего вопроса, если это ретрай). Ученики, уже прошедшие шаг языка, к шагу не возвращаются. `/settings` → «Регион»: те же два экрана с префиксом `set1`; отказ по сроку — «Сменить регион можно с ДД.ММ.ГГГГ»; после сохранения — «↩️ Отменить» (`set1:rgundo`, 10 минут).
 - Язык первого сообщения — `LocaleResolver::fromLanguageCode(from.language_code)`; после шага `locale` — только `learners.interface_locale`. `LocaleResolver::forLearner(Learner)` заменяет `forStudent`.
 - Любое текстовое сообщение в ЛС во время онбординга → повтор текущего шага. `/start` повторно при `done` → экран «Сегодня».
 - Дефолты, если человек сразу открыл TWA из группы (онбординг не пройден): `interface_locale` из `language_code`, `timezone` дефолт, `daily_goal` 20, напоминания 19:00; TWA показывает баннер «Настроить язык/напоминания» → `SettingsView`. Онбординг не блокирует обучение.
@@ -889,7 +896,7 @@ flowchart TD
 
 ### 7.4 Дневная цель и streak
 
-- Единица цели — **оценки** (`reviews_count`), потому что они доступны и Free, и при пустом каталоге. `daily_goal` ∈ {10, 20, 40}, дефолт 20.
+- Единица цели — **оценки** (`reviews_count`), потому что они доступны и Free, и при пустом каталоге. `daily_goal` ∈ {10, 20, 40}, новому ученику — 10 (`learners.default_daily_goal`). **С 25.11.2026 у Free цель не выше `daily_goal_max` (10)**: 20 и 40 — только в Pro; снижение после конца Pro и возврат при покупке — §5.3 и docs/06 §4.2. В Mini App подпись — «карточек в день».
 - Локальная дата — `LearnerClock::today()` в момент оценки. `goal_met_at` ставится один раз за день (под блокировкой строки `learner_daily_stats`).
 - Streak: при первом выполнении цели за день `d`: если `streak_last_date = d - 1` → `streak_current++`, иначе `streak_current = 1`; `streak_best = max`; `streak_last_date = d`. Чтение (`StreakService::current`): если `streak_last_date < today - 1` → `current = 0` (ленивое обнуление, без ночного job); `at_risk = current > 0 && streak_last_date = today - 1`. Смена часового пояса может сдвинуть «сегодня» на день — допускаем (мелкая аномалия, не эксплойт: цель всё равно требует 20 оценок).
 - **Уточнение 1.3b (architect):** день засчитывается **не более одного раза и никогда задним числом** — `StreakService::apply(d)` ничего не делает, если `streak_last_date >= d`. Отсюда поведение при смене пояса: сдвиг **на запад** снова открывает уже засчитанную дату — новые оценки растут в той же строке `learner_daily_stats`, цель повторно не «выполняется», серия не трогается; сдвиг **на восток** может открыть следующую дату раньше — одна честная серия-плюс-один за полную цель; `met_today = streak_last_date >= today` (включая случай «засчитана более поздняя дата»). Проекция `learners.streak_*` обновляется **после commit** транзакции оценки одиночным условным `UPDATE` (без блокировки `learners` внутри транзакции оценки — порядок блокировок §3.1); источник истины — `learner_daily_stats.goal_met_at`, по которому `current()` чинит отставшую проекцию. Крайний случай: переезд между поясами с разницей ≥ 2 календарных дней (UTC−12 → UTC+14) может обнулить серию при чтении — принимаем.
@@ -1073,7 +1080,7 @@ flowchart TD
 1. docs/11 §5.2 предлагает `learner_sessions`, `usage_counters`, `events`, `assignments`: в коде уже есть `product_events` (Фаза 0), `usage_counters` заменены `learner_daily_stats`, `learner_sessions` — режимом `training_sessions`, `assignments` — Фаза 2.
 2. docs/11 §5.2 «миграция без потери данных» и правило слияния прогресса по `repetitions` — **не применяются**: прода с данными нет (решение владельца 2026-10-18), схема создаётся заново (§2). Если переносить данные всё же придётся, правило `repetitions` недостаточно после learning steps Фазы 0 (нужен приоритет по `state`).
 3. docs/11 §6.4 и §10 «Фаза 1 п.7» — оплата Stars/Payme/Click: **отложена решением владельца**; в Фазе 1 только схема и ручные/промо-гранты.
-4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`).
+4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`); 25.11.2026 снижено до **10** (docs/34 §1).
 5. docs/11 §5.2 `word_translations.language (uz|ru|kk|ky|tg|tr)` — колонка `locale varchar(5)`, допустимые значения ограничены `config('localization.supported')` (сейчас `ru`, `uz`).
 6. docs/11 §8 «`jti` + denylist», «RLS» — отложены (§8, §4.5) с обоснованием.
 7. docs/02 ADR-3 (nutgram) и структура `app/Services/*` устарели — уже отмечено в docs/11 T4; в этом документе используются реальные пути `app/Domain/*`.

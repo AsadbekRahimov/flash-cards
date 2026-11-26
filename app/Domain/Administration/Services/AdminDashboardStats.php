@@ -237,25 +237,43 @@ final class AdminDashboardStats
 
     /**
      * The league week the heading of the league widget speaks about: whether leagues are on, the current week (null until
-     * the first placement of the week) with its dates, status and the totals of its groups.
+     * the first placement of the week) with its dates, status, rules version and the totals of its groups — in all and by category
+     * (the pools of rivals of a v2 week, docs/32 §5.1; every group of a v1 week is `free`), one grouped read.
      *
-     * @return array{enabled: bool, week: array{id: int, from: string, to: string, status: string, groups: int, members: int}|null}
+     * @return array{enabled: bool, week: array{id: int, from: string, to: string, status: string, rules_version: int, groups: int, members: int, categories: array<string, array{groups: int, members: int}>}|null}
      */
     public function leagueWeek(): array
     {
-        /** @var array{enabled: bool, week: array{id: int, from: string, to: string, status: string, groups: int, members: int}|null} */
+        /** @var array{enabled: bool, week: array{id: int, from: string, to: string, status: string, rules_version: int, groups: int, members: int, categories: array<string, array{groups: int, members: int}>}|null} */
         return $this->cache->remember('league_week', 'all', 60, function (): array {
             $week = $this->leagues->findWeek(CarbonImmutable::now());
+            if ($week === null) {
+                return ['enabled' => $this->leagues->enabled(), 'week' => null];
+            }
+
+            $categories = [];
+            $rows = LeagueGroup::query()
+                ->where('league_week_id', $week->id)
+                ->groupBy('category')
+                ->orderBy('category')
+                ->selectRaw('category, count(*) as groups_count, coalesce(sum(members_count), 0) as members_sum')
+                ->toBase()
+                ->get();
+            foreach ($rows as $row) {
+                $categories[(string) $row->category] = ['groups' => (int) $row->groups_count, 'members' => (int) $row->members_sum];
+            }
 
             return [
                 'enabled' => $this->leagues->enabled(),
-                'week' => $week === null ? null : [
+                'week' => [
                     'id' => (int) $week->id,
                     'from' => $week->starts_on->toDateString(),
                     'to' => $week->ends_on->toDateString(),
                     'status' => (string) $week->status,
-                    'groups' => LeagueGroup::query()->where('league_week_id', $week->id)->count(),
-                    'members' => (int) LeagueGroup::query()->where('league_week_id', $week->id)->sum('members_count'),
+                    'rules_version' => (int) $week->rules_version,
+                    'groups' => array_sum(array_column($categories, 'groups')),
+                    'members' => array_sum(array_column($categories, 'members')),
+                    'categories' => $categories,
                 ],
             ];
         });
@@ -265,13 +283,13 @@ final class AdminDashboardStats
      * One page of the groups of a league week, highest tier first: up to `$perPage + 1` rows, the extra one only tells a simple
      * paginator (the pagination of a Filament table widget, no COUNT) that there is a next page.
      *
-     * @return list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}>
+     * @return list<array{id: int, tier: int, category: string, members_count: int, capacity: int, created_at: string|null}>
      */
     public function leagueGroups(int $weekId, int $page, int $perPage): array
     {
         [$page, $perPage] = [self::pageNumber($page), self::pageSize($perPage, self::LEAGUE_GROUPS_PAGE_SIZES)];
 
-        /** @var list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}> */
+        /** @var list<array{id: int, tier: int, category: string, members_count: int, capacity: int, created_at: string|null}> */
         return $this->cache->remember('league_groups', 'all', 60, fn (): array => LeagueGroup::query()
             ->where('league_week_id', $weekId)
             ->orderByDesc('tier')
@@ -282,6 +300,7 @@ final class AdminDashboardStats
             ->map(fn (LeagueGroup $group): array => [
                 'id' => (int) $group->id,
                 'tier' => (int) $group->tier,
+                'category' => (string) $group->category,
                 'members_count' => (int) $group->members_count,
                 'capacity' => (int) $group->capacity,
                 'created_at' => $group->created_at?->toIso8601String(),

@@ -8,6 +8,7 @@ use App\Filament\Pages\ImportLesson;
 use App\Filament\Resources\ClassCaravanResource;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
+use App\Filament\Resources\CupResource;
 use App\Filament\Resources\ExamSessionResource;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\GameItemResource;
@@ -25,6 +26,7 @@ use App\Filament\Resources\PaymentOrderResource;
 use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
 use App\Filament\Resources\PaymentResource;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
+use App\Filament\Resources\PollResource;
 use App\Filament\Resources\PracticeItemResource;
 use App\Filament\Resources\PromoCodeResource;
 use App\Filament\Resources\PromoCodeResource\Pages\EditPromoCode;
@@ -56,6 +58,7 @@ use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\RegionDistributionWidget;
 use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\SchedulerComparisonWidget;
@@ -65,6 +68,7 @@ use App\Filament\Widgets\WebhookErrorsWidget;
 use App\Filament\Widgets\WeeklyActivityWidget;
 use App\Models\ClassCaravan;
 use App\Models\Course;
+use App\Models\Cup;
 use App\Models\ExamSession;
 use App\Models\GameItem;
 use App\Models\GameRun;
@@ -73,6 +77,7 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
+use App\Models\Poll;
 use App\Models\PracticeItem;
 use App\Models\PromoCode;
 use App\Models\ProviderTransaction;
@@ -105,7 +110,7 @@ uses(RefreshDatabase::class);
 /*
  * The admin panel `/admin` is Russian (docs/14 §7–§8, lang/ru/admin.php): our own captions of resources, fields, columns,
  * filters, actions, widgets and pages. Filament's own strings come from its ru translation. Only proper names stay Latin
- * (LexiFlow, Telegram, Stars, Payme, Click, IELTS, SAT, SM-2 / FSRS, Pro / Free ...).
+ * (Muhrla, Telegram, Stars, Payme, Click, IELTS, SAT, SM-2 / FSRS, Pro / Free ...).
  */
 
 beforeEach(function (): void {
@@ -144,7 +149,7 @@ function loc_text(string $html): string
 /** Names that stay Latin in the Russian interface; whatever Latin word is left after removing them is English. */
 function loc_is_russian(string $caption): bool
 {
-    $rest = preg_replace('/\b(LexiFlow|Telegram|Stars|Payme|Click|IELTS|SAT|SM-2|FSRS(-5)?|Pro|Free|Mini App|Bot API|Username|Email|ID|TG|RU|UZ|ru|uz|UZS|XTR|JSON|slug|meta|CSV|twa\.authenticated)\b/u', '', $caption);
+    $rest = preg_replace('/\b(Muhrla|Telegram|Stars|Payme|Click|IELTS|SAT|SM-2|FSRS(-5)?|Pro|Free|Mini App|Bot API|Username|Email|ID|TG|RU|UZ|ru|uz|UZS|XTR|JSON|slug|meta|CSV|twa\.authenticated)\b/u', '', $caption);
 
     return preg_match('/[A-Za-z]{2,}/', (string) $rest) !== 1;
 }
@@ -196,6 +201,8 @@ function loc_records(User $admin): array
         GameItemResource::class => GameItem::factory()->create(),
         GameRunResource::class => GameRun::factory()->create(),
         ClassCaravanResource::class => ClassCaravan::factory()->create(),
+        PollResource::class => Poll::factory()->sending()->withOptions(2)->create(),
+        CupResource::class => Cup::factory()->create(),
     ];
 }
 
@@ -409,7 +416,8 @@ it('has an explicit Russian caption on every column, filter, action, field, entr
 
         foreach ($resource::getPages() as $name => $registration) {
             $page = $registration->getPage();
-            $params = in_array($name, ['edit', 'view'], true) ? ['record' => $record->getKey()] : [];
+            // `results` - the results page of a poll (docs/35 O7), a page of one record like edit and view.
+            $params = in_array($name, ['edit', 'view', 'results'], true) ? ['record' => $record->getKey()] : [];
             $captions += loc_component_captions(Livewire::test($page, $params)->instance(), "{$resource}/{$name}");
 
             if (in_array($name, ['edit', 'view'], true)) {
@@ -499,7 +507,7 @@ it('puts no resource label in the nominative with a capital letter into the head
 
         foreach ($resource::getPages() as $name => $registration) {
             $page = $registration->getPage();
-            $components["{$resource}/{$name}"] = Livewire::test($page, in_array($name, ['edit', 'view'], true) ? ['record' => $record->getKey()] : [])->instance();
+            $components["{$resource}/{$name}"] = Livewire::test($page, in_array($name, ['edit', 'view', 'results'], true) ? ['record' => $record->getKey()] : [])->instance();
 
             if (in_array($name, ['edit', 'view'], true)) {
                 $ownerPage = $page;
@@ -576,10 +584,11 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [CentersFirstAssignmentWidget::class, 'Центры: до первого задания', 'first assignment'],
     [ProPathWidget::class, 'Путь к Pro · Stars', 'Path to Pro'],
     [WeeklyActivityWidget::class, 'Занятия по неделям', 'Weekly activity'],
+    [RegionDistributionWidget::class, 'Ученики по областям', 'Learners by region'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {
-    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(23);
+    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(24);
 });
 
 // --- values -----------------------------------------------------------------------------------

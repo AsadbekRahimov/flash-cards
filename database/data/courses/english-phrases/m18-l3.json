@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 18,
+    "title": "Деловое общение",
+    "title_uz": "Ishbilarmonlik muloqoti"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Планирование",
+    "title_uz": "Rejalashtirish"
+  },
+  "words": [
+    {
+      "word": "on the same page",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "одинаково понимать задачу",
+        "uz": "bir xil fikrda"
+      },
+      "example": "Before we start, let's make sure we're all on the same page.",
+      "example_translations": {
+        "ru": "Прежде чем начать, давайте убедимся, что все одинаково понимают задачу.",
+        "uz": "Boshlashdan oldin hammamiz bir xil fikrda ekanimizga ishonch hosil qilaylik."
+      },
+      "hooks": {
+        "ru": "Говорят, когда важно, чтобы вся команда одинаково понимала план и цели",
+        "uz": "Butun jamoa reja va maqsadlarni bir xil tushunishi muhim bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "page",
+        "literal": {
+          "ru": "на одной странице",
+          "uz": "bir sahifada"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a ballpark figure",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приблизительная цифра",
+        "uz": "taxminiy raqam"
+      },
+      "example": "I don't need an exact price — just give me a ballpark figure.",
+      "example_translations": {
+        "ru": "Мне не нужна точная цена — просто назовите приблизительную цифру.",
+        "uz": "Menga aniq narx kerak emas — taxminiy raqamni aytsangiz bo'ldi."
+      },
+      "hooks": {
+        "ru": "Просят назвать примерную сумму или число, без точных расчётов",
+        "uz": "Aniq hisob-kitobsiz, taxminiy summa yoki sonni aytishni so'raganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ballpark",
+        "literal": {
+          "ru": "цифра бейсбольного поля",
+          "uz": "beysbol maydoni raqami"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "back to the drawing board",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "придётся всё переделать",
+        "uz": "rejani qaytadan tuzish kerak"
+      },
+      "example": "The test failed, so it's back to the drawing board.",
+      "example_translations": {
+        "ru": "Испытание провалилось, так что придётся всё переделать.",
+        "uz": "Sinov muvaffaqiyatsiz bo'ldi, demak, rejani qaytadan tuzish kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда план не сработал и его нужно придумывать заново",
+        "uz": "Reja ishlamay, uni qaytadan o'ylab chiqish kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "drawing",
+        "literal": {
+          "ru": "обратно к чертёжной доске",
+          "uz": "chizmachilik taxtasiga qaytish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in the long run",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в долгосрочной перспективе",
+        "uz": "uzoq muddatda"
+      },
+      "example": "Buying good shoes is cheaper in the long run.",
+      "example_translations": {
+        "ru": "Покупать хорошую обувь в долгосрочной перспективе дешевле.",
+        "uz": "Sifatli poyabzal sotib olish uzoq muddatda arzonroqqa tushadi."
+      },
+      "hooks": {
+        "ru": "Говорят о результате, который проявится не сразу, а со временем",
+        "uz": "Darhol emas, vaqt o'tib ko'rinadigan natija haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "run",
+        "literal": {
+          "ru": "в долгом забеге",
+          "uz": "uzoq yugurishda"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in the pipeline",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в разработке",
+        "uz": "tayyorlanmoqda"
+      },
+      "example": "We have two new products in the pipeline for next year.",
+      "example_translations": {
+        "ru": "У нас в разработке два новых продукта на следующий год.",
+        "uz": "Kelgusi yil uchun ikkita yangi mahsulotimiz tayyorlanmoqda."
+      },
+      "hooks": {
+        "ru": "Говорят о планах и проектах, которые уже готовятся, но ещё не готовы",
+        "uz": "Tayyorlanayotgan, lekin hali tayyor bo'lmagan reja va loyihalar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pipeline",
+        "literal": {
+          "ru": "в трубопроводе",
+          "uz": "quvur ichida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "iron out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "утрясти (детали)",
+        "uz": "kamchiliklarni bartaraf etmoq"
+      },
+      "example": "We still need to iron out a few details before we sign.",
+      "example_translations": {
+        "ru": "Перед подписанием нам ещё нужно утрясти несколько деталей.",
+        "uz": "Imzolashdan oldin hali bir nechta kamchilikni bartaraf etishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о решении мелких проблем и разногласий перед завершением дела",
+        "uz": "Ishni yakunlashdan oldin mayda muammo va kelishmovchiliklarni hal qilish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "iron",
+        "literal": {
+          "ru": "выгладить утюгом",
+          "uz": "dazmollab tekislamoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put something on hold",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отложить что-то",
+        "uz": "biror narsani to'xtatib turmoq"
+      },
+      "example": "We've put the new office on hold until the spring.",
+      "example_translations": {
+        "ru": "Мы отложили открытие нового офиса до весны.",
+        "uz": "Yangi ofisni bahorgacha to'xtatib turdik."
+      },
+      "hooks": {
+        "ru": "Говорят о проекте или решении, которое временно остановили",
+        "uz": "Vaqtincha to'xtatilgan loyiha yoki qaror haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hold",
+        "literal": {
+          "ru": "поставить что-то на ожидание",
+          "uz": "nimanidir kutishga qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the big picture",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "общая картина",
+        "uz": "umumiy manzara"
+      },
+      "example": "Don't worry about small mistakes — look at the big picture.",
+      "example_translations": {
+        "ru": "Не переживай из-за мелких ошибок — смотри на общую картину.",
+        "uz": "Mayda xatolar uchun qayg'urma — umumiy manzaraga qara."
+      },
+      "hooks": {
+        "ru": "Призывают думать о главном и о ситуации в целом, а не о мелочах",
+        "uz": "Mayda narsalar emas, asosiy narsa va vaziyat haqida yaxlit o'ylashga chaqirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "picture",
+        "literal": {
+          "ru": "большая картина",
+          "uz": "katta rasm"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a backup plan",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "запасной план",
+        "uz": "zaxira reja"
+      },
+      "example": "If the venue cancels, what's our backup plan?",
+      "example_translations": {
+        "ru": "Если площадка откажет, какой у нас запасной план?",
+        "uz": "Agar joy egalari bekor qilsa, zaxira rejamiz qanday?"
+      },
+      "hooks": {
+        "ru": "Говорят о плане на случай, если основной не сработает",
+        "uz": "Asosiy reja ishlamay qolgan holat uchun tayyorlangan reja haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "backup",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "down the line",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в будущем",
+        "uz": "keyinchalik"
+      },
+      "example": "We might open a second shop somewhere down the line.",
+      "example_translations": {
+        "ru": "Возможно, в будущем мы откроем второй магазин.",
+        "uz": "Keyinchalik ikkinchi do'kon ochishimiz mumkin."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что может случиться позже, через какое-то время",
+        "uz": "Keyinroq, ma'lum vaqtdan so'ng yuz berishi mumkin bo'lgan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "line",
+        "literal": {
+          "ru": "дальше по линии",
+          "uz": "chiziq bo'ylab nariroqda"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    }
+  ]
+}

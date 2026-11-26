@@ -9,12 +9,14 @@ use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\PlanException;
 
 it('ranks plans and reads limits and features from config/billing.php', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
+
     expect(Plan::Free->rank())->toBe(0)
         ->and(Plan::Pro->rank())->toBe(1)
         ->and(Plan::Pro->outranks(Plan::Free))->toBeTrue()
         ->and(Plan::Free->outranks(Plan::Pro))->toBeFalse()
         ->and(Plan::Free->outranks(Plan::Free))->toBeFalse()
-        ->and(Plan::Free->newWordsPerDay())->toBe(20)
+        ->and(Plan::Free->newWordsPerDay())->toBe(10)
         ->and(Plan::Pro->newWordsPerDay())->toBeNull()
         ->and(Plan::Free->features())->toBe(['courses.public', 'training.daily', 'training.lesson'])
         ->and(Plan::Pro->features())->toBe(['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill', 'practice.unlimited', 'game.unlimited_runs', 'game.all_bosses', 'game.boosters_plus']);

@@ -9,7 +9,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 
 /**
  * What Telegram shows around the bot (docs/04 B.3): the command list behind "/" for each chat type and interface
- * language, and the permanent "LexiFlow" button of private chats that opens the Mini App. Only builds the data;
+ * language, and the permanent button of private chats that opens the Mini App, captioned with the product name. Only builds the data;
  * `telegram:setup-bot` sends it. The descriptions are in lang/{ru,uz}/commands.php.
  *
  * The "/" menu of a group is shown to every member, so the teacher's commands are listed for the administrators of
@@ -37,9 +37,6 @@ final class BotMenuBuilder
      * @var list<string>
      */
     public const CARAVAN_COMMANDS = ['start_caravan', 'cancel_caravan'];
-
-    /** The caption of the menu button; /help tells people to look for it. */
-    public const MENU_BUTTON_TEXT = 'LexiFlow';
 
     public function __construct(
         private readonly LocaleResolver $locales,
@@ -87,6 +84,12 @@ final class BotMenuBuilder
         return rtrim((string) config('twa.base_url'), '/').'/twa/';
     }
 
+    /** The caption of the menu button: the product name (`app.brand`, docs/36 §5б); /help tells people to look for it. */
+    public function menuButtonText(): string
+    {
+        return (string) config('app.brand');
+    }
+
     /**
      * The `web_app` menu button, or null while the Mini App is not on https: Telegram refuses any other URL.
      *
@@ -101,6 +104,6 @@ final class BotMenuBuilder
             return null;
         }
 
-        return ['type' => 'web_app', 'text' => self::MENU_BUTTON_TEXT, 'web_app' => ['url' => $url]];
+        return ['type' => 'web_app', 'text' => $this->menuButtonText(), 'web_app' => ['url' => $url]];
     }
 }

@@ -251,7 +251,8 @@ function onRetry(): void {
         <h2 class="text-[40px] leading-[46px] font-semibold tracking-[-0.6px] break-words" data-testid="word">{{ currentQuestion.word }}</h2>
       </div>
 
-      <div class="mt-10 flex flex-col gap-2.5 short:mt-6">
+      <!-- The options are radios (QuizOption): the group is named by the word they translate. -->
+      <div class="mt-10 flex flex-col gap-2.5 short:mt-6" role="radiogroup" :aria-label="currentQuestion.word">
         <QuizOption
           v-for="(label, i) in currentQuestion.options"
           :key="i"

@@ -68,7 +68,7 @@ describe('MeaningCard', () => {
     const w = mount(MeaningCard, { props: { card } })
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=transcription]').text()).toBe('/rɪˈzɪliənt/')
-    expect(w.text()).toContain('Что значит это слово?')
+    expect(w.text()).toContain('Выберите перевод слова')
     expect(w.findAll('button[data-testid^=option-]')).toHaveLength(4)
     expect(w.find('[data-testid=example]').exists()).toBe(false)
     expect(w.find('[data-testid=card-hooks]').exists()).toBe(false)
@@ -191,6 +191,58 @@ describe('MeaningCard', () => {
     expect(right.find('[data-testid=continue-btn]').exists()).toBe(false)
   })
 
+  it('is laid out as the mock-up of the question (docs/design/2026-11-25-redesign Question): task, big word, round speaker, a radio group', () => {
+    const w = mount(MeaningCard, { props: { card } })
+    const title = w.get('[data-testid=exercise-title]')
+    expect(title.text()).toBe('Выберите перевод слова')
+    expect(title.classes()).toEqual(expect.arrayContaining(['text-base', 'text-muted']))
+    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['text-[52px]', 'font-extrabold']))
+    expect(w.get('[data-testid=speak-btn]').classes()).toEqual(expect.arrayContaining(['size-11', 'rounded-full', 'bg-accent-soft', 'text-accent']))
+    const group = w.get('[role=radiogroup]')
+    expect(group.attributes('aria-label')).toBe('Выберите перевод слова')
+    expect(group.findAll('[role=radio]')).toHaveLength(4)
+  })
+
+  it('steps the word down a size once the answer is in, so the options stay above the panel (Feedback)', async () => {
+    const w = mount(MeaningCard, { props: { card } })
+    await w.get('[data-testid=option-2]').trigger('click')
+    expect(w.get('[data-testid=word]').classes()).toContain('text-[52px]')
+    await w.setProps({ result: answered(false) })
+    expect(w.get('[data-testid=word]').classes()).toContain('text-[40px]')
+    expect(w.get('[data-testid=word]').classes()).not.toContain('text-[52px]')
+  })
+
+  it('draws the answer panel as a grey sheet with a rounded top and the speaker of the example as the round accent button', async () => {
+    const w = mount(MeaningCard, { props: { card } })
+    await w.get('[data-testid=option-2]').trigger('click')
+    await w.setProps({ result: answered(false) })
+    const panel = w.get('[data-testid=actions]')
+    expect(panel.classes()).toEqual(expect.arrayContaining(['bg-page', 'rounded-t-hero']))
+    expect(panel.get('[data-testid=feedback-title]').classes()).toEqual(expect.arrayContaining(['text-xl', 'font-extrabold']))
+  })
+
+  it('after a miss says what the screen gave it about the word coming back, above "Next"; nothing after a right pick', async () => {
+    const note = 'Слово вернётся ещё раз в этом уроке.'
+    const wrong = mount(MeaningCard, { props: { card, missNote: note } })
+    await wrong.get('[data-testid=option-2]').trigger('click')
+    expect(wrong.find('[data-testid=miss-note]').exists()).toBe(false)
+    await wrong.setProps({ result: answered(false) })
+    const line = wrong.get('[data-testid=miss-note]')
+    expect(line.text()).toBe(note)
+    expect(line.classes()).toEqual(expect.arrayContaining(['text-[13px]', 'text-muted']))
+    expect(line.element.nextElementSibling?.getAttribute('data-testid')).toBe('continue-btn')
+
+    const right = mount(MeaningCard, { props: { card, missNote: note } })
+    await right.get('[data-testid=option-1]').trigger('click')
+    await right.setProps({ result: answered(true) })
+    expect(right.find('[data-testid=miss-note]').exists()).toBe(false)
+
+    const none = mount(MeaningCard, { props: { card, missNote: null } })
+    await none.get('[data-testid=option-2]').trigger('click')
+    await none.setProps({ result: answered(false) })
+    expect(none.find('[data-testid=miss-note]').exists()).toBe(false)
+  })
+
   it('accepts one pick only and none while disabled', async () => {
     const w = mount(MeaningCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
@@ -229,7 +281,7 @@ describe('MeaningCard', () => {
   it('renders in Uzbek', async () => {
     setLocale('uz')
     const w = mount(MeaningCard, { props: { card } })
-    expect(w.text()).toContain("Bu so'z nimani anglatadi?")
+    expect(w.text()).toContain("So'zning tarjimasini tanlang")
     await w.get('[data-testid=option-0]').trigger('click')
     await w.setProps({ result: answered(false) })
     expect(w.get('[data-testid=continue-btn]').text()).toBe('Keyingisi')

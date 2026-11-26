@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Engagement\DTO\SessionScore;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learning\DTO\SessionSummary;
@@ -19,7 +20,11 @@ use Illuminate\Http\Request;
  * numbers, plus the goal bonus when the daily goal was met during this session. No statement of its own: everything
  * is in hand already (the monthly place is a separate light request, `GET /league/month/me`).
  *
- * @property array{summary: SessionSummary, progress: DailyProgress, practice_entry: PracticeEntry|null, hard_round_offer?: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null} $resource
+ * The word points v2 (docs/32 §8.2, S12): while the rating day counts by v2, `score_session` tells what the session earned, what each
+ * count got, how much the limits cut off, how the week's sum of the best days grew and the rating day after the session; then
+ * `league_points` is what the weekly count got (`score_session.week_added`) when the week is on v2. Outside v2 the key is absent.
+ *
+ * @property array{summary: SessionSummary, progress: DailyProgress, practice_entry: PracticeEntry|null, hard_round_offer?: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null, score?: SessionScore|null} $resource
  */
 final class SessionSummaryResource extends TwaResource
 {
@@ -34,15 +39,18 @@ final class SessionSummaryResource extends TwaResource
      *   stages: array{graduated: int, promoted: int, mastered: int},
      *   hard_round: array{total: int, won: int}|null,
      *   corrected: array{word_id: int, word: string, translation: string, mistaken_at: string, answer: string|null}|null,
-     *   hard_round_offer: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null
+     *   hard_round_offer: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null,
+     *   lesson_review: array{total: int, won: int, first_try: int}|null,
+     *   score_session?: array{earned: int, week_added: int, month_added: int, week_rating_delta: int, capped_off: int, today: array<string, mixed>|null}
      * }
      */
     public function toArray(Request $request): array
     {
         $summary = $this->resource['summary'];
         $progress = $this->resource['progress'];
+        $score = $this->resource['score'] ?? null;
 
-        return [
+        $payload = [
             // When the session began, server time (ISO-8601, UTC): what "achieved in this session" is measured from.
             'started_at' => CarbonImmutable::instance($summary->session->started_at)->utc()->toIso8601String(),
             'reviewed' => $summary->reviewed,
@@ -58,7 +66,12 @@ final class SessionSummaryResource extends TwaResource
             'goal' => $progress->goal->toArray(),
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),
-            'league_points' => LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
+            // The review of a lesson (docs/06 §15) writes nothing to the day: it brought no points, whatever the goal did meanwhile.
+            'league_points' => match (true) {
+                $summary->reviewTotal !== null => 0,
+                $score !== null && $score->weekCounts => $score->weekAdded, // a v2 week: what the weekly count got (docs/32 §8.2)
+                default => LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
+            },
             // The round of hard words (docs/06 §14): how many of its set were won; null in every other mode.
             'hard_round' => $summary->hardTotal === null ? null : ['total' => $summary->hardTotal, 'won' => $summary->hardWon ?? 0],
             // One mistake of an earlier session corrected in the round of hard words (docs/06 §14): the word, its translation in the
@@ -66,7 +79,15 @@ final class SessionSummaryResource extends TwaResource
             'corrected' => $summary->corrected?->toArray(),
             // The invitation to that round on the end of a daily round / a lesson: the block of `GET /today`; null after the round itself and while it is off.
             'hard_round_offer' => $this->resource['hard_round_offer'] ?? null,
+            // The review of a lesson (docs/06 §15): the words of its set answered right (`won`), on the first serve (`first_try`); null in every other mode.
+            'lesson_review' => $summary->reviewTotal === null ? null : [
+                'total' => $summary->reviewTotal,
+                'won' => $summary->reviewWon ?? 0,
+                'first_try' => $summary->reviewFirstTry ?? 0,
+            ],
         ];
+
+        return $score === null ? $payload : [...$payload, 'score_session' => $score->toArray()];
     }
 
     /** The goal was met while this session ran: `goal_met_at` is at or after the session's start. */

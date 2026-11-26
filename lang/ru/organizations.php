@@ -6,7 +6,7 @@ return [
 
     // `/start org_<code>` (docs/13 §6.2): the confirmation shown after the onboarding (or at once for a learner who has finished it).
     'offer' => [
-        'text' => 'Учебный центр «:organization» приглашает вас в LexiFlow. Вступить, чтобы получить Pro от центра?',
+        'text' => 'Учебный центр «:organization» приглашает вас в Muhrla. Вступить, чтобы получить Pro от центра?',
         'join' => 'Вступить',
         'skip' => 'Не сейчас',
     ],
@@ -15,7 +15,7 @@ return [
 
     // A membership offered by the center's staff from the cabinet (audit 2026-11-10 M2): the learner decides in the bot.
     'invite' => [
-        'text' => 'Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в LexiFlow. Вступить?',
+        'text' => 'Учебный центр «:organization» приглашает вас вступить. Вступив, вы получите Pro от центра, если у него есть свободные места, а центр будет видеть вашу активность в Muhrla. Вступить?',
         'accept' => 'Вступить',
         'decline' => 'Отклонить',
         'declined' => 'Хорошо, вы отклонили приглашение центра «:organization». Ничего не изменилось.',
@@ -27,12 +27,12 @@ return [
     'joined' => [
         'seated' => 'Вы в центре «:organization». Pro активен — занимайтесь без ограничений.',
         'waitlisted' => 'Вы в центре «:organization», но свободных мест пока нет. Сообщите администратору центра — как только место освободится, Pro включится автоматически.',
-        'button' => 'Открыть LexiFlow',
+        'button' => 'Открыть Muhrla',
     ],
 
     'seated' => [
         'text' => 'В центре «:organization» освободилось место для вас. Pro активен!',
-        'button' => 'Открыть LexiFlow',
+        'button' => 'Открыть Muhrla',
     ],
 
     // Why a link / button was refused, by OrganizationMembershipException::$errorCode.

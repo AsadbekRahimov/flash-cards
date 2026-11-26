@@ -14,20 +14,29 @@ return [
         'words_500' => ['title' => '500 слов', 'description' => 'Выучено 500 слов'],
         'words_1000' => ['title' => '1000 слов', 'description' => 'Выучено 1000 слов'],
         'league_top1' => ['title' => 'Победитель лиги', 'description' => 'Первое место в группе лиги за неделю'],
-        'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в LexiFlow'],
+        'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в Muhrla'],
         'game_first_boss' => ['title' => 'Хранитель побеждён', 'description' => 'Первая победа над боссом города в игре «Караван»'],
+        'long_recall_25' => ['title' => 'Долгая память', 'description' => '25 слов вспомнено после перерыва в неделю и больше'],
     ],
 
-    // Text on the card under the description.
+    // Texts of the share card (docs/36 §2б): the small capitals over the title and the tagline in the footer. The brand is
+    // config('app.brand'), not a line here.
     'card' => [
-        'brand' => 'LexiFlow',
+        'label' => 'Достижение',
         'tagline' => 'Учим английский в Telegram',
+        // The card of the brand: the photo of a shared invitation (docs/36 §2б, A4); :trial is the length of the welcome trial.
+        'invite' => [
+            'label' => 'Приглашение',
+            'title' => 'Учим английский в Telegram',
+            'description' => 'Первые :trial Pro бесплатно',
+            'description_plain' => 'Слова, уроки и игра каждый день',
+        ],
     ],
 
     // DM with the card; :title / :description from `items`.
     'caption' => "🏆 Новое достижение: :title\n:description\n\nПоделитесь им с друзьями — перешлите это сообщение или нажмите кнопку ниже.",
     'caption_no_link' => "🏆 Новое достижение: :title\n:description\n\nПерешлите это сообщение друзьям, чтобы похвастаться.",
     'share_button' => 'Поделиться',
-    'share_text' => 'Я получил(а) достижение «:title» в LexiFlow! Учим английский в Telegram.',
+    'share_text' => 'Я получил(а) достижение «:title» в Muhrla! Учим английский в Telegram.',
 
 ];

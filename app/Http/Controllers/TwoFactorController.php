@@ -56,6 +56,8 @@ final class TwoFactorController extends Controller
             TwoFactorSession::putPendingSecret($session, $guard, $user->id, $secret);
         }
 
+        // The issuer stays the technical APP_NAME, not `app.brand` (docs/36 §5а): the entries admins already have in their
+        // authenticator apps keep their label, and a rename does not leave two labels for one account.
         $qrUrl = $this->g2fa->getQRCodeUrl(
             (string) config('app.name', 'LexiFlow'),
             (string) $user->email,

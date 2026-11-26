@@ -68,6 +68,7 @@ function callbacks(?array $markup): array
 
 it('/pro says Pro is coming, with the contact, while nothing is for sale', function (): void {
     config()->set('billing.paywall.mode', 'coming_soon');
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
     // A learner of before the launch: a brand-new one would be on the welcome trial (docs/13 §7.1 "2C.9"), not on Free.
     Learner::factory()->create(['telegram_user_id' => 555]);
 
@@ -75,8 +76,8 @@ it('/pro says Pro is coming, with the contact, while nothing is for sale', funct
 
     expect($this->sent)->toHaveCount(1)
         ->and($this->sent[0]['chat'])->toBe(555)
-        ->and($this->sent[0]['text'])->toContain('Сейчас у вас тариф Free: 20 новых слов в день')
-        ->and($this->sent[0]['text'])->toContain('LexiFlow Pro скоро откроется. Есть промокод? Отправьте /promo КОД.')
+        ->and($this->sent[0]['text'])->toContain('Сейчас у вас тариф Free: 10 новых слов в день')
+        ->and($this->sent[0]['text'])->toContain('Muhrla Pro скоро откроется. Есть промокод? Отправьте /promo КОД.')
         ->and($this->sent[0]['text'])->toContain('@lexiflow_support')
         ->and($this->sent[0]['markup'])->toBeNull();
 });
@@ -239,7 +240,7 @@ it('shows the renewal state and only the cancel button while the auto-renewal ru
     $subId = (int) $order->refresh()->subscription_id;
 
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro'));
-    expect($this->sent[0]['text'])->toContain('У вас LexiFlow Pro до')
+    expect($this->sent[0]['text'])->toContain('У вас Muhrla Pro до')
         ->and($this->sent[0]['text'])->toContain('Автопродление включено')
         ->and(callbacks($this->sent[0]['markup']))->toBe(['pro1:cancel']);
 
@@ -274,7 +275,7 @@ it('/paysupport gives the support contact and the offer link in a DM', function 
 
     expect($this->sent)->toHaveCount(1)
         ->and($this->sent[0]['chat'])->toBe(555)
-        ->and($this->sent[0]['text'])->toContain('Платёжная поддержка LexiFlow.')
+        ->and($this->sent[0]['text'])->toContain('Платёжная поддержка Muhrla.')
         ->and($this->sent[0]['text'])->toContain('@lexiflow_support')
         ->and($this->sent[0]['text'])->toContain('https://lexiflow.test/ru/offer');
 });
@@ -293,12 +294,12 @@ it('/paysupport says refunds go only through support, each request individually'
 
 it('/paysupport follows the learner\'s locale, or the Telegram language of a stranger', function (): void {
     app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport', lang: 'uz'));
-    expect($this->sent[0]['text'])->toContain("LexiFlow to'lovlar bo'yicha yordam.")
+    expect($this->sent[0]['text'])->toContain("Muhrla to'lovlar bo'yicha yordam.")
         ->and($this->sent[0]['text'])->toContain('https://lexiflow.test/uz/offer');
 
     Learner::factory()->create(['telegram_user_id' => 555, 'interface_locale' => 'ru']);
     app(TelegramDispatcher::class)->dispatch(proMessage('/paysupport', lang: 'uz'));
-    expect($this->sent[1]['text'])->toContain('Платёжная поддержка LexiFlow.');
+    expect($this->sent[1]['text'])->toContain('Платёжная поддержка Muhrla.');
 });
 
 it('/paysupport works without a configured contact', function (): void {

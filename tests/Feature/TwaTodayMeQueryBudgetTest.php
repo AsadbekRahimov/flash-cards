@@ -41,6 +41,7 @@ function todayMeScenario(object $test, string $game = 'all', bool $pro = false):
     config([
         'game.access' => $game,
         'practice.access' => 'all', 'practice.plan' => 'all', 'practice.modes.pairs_timed' => true,
+        'billing.plans.free.limits.new_words_per_day' => 10,
         'readiness.enabled' => true, 'learning.hard_round.enabled' => true,
     ]);
     ['course' => $course, 'lessons' => $lessons] = Fx::course([1 => [1 => 25, 2 => 25]]);
@@ -87,7 +88,7 @@ it('answers the second /today within a pinned number of statements, the caches w
     ['headers' => $h] = todayMeScenario($this, $game, $pro);
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()
-        ->assertJsonPath('league.rank', 1)->assertJsonPath('goal.done', 5)->assertJsonPath('new_words_remaining', $pro ? null : 14) // five graded, a sixth served
+        ->assertJsonPath('league.rank', 1)->assertJsonPath('goal.done', 5)->assertJsonPath('new_words_remaining', $pro ? null : 4) // five graded, a sixth served
         ->assertJsonPath('game.available', $game === 'all')->assertJsonPath('game.class_caravan', null)
         ->assertJsonPath('active_course.readiness.quiz.enabled', true)->assertJsonPath('active_course.readiness.quiz.this_week', null)
         ->assertJsonPath('hard_round.available', false)->assertJsonPath('hard_round.reason', 'not_enough')

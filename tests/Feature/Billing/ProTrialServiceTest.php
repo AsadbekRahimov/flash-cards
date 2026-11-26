@@ -417,7 +417,7 @@ it('expires at its end without grace, and the lapsed hint of /me names the trial
 // --- the reminder before the end ----------------------------------------------------
 
 it('is reminded before it ends with its own words, while a trial turned promo is not', function (): void {
-    config(['billing.checkout.renewal_reminder_days' => [3, 1]]);
+    config(['billing.checkout.renewal_reminder_days' => [3, 1], 'billing.trial.remind_days' => [3], 'practice.access' => 'off', 'game.access' => 'off']);
     $learner = trialRegistrar()->fromTelegramUser(['id' => 910_050, 'first_name' => 'Ali']);
     $learner->forceFill(['interface_locale' => 'ru', 'timezone' => 'Asia/Tashkent'])->save();
     $trial = expectTrialGranted($learner, 910_050);
@@ -427,19 +427,62 @@ it('is reminded before it ends with its own words, while a trial turned promo is
 
     $inFiveDays = CarbonImmutable::now()->addDays(4)->addHours(12);
     $this->tg->sent = [];
-    // The sync queue runs the listener → job → sender chain at once: one DM, the trial's own words.
+    // The sync queue runs the listener → job → sender chain at once: one DM, the trial's own words. Nothing is for sale here
+    // (coming_soon): what Pro gives, the hint of /pro and /invite, and the button of friends.
     expect(app(SubscriptionService::class)->remindExpiring($inFiveDays))->toBe(1)
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(910_050)
-        ->and($this->tg->sent[0]['text'])->toContain('Пробный Pro заканчивается через 3 дн.')
-        ->and($this->tg->sent[0]['text'])->toContain('оформите подписку (/pro) или пригласите друзей (/invite)')
-        ->and($this->tg->sent[0]['button'])->toBe('Продлить Pro')
+        ->and($this->tg->sent[0]['text'])->toBe("Пробный Pro заканчивается через 3 дн. (23.11.2026).\n\n"
+            ."Что даёт Pro:\n"
+            ."• Новые слова без дневного лимита\n"
+            ."• Свои колоды слов\n"
+            ."• Заморозка серии: пропуск дня не обрывает серию\n"
+            ."• Упражнения «Написание слова» и «Пропуск в примере»\n\n"
+            .'Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite).')
+        ->and(array_map(static fn (array $row): string => $row[0]['text'], $this->tg->sent[0]['markup']['inline_keyboard']))->toBe(['👥 Пригласить друзей'])
         ->and(app(LearnerBillingService::class)->renewal($learner, $inFiveDays)['reminder_sent'] ?? null)->toBeTrue();
 
     // At most once: the same day again sends nothing; the sender itself refuses a repeat.
     expect(app(SubscriptionService::class)->remindExpiring($inFiveDays->addHour()))->toBe(0)
         ->and(app(RenewalReminderSender::class)->send($trial->id, 3, CarbonImmutable::instance($trial->current_period_ends_at), $inFiveDays))->toBe(0)
         ->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('sells Pro in the reminder 3 days before the trial ends: the prices of the catalog, the buy buttons and friends', function (): void {
+    config(['billing.trial.remind_days' => [3], 'billing.paywall.mode' => 'purchase', 'billing.providers.telegram_stars.enabled' => true,
+        'practice.access' => 'off', 'game.access' => 'off']);
+    $learner = trialRegistrar()->fromTelegramUser(['id' => 910_052, 'first_name' => 'Ali']);
+    $learner->forceFill(['interface_locale' => 'ru', 'timezone' => 'Asia/Tashkent'])->save();
+    expectTrialGranted($learner, 910_052);
+    $this->tg->sent = [];
+
+    expect(app(SubscriptionService::class)->remindExpiring(CarbonImmutable::now()->addDays(4)->addHours(12)))->toBe(1);
+
+    $message = $this->tg->sent[0];
+    expect($message['text'])->toStartWith("Пробный Pro заканчивается через 3 дн. (23.11.2026).\n\nЧто даёт Pro:\n• Новые слова без дневного лимита\n")
+        ->and($message['text'])->toEndWith("Muhrla Pro — от 150 ⭐ в месяц. Выгоднее на срок: 3 месяца −13 %, 1 год −28 %.\nВыберите срок и способ оплаты:")
+        ->and(array_map(static fn (array $row): string => $row[0]['text'], $message['markup']['inline_keyboard']))->toBe([
+            '⭐ Stars · 1 месяц · 150 ⭐',
+            '⭐ Stars · 3 месяца · 390 ⭐',
+            '⭐ Stars · 1 год · 1 300 ⭐',
+            '👥 Пригласить друзей',
+        ])
+        // The reminder is not an offer of the chain: no "Do not send offers" under it.
+        ->and($this->tg->lastCallbackData())->not->toContain('bill1:offers_off');
+});
+
+it('does not remind the trial the day before its end any more, while a paid period keeps 3 and 1', function (): void {
+    config(['billing.checkout.renewal_reminder_days' => [3, 1], 'billing.trial.remind_days' => [3]]);
+    $learner = trialRegistrar()->fromTelegramUser(['id' => 910_053, 'first_name' => 'Ali']);
+    $trial = expectTrialGranted($learner, 910_053);
+    $paid = Subscription::factory()->create(['provider' => 'payme', 'current_period_ends_at' => $trial->current_period_ends_at]);
+    $service = app(SubscriptionService::class);
+
+    // 3 days before: both; the day before: only the paid one.
+    expect($service->remindExpiring(CarbonImmutable::now()->addDays(4)->addHours(12)))->toBe(2)
+        ->and($service->remindExpiring(CarbonImmutable::now()->addDays(6)->addHours(12)))->toBe(1)
+        ->and($trial->fresh()?->meta['renewal_reminders'] ?? null)->toBe(['3@'.CarbonImmutable::instance($trial->current_period_ends_at)->toIso8601String()])
+        ->and($paid->fresh()?->meta['renewal_reminders'] ?? null)->toHaveCount(2);
 });
 
 // --- the one-shot notice for the bot and the Mini App -----------------------------------

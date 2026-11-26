@@ -9,7 +9,7 @@ import { ApiClientError } from '@/api/client'
 import { useTodayStore } from '@/stores/today'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useTrainingStore } from '@/stores/training'
-import type { MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
+import type { DayPlan, MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
@@ -198,15 +198,17 @@ describe('FinishedView', () => {
   })
 
   describe('look and buttons', () => {
-    it('is calm (docs/design Finish): an eyebrow and a title, no icon of success, and an immersive screen of its own', () => {
+    it('is calm (docs/design Finish): an eyebrow and an extra-bold title, no icon of success, and an immersive screen of its own', () => {
       const w = render(5, 1)
 
       const eyebrow = w.get('[data-testid=eyebrow]')
       expect(eyebrow.text()).toBe('Занятие завершено')
       expect(eyebrow.classes()).toContain('text-success-ink')
       expect(w.get('h1').text()).toBe('Отлично!')
-      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[32px]', 'font-semibold']))
+      // Redesign 2026-11-25: headings are 700-800 (docs/14 §4.5).
+      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[30px]', 'font-extrabold']))
       expect(w.find('[data-testid=finished-icon]').exists()).toBe(false)
+      expect(w.find('[data-testid=plan-header]').exists()).toBe(false)
       expect(w.find('[data-testid=tab-bar]').exists()).toBe(false)
     })
 
@@ -276,8 +278,18 @@ describe('FinishedView', () => {
   describe('the entry to the practice (docs/16 §11.1)', () => {
     const entry = (lessonId: number | null) => ({ course: 'english-a1', lesson_id: lessonId })
 
-    it('offers "Поиграть: закрепить слова" after a lesson, as a tinted secondary action that leads to the hub of that lesson', () => {
+    it('is not this line after a lesson: the lesson offers the game of the day plan instead (see "the day plan" below)', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(5, 1)
+
+      expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+      expect(w.find('[data-testid=game-line]').exists()).toBe(true)
+    })
+
+    it('offers "Поиграть: закрепить слова" after a daily review, as a line of text that leads to the hub of the course', () => {
+      const training = useTrainingStore()
+      training.mode = 'daily_review'
+      training.summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       const practice = w.get('[data-testid=practice-btn]')
@@ -285,8 +297,9 @@ describe('FinishedView', () => {
       // A second action is a line of text (docs/design Finish), no icon.
       expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-block']))
       expect(practice.classes()).not.toContain('btn-primary')
-      expect(practice.attributes('href')).toBe('/practice/english-a1?lesson=41&from=finished')
+      expect(practice.attributes('href')).toBe('/practice/english-a1?from=finished')
       expect(practice.find('svg').exists()).toBe(false)
+      expect(w.find('[data-testid=what-next]').exists()).toBe(false)
     })
 
     it('says the same after a daily review, with the hub of the course and no lesson in the address', () => {
@@ -297,8 +310,8 @@ describe('FinishedView', () => {
       expect(w.get('[data-testid=practice-btn]').attributes('href')).toBe('/practice/english-a1?from=finished')
     })
 
-    it('opens the hub with the course, the lesson and the mark of the finish screen', async () => {
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+    it('opens the hub with the course and the mark of the finish screen', async () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       await w.get('[data-testid=practice-btn]').trigger('click')
@@ -307,11 +320,11 @@ describe('FinishedView', () => {
       const route = router.currentRoute.value
       expect(route.name).toBe('practice-hub')
       expect(route.params.slug).toBe('english-a1')
-      expect(route.query).toEqual({ lesson: '41', from: 'finished' })
+      expect(route.query).toEqual({ from: 'finished' })
     })
 
     it('does not compete with the main action: "Done" is the only primary button, and the play line comes under it', () => {
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       expect(w.findAll('.btn-primary')).toHaveLength(1)
@@ -328,7 +341,7 @@ describe('FinishedView', () => {
 
     it('keeps the buttons of the screen in order when the new words ran out: the card about it is above them, the learner can still practise today', async () => {
       mockPlan('free')
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(3, 1, 'new_quota_exhausted')
       await flushPromises()
 
@@ -352,7 +365,7 @@ describe('FinishedView', () => {
 
     it('speaks Uzbek', () => {
       setLocale('uz')
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("O'ynab mustahkamlash")
     })
   })
@@ -513,6 +526,370 @@ describe('FinishedView', () => {
     })
   })
 
+  describe('the day plan: lesson -> training -> game (docs/31 §5б, docs/design 2026-11-25 Finish)', () => {
+    const entry = { course: 'english-a1', lesson_id: 41 }
+    const gameHref = '/practice/english-a1?lesson=41&play=pairs_timed&from=finished'
+
+    /** The finish of a lesson this run opened: its mode, its header, and the summary of the server. */
+    function afterLesson(overrides: Partial<SessionSummary> = {}): void {
+      const training = useTrainingStore()
+      training.mode = 'lesson'
+      training.lesson = { stage: 1, lesson: 3, title: 'Напитки' }
+      training.summary = summary({ reviewed: 8, correct: 7, new_words: 5, league_points: 56, practice_entry: entry, ...overrides })
+    }
+
+    /** The finish of the review of a lesson (`lesson_review`): no points, no new words. */
+    function afterReview(overrides: Partial<SessionSummary> = {}): void {
+      const training = useTrainingStore()
+      training.mode = 'lesson_review'
+      training.lesson = { stage: 1, lesson: 3, title: 'Напитки' }
+      training.summary = summary({
+        reviewed: 9, correct: 7, new_words: 0, league_points: 0, practice_entry: entry, lesson_review: { total: 6, won: 5, first_try: 4 }, ...overrides,
+      })
+    }
+
+    /** `/today` as it was before the lesson: its plan says the lesson comes first, then the review and the game. */
+    function planBefore(): void {
+      useTodayStore().data = {
+        practice: { available: true, pro_required: false, modes: ['pairs_timed'], battle: false, pro_promise: 'none' },
+        plan: { step: 1, done: false, lesson: { done: false, lesson_id: null, next_lesson_id: 41, words_left: 5 }, training: null, game: null },
+      } as never
+    }
+
+    /** `/today` read after the finish: the lesson 41 done, its review as given (null: switched off), the game open. */
+    function planAfter(training: DayPlan['training']) {
+      return {
+        practice: { available: true, pro_required: false, modes: ['pairs_timed'], battle: false, pro_promise: 'none' },
+        plan: {
+          step: training === null ? 3 : 2, done: false,
+          lesson: { done: true, lesson_id: 41, next_lesson_id: 42, words_left: 6 },
+          training,
+          game: { lesson_id: 41, course: 'english-a1', mode: 'pairs_timed', played: false },
+        },
+      } as never
+    }
+
+    const order = (w: ReturnType<typeof render>, ids: string[]) =>
+      w.findAll(ids.map((id) => `[data-testid=${id}]`).join(', ')).map((el) => el.attributes('data-testid'))
+
+    beforeEach(() => {
+      vi.mocked(api.today.get).mockRejectedValue(new Error('offline'))
+    })
+
+    describe('a lesson that gave new words', () => {
+      it('says "Lesson done!" with the green mark, the lesson and its new words, and the numbers of the mock-up', () => {
+        afterLesson()
+        const w = render(8, 1, 'lesson_complete')
+
+        expect(w.get('[data-testid=plan-header] h1').text()).toBe('Урок пройден!')
+        expect(w.get('[data-testid=plan-header] h1').classes()).toContain('font-extrabold')
+        expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Напитки · 5 новых слов')
+        // "Lesson done!" says it already: no reason line.
+        expect(w.find('[data-testid=reason]').exists()).toBe(false)
+        expect(w.find('[data-testid=eyebrow]').exists()).toBe(false)
+
+        const stats = w.get('[data-testid=stats]')
+        expect(stats.classes()).toContain('grid-cols-3')
+        expect(w.get('[data-testid=stat-correct]').text()).toBe('7 из 8')
+        expect(w.get('[data-testid=stat-new]').text()).toBe('+5')
+        expect(w.get('[data-testid=points-earned]').text()).toBe('+56')
+        expect(stats.text()).toContain('верных ответов')
+        expect(stats.text()).toContain('баллов лиги')
+        expect(w.find('[data-testid=stat-reviewed]').exists()).toBe(false)
+        expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня · 12 / 20')
+      })
+
+      it('has no column of points when the lesson brought none', () => {
+        afterLesson({ league_points: 0 })
+        const w = render(8, 1)
+
+        expect(w.get('[data-testid=stats]').classes()).toContain('grid-cols-2')
+        expect(w.find('[data-testid=points-earned]').exists()).toBe(false)
+        expect(w.get('[data-testid=stats]').text()).not.toContain('баллов')
+      })
+
+      it('offers step 2 as the one main button, the game as a row under it, and the way home as text', () => {
+        planBefore()
+        afterLesson()
+        const w = render(8, 1)
+
+        const card = w.get('[data-testid=training-card]')
+        expect(card.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+        expect(card.text()).toContain('Шаг 2 из 3 · советуем сейчас')
+        expect(card.text()).toContain('Закрепите слова в тренировке')
+        expect(card.text()).toContain('5 новых слов')
+        expect(w.get('[data-testid=lesson-review-btn]').text()).toBe('Начать тренировку')
+        expect(w.findAll('.btn-primary')).toHaveLength(1)
+        expect(w.get('[data-testid=lesson-review-btn]').classes()).toContain('btn-primary')
+
+        const game = w.get('[data-testid=game-line]')
+        expect(game.text()).toContain('Или сыграйте: пары на время')
+        expect(game.text()).toContain('Слова урока')
+        expect(game.attributes('href')).toBe(gameHref)
+
+        const home = w.get('[data-testid=home-btn]')
+        expect(home.text()).toBe('К экрану «Сегодня»')
+        expect(home.classes()).toContain('btn-plain')
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+        expect(order(w, ['training-card', 'game-line', 'home-btn', 'close-btn'])).toEqual(['training-card', 'game-line', 'home-btn', 'close-btn'])
+      })
+
+      it('"Start the training" opens the review of this lesson from the finish and goes into it', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 77 } as never)
+        afterLesson()
+        const w = render(8, 1)
+
+        await w.get('[data-testid=lesson-review-btn]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson_review', lesson_id: 41, source: 'finish' })
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('77')
+      })
+
+      it.each([
+        ['no_new_words', 'Новых слов этого урока сегодня не было — закреплять пока нечего.'],
+        ['no_objective_exercise', 'Для слов этого урока пока нет подходящих заданий.'],
+        ['disabled', 'Тренировка по словам урока сейчас недоступна.'],
+        ['something_new', 'Тренировка по словам урока сейчас недоступна.'],
+      ])('a refusal (%s) quietly takes the card away with a neutral line, and the ordinary buttons come back', async (reason, text) => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('conflict', 409, 'lesson_review_unavailable', 'English', undefined, { reason }))
+        afterLesson()
+        const w = render(8, 1)
+        const before = router.currentRoute.value.fullPath
+
+        await w.get('[data-testid=lesson-review-btn]').trigger('click')
+        await flushPromises()
+
+        // not a red error: a quiet line where the card was
+        expect(w.find('[data-testid=open-error]').exists()).toBe(false)
+        const notice = w.get('[data-testid=training-unavailable]')
+        expect(notice.text()).toBe(text)
+        expect(notice.classes()).toContain('text-muted')
+        expect(w.find('[data-testid=training-card]').exists()).toBe(false)
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(false)
+        const home = w.get('[data-testid=home-btn]')
+        expect(home.text()).toBe('Готово')
+        expect(home.classes()).toContain('btn-primary')
+        expect(w.findAll('.btn-primary')).toHaveLength(1)
+        // The game is still there.
+        expect(w.get('[data-testid=game-line]').attributes('href')).toBe(gameHref)
+        expect(router.currentRoute.value.fullPath).toBe(before)
+      })
+
+      it('any other failure of "Start the training" is still told above the buttons', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'network', 'offline'))
+        afterLesson()
+        const w = render(8, 1)
+
+        await w.get('[data-testid=lesson-review-btn]').trigger('click')
+        await flushPromises()
+
+        expect(w.get('[data-testid=open-error]').text()).not.toBe('')
+        expect(w.find('[data-testid=training-unavailable]').exists()).toBe(false)
+      })
+
+      it('reads the plan again after the finish: no card of the training when the plan has none for this lesson', async () => {
+        vi.mocked(api.today.get).mockResolvedValue(planAfter(null))
+        afterLesson()
+        const w = render(8, 1)
+        // until the plan answers, the summary is trusted
+        expect(w.find('[data-testid=training-card]').exists()).toBe(true)
+        await flushPromises()
+
+        expect(api.today.get).toHaveBeenCalledTimes(1)
+        expect(w.find('[data-testid=training-card]').exists()).toBe(false)
+        expect(w.find('[data-testid=training-unavailable]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+        expect(w.get('[data-testid=game-line]').attributes('href')).toBe(gameHref)
+      })
+
+      it('keeps the card when the plan has the review of this lesson, and counts its steps: "step 2 of 3"', async () => {
+        vi.mocked(api.today.get).mockResolvedValue(planAfter({ lesson_id: 41, course: 'english-a1', title: 'Напитки', words: 5, done: false, open_session_id: null }))
+        afterLesson()
+        const w = render(8, 1)
+        await flushPromises()
+
+        expect(w.get('[data-testid=training-step]').text()).toBe('Шаг 2 из 3 · советуем сейчас')
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(true)
+      })
+
+      it('says only "recommended now" without a plan at hand', () => {
+        afterLesson()
+        const w = render(8, 1)
+
+        expect(w.get('[data-testid=training-step]').text()).toBe('Советуем сейчас')
+      })
+
+      it('the row of the game opens the hub of the lesson with the game started at once', async () => {
+        afterLesson()
+        const w = render(8, 1)
+
+        await w.get('[data-testid=game-line]').trigger('click')
+        await flushPromises()
+
+        const route = router.currentRoute.value
+        expect(route.name).toBe('practice-hub')
+        expect(route.params.slug).toBe('english-a1')
+        expect(route.query).toEqual({ lesson: '41', play: 'pairs_timed', from: 'finished' })
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('conflict', 409, 'lesson_review_unavailable', 'English', undefined, { reason: 'no_new_words' }))
+        afterLesson()
+        const w = render(8, 1)
+
+        expect(w.get('[data-testid=plan-header] h1').text()).toBe('Dars tugadi!')
+        expect(w.get('[data-testid=plan-subtitle]').text()).toBe("Напитки · 5 ta yangi so'z")
+        expect(w.get('[data-testid=stat-correct]').text()).toBe('8 tadan 7 ta')
+        expect(w.get('[data-testid=lesson-review-btn]').text()).toBe('Mashqni boshlash')
+        expect(w.get('[data-testid=game-line]').text()).toContain("Yoki o'ynang: vaqtga juftlar")
+        expect(w.get('[data-testid=home-btn]').text()).toBe('«Bugun» ekraniga')
+
+        await w.get('[data-testid=lesson-review-btn]').trigger('click')
+        await flushPromises()
+        expect(w.get('[data-testid=training-unavailable]').text()).toBe("Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q.")
+      })
+    })
+
+    describe('a lesson without new words today', () => {
+      it('has no step 2: "Done" is the main button, and the game is still offered', () => {
+        afterLesson({ new_words: 0 })
+        const w = render(8, 1)
+
+        expect(w.get('[data-testid=plan-header] h1').text()).toBe('Урок пройден!')
+        expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Напитки')
+        expect(w.get('[data-testid=stat-new]').text()).toBe('0')
+        expect(w.find('[data-testid=training-card]').exists()).toBe(false)
+        expect(w.get('[data-testid=game-line]').attributes('href')).toBe(gameHref)
+        expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+        expect(w.findAll('.btn-primary')).toHaveLength(1)
+      })
+
+      it('offers no game where the server gives no entry to the practice, and still opens the training by the lesson this run opened', () => {
+        const training = useTrainingStore()
+        afterLesson({ practice_entry: null })
+        training.sessionId = 5
+        training.opened = { sessionId: 5, request: { mode: 'lesson', lesson_id: 41, source: 'picker' } }
+        const w = render(8, 1)
+
+        expect(w.find('[data-testid=game-line]').exists()).toBe(false)
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(true)
+      })
+    })
+
+    describe('the finish of the review of a lesson', () => {
+      it('says "Words reinforced" with its own numbers: no points, no new words, no goal and no next review', () => {
+        afterReview()
+        const w = render(9, 1, 'lesson_review_complete')
+
+        expect(w.get('[data-testid=plan-header] h1').text()).toBe('Слова закреплены')
+        // the mode by its one name, as in the header of the training screen
+        expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Тренировка · Напитки')
+        expect(w.get('[data-testid=stats]').classes()).toContain('grid-cols-2')
+        expect(w.get('[data-testid=stat-won]').text()).toBe('5 из 6')
+        expect(w.get('[data-testid=stat-first-try]').text()).toBe('4')
+        expect(w.get('[data-testid=stats]').text()).toContain('слов закреплено')
+        expect(w.find('[data-testid=points-earned]').exists()).toBe(false)
+        expect(w.find('[data-testid=stat-new]').exists()).toBe(false)
+        expect(w.find('[data-testid=goal]').exists()).toBe(false)
+        expect(w.find('[data-testid=next]').exists()).toBe(false)
+        expect(w.get('[data-testid=lesson-review-note]').text()).toBe('Это тренировка: расписание повторений, цель дня и баллы лиги не меняются.')
+        expect(w.find('[data-testid=stat-correct]').exists()).toBe(false)
+      })
+
+      it('offers step 3, "Play", as the one main button and no second training', () => {
+        planBefore()
+        afterReview()
+        const w = render(9, 1, 'lesson_review_complete')
+
+        const card = w.get('[data-testid=game-card]')
+        expect(card.text()).toContain('Шаг 3 из 3 · советуем сейчас')
+        expect(card.text()).toContain('Пары на время')
+        const play = w.get('[data-testid=game-play-btn]')
+        expect(play.text()).toBe('Играть')
+        expect(play.attributes('href')).toBe(gameHref)
+        expect(w.findAll('.btn-primary')).toHaveLength(1)
+        expect(play.classes()).toContain('btn-primary')
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(false)
+        expect(w.find('[data-testid=game-line]').exists()).toBe(false)
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+        expect(w.find('[data-testid=next-round-btn]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-plain')
+      })
+
+      it('is known by the summary alone (a mode the store did not keep)', () => {
+        afterReview()
+        useTrainingStore().mode = null
+        const w = render(9, 1)
+
+        expect(w.get('h1').text()).toBe('Слова закреплены')
+        expect(w.find('[data-testid=game-card]').exists()).toBe(true)
+      })
+
+      it('without an entry to the practice it ends with "Done"', () => {
+        afterReview({ practice_entry: null })
+        const w = render(9, 1, 'lesson_review_complete')
+
+        expect(w.find('[data-testid=game-card]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+      })
+
+      it('speaks Uzbek', () => {
+        setLocale('uz')
+        planBefore()
+        afterReview()
+        const w = render(9, 1, 'lesson_review_complete')
+
+        expect(w.get('h1').text()).toBe("So'zlar mustahkamlandi")
+        expect(w.get('[data-testid=stat-won]').text()).toBe('6 tadan 5 ta')
+        expect(w.get('[data-testid=game-play-btn]').text()).toBe("O'ynash")
+        expect(w.get('[data-testid=game-card]').text()).toContain('3-qadam (3 tadan)')
+      })
+    })
+
+    describe('every other session keeps its own finish', () => {
+      it('a daily review: no green mark, no "What next", "Done" and "One more round" as they were', () => {
+        const training = useTrainingStore()
+        training.mode = 'daily_review'
+        training.canContinue = true
+        training.summary = summary({ practice_entry: { course: 'english-a1', lesson_id: null } })
+        const w = render(10, 1, 'sprint_complete')
+
+        expect(w.find('[data-testid=plan-header]').exists()).toBe(false)
+        expect(w.find('[data-testid=what-next]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
+        expect(w.get('[data-testid=next-round-btn]').text()).toBe('Ещё раунд')
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(true)
+        expect(w.get('[data-testid=stat-reviewed]').text()).toBe('5')
+      })
+
+      it('an empty lesson: "That is all for today", no step and no game', () => {
+        afterLesson({ reviewed: 0, correct: 0, new_words: 0 })
+        const w = render(0, 0, 'nothing_due')
+
+        expect(w.get('h1').text()).toBe('На сегодня всё')
+        expect(w.find('[data-testid=plan-header]').exists()).toBe(false)
+        expect(w.find('[data-testid=what-next]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+      })
+
+      it('the round of hard words: its own title, no step', () => {
+        const training = useTrainingStore()
+        training.mode = 'hard_review'
+        training.summary = summary({ practice_entry: entry, hard_round: { total: 5, won: 4 } })
+        const w = render(5, 1, 'hard_round_complete')
+
+        expect(w.get('[data-testid=hard-round-title]').text()).toBe('Вы победили 4 из 5 трудных слов')
+        expect(w.find('[data-testid=what-next]').exists()).toBe(false)
+      })
+    })
+  })
+
   describe('numbers of the session', () => {
     it('shows the cards, the share of right answers and the new words as three numbers in one card when the server sent a summary', () => {
       useTrainingStore().summary = summary({ reviewed: 20, correct: 17, new_words: 6 })
@@ -668,14 +1045,27 @@ describe('FinishedView', () => {
       useTrainingStore().summary = summary()
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня: 12 из 20')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня · 12 / 20')
+      expect(w.get('[data-testid=goal-left]').text()).toBe('ещё 8')
       expect(w.get('[data-testid=streak]').text()).toContain('3 дня')
       expect(w.get('[data-testid=streak-at-risk]').text()).toBe('Выполните цель до полуночи, чтобы не потерять серию')
       expect(w.get('[data-testid=streak-at-risk]').classes()).toContain('text-warning-ink')
 
+      // One segment per word of the goal (docs/design 2026-11-25 Finish): 12 done of 20.
+      const segments = w.findAll('[data-testid=goal-segments] > span')
+      expect(segments).toHaveLength(20)
+      expect(segments.filter((segment) => segment.classes().includes('bg-success'))).toHaveLength(12)
+      expect(segments.filter((segment) => segment.classes().includes('bg-track'))).toHaveLength(8)
+      expect(w.find('[data-testid=goal] [role=progressbar]').exists()).toBe(false)
+    })
+
+    it('draws a long goal as one line instead of segments', () => {
+      useTrainingStore().summary = summary({ goal: { target: 40, done: 10, met: false } })
+      const w = render(5, 1)
+
+      expect(w.find('[data-testid=goal-segments]').exists()).toBe(false)
       const bar = w.get('[data-testid=goal] [role=progressbar]')
-      expect(bar.attributes('aria-valuenow')).toBe('60')
-      expect(bar.get('.progress-fill').attributes('style')).toContain('width: 60%')
+      expect(bar.attributes('aria-valuenow')).toBe('25')
       expect(bar.get('.progress-fill').classes()).not.toContain('progress-success')
     })
 
@@ -691,10 +1081,11 @@ describe('FinishedView', () => {
       expect(w.get('[data-testid=streak]').text()).toContain('1 день')
       expect(w.find('[data-testid=streak-at-risk]').exists()).toBe(false)
 
-      // A met goal is a full green bar, also when the learner did more than the target.
-      const bar = w.get('[data-testid=goal] [role=progressbar]')
-      expect(bar.attributes('aria-valuenow')).toBe('100')
-      expect(bar.get('.progress-fill').classes()).toContain('progress-success')
+      // A met goal is all green, also when the learner did more than the target; nothing is "left".
+      const segments = w.findAll('[data-testid=goal-segments] > span')
+      expect(segments).toHaveLength(20)
+      expect(segments.every((segment) => segment.classes().includes('bg-success'))).toBe(true)
+      expect(w.find('[data-testid=goal-left]').exists()).toBe(false)
     })
 
     it('says "the streak is held by a run" only when the day was held by a run of Karvon (docs/05 §5b.4)', () => {
@@ -729,7 +1120,8 @@ describe('FinishedView', () => {
       useTrainingStore().summary = summary()
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad · 12 / 20')
+      expect(w.get('[data-testid=goal-left]').text()).toBe('yana 8 ta')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
       expect(w.get('[data-testid=home-btn]').text()).toBe('Tayyor')
     })
@@ -762,7 +1154,7 @@ describe('FinishedView', () => {
       month: { starts_on: '2026-11-01', ends_on: '2026-11-30', days_left: 14 },
       me,
     })
-    const placed = { rank: 12, points: 340, active_days: 5, participant: true, eligible: false, missing: { active_days: 2, account_days: 0 } }
+    const placed = { rank: 12, points: 340, active_days: 5, participant: true, eligible: false, missing: { active_days: 2, account_days: 0 }, not_counted_reason: null }
 
     function renderWith(summaryValue: SessionSummary | null) {
       useTrainingStore().summary = summaryValue

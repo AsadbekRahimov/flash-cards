@@ -9,9 +9,9 @@ return [
     ],
 
     'help' => [
-        'private' => "LexiFlow bilan inglizcha so'zlarni Telegramda o'rganing. Kartochkalardan talaffuzni eshitasiz, bot esa takrorlashni eslatadi.\n\n".
+        'private' => "Muhrla bilan inglizcha so'zlarni Telegramda o'rganing. Kartochkalardan talaffuzni eshitasiz, bot esa takrorlashni eslatadi.\n\n".
             "Qanday shug'ullanish kerak:\n".
-            "• Bugungi mashg'ulot uchun xabar yozish joyining yonidagi «LexiFlow» tugmasini bosing yoki /today yuboring.\n".
+            "• Bugungi mashg'ulot uchun xabar yozish joyining yonidagi «Muhrla» tugmasini bosing yoki /today yuboring.\n".
             "• /settings — maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
             "• /language — tilni o'zgartirish\n".
             "• Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite\n".
@@ -19,7 +19,7 @@ return [
             "• /paysupport — to'lov bo'yicha savollar\n".
             "• /delete_account — akkauntni o'chirish",
         // Instead of `private` for a linked teacher (their DM has no learner commands). `:caravan` as in `group`.
-        'private_teacher' => "LexiFlow — o'qituvchi buyruqlari.\n\n".
+        'private_teacher' => "Muhrla — o'qituvchi buyruqlari.\n\n".
             "• Botni guruhga qo'shing va administrator qiling. Buyruqlar guruh faollashtirilgandan keyin ishlaydi: hali faol bo'lmasa, qo'llab-quvvatlash xizmatiga yozing.\n".
             "• Guruhda: /start_training — guruh mashg'uloti, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
             ':caravan'.
@@ -28,7 +28,7 @@ return [
             '• /unlink — Telegram akkauntingizni kabinetdan uzish',
         // The last line of `private` for everybody who is not a linked teacher; left out without a support contact.
         'teacher_hint' => "Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact",
-        'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
+        'group' => "Muhrla guruh buyruqlari\n\nO'qituvchilar uchun:\n".
             "/start_training — guruh mashg'ulotini boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yakunlash\n".
@@ -54,11 +54,11 @@ return [
     'group' => [
         'untitled' => 'Nomsiz guruh',
         // HTML. Sent once when the bot is added to a group that waits for activation (`:title` is escaped by the caller).
-        'welcome' => "👋 LexiFlow «:title» guruhiga qo'shildi.\n\nKeyingi qadamlar:\n1. Botni guruh administratori qiling.\n2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi.\n3. Aks holda guruh LexiFlow administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi.",
+        'welcome' => "👋 Muhrla «:title» guruhiga qo'shildi.\n\nKeyingi qadamlar:\n1. Botni guruh administratori qiling.\n2. O'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash» — obunasi bor markazda guruh darhol ishlay boshlaydi.\n3. Aks holda guruh Muhrla administratori tomonidan faollashtirilishini kutadi — shundan keyin o'qituvchi buyruqlari ishlaydi.",
         // HTML. The answer to a teacher command in a group that is not active yet.
         'pending_command' => 'Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.',
         'pending_help' => "Guruh hali faollashtirilmagan, shuning uchun buyruqlar hozircha ishlamaydi.\n\nO'quv markazining guruhimi? Uni markaz kabinetidan bog'lang: Guruhlar → «Guruhni bog'lash».",
-        'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. ".
+        'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, Muhrla to'liq ishlamaydi. ".
             "Guruh → Boshqarish → Administratorlar → Administrator qo'shish.",
     ],
 
@@ -73,7 +73,7 @@ return [
     'link' => [
         // The question before anything is connected (W2): the account is named by its masked e-mail, the cabinet by its centers.
         'account_prompt' => "Telegram akkauntingizni quyidagi markaz kabinetiga ulaysizmi?\n:centers\n\nAkkaunt: :name (:email).\n\nUlangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin.",
-        'account_prompt_no_center' => 'LexiFlow',
+        'account_prompt_no_center' => 'Muhrla',
         'account_yes' => 'Ha, ulash',
         'account_no' => "Yo'q",
         'account_declined' => "Mayli, hech narsa ulanmadi. Fikringiz o'zgarsa — kabinetdagi havolani qayta oching.",
@@ -82,7 +82,7 @@ return [
         'account_refused' => 'Ulash havolasi yaroqsiz yoki eskirgan. Markaz kabinetini oching → Profil → «Telegramni ulash» va yangi havola oling.',
         'group_linked' => "✅ «:title» guruhi «:organization» markaziga bog'landi.",
         'group_next_active' => "Guruh faol: o'qituvchi buyruqlari ishlaydi. Endi kabinetda guruh kursini tanlang: Guruhlar → «Guruh kursi».",
-        'group_next_pending' => "Guruh LexiFlow administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi».",
+        'group_next_pending' => "Guruh Muhrla administratori tomonidan faollashtirilishini kutmoqda — shundan keyin o'qituvchi buyruqlari ishlaydi. Guruh kursini hoziroq tanlash mumkin: kabinet → Guruhlar → «Guruh kursi».",
         'group_refused' => "Guruhni bog'lab bo'lmadi. Markaz kabinetini oching → Guruhlar → «Guruhni bog'lash»: u yerda sababi ko'rinadi va yangi havola olish mumkin.",
         // `/unlink`: the owner of the Telegram account disconnects it from the cabinet themselves.
         'unlink_confirm' => "Bu Telegramni kabinetdan uzasizmi (akkaunt: :name)? Bot Sizni o'qituvchi sifatida tanimay qo'yadi va yana o'quvchi sifatida javob beradi.",
@@ -103,7 +103,7 @@ return [
 
     'delete_account' => [
         'settings_button' => "Akkauntni o'chirish",
-        'confirm' => "LexiFlow akkauntini o'chirasizmi?\n\nMa'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi.",
+        'confirm' => "Muhrla akkauntini o'chirasizmi?\n\nMa'lumotlaringiz :days kundan keyin butunlay o'chiriladi. Bu muddat tugamaguncha qaytishingiz mumkin — botga /start yuborishning o'zi kifoya. To'lov yozuvlari qonunga ko'ra saqlanadi, Pro obuna to'xtatiladi.",
         'yes_button' => "Ha, o'chirish",
         'no_button' => 'Bekor qilish',
         'canceled' => "Mayli, akkaunt o'chirilmadi.",
@@ -118,8 +118,8 @@ return [
         'use_private' => "Promokodni guruhda ko'rsatmagan ma'qul. Bot bilan shaxsiy chatni oching va /promo KOD yuboring.",
         'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport.",
         'rate_limited' => "Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring.",
-        'success_until' => 'Tayyor! LexiFlow Pro :date gacha faol.',
-        'success_forever' => 'Tayyor! LexiFlow Pro muddatsiz faol.',
+        'success_until' => 'Tayyor! Muhrla Pro :date gacha faol.',
+        'success_forever' => 'Tayyor! Muhrla Pro muddatsiz faol.',
         'errors' => [
             'promo_not_found' => 'Promokod topilmadi. Xato yozilmaganini tekshiring.',
             'promo_expired' => 'Promokodning amal qilish muddati tugagan.',

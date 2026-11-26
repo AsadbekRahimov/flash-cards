@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 5,
+    "title": "Город и дорога",
+    "title_uz": "Shahar va yo'l"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Как пройти",
+    "title_uz": "Yo'l so'rash"
+  },
+  "words": [
+    {
+      "word": "Is it far from here?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это далеко отсюда?",
+        "uz": "bu yerdan uzoqmi?"
+      },
+      "example": "I'm looking for the history museum. Is it far from here? — No, it's quite close.",
+      "example_translations": {
+        "ru": "Я ищу исторический музей. Это далеко отсюда? — Нет, довольно близко.",
+        "uz": "Tarix muzeyini qidiryapman. Bu yerdan uzoqmi? — Yo'q, ancha yaqin."
+      },
+      "hooks": {
+        "ru": "Уточняют расстояние, прежде чем идти пешком",
+        "uz": "Piyoda borishdan oldin masofani aniqlashtirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "far",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Go straight ahead",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "идите прямо",
+        "uz": "to'g'riga yuring"
+      },
+      "example": "Go straight ahead and turn right at the bank.",
+      "example_translations": {
+        "ru": "Идите прямо и у банка поверните направо.",
+        "uz": "To'g'riga yuring va bank oldida o'ngga buriling."
+      },
+      "hooks": {
+        "ru": "Объясняют дорогу: никуда не сворачивать",
+        "uz": "Yo'l tushuntirilganda: hech qayoqqa burilmasdan yurish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "straight",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You can't miss it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы его сразу увидите",
+        "uz": "uni darrov ko'rasiz"
+      },
+      "example": "The hotel is the big blue building on the corner. You can't miss it.",
+      "example_translations": {
+        "ru": "Отель — большое синее здание на углу. Вы его сразу увидите.",
+        "uz": "Mehmonxona — burchakdagi katta ko'k bino. Uni darrov ko'rasiz."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто спрашивает дорогу: место очень заметное",
+        "uz": "Yo'l so'ragan odamni tinchlantirish: joy juda ko'zga tashlanadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "miss",
+        "literal": {
+          "ru": "вы не можете это пропустить",
+          "uz": "uni o'tkazib yubora olmaysiz"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Turn left",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поверните налево",
+        "uz": "chapga buriling"
+      },
+      "example": "Turn left at the traffic lights. The pharmacy is next to the bank.",
+      "example_translations": {
+        "ru": "На светофоре поверните налево. Аптека рядом с банком.",
+        "uz": "Svetoforda chapga buriling. Dorixona bankning yonida."
+      },
+      "hooks": {
+        "ru": "Основное указание, когда объясняют дорогу; направо — «turn right»",
+        "uz": "Yo'l tushuntirishdagi asosiy ko'rsatma; o'ngga — «turn right»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "left",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How do I get to the station?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как пройти к вокзалу?",
+        "uz": "vokzalga qanday borsam bo'ladi?"
+      },
+      "example": "Excuse me, how do I get to the station? — Take the second street on the left.",
+      "example_translations": {
+        "ru": "Извините, как пройти к вокзалу? — Вторая улица налево.",
+        "uz": "Kechirasiz, vokzalga qanday borsam bo'ladi? — Chapdagi ikkinchi ko'chaga kiring."
+      },
+      "hooks": {
+        "ru": "Главный вопрос, когда спрашивают дорогу; вместо вокзала — любое место",
+        "uz": "Yo'l so'raganda asosiy savol; vokzal o'rniga istalgan joy"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "get",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "just around the corner",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "совсем рядом, за углом",
+        "uz": "shundoq burilishda"
+      },
+      "example": "Is there a bank near here? — Yes, it's just around the corner.",
+      "example_translations": {
+        "ru": "Здесь поблизости есть банк? — Да, совсем рядом, за углом.",
+        "uz": "Bu yaqin-atrofda bank bormi? — Ha, shundoq burilishda."
+      },
+      "hooks": {
+        "ru": "Говорят о месте совсем рядом; также о событии, которое скоро наступит",
+        "uz": "Juda yaqin joy haqida; tez orada bo'ladigan voqea haqida ham"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "corner",
+        "literal": {
+          "ru": "прямо за углом",
+          "uz": "shundoq burchak ortida"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you show me on the map?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "покажете на карте?",
+        "uz": "xaritada ko'rsatib bera olasizmi?"
+      },
+      "example": "I don't know this area. Could you show me on the map? — Sure, we're here.",
+      "example_translations": {
+        "ru": "Я не знаю этот район. Покажете на карте? — Конечно, мы вот здесь.",
+        "uz": "Bu hududni bilmayman. Xaritada ko'rsatib bera olasizmi? — Albatta, biz mana shu yerdamiz."
+      },
+      "hooks": {
+        "ru": "Просят показать дорогу на бумажной карте или в телефоне",
+        "uz": "Qog'oz xaritada yoki telefonda yo'lni ko'rsatishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "map",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on your right",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "справа от вас",
+        "uz": "o'ng tomoningizda"
+      },
+      "example": "Walk past the park, and the school will be on your right.",
+      "example_translations": {
+        "ru": "Пройдите мимо парка, и школа будет справа от вас.",
+        "uz": "Bog'ning yonidan o'ting, maktab o'ng tomoningizda bo'ladi."
+      },
+      "hooks": {
+        "ru": "Указывают, с какой стороны будет нужное место; слева — «on your left»",
+        "uz": "Kerakli joy qaysi tomonda bo'lishini ko'rsatish; chapda — «on your left»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "right",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a five-minute walk",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пять минут пешком",
+        "uz": "piyoda besh daqiqa"
+      },
+      "example": "The beach is only a five-minute walk from our hotel.",
+      "example_translations": {
+        "ru": "Пляж всего в пяти минутах ходьбы от нашего отеля.",
+        "uz": "Plyaj mehmonxonamizdan piyoda atigi besh daqiqalik masofada."
+      },
+      "hooks": {
+        "ru": "Говорят, сколько идти пешком; число минут можно менять",
+        "uz": "Piyoda qancha yurish kerakligini aytish; daqiqalar sonini o'zgartirish mumkin"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "walk",
+        "literal": {
+          "ru": "пятиминутная прогулка",
+          "uz": "besh daqiqalik sayr"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You're going the wrong way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы идёте не в ту сторону",
+        "uz": "noto'g'ri tomonga ketyapsiz"
+      },
+      "example": "Is this the way to the zoo? — No, you're going the wrong way. Turn around.",
+      "example_translations": {
+        "ru": "Это дорога к зоопарку? — Нет, вы идёте не в ту сторону. Развернитесь.",
+        "uz": "Hayvonot bog'iga shu yo'ldan boriladimi? — Yo'q, noto'g'ri tomonga ketyapsiz. Orqaga qayting."
+      },
+      "hooks": {
+        "ru": "Предупреждают прохожего или водителя, что он ошибся направлением",
+        "uz": "O'tkinchi yoki haydovchini yo'nalishni adashtirgani haqida ogohlantirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wrong",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    }
+  ]
+}

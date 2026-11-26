@@ -68,6 +68,16 @@ enum ExerciseType: string
         };
     }
 
+    /**
+     * The reply to `POST /review` brings back the card as it was sent without its answer (`revealed`, docs/04 A.3): meaning /
+     * reverse / audio ({@see hidesChoiceAnswer()}); for a phrase also gap_fill and pretest - their card hides the literal
+     * translation of the phrase, which comes back in `revealed.phrase` (docs/06 §16). A word on gap_fill / pretest: no `revealed`.
+     */
+    public function revealsAfterAnswer(bool $phrase): bool
+    {
+        return $this->hidesChoiceAnswer() || ($phrase && ($this === self::GapFill || $this === self::Pretest));
+    }
+
     /** Four options, one right: the pick is the answer (meaning, reverse, audio, pretest). */
     public function isChoice(): bool
     {

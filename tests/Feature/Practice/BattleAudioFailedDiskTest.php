@@ -89,3 +89,21 @@ it('does not ask the disk again for a repeated report', function (): void {
 
     expect($calls)->toBe(1);
 });
+
+it('does not ask the disk for an ordinary match of a learner refused the practice: the same 403 as before', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $id = BattleHttp::room($me, $friend, $friendship, PracticeMode::Dictation, $course, $lesson);
+    $element = BattleKit::element(BattleKit::fresh($id), 2);
+    $calls = 0;
+    battleDiskProbe(function () use (&$calls): bool {
+        $calls++;
+
+        return false;
+    });
+    config(['practice.plan' => 'pro']);
+
+    BattleHttp::audioFailed($me, $id, $element['id'])->assertForbidden()->assertJsonPath('error.code', 'practice_pro_required');
+
+    expect($calls)->toBe(0)
+        ->and(BattleKit::fresh($id)->status->value)->toBe('room');
+});

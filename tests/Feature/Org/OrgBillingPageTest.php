@@ -224,7 +224,7 @@ it('shows the excess over the limit after a downgrade, and the history of the ce
 // --- invoice --------------------------------------------------------------------------------------
 
 it('renders the printable invoice with the seller details, the number, the date and the amount in sums', function (): void {
-    config()->set('site.legal', ['name' => 'LexiFlow LLC', 'inn' => '305123456', 'address' => 'Tashkent, Amir Temur 1', 'bank' => 'Test Bank', 'bank_account' => '20208000900100200300', 'mfo' => '00014', 'phone' => '', 'email' => 'billing@lexiflow.test']);
+    config()->set('site.legal', ['name' => 'Muhrla LLC', 'inn' => '305123456', 'address' => 'Tashkent, Amir Temur 1', 'bank' => 'Test Bank', 'bank_account' => '20208000900100200300', 'mfo' => '00014', 'phone' => '', 'email' => 'billing@lexiflow.test']);
     $order = PaymentOrder::factory()->forOrganization($this->org, 'center_s')->create(['amount' => 34_900_000, 'list_amount' => 34_900_000]);
     pbAs($this->owner);
 
@@ -233,7 +233,7 @@ it('renders the printable invoice with the seller details, the number, the date 
         // The invoice date is in the organization's timezone (late UTC evening is already tomorrow in Tashkent).
         ->assertSee($order->created_at?->copy()->setTimezone($this->org->timezone)->format('d.m.Y') ?? '')
         ->assertSee('349 000 сум')
-        ->assertSee('LexiFlow LLC')
+        ->assertSee('Muhrla LLC')
         ->assertSee('305123456')
         ->assertSee('20208000900100200300')
         ->assertSee('Bright Center')

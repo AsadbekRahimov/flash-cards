@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Tasks;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Game\DTO\RunPoolWord;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\DTO\TaskGrade;
@@ -27,6 +28,7 @@ use InvalidArgumentException;
  *   listen          the recording -> 4 words            {word_id, audio_disk, audio_path, options: [{id, text}], correct_option_id, word, translation[, event]}
  *   spell           the translation -> type the word    {word_id, prompt: {ru, uz}, expected: "apple", answer_length, word}
  *   gap             the example with a blank -> type    {word_id, masked: "I ____ tea.", expected: [forms], correct_text, full_text, translation, word}
+ *                   (a phrase, docs/35 §3.3 e: the phrase itself with its key word blank - "Easy come, easy ____" - and that word alone expected)
  *
  * The elements are BUILT here by pure functions of the pool and the seed (`RunComposer` calls them), and graded here: an option by
  * its opaque id; `spell` by `SpellingGrader` (5 = correct, 4 = typo, else wrong); `gap` by the normalized text against the forms of
@@ -107,7 +109,7 @@ final class WordTaskHandler implements TaskHandler
             $data['event'] = $event->value;
         }
 
-        return new SnapshotElement($id, $kind->value, $data);
+        return new SnapshotElement($id, $kind->value, self::withWordFacts($data, $word));
     }
 
     /** @param list<string> $taken */
@@ -117,13 +119,13 @@ final class WordTaskHandler implements TaskHandler
         $taken[] = $id;
         $expected = self::text($word);
 
-        return new SnapshotElement($id, TaskKind::Spell->value, [
+        return new SnapshotElement($id, TaskKind::Spell->value, self::withWordFacts([
             'word_id' => $word->id(),
             'word' => $expected,
             'prompt' => self::translations($word, $locales),
             'expected' => $expected,
             'answer_length' => mb_strlen($expected),
-        ]);
+        ], $word));
     }
 
     /** @param list<string> $taken */
@@ -134,13 +136,14 @@ final class WordTaskHandler implements TaskHandler
         $taken[] = $id;
 
         $forms = [$gap->expected];
-        foreach ((new GapFillBuilder)->forms(self::text($word)) as $form) {
+        // A phrase expects its key word as it stands, no inflections: the forms are those of a single word in its example.
+        foreach ($word->word->phrase ? [] : (new GapFillBuilder)->forms(self::text($word)) as $form) {
             if (! in_array($form, $forms, true)) {
                 $forms[] = $form;
             }
         }
 
-        return new SnapshotElement($id, TaskKind::Gap->value, [
+        return new SnapshotElement($id, TaskKind::Gap->value, self::withWordFacts([
             'word_id' => $word->id(),
             'word' => self::text($word),
             'masked' => $gap->masked,
@@ -148,7 +151,30 @@ final class WordTaskHandler implements TaskHandler
             'correct_text' => $gap->expected,
             'full_text' => str_replace(GapFillBuilder::MASK, $gap->expected, $gap->masked),
             'translation' => self::translations($word, $locales),
-        ]);
+        ], $word));
+    }
+
+    /**
+     * The lexeme of the word rides in the snapshot (docs/32 §3.6): the answer credits the word points without a read. Only when the word
+     * has one - a run of words outside the catalog (and every run started before the word points) has none and earns nothing. Never
+     * projected to the client.
+     *
+     * `phrase: true` - the task is made of a phrase (docs/35 §3.3 e): projected as it is, so the screen lays a phrase out without guessing
+     * by the length of the text. Only on a phrase: a word, and every task of a run started before the mark, has no key (= a word).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private static function withWordFacts(array $data, RunPoolWord $word): array
+    {
+        if ($word->word->lexemeId !== null) {
+            $data['lexeme_id'] = $word->word->lexemeId;
+        }
+        if ($word->word->phrase) {
+            $data['phrase'] = true;
+        }
+
+        return $data;
     }
 
     // ------------------------------------------------------------------ playing
@@ -179,6 +205,11 @@ final class WordTaskHandler implements TaskHandler
             default:
                 $projection['masked'] = (string) $element->get('masked');
                 $projection['translation'] = $this->localized($element->get('translation'), $locale);
+        }
+
+        // A phrase (docs/35 §3.3 e): the mark alone, nothing of the answer; absent on a word and on a task of an older run.
+        if ($element->get('phrase') === true) {
+            $projection['phrase'] = true;
         }
 
         $hint = $state->hintOf($element->id);
@@ -308,6 +339,10 @@ final class WordTaskHandler implements TaskHandler
 
     private function gradeGap(SnapshotElement $element, string $text): Verdict
     {
+        // A phrase answered with the whole phrase: its key word is the answer (docs/06 §16) - as in the training.
+        if ($element->get('phrase') === true) {
+            $text = Phrase::keyWordTyped((string) $element->get('masked'), GapFillBuilder::MASK, $text) ?? $text;
+        }
         $forms = [];
         foreach (is_array($element->get('expected')) ? $element->get('expected') : [] as $form) {
             if (is_string($form)) {

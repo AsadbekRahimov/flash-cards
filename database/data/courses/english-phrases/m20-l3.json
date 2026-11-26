@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 20,
+    "title": "Мудрость и пословицы",
+    "title_uz": "Hikmatlar va maqollar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Вместе",
+    "title_uz": "Birgalikda"
+  },
+  "words": [
+    {
+      "word": "Two heads are better than one",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ум хорошо, а два лучше",
+        "uz": "maslahatli ish buzilmas"
+      },
+      "example": "Can you help me with this puzzle? Two heads are better than one.",
+      "example_translations": {
+        "ru": "Поможешь мне с этой головоломкой? Ум хорошо, а два лучше.",
+        "uz": "Shu boshqotirmaga yordam berasanmi? Maslahatli ish buzilmas."
+      },
+      "hooks": {
+        "ru": "Предлагают подумать над задачей вместе",
+        "uz": "Vazifa ustida birga o'ylashni taklif qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "heads",
+        "literal": {
+          "ru": "две головы лучше одной",
+          "uz": "ikki bosh bittadan yaxshi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Many hands make light work",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дружно — не грузно",
+        "uz": "ko'pchilik bo'lsa, ish oson bitadi"
+      },
+      "example": "Let's all help clean the classroom. Many hands make light work!",
+      "example_translations": {
+        "ru": "Давайте все поможем убрать класс. Дружно — не грузно!",
+        "uz": "Keling, sinfni yig'ishtirishga hammamiz yordam beraylik. Ko'pchilik bo'lsa, ish oson bitadi!"
+      },
+      "hooks": {
+        "ru": "Зовут всех помочь: когда работают вместе, дело идёт легко и быстро",
+        "uz": "Hammani yordamga chaqirganda aytiladi: birgalikda ishlansa, ish oson va tez bitadi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "light",
+        "literal": {
+          "ru": "много рук делают работу лёгкой",
+          "uz": "ko'p qo'l ishni yengil qiladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Birds of a feather flock together",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рыбак рыбака видит издалека",
+        "uz": "o'xshash odamlar bir-birini topadi"
+      },
+      "example": "All of Tom's friends love chess too. — Well, birds of a feather flock together.",
+      "example_translations": {
+        "ru": "Все друзья Тома тоже обожают шахматы. — Ну, рыбак рыбака видит издалека.",
+        "uz": "Tomning hamma do'stlari ham shaxmatni yaxshi ko'radi. — Ha, o'xshash odamlar bir-birini topadi."
+      },
+      "hooks": {
+        "ru": "Говорят о людях с похожими вкусами или характером, которые держатся вместе; иногда с иронией",
+        "uz": "Didi yoki fe'li o'xshash, birga yuradigan odamlar haqida aytiladi; ba'zan kinoya bilan"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "feather",
+        "literal": {
+          "ru": "птицы одного пера держатся стаей",
+          "uz": "bir xil patli qushlar birga uchadi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It takes two to tango",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в ссоре виноваты оба",
+        "uz": "bir qo'ldan qarsak chiqmas"
+      },
+      "example": "It's all his fault! — Come on, it takes two to tango.",
+      "example_translations": {
+        "ru": "Это всё он виноват! — Да ладно, в ссоре виноваты оба.",
+        "uz": "Hammasiga u aybdor! — Qo'ysang-chi, bir qo'ldan qarsak chiqmas."
+      },
+      "hooks": {
+        "ru": "Говорят, что в ссоре или проблеме участвовали обе стороны",
+        "uz": "Janjal yoki muammoda ikki tomon ham ishtirok etganini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tango",
+        "literal": {
+          "ru": "для танго нужны двое",
+          "uz": "tango uchun ikki kishi kerak"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "United we stand, divided we fall",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в единстве — сила",
+        "uz": "birlashgan o'zar, birlashmagan to'zar"
+      },
+      "example": "If all the neighbours sign the letter, the city will listen. United we stand, divided we fall.",
+      "example_translations": {
+        "ru": "Если все соседи подпишут письмо, город прислушается. В единстве — сила.",
+        "uz": "Barcha qo'shnilar xatga imzo qo'ysa, shahar quloq soladi. Birlashgan o'zar, birlashmagan to'zar."
+      },
+      "hooks": {
+        "ru": "Призывают держаться вместе: вместе можно добиться того, чего не добиться поодиночке",
+        "uz": "Birga bo'lishga chaqiradi: yolg'iz erishib bo'lmaydigan narsaga birgalikda erishish mumkin"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "united",
+        "literal": {
+          "ru": "объединённые — стоим, разделённые — падаем",
+          "uz": "birlashsak turamiz, bo'linsak yiqilamiz"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "A problem shared is a problem halved",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разделённое горе — полгоря",
+        "uz": "dardingni aytsang, yengil tortasan"
+      },
+      "example": "Tell me what's wrong. A problem shared is a problem halved.",
+      "example_translations": {
+        "ru": "Расскажи, что случилось. Разделённое горе — полгоря.",
+        "uz": "Nima bo'lganini aytib ber. Dardingni aytsang, yengil tortasan."
+      },
+      "hooks": {
+        "ru": "Предлагают рассказать о своей беде: станет легче",
+        "uz": "Dardini aytib berishni taklif qilganda ishlatiladi: yengil tortasan"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "halved",
+        "literal": {
+          "ru": "разделённая проблема — половина проблемы",
+          "uz": "bo'lishilgan muammo — yarim muammo"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "One good turn deserves another",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "долг платежом красен",
+        "uz": "yaxshilikka yaxshilik"
+      },
+      "example": "You helped me move, so I'll fix your bike. One good turn deserves another.",
+      "example_translations": {
+        "ru": "Ты помог мне с переездом, а я починю твой велосипед. Долг платежом красен.",
+        "uz": "Sen menga ko'chishga yordam berding, men velosipedingni tuzataman. Yaxshilikka yaxshilik."
+      },
+      "hooks": {
+        "ru": "Говорят, когда отвечают добром на добро",
+        "uz": "Yaxshilikka yaxshilik bilan javob qaytarganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "turn",
+        "literal": {
+          "ru": "одна добрая услуга заслуживает другой",
+          "uz": "bir yaxshilik boshqasiga loyiq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You scratch my back, I'll scratch yours",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты мне — я тебе",
+        "uz": "sen menga, men senga"
+      },
+      "example": "Help me with my maths and I'll help you with English. You scratch my back, I'll scratch yours.",
+      "example_translations": {
+        "ru": "Помоги мне с математикой, а я помогу тебе с английским. Ты мне — я тебе.",
+        "uz": "Matematikadan yordam bersang, men senga ingliz tilidan yordam beraman. Sen menga, men senga."
+      },
+      "hooks": {
+        "ru": "Предлагают взаимную услугу; иногда звучит как намёк на выгодный обмен",
+        "uz": "O'zaro yordam taklif qilganda aytiladi; ba'zan foydali almashuvga ishora bo'lib eshitiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "почешешь мне спину — я почешу твою",
+          "uz": "orqamni qashisang, men ham senikini qashiyman"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "No man is an island",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "человек не может жить один",
+        "uz": "yolg'iz otning changi chiqmas"
+      },
+      "example": "Don't be afraid to ask for help. No man is an island.",
+      "example_translations": {
+        "ru": "Не бойся просить о помощи. Человек не может жить один.",
+        "uz": "Yordam so'rashdan qo'rqma. Yolg'iz otning changi chiqmas."
+      },
+      "hooks": {
+        "ru": "Напоминают, что каждому нужны другие люди и их помощь",
+        "uz": "Har kimga boshqa odamlar va ularning yordami kerakligini eslatganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "island",
+        "literal": {
+          "ru": "ни один человек не остров",
+          "uz": "hech bir odam orol emas"
+        },
+        "cefr": "C1",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "A chain is only as strong as its weakest link",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "где тонко, там и рвётся",
+        "uz": "jamoaning kuchi eng zaif a'zosiga bog'liq"
+      },
+      "example": "Everyone must learn the new system. A chain is only as strong as its weakest link.",
+      "example_translations": {
+        "ru": "Все должны освоить новую систему. Где тонко, там и рвётся.",
+        "uz": "Hamma yangi tizimni o'rganishi kerak. Jamoaning kuchi eng zaif a'zosiga bog'liq."
+      },
+      "hooks": {
+        "ru": "Говорят, что успех команды или системы зависит от её самого слабого участника",
+        "uz": "Jamoa yoki tizim muvaffaqiyati uning eng zaif qismiga bog'liqligini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "weakest",
+        "literal": {
+          "ru": "цепь прочна лишь так, как её самое слабое звено",
+          "uz": "zanjir eng zaif halqasi qadar mustahkam"
+        },
+        "cefr": "C1",
+        "frequency": 3
+      }
+    }
+  ]
+}

@@ -4,10 +4,14 @@ import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-rout
 import { storeToRefs } from 'pinia'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
-import LanguageSheet from '@/components/LanguageSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import ReadinessBlock from '@/components/ReadinessBlock.vue'
+import CupTodayRow, { type CupTodayCard } from '@/components/today/CupTodayRow.vue'
+import DayPlan from '@/components/today/DayPlan.vue'
+import LessonHero from '@/components/today/LessonHero.vue'
+import ScoreTodayCard from '@/components/today/ScoreTodayCard.vue'
+import TrialWelcomeSheet from '@/components/today/TrialWelcomeSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -17,13 +21,17 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
+import { isPhraseCourse } from '@/composables/courseLabels'
+import { dayPlanSteps, gameStepExpected, type DayPlanStepKey } from '@/composables/dayPlan'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
 import { GAMES_CARD_MODES, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { STREAK_LINE_EVERY_MS, STREAK_LINE_KEY } from '@/composables/proReminders'
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
+import { takeTrialEnded } from '@/composables/trialEnded'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
+import { takeTrialWelcome } from '@/composables/trialWelcome'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -31,17 +39,23 @@ import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useCoursesStore } from '@/stores/courses'
+import { useCupsStore } from '@/stores/cups'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
-import { LANGUAGE_TITLE, useI18n } from '@/i18n'
+import { useI18n } from '@/i18n'
 import type { OpenSessionRequest, PracticeAccessToday } from '@/api/types'
 
 /**
- * "Home" tab (docs/14 §6.1, mock-up `docs/design/2026-11-redesign/Main.html`): the date and the course over the greeting, the card
- * "Goal of the day" (N of M, a thin line, what is waiting, the one primary button), the list "For today" (assignments of the center,
- * the round of hard words, the caravans, the word games - rows with a status dot), the streak, "My course" and the league line. A
- * tab root, so no system "Back" button. Data: `GET /today` (stores `today`, `assignments`).
+ * "Home" tab (docs/14 §6.1, mock-ups `docs/design/2026-11-25-redesign/Main.html`, `MainNext.html`): the brand row, the date and the course
+ * over the greeting; then, while `/today.plan` has a step to offer (or says the day is done), the big card of that step (`LessonHero`: the
+ * lesson, the review of the lesson, the timed pairs), the card "Plan for today", the goal of the day with the streak and the tiles
+ * "Review" / "Word games". Without such a plan (no course, the course is finished, an older server) the previous card "Goal of the day"
+ * with the session button stays. Then "Today N of 100" of the word points (`score_today`, docs/32 §8.2; only with the v2 rules on).
+ * Under it all - the list "For today" (assignments of the center, the round of hard words, the caravans),
+ * "My course", the streak, the league line and the invitation. A tab root, so no system "Back" button. Data: `GET /today` (stores
+ * `today`, `assignments`).
  */
 const { t, tn, locale } = useI18n()
 const router = useRouter()
@@ -51,6 +65,8 @@ const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
 const billing = useBillingStore()
+const cups = useCupsStore()
+const catalog = useCoursesStore()
 const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
@@ -72,6 +88,9 @@ async function load(): Promise<void> {
   // `/today` said so) asks them alongside Today; otherwise `/today.assignments_possible` decides first, so a self-study learner asks
   // no `/assignments` at all (docs/04 A.2a).
   const started = assignments.loadEarly()
+  // The friends' cup (docs/33 §7.1): "my cups", best effort - a read younger than a minute is not repeated, a switched off cup is not
+  // asked again in this session.
+  void cups.load()
   ownLoad = true
   try {
     await today.load()
@@ -138,9 +157,6 @@ watch(data, (current) => {
   introOpen.value = true
 })
 
-/** "Til · Язык": the language chip of the header opens the sheet. */
-const languageOpen = ref(false)
-
 const paywallOpen = ref(false)
 /** Why the sheet was opened: the session card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
 const paywallReason = ref<PaywallReason>('info')
@@ -149,6 +165,15 @@ function openPaywall(reason: PaywallReason): void {
   paywallReason.value = reason
   paywallOpen.value = true
 }
+
+/**
+ * The welcome trial is over (docs/05 §8c-1, P7): the first `/today` of a Free learner after its end opens the sheet `trial_ended` by
+ * itself, once per end (`composables/trialEnded.ts`). Not on top of the first-run intro or of a sheet already open.
+ */
+watch(data, (current) => {
+  if (current === null || current.entitlement.plan !== 'free' || introOpen.value || paywallOpen.value) return
+  if (takeTrialEnded(current.entitlement.lapsed)) openPaywall('trial_ended')
+}, { immediate: true })
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
 const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
@@ -194,6 +219,23 @@ const trialText = computed(() => {
   const days = trialDaysLeft(trialEnd.value)
   return days <= 1 ? t('today.trial.last') : t('today.trial.line', { count: days })
 })
+
+/**
+ * The welcome of the trial (docs/36 §4б, W3): the sheet opens by itself once per end of the trial (`trial_welcome_seen:<ends_at>`). Only the
+ * learner's own trial: `/today` says Pro of a subscription and `/me` names the provider `trial` - a paid Pro and a center's Pro never see it.
+ * Not on top of the first-run intro or of a sheet already open: it waits for them to close.
+ */
+const trialWelcomeOpen = ref(false)
+watch([data, trialEnd, introOpen, paywallOpen], () => {
+  const entitlement = data.value?.entitlement
+  if (trialWelcomeOpen.value || introOpen.value || paywallOpen.value || entitlement?.plan !== 'pro' || entitlement.source !== 'subscription') return
+  if (takeTrialWelcome(trialEnd.value)) trialWelcomeOpen.value = true
+}, { immediate: true })
+
+function trialWelcomeMore(): void {
+  trialWelcomeOpen.value = false
+  void router.push({ name: 'billing' })
+}
 
 /** The invitation card "Pro for free" (docs/13 §7.1): closed with the cross for 14 days, remembered on the device. */
 const INVITE_KEY = 'lexiflow:invite-card-hidden'
@@ -289,6 +331,8 @@ const practice = computed(() => data.value?.practice ?? NO_PRACTICE)
 const gamesCandidate = computed(() => !showStart.value
   && (data.value?.active_course?.progress.learned ?? 0) >= PRACTICE_MIN_LEARNED)
 const showGames = computed(() => gamesCandidate.value && practice.value.available)
+/** The games row of the list "For today": with the plan's card the tile "Word games" under the goal is that entry. */
+const showGamesRow = computed(() => showGames.value && heroStep.value === null)
 /** The names of the modes of the games row («Пары · Сочетания · Предложение»): the row says what is inside in words. */
 const gamesModes = computed(() => GAMES_CARD_MODES.map((mode) => modeTitle(mode)).join(' · '))
 /** Practice of the main course (docs/16 §11.1): the same rule as on the course screen - behind Pro it opens the paywall. */
@@ -363,9 +407,35 @@ const classCaravan = computed(() => {
   return { to: `/game/class/${caravan.id}`, text: t('gameClass.card.text', counts), aria: t('gameClass.card.aria', counts) }
 })
 
+/**
+ * The friends' cup that runs (docs/33 §7.1), a row of the list: "Cup «Group» · Day 3 of 7" and the state of today's round as the server
+ * has it (`GET /cups` → `me.today.state`, one light request, `stores/cups`): not started - "play the round of the day" with "Play"; on -
+ * "continue the round"; played - "round played", no call, and the row goes to the end of the list (`late`); no round for him today -
+ * the day only, no call. An older server without `me.today` - the day and "Open". A switched off cup shows nothing.
+ */
+const cupCard = computed((): (CupTodayCard & { late: boolean }) | null => {
+  const cup = cups.running
+  if (cup === null || cup.day === null) return null
+  const counts = { day: cup.day, days: cup.days }
+  const base = { to: { name: 'cup', params: { id: cup.id } }, title: t('today.cup.title', { group: cup.group_title }) }
+  const state = cup.me?.today?.state
+  switch (state) {
+    case 'not_started':
+      return { ...base, state, text: t('today.cup.play', counts), action: t('today.cup.go'), dot: 'bg-warning', late: false }
+    case 'active':
+      return { ...base, state, text: t('today.cup.continue', counts), action: t('today.cup.go_continue'), dot: 'bg-warning', late: false }
+    case 'done':
+      return { ...base, state, text: t('today.cup.played', counts), action: null, dot: 'bg-success', late: true }
+    case 'not_available':
+      return { ...base, state, text: t('today.cup.day', counts), action: null, dot: 'bg-track', late: true }
+    default:
+      return { ...base, state: 'unknown', text: t('today.cup.day', counts), action: t('today.cup.open'), dot: 'bg-accent', late: false }
+  }
+})
+
 /** The list "For today" has a row to show (otherwise there is no card at all). */
-const showTodayList = computed(() => assignmentItems.value.length > 0 || hardRound.value !== null || classCaravan.value !== null
-  || (hasProgress.value && (gameEntry.value !== null || showGameMap.value)) || showGames.value)
+const showTodayList = computed(() => assignmentItems.value.length > 0 || hardRound.value !== null || classCaravan.value !== null || cupCard.value !== null
+  || (hasProgress.value && (gameEntry.value !== null || showGameMap.value)) || showGamesRow.value)
 
 /** The status dot of the streak: amber while it is at risk, accent while it lives, the track when there is none. */
 const streakDot = computed(() => {
@@ -407,9 +477,174 @@ const leagueRow = computed(() => {
     subtitle: t('today.league.subtitle', {
       rank: league.rank,
       members: league.members_count,
-      points: tn('league.points', league.points),
+      points: tn('league.score', league.points),
     }),
   }
+})
+
+/**
+ * The plan of the day (docs/04 A.2a `plan`, docs/31 §5б) picks the big card: step 1 - the next lesson, 2 - the review of the lesson of the day,
+ * 3 - the timed pairs on its words, `done` - the chain is complete. A step whose data is missing, `step: null` with nothing done (no course,
+ * the course is finished) and an older server without `plan` keep the previous card with the session button (`heroStep` null).
+ */
+const plan = computed(() => data.value?.plan ?? null)
+const heroStep = computed((): 1 | 2 | 3 | 'done' | null => {
+  const current = plan.value
+  if (current === null || showStart.value) return null
+  if (current.step === 1) return data.value?.active_course?.next_lesson ? 1 : null
+  if (current.step === 2) return current.training !== null ? 2 : null
+  // Step 3 without a way into the game (an older server that does not name the course of the lesson, and the lesson is not surely of the
+  // active course): the previous card, not a step card without a button.
+  if (current.step === 3) return current.game !== null && gameLink.value !== null ? 3 : null
+  return current.done ? 'done' : null
+})
+
+const planSteps = computed(() => (plan.value === null ? [] : dayPlanSteps(plan.value, gameStepExpected(data.value?.practice))))
+/** The lesson row says how many new words it holds: those still unseen before it, the words met in it once it is done. */
+const planNotes = computed((): Partial<Record<DayPlanStepKey, string>> => {
+  const current = plan.value
+  if (current === null) return {}
+  const words = current.lesson.done ? (current.training?.words ?? null) : current.lesson.words_left
+  return words !== null && words > 0 ? { lesson: tn(planPhrases.value ? 'today.hero.new_phrases' : 'today.hero.new_words', words) } : {}
+})
+
+/** «Урок «Напитки» пройден» over the steps 2 and 3; a lesson out of the active course has no title (docs/04 A.2a). */
+const lessonDoneLine = computed(() => {
+  const title = plan.value?.training?.title ?? null
+  return title !== null && title !== '' ? t('today.hero.lesson_done_named', { title }) : t('today.hero.lesson_done')
+})
+
+/**
+ * The active course is a course of phrases (docs/35 §3.2): the lesson card and the plan say «фразы» instead of «слова». `/today` does not
+ * name the section of its course, and no request is made for it: the catalog this run has already read (the list, or the open course)
+ * says it; without one the card says «слова», as before.
+ */
+const activePhrases = computed((): boolean => {
+  const slug = data.value?.active_course?.slug
+  if (!slug) return false
+  const row = catalog.courses.find((course) => course.slug === slug) ?? (catalog.detail?.slug === slug ? catalog.detail : null)
+  return isPhraseCourse(row)
+})
+/**
+ * The lesson of the day is of that course of phrases: step 1 is always the next lesson of the active course; after it, the lesson is surely
+ * of the active course only when the server names it (`plan.training.title` is given only for such a lesson, docs/04 A.2a).
+ */
+const planPhrases = computed((): boolean => {
+  if (!activePhrases.value) return false
+  const current = plan.value
+  if (current === null || !current.lesson.done) return true
+  return typeof current.training?.title === 'string'
+})
+
+/** The Free quota left for today (`null`: no limit): the lesson card quotes it, and with nothing left it leads to Pro instead of the lesson. */
+const quotaLeft = computed(() => data.value?.new_words_remaining ?? null)
+
+const hero = computed((): { eyebrow: string; title: string; text: string; note: string } | null => {
+  const step = heroStep.value
+  const current = plan.value
+  if (step === null || current === null) return null
+  if (step === 1) {
+    const lesson = data.value?.active_course?.next_lesson
+    if (!lesson) return null
+    const level = data.value?.active_course?.readiness?.level_label ?? null
+    const number = t('course.lesson', { number: lesson.lesson })
+    const wordsLeft = current.lesson.words_left ?? lesson.words_left ?? null
+    const phrases = activePhrases.value
+    const eyebrow = phrases
+      ? (level ? t('today.hero.lesson_eyebrow_phrases', { level, number: lesson.lesson }) : t('today.hero.lesson_eyebrow_phrases_plain', { number: lesson.lesson }))
+      : (level ? t('today.hero.lesson_eyebrow', { level, number: lesson.lesson }) : t('today.hero.lesson_eyebrow_plain', { number: lesson.lesson }))
+    return {
+      eyebrow,
+      title: lesson.title ?? number,
+      text: wordsLeft !== null && wordsLeft > 0 ? tn(phrases ? 'today.hero.new_phrases' : 'today.hero.new_words', wordsLeft) : '',
+      note: quotaLeft.value === null ? '' : quotaLeft.value > 0 ? t('today.new.remaining', { count: quotaLeft.value }) : t('today.new.exhausted'),
+    }
+  }
+  if (step === 2 && current.training) {
+    const text = tn(planPhrases.value ? 'today.hero.training_text_phrases' : 'today.hero.training_text', current.training.words)
+    return { eyebrow: lessonDoneLine.value, title: t('today.hero.training_title'), text, note: '' }
+  }
+  if (step === 3) {
+    return { eyebrow: lessonDoneLine.value, title: t('today.hero.game_title'), text: t(planPhrases.value ? 'today.hero.game_text_phrases' : 'today.hero.game_text'), note: '' }
+  }
+  // "New lesson - tomorrow" only when it is so: the Free quota of new words is used up; else a lesson may still be taken today.
+  return { eyebrow: '', title: t('today.hero.done_title'), text: t(quotaLeft.value === 0 ? 'today.hero.done_text' : 'today.hero.done_text_open'), note: '' }
+})
+
+/** The plan is done and the quota still lets a lesson bring new words: "Next lesson" under it, as a second action. */
+const doneNextLesson = computed(() => heroStep.value === 'done' && quotaLeft.value !== 0 ? (data.value?.active_course?.next_lesson ?? null) : null)
+/** The plan is done and a review is waiting (or open): its button on the card. */
+const doneReview = computed(() => heroStep.value === 'done' && data.value !== null && (data.value.open_session_id !== null || data.value.due_count > 0))
+/** "Pro" of the done card: a Free learner whose quota is used up. */
+const donePro = computed(() => heroStep.value === 'done' && !isPro.value && quotaLeft.value === 0)
+
+/** Step 1 with the Free quota used up: the lesson would open with no new word, so the card offers Pro instead (never to Pro). */
+const lessonBlocked = computed(() => heroStep.value === 1 && quotaLeft.value === 0)
+
+/** The lesson of step 1 (or "Next lesson" of the done card): a session of the plan (`source: plan`, docs/04 A.3). */
+function startLesson(): Promise<void> {
+  tapPrimary()
+  const lessonId = data.value?.active_course?.next_lesson?.id
+  return lessonId ? openSession({ mode: 'lesson', lesson_id: lessonId, source: 'plan' }) : Promise.resolve()
+}
+
+/**
+ * The review of the lesson of the day (step 2): `openLessonReview` (source `plan`), then the training screen, as for a lesson. The review gives
+ * no league points and does not move the goal - the card only says "fix N words". A refusal (409 `lesson_review_unavailable`) shows its reason
+ * under the card (`openError`, i18n/errors.ts) and makes the store read `/today` again, so the plan on the screen is the server's new word.
+ */
+async function startLessonReview(): Promise<void> {
+  const lessonReview = plan.value?.training
+  if (!lessonReview) return
+  tapPrimary()
+  const sessionId = await training.openLessonReview(lessonReview.lesson_id)
+  if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
+}
+
+/**
+ * Step 3: the practice hub of the lesson, which starts the timed pairs by itself (`play`), in the course of the lesson (`plan.game.course`:
+ * the lesson of the day may be of another course than the active one - an assignment, a course switched since). An older server does not
+ * name it: then the active course, but only when the lesson surely is of it (`plan.training.title` is given only for such a lesson).
+ */
+const gameLink = computed((): RouteLocationRaw | null => {
+  const game = plan.value?.game
+  if (!game) return null
+  const trainingTitle = plan.value?.training?.title
+  const slug = game.course ?? (typeof trainingTitle === 'string' ? (data.value?.active_course?.slug ?? null) : null)
+  if (!slug) return null
+  return { name: 'practice-hub', params: { slug }, query: { lesson: String(game.lesson_id), play: game.mode, from: 'plan' } }
+})
+
+/** The goal of the day in the new card: «8 / 20 слов», the bar of segments (at most 20) and the streak or what is left on the right. */
+const GOAL_SEGMENTS_MAX = 20
+const goalSegments = computed(() => {
+  const goal = data.value?.goal
+  if (!goal || goal.target <= 0) return []
+  const count = Math.min(goal.target, GOAL_SEGMENTS_MAX)
+  const filled = goal.met ? count : Math.min(count, Math.floor((goal.done / goal.target) * count))
+  return Array.from({ length: count }, (_, index) => index < filled)
+})
+const goalAside = computed(() => {
+  const current = data.value
+  if (!current) return ''
+  if (current.goal.met) return t('today.goal.met')
+  if (current.streak.current > 0) return tn('today.streak.short', current.streak.current)
+  return tn('today.goal.more', goalLeft.value)
+})
+
+/** The tile "Review": the open daily session first, then what is due; with nothing it is a quiet tile without an action. */
+const reviewTile = computed(() => {
+  const current = data.value
+  if (!current) return { text: '', active: false }
+  if (current.open_session_id !== null) return { text: t('today.tiles.review_continue'), active: true }
+  if (current.due_count > 0) return { text: tn('today.tiles.review_ready', current.due_count), active: true }
+  return { text: t('today.tiles.review_none'), active: false }
+})
+/** The tile "Word games": while the game of the plan is still ahead it says which step it is («Шаг 3 на сегодня»). */
+const gamesTileNote = computed(() => {
+  const index = planSteps.value.findIndex((step) => step.key === 'game')
+  const game = planSteps.value[index]
+  return game && game.state !== 'done' ? t('today.tiles.games_step', { step: index + 1 }) : t('today.tiles.games_note')
 })
 
 /**
@@ -419,6 +654,10 @@ const leagueRow = computed(() => {
  */
 const primaryReady = computed(() => {
   if (data.value === null || status.value === 'idle' || status.value === 'loading' || awaitingAssignments.value || opening.value) return false
+  // The card of a step always has its button (step 1 with the Free quota used up leads to Pro, step 3 is there only with its link); the done
+  // card - only when it has one of its buttons.
+  if (heroStep.value === 1 || heroStep.value === 2 || heroStep.value === 3) return true
+  if (heroStep.value === 'done') return doneReview.value || doneNextLesson.value !== null || donePro.value
   return showStart.value || needsCourseToStart.value || needsOtherCourse.value || !allDone.value || assignmentItems.value.length > 0
 })
 // After the render (`post`): the button is on the screen when the mark is taken.
@@ -451,22 +690,15 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="!data" :message="loadError" @retry="load" />
 
     <div v-else>
-      <PageHeader large :eyebrow="eyebrow" :title="greeting">
+      <!-- The brand row of the header carries the language pill (it opens the language sheet). -->
+      <PageHeader brand large :eyebrow="eyebrow" :title="greeting">
         <template #trailing>
           <!-- A chip is 24 px high: the padding (cancelled by the margin) makes the touch target 44 px. -->
-          <div class="flex items-center gap-4">
-            <button type="button" class="-m-2.5 block p-2.5" :aria-label="LANGUAGE_TITLE" data-testid="lang-btn" @click="languageOpen = true">
-              <span class="chip chip-neutral">
-                <AppIcon name="globe-alt" :size="14" />
-                {{ locale.toUpperCase() }}
-              </span>
-            </button>
-            <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
-              <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
-                {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
-              </span>
-            </RouterLink>
-          </div>
+          <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
+            <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
+              {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
+            </span>
+          </RouterLink>
         </template>
       </PageHeader>
 
@@ -523,8 +755,137 @@ onBeforeUnmount(() => {
           <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
         </RouterLink>
 
+        <!-- The step of the plan of the day (mock-ups Main / MainNext): its big card, the plan, the goal and the two tiles. -->
+        <template v-if="hero !== null">
+          <LessonHero :step="String(heroStep)" :eyebrow="hero.eyebrow" :title="hero.title" :text="hero.text" :note="hero.note">
+            <template v-if="heroStep === 1">
+              <button
+                v-if="!lessonBlocked"
+                type="button"
+                class="btn btn-primary btn-lg btn-block gap-2.5"
+                :disabled="opening"
+                data-testid="hero-btn"
+                @click="startLesson"
+              >
+                {{ t('today.hero.lesson_start') }}
+                <AppIcon name="arrow-right" :size="22" />
+              </button>
+              <!-- The Free quota of new words is used up: the lesson would bring none today, so the way is to Pro. -->
+              <button v-else-if="!isPro" type="button" class="btn btn-tinted btn-lg btn-block" data-testid="hero-pro" @click="openPaywall('quota')">
+                {{ t('today.all_done.pro') }}
+              </button>
+            </template>
+            <button
+              v-else-if="heroStep === 2"
+              type="button"
+              class="btn btn-primary btn-lg btn-block gap-2.5"
+              :disabled="opening"
+              data-testid="hero-btn"
+              @click="startLessonReview"
+            >
+              {{ plan?.training?.open_session_id != null ? t('today.hero.continue') : t('today.hero.training_start') }}
+              <AppIcon name="arrow-right" :size="22" />
+            </button>
+            <RouterLink
+              v-else-if="heroStep === 3 && gameLink"
+              :to="gameLink"
+              class="btn btn-primary btn-lg btn-block gap-2.5"
+              data-testid="hero-btn"
+              @click="tapPrimary"
+            >
+              {{ t('today.hero.play') }}
+              <AppIcon name="arrow-right" :size="22" />
+            </RouterLink>
+            <template v-else-if="heroStep === 'done'">
+              <button
+                v-if="doneReview"
+                type="button"
+                class="btn btn-tinted btn-lg btn-block"
+                :disabled="opening"
+                data-testid="hero-review"
+                @click="review"
+              >
+                {{ data.open_session_id !== null ? t('today.review.continue') : tn('today.hero.review', data.due_count) }}
+              </button>
+              <button
+                v-if="doneNextLesson"
+                type="button"
+                class="btn btn-lg btn-block"
+                :class="doneReview ? 'btn-plain' : 'btn-tinted'"
+                :disabled="opening"
+                data-testid="hero-next-lesson"
+                @click="startLesson"
+              >
+                {{ t('today.hero.next_lesson') }}
+              </button>
+              <p v-if="donePro" class="flex justify-center">
+                <button type="button" class="btn btn-plain btn-sm" data-testid="all-done-pro" @click="openPaywall('quota')">
+                  {{ t('today.all_done.pro') }}
+                </button>
+              </p>
+            </template>
+          </LessonHero>
+
+          <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" data-testid="open-error" />
+
+          <DayPlan v-if="planSteps.length > 0" :steps="planSteps" :notes="planNotes" :done="plan?.done === true" />
+
+          <!-- The goal of the day and the streak (mock-up Main): «8 / 20 слов», a bar of segments, the streak or what is left. -->
+          <section class="card flex flex-col gap-3 px-4 py-3.5" data-testid="day-goal">
+            <RouterLink :to="{ name: 'settings' }" class="flex min-h-11 items-center gap-3" data-testid="goal-setting">
+              <AppIcon name="flag" :size="28" class="shrink-0 text-accent" />
+              <span class="h-[34px] w-px shrink-0 bg-hairline" aria-hidden="true" />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[17px] leading-[22px] font-bold">{{ t('today.goal.title') }}<span class="sr-only"> · {{ t('today.goal.edit') }}</span></span>
+                <span class="text-sm leading-5 text-muted" data-testid="day-goal-count">{{ tn('today.goal.count', data.goal.target, { done: data.goal.done }) }}</span>
+              </span>
+              <span
+                class="shrink-0 text-right text-[13px] leading-[18px]"
+                :class="data.goal.met ? 'font-semibold text-success-ink' : 'text-muted'"
+                data-testid="day-goal-aside"
+              >{{ goalAside }}</span>
+            </RouterLink>
+            <div v-if="goalSegments.length > 0" class="grid gap-[3px]" :style="{ gridTemplateColumns: `repeat(${goalSegments.length}, minmax(0, 1fr))` }" aria-hidden="true" data-testid="day-goal-bar">
+              <span v-for="(filled, index) in goalSegments" :key="index" class="h-2 rounded-[3px]" :class="filled ? 'bg-success' : 'bg-track'" />
+            </div>
+          </section>
+
+          <!-- "Review" and "Word games" (mock-up Main): two tinted tiles; the games tile only where the practice is open. -->
+          <div class="grid gap-2.5" :class="showGames ? 'grid-cols-2' : 'grid-cols-1'" data-testid="day-tiles">
+            <!-- With nothing due the tile is a plain block: a disabled button would grey its text below the contrast of the palette. -->
+            <component
+              :is="reviewTile.active ? 'button' : 'div'"
+              :type="reviewTile.active ? 'button' : undefined"
+              class="flex min-h-12 min-w-0 items-center gap-2.5 rounded-card bg-accent-soft px-3 py-3.5 text-left disabled:opacity-50"
+              :disabled="reviewTile.active ? opening : undefined"
+              :data-active="reviewTile.active"
+              data-testid="review-tile"
+              @click="reviewTile.active ? review() : undefined"
+            >
+              <AppIcon name="arrow-path" :size="28" class="shrink-0 text-accent" />
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="text-[15px] leading-[19px] font-bold">{{ t('today.tiles.review') }}</span>
+                <span class="text-[13px] leading-[17px] text-muted" data-testid="review-tile-text">{{ reviewTile.text }}</span>
+              </span>
+            </component>
+            <button
+              v-if="showGames"
+              type="button"
+              class="flex min-h-12 min-w-0 items-center gap-2.5 rounded-card bg-accent-soft px-3 py-3.5 text-left"
+              data-testid="games-tile"
+              @click="openPractice"
+            >
+              <AppIcon name="puzzle-piece" :size="28" class="shrink-0 text-accent" />
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="text-[15px] leading-[19px] font-bold">{{ t('today.games.title') }}</span>
+                <span class="text-[13px] leading-[17px] text-muted" data-testid="games-tile-text">{{ gamesTileNote }}</span>
+              </span>
+            </button>
+          </div>
+        </template>
+
         <!-- "Goal of the day" (mock-up Main): N of M, a thin line, what is waiting and the one primary button of the screen. -->
-        <section v-if="!showStart" class="card flex flex-col gap-3.5 bg-linear-to-br from-accent-soft to-surface" data-testid="review-card">
+        <section v-else-if="!showStart" class="card flex flex-col gap-3.5 bg-linear-to-br from-accent-soft to-surface" data-testid="review-card">
           <div class="flex flex-col gap-2" data-testid="goal-card">
             <div class="flex items-baseline justify-between gap-3">
               <h2 class="min-w-0">
@@ -630,6 +991,9 @@ onBeforeUnmount(() => {
           </p>
         </section>
 
+        <!-- "Today N of 100" of the word points v2 (docs/32 §8.2): only when the server sends `score_today` (v2 rules on). -->
+        <ScoreTodayCard v-if="data.score_today && !showStart" :score="data.score_today" :timezone="data.timezone" />
+
         <!--
           "For today" (mock-up Main): what else waits today, one row each with a status dot - the assignments of the center first (they
           have a deadline), then the round of hard words, the caravans and the word games. The order of the old cards is kept otherwise.
@@ -659,6 +1023,9 @@ onBeforeUnmount(() => {
                 </span>
               </button>
             </div>
+
+            <!-- The friends' cup that runs (docs/33 §7.1): opens the cup, where the round of the day is played. Played - at the end. -->
+            <CupTodayRow v-if="cupCard && !cupCard.late" :card="cupCard" />
 
             <!-- The caravan of the class that is on (docs/05 §5b.7). -->
             <RouterLink
@@ -706,7 +1073,7 @@ onBeforeUnmount(() => {
             </RouterLink>
 
             <!-- Practice of the main course, one entry (docs/16 §11.1): the modes by their names and "Play". -->
-            <div v-if="showGames" data-testid="games-card">
+            <div v-if="showGamesRow" data-testid="games-card">
               <button
                 type="button"
                 class="flex min-h-11 w-full items-center gap-3 px-[18px] py-3 text-left active:bg-fill"
@@ -720,6 +1087,9 @@ onBeforeUnmount(() => {
                 <span class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="games-play-btn">{{ t('today.games.play') }}</span>
               </button>
             </div>
+
+            <!-- The cup with nothing to do today (the round played, or no round for him): the last row, without a call. -->
+            <CupTodayRow v-if="cupCard && cupCard.late" :card="cupCard" />
           </div>
         </section>
 
@@ -755,7 +1125,8 @@ onBeforeUnmount(() => {
                 <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
               </div>
               <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
-              <template v-if="!allDone">
+              <!-- The card of step 1 above already opens this lesson. -->
+              <template v-if="!allDone && heroStep !== 1">
                 <button
                   type="button"
                   class="btn btn-tinted btn-block"
@@ -881,7 +1252,13 @@ onBeforeUnmount(() => {
     </div>
 
     <IntroSheet v-if="introOpen" @close="introOpen = false" />
-    <LanguageSheet v-if="languageOpen" @close="languageOpen = false" />
+    <TrialWelcomeSheet
+      v-if="trialWelcomeOpen && trialEnd !== null"
+      :ends-at="trialEnd"
+      :timezone="data?.timezone"
+      @close="trialWelcomeOpen = false"
+      @more="trialWelcomeMore"
+    />
 
     <PaywallSheet
       v-if="paywallOpen"

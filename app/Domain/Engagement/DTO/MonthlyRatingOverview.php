@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Engagement\DTO;
 
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Models\LeagueMonth;
 
 /** Everything `GET /api/twa/league/month` shows (docs/04 A.19), assembled by MonthlyRatingService::overview. */
@@ -17,7 +18,17 @@ final readonly class MonthlyRatingOverview
      * @param  int  $daysLeft  calendar days left including today (1 on the last day)
      * @param  array{daily_cap: int, min_active_days: int, min_account_days: int, places: int, top: int}  $rules
      * @param  list<MonthlyPrize>  $prizes  empty = no prize block
-     * @param  list<MonthlyStanding>  $top
+     * @param  list<MonthlyStanding>  $top  of a v2 month: the top of the table shown ({@see $category})
+     * @param  ScoreCategory|null  $category  a v2 month: the table shown - the one asked for, else the viewer's ({@see $myCategory}); null in v1
+     * @param  RegionChoice|null  $choice  a v2 month: the whole category or a table of a region (docs/35 §2.4); null = the whole
+     * @param  RegionStanding|null  $region  the table of a region shown: its code, participants and whether it is shown (from 5)
+     * @param  RegionStanding|null  $myRegion  a v2 month: the viewer's place in the region of their month (`me.region`)
+     * @param  bool  $readOnly  a v2 month: the viewer has no place in the table shown (the other category, another region)
+     * @param  ScoreCategory|null  $myCategory  a v2 month: the viewer's table - the category of their row, else of their plan
+     * @param  array{above: list<BoardRow>, below: list<BoardRow>, rank: int, next_gap: int|null}|null  $neighbours  a v2 month, the
+     *                                                                                                               viewer's own table
+     *                                                                                                               and a participant
+     * @param  BoardCursor|null  $nextCursor  a v2 month: where the page after the top continues; null - the top is the whole table
      */
     public function __construct(
         public bool $enabled,
@@ -33,5 +44,14 @@ final readonly class MonthlyRatingOverview
         public ?MonthlyMyLine $me,
         public bool $optedOut,
         public ?LastMonthView $lastMonth,
+        public int $rulesVersion = 1,
+        public ?ScoreCategory $category = null,
+        public ?ScoreCategory $myCategory = null,
+        public ?array $neighbours = null,
+        public ?BoardCursor $nextCursor = null,
+        public ?RegionChoice $choice = null,
+        public ?RegionStanding $region = null,
+        public ?RegionStanding $myRegion = null,
+        public bool $readOnly = false,
     ) {}
 }

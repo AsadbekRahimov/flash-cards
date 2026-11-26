@@ -20,8 +20,10 @@ enum AchievementKey: string
     case LeagueTop1 = 'league_top1';
     case FirstFriend = 'first_friend';
     case GameFirstBoss = 'game_first_boss';
+    /** 25 lexemes recalled after a long interval (docs/32 §8.4): counted from `learner_lexemes.first_long_on`, only with the word points on. */
+    case LongRecall25 = 'long_recall_25';
 
-    /** `streak` / `words` have a threshold and a progress; the others are one-off events. */
+    /** `streak` / `words` / `recall` have a threshold and a progress; the others are one-off events. */
     public function family(): string
     {
         return match ($this) {
@@ -31,6 +33,7 @@ enum AchievementKey: string
             self::LeagueTop1 => 'league',
             self::FirstFriend => 'friend',
             self::GameFirstBoss => 'game',
+            self::LongRecall25 => 'recall',
         };
     }
 
@@ -44,6 +47,7 @@ enum AchievementKey: string
             self::Words100 => 100,
             self::Words500 => 500,
             self::Words1000 => 1000,
+            self::LongRecall25 => 25,
             default => null,
         };
     }
@@ -62,6 +66,7 @@ enum AchievementKey: string
             self::LeagueTop1 => '#1',
             self::FirstFriend => '+1',
             self::GameFirstBoss => 'BOSS',
+            self::LongRecall25 => '25',
         };
     }
 

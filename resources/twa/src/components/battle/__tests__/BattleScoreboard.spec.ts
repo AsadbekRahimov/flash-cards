@@ -28,7 +28,16 @@ describe('BattleScoreboard', () => {
     const w = mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'A very long name' } })
 
     expect(w.get('[data-testid=score-me]').classes()).toContain('tabular-nums')
-    expect(w.get('[data-testid=score-opponent-name]').classes()).toContain('truncate')
+    expect(w.get('[data-testid=score-opponent-name] [data-testid=player-name-text]').classes()).toContain('truncate')
+    expect(w.get('[data-testid=score-opponent-name]').classes()).toContain('min-w-0')
+  })
+
+  it('shows the opponent\'s emoji of Pro after the name, hidden from a screen reader; none without it', () => {
+    const w = mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'Bek', opponentEmoji: '🦁' } })
+
+    expect(w.get('[data-testid=score-opponent-name]').text()).toBe('Bek🦁')
+    expect(w.get('[data-testid=pro-emoji]').attributes('aria-hidden')).toBe('true')
+    expect(mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'Bek' } }).find('[data-testid=pro-emoji]').exists()).toBe(false)
   })
 
   it('has a larger size for the result', () => {

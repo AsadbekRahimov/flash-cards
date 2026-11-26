@@ -1,10 +1,9 @@
 # 33. Кубок друзей в Telegram-группе — технический проект
 
 Технический проект к предложению владельца [29_GROUP_CUP_PROPOSAL_RU.md](29_GROUP_CUP_PROPOSAL_RU.md). Дата: 24.11.2026. Автор: architect.
-Статус: **проект, код не написан.** Документ для разработчика: что строим, из чего, в каком порядке и как проверяем.
+Статус: **K0–K5 сделаны (25.11.2026: схема, жизненный цикл, членство, раунд — §11); K6 сделан (бот — §11.6); K7 и K9 сделаны (HTTP API и `/admin` — §11.7); K8 впереди; D1 сделан (ядро дуэлей — §11.9, 26.11.2026).** Документ для разработчика: что строим, из чего, в каком порядке и как проверяем.
 
 > Общий порядок выпусков и вопросы владельцу — [31_COMPETITION_PLAN_RU.md](31_COMPETITION_PLAN_RU.md). План реализации кубка по задачам — этот документ, §9.
-> Ссылку в docs/29 нужно заменить на этот файл.
 
 Очки кубка живут только в таблицах кубка. В недельную лигу, месячный рейтинг и рейтинг за всё время (docs/28, docs/30) они не попадают.
 Раунд кубка не пишет `learner_daily_stats`, `game_runs`, `word_repetitions`, монеты и очки лиги (§5.1, вопрос В3).
@@ -328,13 +327,16 @@ UNIQUE `(cup_id, dedupe_key)` — второе «опубликовать ито
 
 - **Ученик вышел из чата.** Если бот админ — сразу по `chat_member`, иначе при следующей свежей проверке. Участник становится `left`. Новых попыток нет. Очки остаются в таблице с пометкой «вышел(а)». Начатая попытка доигрывается до своего срока.
 - **Вернулся в чат.** Свежая проверка при вступлении или старте раунда возвращает `active`. Строка та же, счёт прежний. Пропущенные дни не возвращаются.
+- **Вышел из кубка сам** (кнопка «Выйти из кубка», решение владельца 27.11.2026, §11.12) — тоже `left`, но навсегда (`withdrawn_at`): он остаётся в чате, а ни вступление, ни свежая проверка «член чата» не возвращают его в кубок; таблицу и кубок он больше не видит. Очки остаются в таблице с пометкой «вышел(а)», как у вышедшего из чата.
 - **Бот удалён.** Пауза (§3.1). Начатые попытки доигрываются. Сводки и итог, которые пришлись на паузу, получают `skipped`.
 - **Бот добавлен снова.** `MyChatMemberHandler` видит активный кубок группы. Второй кубок не создаётся (UNIQUE `active_group_id`). Срок не меняется. Карточка публикуется заново (строка `cup_messages card` → `pending`, новый `message_id`). Приветствие с кнопкой «Создать кубок» при активном кубке не показывается.
 - Если кубок за время паузы закончился, финальный итог уже `skipped`. Таблица остаётся в Mini App. Повторно итог не публикуем.
 
 ### 4.6 Миграция группы в супергруппу (смена `chat_id`)
 
-Сейчас не обрабатывается нигде. Это общий баг групп, не только кубка. Делает architect (схема и данные).
+**Сделано в выпуске B (architect, 25.11.2026, вместе с docs/34 B1):** `ChatMigrationHandler`, `GroupChatMigrator`, перенос и повтор отправки в `IrazasyedTelegramClient` (класс `TelegramChatMigratedException` с полем `newChatId`, а не поле в `TelegramApiException`). Поведение — docs/04 B.5 и B.7a. Слияние двух строк сделано только для «пустой» новой строки (участники и события переезжают на старую); «живая» новая строка не сливается, пишется `telegram.group_migration_conflict`. Таблицы кубка (`cups`, `cup_messages`) ссылаются на `telegram_group_id` и при появлении попадут в список «живых» таблиц `GroupChatMigrator::HISTORY_TABLES` — это задача K4. Порядок апдейтов на живом Telegram по-прежнему **[проверить на стенде, B9]**: если старая группа получает `my_chat_member` `left` до `migrate_to_chat_id`, строка станет `disabled` и останется такой после переноса — это закроет K2 (`bot_status`).
+
+Исходное описание:
 
 - В старый чат приходит `message.migrate_to_chat_id`, в новый — `message.migrate_from_chat_id`. Обработать нужно оба: первый пришедший выполняет перенос, второй — no-op.
 - Перенос: под `FOR UPDATE` строки `telegram_groups` со старым `chat_id` записать новый `chat_id`.
@@ -430,7 +432,7 @@ best(list<DayScore{day, round, duel}>, countedDays = 5): BestResult{total, round
 
 **Вызов.** `CupDuelService::challenge(by, cup, target|null, public, mode, requestId)`:
 - оба — `active` участники; у адресата нет блокировки в `friendships` ни в одну сторону (иначе 403 `cup_duel_unavailable` без причины);
-- `rated_offered` = у вызывающего нет слота сегодня **и** (у адресата нет слота сегодня или вызов открытый). Отдаётся в ответе и показывается адресату до принятия;
+- `rated_offered` = у вызывающего нет слота сегодня **и** (у адресата нет слота сегодня или вызов открытый). Отдаётся в ответе и показывается адресату до принятия; **вид выбирает вызывающий** (`kind: rated | friendly`, решение владельца 27.11.2026, §11.12): товарищеская по выбору никогда не становится зачётной;
 - строка `cup_duels` `open`, `expires_at = now + 10 мин`, `open_challenger_id` (второй открытый вызов от того же → 409 с id первого);
 - `public = true` → строка `cup_messages duel:{id}` (сообщение в чат с url-кнопкой «Принять вызов»). Иначе — ЛС адресату через `SendBattleDmJob`-подобный job (может не дойти, если адресат не начинал диалог с ботом; тогда только список вызовов в Mini App).
 
@@ -445,11 +447,11 @@ best(list<DayScore{day, round, duel}>, countedDays = 5): BestResult{total, round
 
 **Начисление.** Часы баттла при любом терминальном переходе матча с `cup_duel_id` ставят после коммита `ScoreCupDuelJob(cupDuelId)`. Запасной путь — `cups:sweep-duels`.
 Job: `FOR UPDATE` `cup_duels` → если `scored_at` не NULL, выход → решение:
-- **Слот освобождается**, если ни один игрок не дал ни одного ответа (строк `battle_answers` с вердиктом ≠ `timeout` нет) **и** матч `closed` (declined, room_expired, canceled, voided, both_absent). Это «сбой до первого показанного задания» и «сорванная дуэль». Слоты удаляются, очков нет, `status = void`.
+- **Слот освобождается**, если ни один игрок не дал ни одного ответа (строк `battle_answers` с вердиктом ≠ `timeout` нет) — **при любом конце матча** (closed: declined, room_expired, canceled, both_absent; finished: сдача в обратном отсчёте **или в игре, в том числе в первом раунде до первого ответа любого из игроков**), — или матч аннулировала система (`closed/voided`: нет аудио, практика выключена) — **даже если ответы были** (`end_reason = battle_voided`). Это «сбой до первого показанного задания», «сорванная дуэль» и «сбой не по вине игроков». Слоты удаляются, очков нет, `status = void`. *(Уточнено 26.11.2026, §11.11 п. 4: раньше `void` давал только `closed` без ответов, и сдача в отсчёте сжигала оба слота.)* Принятый риск: игрок может увидеть первое задание и сдаться, пока никто не ответил, — попытка возвращается обоим; набор заданий каждый раз новый, той же паре — не больше 3 вызовов в день (`duel.pair_daily_challenges`).
 - Иначе очки игрока = число **его** `battle_answers` с вердиктом `correct` (0…5). Сдача соперника, неявка, тайм-ауты соперника дают 0 дополнительных. Победа (`battles.winner_learner_id`) — только в истории встреч.
 - Зачётная дуэль: `FOR UPDATE` участников по id → `cup_day_scores.duel_points = X` (присваивание, не прибавление: слот гарантирует одну дуэль в день) → пересчёт `best_*` → `scored_at = now`. День — день принятия.
 - Товарищеская: только `scored_at`, очков кубка нет.
-- Публичный вызов → правка его сообщения: «Малика 4 : 3 IceBoy». Отказ, истечение, `void` → правка на одну строку «Вызов не состоялся». Новых сообщений нет.
+- Публичный вызов → правка его сообщения: при принятии — «Дуэль идёт: A — B» без кнопки (§11.11 п. 7), потом итог «Малика 4 : 3 IceBoy». Отказ, истечение, `void` → правка на одну строку «Вызов не состоялся». Новых сообщений нет.
 
 **Товарищеский матч** — тот же путь с `rated = false`. Лимит Free на баттлы к нему применяется как к обычному вызову (вопрос В5).
 
@@ -467,7 +469,7 @@ Job: `FOR UPDATE` `cup_duels` → если `scored_at` не NULL, выход →
 | Предложение | `cup:new` / `/cup` | новое | callback `cup:pub:{id}` «Опубликовать», url «Настроить» (`/cups/setup/<code>`), callback `cup:cancel:{id}` |
 | Карточка кубка | При публикации — **правка предложения**. Дальше — только правки | правка | url «Участвовать / Играть сегодня», url «Таблица», url «Правила» |
 | Сводка дня | `summary_minute`, только если `sha1(очки) ≠ summary_scores_hash` и `summaries_enabled` | новое, раз в день максимум | url «Таблица» |
-| Открытый вызов (этап 2) | Вызывающий выбрал «в чат» | новое, потом правка итогом | url «Принять вызов» |
+| Открытый вызов (этап 2) | Вызывающий выбрал «в чат» | новое; при принятии правка «Дуэль идёт» (кнопка снимается); потом правка итогом | url «Принять вызов» (до принятия) |
 | Итог | Финиш | новое, ровно раз | url «Итоговая таблица» |
 
 Старт кубка в полночь **не** шлёт нового сообщения — только правку карточки (правка не будит людей). О старте сообщает сама карточка при публикации: «Старт завтра в 00:00».
@@ -540,6 +542,7 @@ Job: `FOR UPDATE` `cup_duels` → если `scored_at` не NULL, выход →
 | `GET /cups/by-code/{code}` | Превью по ссылке | `CupInviteResource` {id, group_title, status, level, days, starts_at, ends_at, timezone, summary_time, participants_count, rules, me: {joined, participant_id, display_name}}; 403 `cup_not_member` (и для «нет кубка»); 409 `cup_unverifiable`; 410 `cup_closed` |
 | `POST /cups/{id}/join` | Вступить `{display_name}` | 201 `CupParticipantResource`; 200 при повторе; 403, 409 `cup_unverifiable`, 410, 422 `cup_display_name_invalid` |
 | `PATCH /cups/{id}/me` | Сменить имя | Не чаще 3 раз за кубок |
+| `POST /cups/{id}/leave` | Выйти из кубка навсегда (§11.12) | 200 `CupLeaveResource` (и на повтор); 403 `cup_not_member`; 410 `cup_closed` |
 | `GET /cups` | Мои кубки | `CupSummaryResource[]` |
 | `GET /cups/{id}` | Таблица и мой статус | `CupResource` {cup, standings: [{participant_id, rank, display_name, total, left}], me: {participant_id, today: {state, attempt_id, points, expires_at}, days: [...]}, can_manage: bool} |
 | `GET /cups/{id}/rounds/today` | Состояние раунда дня | {state: `not_started` / `active` / `done` / `not_available`, …} |
@@ -590,20 +593,22 @@ Job: `FOR UPDATE` `cup_duels` → если `scored_at` не NULL, выход →
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| K0 | Правки docs (§10.3): 03, 04, 05, 07, 19, 29 | координатор | — | Документы обновлены до кода |
-| K1 | Telegram-основа: `ChatMemberInfo` + `getChatMember()` (status, is_member); `sendGroupMessage(): int` с `threadId` / `disableNotification`; `TelegramApiException` несёт `retryAfter`, `migrateToChatId`, признак «not modified»; фейковый клиент тестов | coder | — | Unit-тесты клиента на разборе ответов SDK; фейк возвращает `message_id` |
-| K2 | `telegram_groups.bot_status` + запись в `MyChatMemberHandler` (по `date`, старое не перетирает) | coder | — | Тесты: добавление, удаление, повышение до админа, апдейты не по порядку |
-| K3 | Миграция группы в супергруппу: `ChatMigrationHandler`, слияние строк, перенос по ошибке отправки | **architect** | K1 | Тесты: оба апдейта в любом порядке; уже существующая строка нового чата; повтор апдейта; ссылки `group_members` / `teacher_groups` / `cups` после слияния |
-| K4 | Схема кубка (миграции 1–3), модели, enums, фабрики; `CupLifecycleService` (draft, publish, start, сдвиг старта, cancel, finish), `CupScoring`, `CupMembershipGate`, `CupAdminCheck`, `cups:advance` | **architect** | K1, K2 | Миграции up/down на pgsql. `CupScoring`: лучшие 5, потолок, тай-брейк, ничьи 1-1-3, поздний вход. Гонки: два `cup:new` разом → один черновик; публикация и отмена разом; финиш и ответ разом. Пояс: границы дней в UTC. Членство: член / вышел / restricted без is_member / бот не админ / сеть — для каждого действия из §4.2 |
-| K5 | `CupRoundService`: `RunSnapshotBuilder::forCupDay`, `RunLimits::forCup`, план слов, снимок дня (заранее и лениво под блокировкой), старт / возобновление / ответ / истечение, `CupProjection` | **architect** | K4 | Тесты: одинаковый состав у двух участников при разном порядке; два старта разом → одна попытка; повтор `request_id`; второй ответ на задание → 409; ответ после срока + grace → expired, прежние очки остаются; попытка 23:58 → очки в день старта; обрыв → тот же срок; 20 очков максимум; нет утечки ответа в проекции; очки не попадают в `learner_daily_stats` / лигу |
-| K6 | Бот: приветствие с кнопкой, `CupCallbackHandler`, `CupCommandHandler`, `CupCardRenderer`, outbox `cup_messages` + `PostCupMessageJob`, `cups:post-summaries`, `cups:refresh-cards`, `cups:send-outbox`, хуки ухода в `ChatMemberHandler`, перепубликация карточки при возврате бота | coder | K4 | Тесты: нажал не админ → тост, без сообщения в чат; админ → карточка вместо предложения; сводка только при новых очках и не при выключенных сводках; **повторная постановка итога → одна отправка**; таймаут → `unknown` без повтора; бот удалён → `skipped`; `not modified` = успех; лимит чата → отложено; язык группы |
-| K7 | HTTP API: контроллеры, FormRequest, Resource-классы, лимитеры, политики | coder | K4, K5 | `CupContractTest` (точная структура), `CupHttpAccessTest` (403 не-члену, одинаковый ответ на «нет кубка», чужая попытка 404), **пересланное приглашение**, выход и возврат, ученик в двух группах, лимитеры |
+| K0 ✔ | Правки docs (§10.3): 03, 04, 05, 07, 19, 29 | координатор | — | Документы обновлены до кода |
+| K1 ✔ | Telegram-основа: `ChatMemberInfo` + `getChatMember()` (status, is_member); `sendGroupMessage(): int` с `threadId` / `disableNotification`; `TelegramApiException` несёт `retryAfter`, `migrateToChatId`, признак «not modified»; фейковый клиент тестов | coder | — | Unit-тесты клиента на разборе ответов SDK; фейк возвращает `message_id` |
+| K2 ✔ | `telegram_groups.bot_status` + запись в `MyChatMemberHandler` (по `date`, старое не перетирает) | coder | — | Тесты: добавление, удаление, повышение до админа, апдейты не по порядку |
+| K3 ✔ | Миграция группы в супергруппу: `ChatMigrationHandler`, слияние строк, перенос по ошибке отправки | **architect** | K1 | Тесты: оба апдейта в любом порядке; уже существующая строка нового чата; повтор апдейта; ссылки `group_members` / `teacher_groups` / `cups` после слияния |
+| K4 ✔ | Схема кубка (миграции 1–3), модели, enums, фабрики; `CupLifecycleService` (draft, publish, start, сдвиг старта, cancel, finish), `CupScoring`, `CupMembershipGate`, `CupAdminCheck`, `cups:advance` | **architect** | K1, K2 | Миграции up/down на pgsql. `CupScoring`: лучшие 5, потолок, тай-брейк, ничьи 1-1-3, поздний вход. Гонки: два `cup:new` разом → один черновик; публикация и отмена разом; финиш и ответ разом. Пояс: границы дней в UTC. Членство: член / вышел / restricted без is_member / бот не админ / сеть — для каждого действия из §4.2 |
+| K5 ✔ | `CupRoundService`: `RunSnapshotBuilder::forCupDay`, `RunLimits::forCup`, план слов, снимок дня (заранее и лениво под блокировкой), старт / возобновление / ответ / истечение, `CupProjection` | **architect** | K4 | Тесты: одинаковый состав у двух участников при разном порядке; два старта разом → одна попытка; повтор `request_id`; второй ответ на задание → 409; ответ после срока + grace → expired, прежние очки остаются; попытка 23:58 → очки в день старта; обрыв → тот же срок; 20 очков максимум; нет утечки ответа в проекции; очки не попадают в `learner_daily_stats` / лигу |
+| K6 ✔ | Бот: приветствие с кнопкой, `CupCallbackHandler`, `CupCommandHandler`, `CupCardRenderer`, outbox `cup_messages` + `PostCupMessageJob`, `cups:post-summaries`, `cups:refresh-cards`, `cups:send-outbox`, хуки ухода в `ChatMemberHandler`, перепубликация карточки при возврате бота | coder | K4 | Тесты: нажал не админ → тост, без сообщения в чат; админ → карточка вместо предложения; сводка только при новых очках и не при выключенных сводках; **повторная постановка итога → одна отправка**; таймаут → `unknown` без повтора; бот удалён → `skipped`; `not modified` = успех; лимит чата → отложено; язык группы |
+| K7 ✔ | HTTP API: контроллеры, FormRequest, Resource-классы, лимитеры, политики (§11.7) | coder | K4, K5 | `CupContractTest` (точная структура), `CupHttpAccessTest` (403 не-члену, одинаковый ответ на «нет кубка», чужая попытка 404), **пересланное приглашение**, выход и возврат, ученик в двух группах, лимитеры |
 | K8 | TWA: экраны §7.1 (без дуэлей), карточка на «Сегодня», строка в «Профиле», i18n ru/uz | coder | K7 | Vitest на экраны и маршруты `startParam`; ручной прогон на стенде в настоящем Telegram (iOS, Android, Desktop): ссылка из группы, вступление, раунд, обрыв и возобновление |
-| K9 | `/admin`: `CupResource`, действия, запрет кубков, пилот-флаг; `cups:pilot-report` | coder | K4 | Тест бюджета запросов 50 строк; `audit_logs` на каждое действие |
+| K9 ✔ | `/admin`: `CupResource`, действия, запрет кубков, пилот-флаг; `cups:pilot-report` (§11.7) | coder | K4 | Тест бюджета запросов 50 строк; `audit_logs` на каждое действие |
 | K10 | Ревью этапа 1 | reviewer | K1–K9 | Блокирующих нет; pint, phpstan 8, весь pest зелёные; PROGRESS.md |
-| D1 | Дуэли: миграция 4, `CupDuelService`, `BattleService::openForCup`, хук часов баттла → `ScoreCupDuelJob`, `cups:sweep-duels` | **architect** | K10, баттлы проверены | Тесты: **встречные принятия → один матч**; статус «зачётная» поменялся до принятия → 409 `cup_duel_rating_changed`; комната истекла → слоты свободны; сдача → очки только за свои ответы; повтор начисления не меняет итог; блокировка → нет вызова; Free и Pro одинаково инициируют зачётную; дуэль после полуночи → день принятия |
+| D1 ✅ | Дуэли: миграция 4, `CupDuelService`, `BattleService::openForCup`, хук часов баттла → `ScoreCupDuelJob`, `cups:sweep-duels` | **architect** | K10, баттлы проверены | Тесты: **встречные принятия → один матч**; статус «зачётная» поменялся до принятия → 409 `cup_duel_rating_changed`; комната истекла → слоты свободны; сдача → очки только за свои ответы; повтор начисления не меняет итог; блокировка → нет вызова; Free и Pro одинаково инициируют зачётную; дуэль после полуночи → день принятия |
 | D2 | Дуэли: API, экраны, публичный вызов и его правка итогом | coder | D1 | Контракт, отказ и истечение — правка без новых сообщений |
 | D3 | Ревью этапа 2 | reviewer | D2 | |
+
+**Сделано K1, K2 (coder, 25.11.2026, вместе с docs/34 B2–B5).** K1: `TelegramClient::getChatMember(): ChatMemberInfo` (`status`, `isMember`; для `restricted` — из `is_member`), `getChatMemberStatus()` теперь берёт статус из него; `sendGroupMessage(chatId, text, parseMode, replyMarkup, ?threadId, disableNotification): int` — шлёт сразу (слот чата не берёт и в очередь не откладывает), идёт за переносом в супергруппу, ответ без `message_id` — `TelegramApiException` с `isApiResponse() = false` («могло дойти»); `TelegramApiException::isMessageNotModified()`. `retryAfter` и `migrateToChatId` — классы ядра B1 (`TelegramRateLimitedException`, `TelegramChatMigratedException`), отдельных полей в `TelegramApiException` нет. Фейк тестов: `getChatMember` (`$chatMember`), `sendGroupMessage` (`$groupMessages`, `$nextMessageId`), `$failSendsForbidden`. K2: миграция `2026_11_25_100002_add_bot_status_to_telegram_groups_table`; `MyChatMemberHandler` под `FOR UPDATE` строки группы не применяет апдейт с `date` старше `bot_status_at` — ни зеркало, ни `status` (поздний `kicked` не отключит группу, куда бота вернули; поздний `member` не пришлёт приветствие); при слиянии строк в `GroupChatMigrator` более новый `bot_status` новой строки переезжает на выжившую.
 
 ### 9.3 Сценарии из «Спорных случаев» — где проверяются
 
@@ -666,3 +671,794 @@ Job: `FOR UPDATE` `cup_duels` → если `scored_at` не NULL, выход →
 | Р7 | Полуночные гонки: попытка и дуэль через полночь, финиш | Очки — в день старта или принятия; запас 30 мин; перечитывание статуса под блокировкой участника (§5.3, §5.6) |
 | Р8 | Нехватка слов уровня с переводом на все языки | Проверка при публикации (422), карта `level_courses` в конфиге |
 | Р9 | Нагрузка на Telegram от `getChatMember` (каждое открытие и старт) | Замок на пару (кубок, ученик) 10 с; кэш отказа 30 с; лимитеры `twa-cup-*` |
+
+---
+
+## 11. K0, K4, K5: что сделано, решения и контракт для K6–K9 (architect, 25.11.2026)
+
+Код: `app/Domain/Cup/` (`Services`, `Support`, `DTO`, `Enums`, `Exceptions`), модели `app/Models/Cup*.php`, миграции
+`2026_11_28_100001_create_cups_tables`, `2026_11_28_100002_create_cup_rounds_tables`, команда `cups:advance`
+(`app/Console/Commands/AdvanceCups.php`, каждые 5 мин), `config/cup.php`, `.env.example` (`CUP_ACCESS=off` — по умолчанию выключено).
+Тесты: `tests/Feature/Cup/*`, `tests/Unit/Cup/*`; помощник `tests/Support/Cup/CupKit.php`. Правки docs K0: 03 §2.76–§2.82,
+04 A.23 и B.16, 05 §5d, 07 §5, §6, §10, 19 §3 п. 9, 29 (ссылка).
+
+### 11.1 Решения владельца, которые главнее этого документа (docs/31 §5, §5а, §5г)
+
+| Решение | Что значит для кубка | Расхождение с текстом выше |
+|---|---|---|
+| К1: бот — администратор чата обязательно | публикация требует `botIsAdmin() === true`; `null` (не удалось узнать) — 503 | нет (совпадает с В1) |
+| К2: дуэль живая, вторым выпуском | этап 2 не делался | нет |
+| К3: раунд не влияет на цель дня, серию, расписание | раунд не пишет ничего вне таблиц кубка (тест «writes nothing outside the cup») | нет |
+| К4: опечатка в раунде — 0 очков | `points = 2` только за `correct`; CHECK `cup_round_answers` | нет; в **лиге** опечатка — успех (docs/32 В8), это другое правило |
+| К5: товарищеский матч тратит лимит баттлов Free | этап 2 | нет |
+| §5а: эмодзи Pro рядом с именем, в т. ч. в таблице кубка | **не учтено в §7.2**: K7 добавляет эмодзи в строки таблицы так же, как в лиге (`ProEmoji`, одним запросом на страницу) | да — дополнение |
+| §5г: продукт называется **Muhrla** во всём, что видит ученик | тексты карточки, сводок и экранов кубка (K6, K8) — с новым брендом | да — тексты K6/K8 |
+| docs/32 §3.2 / §12: очки за слова — только тренировка и игра | раунд кубка **не даёт** очков рейтинга (ни недельных, ни месячных, ни «за всё время») | нет (совпадает с «очки кубка не идут в лигу»); документы о раунде кубка в очках v2 молчат — решено «не даёт», как практика |
+
+### 11.2 Решения реализации (отличия от §2–§5)
+
+1. **Порядок блокировок: `cups → cup_round_attempts → cup_participants → cup_day_scores`** (в §5.6 финиш брал участников раньше
+   кубка). Финиш и старт берут `FOR UPDATE` кубка, потом участников; вступление — `FOR SHARE` кубка, потом своего участника; ответ
+   кубок не блокирует вовсе. С порядком §5.6 вступление вернувшегося участника (кубок → участник) и финиш (участник → кубок) могли
+   взаимно заблокироваться.
+2. **Статус кубка под блокировкой участника читается отдельным запросом.** `SELECT … JOIN cups … FOR UPDATE OF cup_participants`
+   после ожидания перепроверяет только заблокированную строку участника, а строку кубка берёт из старого снимка (READ COMMITTED) —
+   ответ, ждавший финиша, видел `running` и начислял очки после подсчёта мест. Поймано гонкой на PostgreSQL; теперь два запроса.
+3. **Индексов на счётчиках нет** (требование владельца про HOT): нет `(cup_id, best_total, best_round_points)` (таблица кубка
+   сортируется в памяти — десятки строк), нет `(cup_id, updated_at)` у `cup_day_scores` (есть `(cup_id)`), вместо `(status, …)` —
+   частичные индексы только открытых строк (`cups_*_idx`, `cup_days_unbuilt_idx`, `cup_round_attempts_active_expiry_idx`). Замер:
+   обновления `cup_participants` и `cup_day_scores` — 100 % HOT, `cup_round_attempts` — 88 % (не-HOT — последний ответ, он меняет
+   `status`, колонку условия частичного индекса).
+4. **`cup_round_attempts.cup_id`, `learner_id` — без FK; `cup_round_answers` без `learner_id`.** Строки уходят каскадом участника и
+   дня; FK на ученика или кубок потребовали бы двух индексов на самой большой таблице кубка только ради каскада, который и так есть.
+5. **Снимок дня** — `RunSnapshotBuilder::forCupDay(Course, wordIds, LocaleSet(все языки), seed, tasks): RunComposition` с
+   `RunLimits::forCup(tasks)` (ровно `tasks` заданий из слов, без пар, авторских, событий, фляг). План дня — `tasks + spare_words` (2)
+   слов: слово, из которого композитор не смог собрать задание, заменяется следующим, одинаково для всех (день строится один раз).
+   Снимок пишется один раз под `FOR UPDATE` строки дня: планировщик строит за 60 мин до начала дня, первый старт — лениво. `built_at`
+   ставится и днями, закрытыми без снимка (отмена, финиш), чтобы они ушли из частичного индекса.
+6. **Детерминизм:** `seed_secret` → `plan = HMAC("plan")` (выбор слов на весь кубок без повторов), `day = HMAC("day:N")` (снимок),
+   `order = HMAC(day, "order:{participant}")` (порядок заданий, хранится в попытке), `options = HMAC(day, "options:{participant}:{element}")`
+   (порядок вариантов, не хранится — считается при проекции). Id вариантов — из снимка, проверка не меняется. Состав слов, типы и
+   правильные ответы дня одинаковы у всех; порядок заданий и вариантов — свой у каждого.
+7. **Членство** (`CupMembershipGate`): свежий `getChatMember`; троттлинг §4.2 — ответ Telegram переиспользуется 10 с парой (кубок,
+   ученик) в невытесняемом Redis, второй запрос ждёт замок `cup:member-check:*` до 5 с, иначе 429 `cup_check_busy`; отказ просмотра —
+   30 с. Классификация ошибок: 403 → пауза `bot_removed`; 400 «user not found» / `PARTICIPANT_ID_INVALID` → не член; другой отказ API
+   при `botIsAdmin() === false` → `cup_unverifiable {bot_not_admin}` (409); сеть, 5xx, 429 → `telegram_unavailable` (503). Группа с
+   `bot_status` left/kicked — Telegram не спрашиваем. Старт раунда: член — `active`, `membership_checked_at = now`; не член — `left`
+   + 403; Telegram недоступен — пускаем `active` с проверкой не старше 24 ч. Просмотр (решение координатора на ревью выпуска 5 —
+   безопасность важнее удобства, §11.8): участник `active` — без Telegram; участник `left` (вышел или исключён — в открытом и в
+   завершённом кубке) — только со свежей проверкой «член чата», иначе тот же непрозрачный 403, что у постороннего (исключённый не видит
+   имён и очков членов группы); вернулся в чат — видит снова (статус `active` возвращают вступление и старт раунда). Отказ «не член»
+   помнится 30 с и для него. По числовому id любой отказ не-участнику — одинаковый 403 `cup_not_member`; причины — только участнику.
+8. **Ответ** принимается только в порядке своей попытки (`element_not_current {current}`), один раз на задание, до
+   `expires_at + 1,5 с`; позже — попытка закрывается `expired` в той же транзакции, 409 `cup_round_expired {points}`. Ответ в
+   отменённом/завершённом кубке — 410 `cup_closed`. Подсказок нет; `{skip: true}` — ответ на 0 очков. Очки идут в день **попытки**.
+9. **Финиш:** места — один `UPDATE … RANK() OVER (ORDER BY best_total DESC, best_round_points DESC)` (ничья — общее место, 1-1-3), всем
+   участникам, вышедшим тоже; строка `cup_messages final` (`ON CONFLICT DO NOTHING`); отправку делает K6.
+10. **Старт:** нужно 2 участника со статусом `active`; иначе старт сдвигается на следующую полночь (до тех пор, пока не станет в
+    будущем); через `no_players_cancel_days` (7) после публикации — `canceled/no_players`.
+11. `cup_participants.rename_count` — новая колонка (смена имени ≤ 3 раз, §7.2). `CupException::ALREADY_PUBLISHED`
+    (`cup_already_published`, 409) — уровень и язык после публикации; `cup_not_open` (409) — вступление в черновик;
+    `cup_round_unavailable` (409) — нет текущего дня (после конца, до `first_day`).
+
+### 11.3 SQL: операторы и планы (стенд PostgreSQL 16)
+
+Стенд `lexiflow_cup_stand`: 5 001 кубок (80 % завершены, 12 % идут, 6 % ждут старта), 200 040 участников, 32 207 дней со снимками,
+386 410 попыток, 2 024 144 ответа, 386 415 дневных очков; 918 МБ ответы, 534 МБ попытки. Все операторы горячих путей прогнаны через
+`EXPLAIN (ANALYZE, BUFFERS)` — **ни одного Seq Scan**.
+
+| Путь | Операторов | Время на стенде | План (буферы) |
+|---|---|---|---|
+| Ответ неверный | 4: попытка + день + кубок одним `FOR UPDATE OF` попытки, `request_id`, INSERT ответа, UPDATE попытки | медиана 4,6 мс, p95 7,5 мс | PK (14), unique `(attempt_id, request_id)` (4), PK (31) |
+| Ответ верный | 9: + `FOR UPDATE` участника, статус кубка, upsert дня, дни участника, UPDATE `best_*` | 6,7 / 9,6 мс | PK (5), PK (3), unique `(participant_id, day)` (40 / 5) |
+| Последний ответ | +1 (событие `cup.round_finished`) | | |
+| Повтор `request_id` | 2 | | |
+| Старт раунда (новый) | 9: участник, день, попытка дня, UPDATE `membership_checked_at`, снимок, INSERT … ON CONFLICT RETURNING, день очков, `days_played`, событие | 9,4 / 17,5 мс (+ вызов Telegram) | `learner_id` (3), unique `(cup_id, day)` (4), unique `(cup_day_id, participant_id)` (4) |
+| Возобновление (старт ещё раз) / `GET` попытки | 4 / 1 | | |
+| Таблица кубка холодная / тёплая | 1 / 0 (Redis) | 0,06 мс | unique `(cup_id, learner_id)` (7) |
+| Вступление | 4: `FOR SHARE` кубка, INSERT ON CONFLICT, строка `FOR UPDATE`, событие | | |
+| `cups:advance` без работы | 5 (по чтению на шаг) | 0,2–3,4 мс | частичные индексы (51–644 буфера на 5 000 кубков) |
+| `cups:advance`: старт кубка | 8 на кубок (`FOR UPDATE`, игроки, курс, план, 7 дней, UPDATE, группа, событие) | | |
+| `cups:advance`: снимки | 2 на пачку + ≤ 10 на день | | |
+| `cups:advance`: финиш | 8 на кубок (кубок, участники `FOR UPDATE`, места, UPDATE, `final`, дни, группа, событие) | места 0,7 мс | unique `(cup_id, learner_id)` (518 на 40 участников) |
+
+Закреплено `CupQueryBudgetTest` (точные числа; рост на кубок в `cups:advance` — константа). Индексы и размеры на стенде:
+`cup_round_answers` — PK 43 МБ, два unique по 78 МБ; `cup_round_attempts` — PK 8,5 МБ, unique 12 МБ, `participant_id` 10 МБ,
+частичный по сроку 16 КБ; остальные — единицы МБ. Каждый FK — с индексом на своей стороне, кроме `cups.course_id` (RESTRICT).
+
+### 11.4 Контракт для K6–K9
+
+**Ядро (вызывать только его; правила внутри):**
+
+| Кто | Метод | Что делает |
+|---|---|---|
+| бот `cup:new`, `/cup` | `CupLifecycleService::propose(TelegramGroup, int fromId, ?int threadId): CupProposal{cup, created}` | черновик или открытый кубок чата; `cup_unavailable`, `cup_paused`, `cup_material_unavailable` |
+| бот `cup:pub:{id}`, TWA publish | `publish(Cup, int telegramUserId, ?level, ?locale): Cup` | проверка админа чата и бота внутри; повтор — без ошибки |
+| TWA settings | `updateSettings(Cup, int telegramUserId, array{level?, locale?, summaries_enabled?, summary_minute?}): Cup` | |
+| бот `cup:cancel:{id}`, TWA cancel | `cancelByChatAdmin(Cup, int telegramUserId): bool` | |
+| `/admin` | `cancelByPlatform(Cup): bool` | панель сама проверяет роль и пишет `audit_logs cup.canceled` |
+| бот: уход из чата | `CupParticipationService::onLeftChat(Learner, TelegramGroup): int` | вызвать в `ChatMemberHandler` после `leave()` и в `left_chat_member` |
+| TWA | `CupParticipationService::join(Cup, Learner, ?string name): CupJoinOutcome{participant, created}`, `rename(Cup, CupParticipant, Learner, string)` (свежая проверка членства, §11.8 п. 1) | |
+| TWA | `CupMembershipGate::assertCanView(Cup, Learner, ?CupParticipant, bool $opaque)` | by-code — `opaque: false`, по id — `true` |
+| TWA | `CupStandings::table(Cup): list<{participant_id, rank, display_name, total, round_points, days_played, left}>` | кэш Redis; эмодзи Pro (§11.1) — в ресурсе K7 |
+| TWA | `CupRoundService::today()`, `startToday()`, `find()`, `answer()`, `audioOf()` → `CupRoundView::toArray()`, `CupAnswerOutcome{body, view, replayed}` | |
+| — | `CupRoundService::ensureDaySnapshot()`, `buildUpcoming()`, `closeExpired()`; `CupLifecycleService::start()`, `finish()`, `expireDraft()` | только `cups:advance` (`CupScheduler`) |
+
+**Ошибки** — `CupException` (`errorCode`, `httpStatus()`, `details`), полный список — в классе. Контроллер: `ApiErrorResource::respond(...)`.
+
+**K6 (бот):** обработчики `requiresActiveGroup() = false`; тексты — `lang/{ru,uz}/cup.php` с брендом Muhrla; outbox: строки
+`cup_messages` (`final` уже создаёт финиш), `PostCupMessageJob` по §6.4, «есть новые результаты» —
+`EXISTS (SELECT 1 FROM cup_day_scores WHERE cup_id = ? AND updated_at > cups.card_rendered_at)` (индекс `(cup_id)`); имя —
+`display_name`, экранировать HTML. События `cup.summary_posted` — K6.
+
+**K7 (API):** маршруты docs/04 A.23, лимитеры docs/07 §6; `CupRoundResource` из `CupRoundView` (без ключей снимка, у задания
+`listen` — `audio_url` на маршрут `cup-rounds/{attempt}/audio/{element}` через `audioOf()`); контрактный тест запрещённых ключей
+(`correct_option_id`, `expected`, `correct_text`, `full_text`, `word_id`, `word`, `lexeme_id`, `audio_path`, `audio_disk`);
+событие `cup.invite_viewed`; эмодзи Pro в таблице (§11.1). Ответ 201/200 — по `created`.
+
+**K8 (TWA):** см. docs/05 §5d. Таймер — по `expires_at` и `server_now` ответа.
+
+**K9 (`/admin`):** `CupResource` по §8 (бюджет запросов на 50 строк); «Отменить» → `cancelByPlatform`; «Сбросить имя» →
+`CupParticipationService::resetDisplayName(CupParticipant)` (имя из Telegram, счётчик смен не тратится) + `audit_logs`; «Запретить кубки» → `meta.cups_blocked`;
+«Кубок: пилот» → `meta.cup_pilot`; `cups:pilot-report`.
+
+### 11.5 Проверки
+
+PostgreSQL 16 + Redis (свои базы): `tests/Feature/Cup` и `tests/Unit/Cup` — все зелёные, в том числе 10 гонок на форках
+(`CupConcurrencyTest`): два/три одновременных первых старта (одна попытка, один снимок), четыре первых старта разных участников (один
+снимок), два ответа на задание, повтор `request_id`, ответ и закрытие истёкшей попытки, два `cups:advance` (один старт, один финиш,
+один `final`), вступление во время старта, три `cup:new`, публикация и отмена, финиш и ответ. SQLite — то же без PG-only тестов.
+Не проверено на живом Telegram: тексты ошибок `getChatMember` у бота-не-админа (§4.4, классификация по коду и подстроке).
+
+### 11.6 K6: бот кубка — что сделано (coder, 25.11.2026)
+
+Код: `App\Domain\Telegram\Handlers\CupCallbackHandler`, `CupCommandHandler`, `App\Domain\Telegram\Support\CupCallback`;
+`App\Domain\Cup\Services\CupCardRenderer` (тексты, кнопки, картинка), `CupOutbox` (строки `cup_messages`, отправка, чистка),
+`CupCards` (правка карточки, выбор карточек с новостями, возврат бота), `CupSummaries`; `App\Jobs\PostCupMessageJob`; команды
+`cups:post-summaries`, `cups:refresh-cards`, `cups:send-outbox` (расписание — docs/04 B.16, DEVOPS_GUIDE); хуки в `ChatMemberHandler`
+(`onLeftChat` после каждого `leave()`), `MyChatMemberHandler` (возврат бота → карточка заново), `GroupWelcomeMessenger` (кнопка
+`cup:new`); экраны `TwaScreen::CupInvite` / `CupPlay` / `CupSetup` (маршруты TWA — K8); тексты `lang/{ru,uz}/cup.php`,
+`buttons.cup_*`; событие `cup.summary_posted`. Поведение — docs/04 B.16.
+
+Решения реализации:
+
+1. **Карточка — фото с подписью** (рисовальщик v2, `CardSpec` семейства `cup`): на картинке нет имён и очков — бренд, «Кубок друзей»,
+   уровень и правила; один файл на уровень, размеры и язык (кэш рисовальщика). Таблица — в подписи, правится `editMessageCaption`.
+   В теме форума (`card_thread_id`) и когда картинку нарисовать нельзя — текстовое сообщение (`sendGroupMessage` с темой), правится
+   `editMessageText`; вид — `cups.meta.card_kind`. Причина: у `sendPhotoMessage` клиента нет `message_thread_id`. Итог (`final`) — тоже
+   фото; сводка — текст.
+2. **Простой текст без HTML** во всех сообщениях кубка: `display_name` выводится как есть, экранировать нечего.
+3. **«Есть новости» для карточки** — `EXISTS` по `cup_participants.updated_at` (unique `(cup_id, learner_id)`), а не по
+   `cup_day_scores`, как в §11.4: каждая запись дневных очков в той же транзакции переписывает строку участника (`best_*` /
+   `days_played` с `updated_at`, `CupScoreBook`), а карточка показывает именно её — строк в разы меньше (по одной на участника, не на
+   участника и день). Плюс `EXISTS` по `cup_days.starts_at` («День N» в полночь) и изменение самой строки `cups`
+   (`card_rendered_at <= updated_at`: старт, финиш, отмена, настройки). Сравнение `>=`: метки времени с точностью до секунды.
+   `cups.updated_at` бот не трогает (рендер пишет только `card_*`).
+4. **Новый частичный индекс** `cups_card_stale_idx ON cups (id) WHERE card_message_id IS NOT NULL AND card_rendered_at <= updated_at`
+   (миграция `2026_11_28_100003`): без него третья ветка выбора — Seq Scan всех кубков за всю историю (209 буферов на 5 000 кубков,
+   растёт); с ним — Index Scan нескольких строк, ждущих рендера (124 буфера на стенде, где таких 123). Цена — не-HOT обновления `cups` на
+   переходах и рендерах (не чаще раза в 5 минут на карточку); ответы раунда `cups` не трогают.
+5. **Сводка** — по правилу §6.1 «sha1(очки) ≠ summary_scores_hash»: хэш строк таблицы с очками > 0; таблица без очков — без сводки.
+   Отдельной проверки «кто играл сегодня» нет (сыгранный без очков день таблицу не меняет).
+6. **Тост, не alert** на отказ кнопки (решение координатора K6: «короткий тост»), `show_alert = false`.
+7. **`/cup` — лимит 10 минут на чат только у команды**: `cup:new` при открытом кубке отвечает тостом без сообщения в чат, а новый
+   черновик возможен лишь без открытого кубка (UNIQUE ядра) — спамить сообщениями кнопкой нельзя.
+8. **Удалённая карточка** («message to edit not found» / «message can't be edited») публикуется заново, если прошлая отправлена больше
+   24 ч назад; иначе правка просто не делается до следующей новости.
+9. **`CUP_ACCESS=off`**: строки outbox получают `skipped` (`access_off`), `/cup` не распознаётся, нажатие подтверждается без текста.
+10. **Эмодзи Pro** — `CupProEmoji::forCup()` (K7): то же правило, что `ProEmojiService::visibleForMany()`, суженное участниками кубка, один
+    запрос на кубок и кэш рядом с таблицей — без отдельного запроса `learner_id` участников.
+
+SQL (закреплено `CupBotQueryBudgetTest`, SQLite и PostgreSQL одинаково):
+
+| Путь | Операторов |
+|---|---|
+| Нажатие `cup:pub` не-админом | 2, без записи: группа, кубок группы; ядро спрашивает Telegram, кто нажал, **до** чтения курса и подсчёта слов (было 4, §11.8) |
+| Нажатие `cup:pub` админом | 9: + `FOR UPDATE` и UPDATE кубка, событие (ядро); таблица карточки, хэш карточки |
+| Отправка строки outbox (сводка) | 8: захват, строка, кубок, группа, таблица, эмодзи, `sent`, событие; повтор — 1 (захват ничего не нашёл) |
+| `cups:refresh-cards`, N карточек | 6 при любом N (было 3 + 3·N, §11.8): выбор, кубки, группы, таблицы всех карточек, эмодзи всех карточек, один `UPDATE … CASE` хэшей |
+| `cups:post-summaries`, N кубков | 5 при любом N (было 1 + 5·N, §11.8): выбор (время сводки — в SQL), таблицы, решение дней (`UPDATE … RETURNING`), хэши (`UPDATE … CASE`), строки (`INSERT … RETURNING`); никто не наступил — 1 |
+| `cups:send-outbox` | 2 при любом числе строк |
+
+Планы (`EXPLAIN (ANALYZE, BUFFERS)`, PostgreSQL 16, стенд `lexiflow_cupbot_stand`: 5 000 кубков — 4 000 завершены, 600 идут, 300 ждут
+старта; 200 000 участников, 32 200 дней, 368 000 дневных очков, 50 750 строк outbox, из них 51 открытых):
+
+| Запрос | План | Буферы / время |
+|---|---|---|
+| Выбор карточек, все 900 открытых без новостей (худший случай) | Bitmap Index Scan `cups_running_end_idx` / `cups_scheduled_start_idx` + `EXISTS` Index Scan unique `(cup_id, learner_id)` + Bitmap `cup_days (cup_id, day)`; ветка «строка изменилась» — Index Scan `cups_card_stale_idx` | 44 829 / 18,6 мс (≈ 50 буферов на открытый кубок, от истории не зависит) |
+| Выбор карточек, новости у 100 из 900 (90 — очки/участники, 10 — строка кубка) | то же; `EXISTS` кубка с новостью выходит на первой найденной строке | 42 381 / 18–31 мс |
+| Кандидаты сводок (600 идущих) | Bitmap Index Scan `cups_running_end_idx` → Hash Join с Seq Scan `cup_days` (32 200 строк, 426 буферов) → PK групп; с ревью выпуска 5 условие времени сводки (`d.starts_at + summary_minute * interval '1 minute' <= now`) — фильтр того же соединения (§11.8) | 1 533 / 4 мс (после — 1 251 / 6 мс, стенд §11.8); путь по индексу `(cup_id, day)` — 6 510 буферов, планировщик перейдёт на него сам, когда `cup_days` вырастет (~в 15 раз) |
+| `sending` старше 10 мин; `pending` для повтора | Index Scan частичного `cup_messages_outbox_idx` | 12 / 0,05 мс |
+| Захват строки | PK `cup_messages` | 2 |
+| Таблица кубка (40 участников) | Bitmap Index Scan unique `(cup_id, learner_id)` | 43 / 0,6 мс |
+
+Проверки: `tests/Feature/Cup/CupBotTest.php`, `CupOutboxTest.php`, `CupCardRefreshTest.php`, `CupSummariesTest.php`,
+`CupBotQueryBudgetTest.php`, `CupBotConcurrencyTest.php` (PostgreSQL + Redis, форки: четыре воркера отправляют одну строку `final` — одно
+сообщение; три планировщика решают сводку одного дня — одна строка). Не проверено на живом Telegram: подпись фото в группе-форуме, тексты
+«message to edit not found» / «message can't be edited», `/start@bot cup` после ссылки `?startgroup=cup`.
+
+### 11.7 K7 и K9: HTTP API и `/admin` — что сделано (coder, 25.11.2026)
+
+**K7 — HTTP API** (контракт ответов и кодов — docs/04 A.23, его держит `CupContractTest`). Код: маршруты `routes/api.php` (раздел
+кубка), `EnsureCupAccess` (выключатель), контроллеры `Api\Twa\Cup\{CupController, CupRoundController, CupSetupController}`,
+FormRequest `Requests\Twa\Cup\*`, ресурсы `Resources\Twa\Cup\*` (`CupInviteResource`, `CupResource`, `CupRoundResource` из
+`CupRoundView`, `CupRoundAnswerResource`, `CupParticipantResource`, `CupListResource`, `CupTodayResource`, `CupSetupResource`), лимитеры
+`twa-cup-*` (`AppServiceProvider`, docs/07 §6), сервисы `Cup\Services\CupMiniApp` (двери и порядок проверок), `CupReader` (чтения),
+`CupProEmoji` (эмодзи Pro таблицы), событие `cup.invite_viewed`; типы и методы клиента — `resources/twa/src/api/{types,index}.ts`.
+
+Решения:
+
+1. **Один оператор на поиск кубка.** `CupReader::locate()` — кубок по PK (или по unique `public_code`), его группа по PK и своё участие
+   по unique `(cup_id, learner_id)` одним `JOIN … LEFT JOIN`; модели собираются из строки, группа ставится связью, которую читает ядро.
+   Так каждый маршрут кубка платит сверх ядра только ученика JWT и этот оператор.
+2. **Двери** (docs/04 A.23; пересмотрено на ревью выпуска 5, §11.8): все маршруты по числовому id — чтения, **вступление** и действия
+   админа чата — одна дверь `opaque: true`. Правило: причины отказа (409 `cup_paused` / `cup_unverifiable`, 503, 429 `cup_check_busy`)
+   видит только тот, чьё отношение к кубку сервер знает без Telegram, — участник (по базе, любого статуса) — либо вход по коду
+   приглашения. Остальным по id — один 403 `cup_not_member` во всех случаях, кроме однозначного «член чата»: бот удалён (Telegram не
+   спрашиваем), бот не может проверить, сбой Telegram, занятая проверка — как «нет кубка». Прежний вариант (вступление по id с
+   причинами) отвечал постороннему 409 `cup_paused` без вопроса к Telegram, а несуществующему id — 403: существование кубка
+   проверялось перебором id. Цена: член чата, вступающий по id в момент сбоя Telegram, видит 403 — экран приглашения (по коду) уже
+   сказал ему причину, повтор через секунды проходит. Статус кубка (`cup_not_open`, 410) видит только прошедший дверь. Имя и старт
+   раунда — только участник; не-участник получает 403 раньше, чем ядро скажет «кубок не начался» или «закрыт».
+3. **Пилот** (`CUP_ACCESS=pilot`) сообщает «недоступно в этом чате» только прошедшему дверь; `off` — один 403 `cup_unavailable` на
+   всех маршрутах до чтения БД.
+4. **Эмодзи Pro** — `CupProEmoji::forCup()`: правило `ProEmojiService::visibleForMany()` (набор, живой платный план свой или места в
+   центре через `PaidSubscriptionQuery`), суженное участниками кубка, **один оператор** на промахе: `visibleForMany` требует список
+   `learner_id`, а таблица кубка их не хранит (наружу — только `participant_id`) — отдельный запрос id стоил бы второго оператора.
+   Условия Pro — на `cp.learner_id`, не на `learners.id`: иначе PostgreSQL фильтровал всех учеников платформы хэшированными
+   подзапросами (параллельный Seq Scan 150 000 учеников, 34 мс), теперь — участники кубка → PK учеников (0,3 мс, ~200 буферов). Ключ
+   `cup:emoji:v1:{кубок}` рядом с таблицей (docs/19); сброс — вступление и смена эмодзи участником открытого кубка
+   (`LearnerSettingsService` → `learnerChanged`). Тест держит его в одном шаге с `visibleForMany` (`CupHttpQueryBudgetTest`).
+5. **`audio_url`** — у задания `listen` (и в `review`) по маршруту `cup-rounds/{attempt}/audio/{element}` без запроса (по `kind`);
+   сам маршрут — `find()` + `audioOf()`: клип только текущего или отвеченного задания (как у забега игры), чужое — 404.
+6. **`can_manage`** — подсказка без вызова Telegram (ученик предложил или опубликовал кубок): вызов `getChatMember` на каждое открытие
+   таблицы съел бы лимит Telegram; права всё равно проверяются при действии.
+7. **`cup.invite_viewed`** — раз в час на пару (ученик, кубок), маркер `cup:invite-viewed:v1:*` (`Cache::add`); отчёт пилота считает
+   уникальных учеников.
+8. **Политик TWA нет**: доступ решает ядро (`CupMembershipGate`, `CupAdminCheck`, чтение попытки по id **и** ученику) — проверка в одном
+   месте; `CupPolicy` — для `/admin`.
+
+**K9 — `/admin`.** Код: `Filament\Resources\CupResource` (+ `Pages\{ListCups, ViewCup}`, `RelationManagers\{Participants, Attempts}`),
+`Policies\CupPolicy`, действия групп в `TelegramGroupResource`, `Cup\Services\CupPlatformAdmin` (действия с `audit_logs`, роль
+проверяется ещё раз), `Cup\Services\CupPilotReport` + команда `cups:pilot-report --since= [--json]`, тексты `lang/ru/admin.php` (`cups`),
+связь `Cup::roundAttempts()` (чтение). Руководство — ADMIN_GUIDE «Friends' cup».
+
+- Список: группа, статус, пауза, уровень, курс, «День N из 7», участников, играли, старт, финиш; фильтры статус / на паузе / группы
+  пилота, поиск по названию группы (`AdminTable::whereContains`). Число участников и сыгравших — **не `withCount`**: его коррелированные
+  подзапросы стоят в списке выборки, и PostgreSQL считает их и для строк, которые пропускает OFFSET (последняя страница 5 000 кубков —
+  140 000 буферов, 112 мс). Вместо этого `afterQuery` — один сгруппированный оператор по id страницы (`CupResource::withParticipantCounts`).
+- Страница кубка: участники в порядке таблицы (сортировка в памяти по unique `(cup_id, learner_id)` — десятки строк) с «Сбросить имя»;
+  попытки **одного дня** — фильтр дня без «все» (`cup_round_attempts.cup_id` без индекса, §11.2 п. 4), unique `(cup_day_id,
+  participant_id)`, простая пагинация.
+- Действия: «Отменить кубок» (причина обязательна, подтверждение; `cancelByPlatform`, `audit_logs cup.canceled {reason, from,
+  telegram_group_id}`), «Сбросить имя» (`resetDisplayName`, `cup.participant_renamed {cup_id, from, to}`), «Запретить кубки» / «Разрешить»
+  (`meta.cups_blocked`, `cup.group_blocked` / `cup.group_unblocked`; открытый кубок встаёт на паузу), «Кубок: включить / выключить пилот»
+  (`meta.cup_pilot`, `cup.group_pilot_on` / `_off`). Флаги пишутся под `FOR UPDATE` строки группы (другие ключи `meta` не теряются;
+  «выкл» — удаление ключа). Права: активный админ — политика на каждое действие, `RequiresActiveAdmin` на relation managers (403 на
+  каждый запрос Livewire), и ещё раз в `CupPlatformAdmin` (прямой вызов мимо кнопки — `AuthorizationException`).
+- Отчёт пилота: кубки по статусам; открывшие приглашение → вступившие; участники → сыгравшие раунд, вышедшие; раунды → доиграли до
+  конца / истекли, средние очки; сыгравшие в день 1–2 → вернувшиеся в день ≥ 3; группы с завершённым кубком → опубликовавшие следующий
+  за 14 дней. 7 операторов при любом числе кубков: сначала id кубков периода (таблица `cups` мала), дальше каждый блок — **по этим id**
+  через индексы ядра (с `JOIN` на `cups.created_at` PostgreSQL сканировал всех участников даже для 50 кубков).
+
+**SQL — маршруты K7** (операторы; `CupHttpQueryBudgetTest`, PostgreSQL = SQLite):
+
+| Маршрут | Холодный | Тёплый / повтор | Из них ядро |
+|---|---|---|---|
+| `GET /cups/{id}` (3 и 12 участников, с эмодзи) | 7 | 5 | таблица 1 / 0, `today` 2; + эмодзи 1 / 0, дни 1 |
+| `GET /cups/by-code/{code}` | 3 (+ событие) | 2 | — |
+| `POST /cups/{id}/join` | 6 | — | 4 |
+| `PATCH /cups/{id}/me` | 6 (было 5: + запись свежей проверки членства, §11.8) | — | 4 |
+| `POST /cups/{id}/rounds/today` | 11 | 6 (возобновление) | 9 / 4 |
+| `GET /cup-rounds/{id}` | 2 | — | 1 |
+| `GET /cups/{id}/rounds/today` | 4 | — | 2 |
+| `POST /cup-rounds/{id}/answer` неверный / верный | 5 / 10 | повтор `request_id` 3 | 4 / 9 / 2 |
+| `GET /cups` (1 и 4 кубка; с `me.today`) | 2 | — | — |
+
+Везде «+ 2» = ученик JWT и `CupReader::locate` (у попытки — только ученик).
+
+**SQL — `/admin`** (`CupAdminTest`, `FilamentQueryBudget`, 10 и 50 строк — одинаково): список кубков — 5 на рендер (число строк, страница,
+группы, курсы, участники страницы одним оператором; потолок 10 на два рендера); участники кубка — 5 на два рендера; попытки дня — не
+растёт (потолок 5); отчёт пилота — 7.
+
+**Планы** (`EXPLAIN (ANALYZE, BUFFERS)`, PostgreSQL 16, стенд `lexiflow_cupapi_stand`: 5 000 кубков — 3 840 завершены, 160 отменены,
+600 идут, 300 ждут старта, 100 черновиков; 4 000 групп; 202 000 участников; 31 080 дней; 316 800 попыток; 292 800 дневных очков; 720 000
+событий; 21 400 подписок; 30 000 учеников с эмодзи). Новых индексов нет.
+
+| Запрос | План | Буферы / время |
+|---|---|---|
+| Список, страница 1 / последняя (OFFSET 4 950) | Index Scan Backward `cups_pkey` | 7 / 0,05 мс; 223 / 1,6 мс |
+| Участники страницы (одним оператором) | Bitmap Index Scan unique `(cup_id, learner_id)` | 150–220 / 0,1–1,5 мс |
+| Группы и курсы страницы | PK | 102 / 0,06 мс |
+| Число строк без фильтра / статус `scheduled` / `finished` | Index Only Scan / частичный `cups_scheduled_start_idx` / Seq Scan 5 000 кубков | 10 / 2 / 162; ≤ 0,8 мс |
+| Фильтр статуса `scheduled` / `finished`, страница | Index Scan Backward `cups_pkey` с фильтром + участники страницы одним оператором | 10 + 221 / 0,8 мс; 54 + 221 / 1,5 мс |
+| Фильтр «на паузе» / «пилот», поиск по группе | Seq Scan `telegram_groups` (4 000) → Index (Only) Scan `cups (telegram_group_id, created_at)` / Hash Join + top-N | 216–314 / 1–5 мс |
+| Участники кубка | Bitmap Index Scan unique `(cup_id, learner_id)` + sort в памяти 50 строк | 53 / 0,16 мс |
+| Попытки дня | InitPlan unique `(cup_id, day)` → Index Scan unique `(cup_day_id, participant_id)` + incremental sort | 9 / 0,07 мс |
+| Отчёт пилота, 50 кубков в периоде | `cups` Seq Scan (5 000) → по id: Bitmap Index Scan участников, unique дней → attempts, `cup_day_scores (cup_id)`; события — `(name, occurred_at)` | участники 256 / 0,9 мс, раунды 1 662 / 2,3 мс, день 3 134 / 1,1 мс; события периода — 1 349 / 117 мс (все 120 000 событий кубка стенда в окне) |
+| Отчёт пилота за всю историю (5 000 кубков) | планировщик сам выбирает параллельный Seq Scan — это все данные | ≈ 0,5 с суммарно |
+| API: `locate` по id / по коду + число участников | PK кубка → PK группы → unique участия | 0,07 / 0,09 мс |
+| API: мои кубки / мои дни / таблица / эмодзи | `cup_participants (learner_id)` / unique `(participant_id, day)` / unique `(cup_id, learner_id)` / то же → PK учеников | ≤ 0,3 мс |
+
+Проверки: `CupContractTest`, `CupHttpAccessTest`, `CupHttpQueryBudgetTest`, `CupRateLimitTest`, `CupPilotReportTest`,
+`tests/Feature/Filament/CupAdminTest.php`; PostgreSQL + Redis и SQLite.
+
+### 11.8 Ревью выпуска 5: исправления сервера (architect, 25.11.2026)
+
+Решения (контракт — docs/04 A.23, B.16; безопасность — docs/07 §5):
+
+1. **Имя — только `active` и член чата сейчас.** `PATCH /cups/{id}/me`: участник `left` — 403 `cup_not_member` без вызова Telegram;
+   `active` — свежая проверка `CupMembershipGate::admitToRename()` (как старт раунда, но без 24 ч по сбою Telegram: имя может
+   подождать); «не член» — 403 и участник становится `left`; 409 `cup_paused` / `cup_unverifiable`, 503, 429 — он участник, ему можно.
+   Статус перечитывается под `FOR UPDATE` строки участника; Telegram — до транзакции. `PATCH /me` — 6 операторов (+ запись проверки).
+2. **Двери по id** — §11.7 п. 2 (новое правило), тест — матрица (пауза, бот не админ, сбой Telegram, занято) × (участник `active`,
+   участник `left`, посторонний, нет кубка) на `GET /cups/{id}` и `POST /join` (`CupDoorsTest`).
+3. **Вышедший / исключённый не видит таблицу** — §11.2 п. 7. Касается только `left`: кто вышел из чата после финиша, не получив события
+   (статус `active`), видит итог завершённого кубка как раньше — события ухода после финиша кубок не обрабатывает.
+4. **Имя не становится ссылкой** (`DisplayName`): на входе NFC, удаление управляющих / bidi / невидимых символов (ZWJ — только внутри
+   эмодзи), длина ≤ 32 графем (ICU `grapheme_str_split`; `\X` PCRE 10.42 склеивает соседние эмодзи) и ≤ 64 кодовых точек — колонка
+   `cup_participants.display_name` расширена до `varchar(64)` (миграция `2026_11_28_100004`, на PostgreSQL — без перезаписи таблицы);
+   отказ 422 `cup_display_name_invalid {reason: empty | too_long | marks | link | mention | command | tag}`. На выводе в бота
+   (`DisplayName::forChat()`) и для имени из Telegram — обезвреживание похожими символами (＠ ∕ ＃ ＄, U+2024 вместо точки домена,
+   U+2044 в `://`), не больше 2 комбинирующих знаков подряд. **Не проверено на живом боте:** что Telegram действительно не делает
+   ссылки из этих замен — проверить в пилотной группе.
+5. **`publish()`: админ чата — сразу после выключателя, статуса и паузы**, до курса и подсчёта слов: не-админ не узнаёт
+   `cup_level_invalid` / `cup_material_unavailable` и стоит 2 оператора вместо 4. Порядок блокировок не менялся (вопрос Telegram — вне
+   транзакции, как и был).
+6. **Форма группы в `/admin`** (`EditTelegramGroup`): `cups_blocked`, `cup_pilot` вынуты из редактора ключей (`CupPlatformAdmin::
+   GROUP_FLAGS`); при сохранении берутся из строки под `FOR UPDATE` — сохранение формы не отменяет действие, нажатое пока форма была
+   открыта, и не превращает флаг в строку.
+7. **Сводки не голодают:** время сводки — в SQL (`d.starts_at + c.summary_minute * interval '1 minute' <= now` на PostgreSQL,
+   `datetime(d.starts_at, '+N minutes')` на SQLite; `cup_days.starts_at` — местная полночь кубка в UTC, так что минута — в поясе кубка).
+   План на стенде (5 000 кубков: 600 идут, 300 ждут, 4 000 завершены; 32 200 дней): Bitmap Index Scan `cups_running_end_idx` (полного
+   просмотра `cups` нет) → Hash Join с Seq Scan `cup_days` (426 буферов, как и до правки, §11.6) → PK групп; 1 251 буфер, 6 мс.
+8. **Длина по-телеграмовски** — `TelegramText` (единицы UTF-16, обрезка по графемам): подпись карточки / итога (1024) теряет строки
+   таблицы с конца целиком («…и ещё N»), текст (4096) режется по графемам в крайнем случае; то же в `PollMessenger` (`answered()`,
+   `fits()`) и в тосте кнопки (200).
+9. **Итог без задержки:** `CupScheduler` после `finish() === true` ставит `PostCupMessageJob` строки `final` (`CupOutbox::queue()`, +1
+   оператор на завершённый кубок: `cups:advance` — 5 + 9·N); ядро о боте не знает; `cups:send-outbox` — страховка.
+10. **Тесты бюджетов** сбрасывают оба кэша (`Cache::flush()` + `PureCache::store()->flush()`): на PostgreSQL + Redis таблица и эмодзи
+    — в отдельном хранилище.
+11. Тесты призов месяца — `toEqual`: jsonb хранит ключи объекта в своём порядке; код читает ключи по имени.
+12. **`onLeftChat($learner, $group, $at)`** — событие не старше последней успешной проверки (`membership_checked_at <= $at`), иначе
+    ничего не меняет (повтор вебхука, опоздавшее событие).
+13. **Гонка «проверка — уход»:** ответ троттлинга хранится как `member@<unix-время вопроса>`; `onLeftChat` пишет время события
+    (`cup:member-left:v1:{cup}:{learner}`, 120 с) и сбрасывает ключ; «member», спрошенный в это время или раньше, не переиспользуется
+    (чтение — один `MGET` двух ключей). То же в базе: «member», спрошенный раньше записанного `left_at`, не делает участника `active`
+    (`markMember` — условный UPDATE; вступление — та же проверка под блокировкой).
+14. **Карточка при возврате бота во время отправки:** строка `sending` → метка `cups.meta.card_repost`; конец отправки без публикации
+    (skipped / unknown / failed) возвращает строку в `pending` и ставит задание; опубликовала — метка снимается (дубля нет). Повтор
+    сброса после метки закрывает окно, когда отправка кончилась между двумя операторами.
+15. **`cups.meta` пишется одним ключом** (`jsonb ||` / `json_set`; `meta`, сохранённый как `[]`, сначала становится `{}` — `jsonb_set`
+    на массиве с текстовым путём падает), не из модели, прочитанной без блокировки.
+16. **`/cup` при черновике** — строка «черновик кубка» и кнопка «Настроить» (`CupSetup`): предложение могло не дойти (`unknown`).
+17. **Подвал сводки последнего дня** — `cup.summary.footer_last` (uz — в `I18N_UZ_REVIEW.md`).
+18. **Пачки вместо операторов на кубок:** `CupStandings::tables()`, `CupProEmoji::forCups()` (кэш — одним `many`, промахи — одним
+    оператором `cup_id IN (…)`); `cups:refresh-cards` — 6 при любом числе карточек (было 3 + 3·N; правки в Telegram — по одной, отметки
+    — один `UPDATE … CASE` после всех, в т. ч. при исключении), `cups:post-summaries` — 5 (было 1 + 5·N). Идемпотентность сводок —
+    `UPDATE cup_days … RETURNING id`: строку получает только день, который взял этот оператор.
+
+Поля для экранов K8 (по просьбе координатора): `CupFields.next_day_at` и `CupRoundResource.next_day_at` (момент открытия следующего
+раунда, решает сервер — `CupClock::nextRoundAt()`; null в последний день), `GET /cups` → `me.today {state, day}` (тот же один оператор
+списка: скалярные подзапросы по unique `(cup_id, day)` и `(cup_day_id, participant_id)`; стенд — 31 кубок ученика, 779 буферов, 1,5 мс).
+
+Тесты: `CupDoorsTest`, `CupBotReviewFixesTest`, `CupScreenFieldsTest`, `tests/Unit/Cup/DisplayNameTest.php`,
+`tests/Feature/Polls/PollMessengerLimitsTest.php`, `CupAdminTest` (форма группы), обновлённые бюджеты `CupBotQueryBudgetTest`,
+`CupQueryBudgetTest`, `CupHttpQueryBudgetTest`.
+
+### 11.9 D1: дуэли — что сделано, решения и контракт для D2 (architect, 26.11.2026)
+
+Код: миграция `2026_11_29_100001_create_cup_duels_tables` (`cup_duels`, `cup_duel_slots`, `battles.cup_duel_id`, `battles.limit_exempt`;
+docs/03 §2.83–§2.84), модели `CupDuel`, `CupDuelSlot`, фабрика `CupDuelFactory`; `Cup\Services\CupDuelService` (вызов, принятие, отказ,
+отмена, истечение, зачёт, `sweep`, `settleCup`), `CupDuelRenderer` (текст публичного вызова), `Cup\Enums\CupDuelStatus`,
+`CupDuelEndReason`, `Cup\DTO\CupDuelOutcome`; `BattleService::prepareForCup()` / `openForCup()` / `busyBattleOf()` /
+`openBattleOfPairOf()`, `Practice\DTO\CupBattlePlan`; хук в `BattleClock::finish()` / `close()` → `App\Jobs\ScoreCupDuelJob`; команда
+`cups:sweep-duels` (каждую минуту, `withoutOverlapping`); `CupScheduler` перед финишем зачитывает законченные дуэли (§5.6); `PracticeLimits`
+не считает `limit_exempt`; `CupScoreBook::setDuelPoints()` (+ `recount()` пишет `days_played`); `CupOutbox::duelKey()` / `duelEndKey()` /
+`enqueueMany()`; `TwaScreen::CupDuel`; `config/cup.php` `duel.*`; тексты `cup.duel.*`, `buttons.cup_duel_accept` (uz — в I18N_UZ_REVIEW);
+`CupWordPlanner` — только курсы слов (`Course::ofCardKind(false)`, слова без `part_of_speech = phrase`: раунд и дуэль на фразах не
+строятся, docs/35 §3.3 c). Выключатель `CUP_DUELS=false` (нужны ещё `PRACTICE_BATTLE=true` и `PRACTICE_ACCESS` ≠ off).
+
+#### 11.9.1 Решения владельца и расхождения с текстом выше
+
+| Решение | Что значит для дуэли | Расхождение |
+|---|---|---|
+| К2: дуэль живая, вторым выпуском | дуэль = баттл `BattleService` (§5.7) | нет |
+| К3: кубок не трогает цель дня, серию, расписание, очки рейтинга | зачёт пишет только `cup_day_scores` / `cup_participants`; баттл не пишет `learner_daily_stats`, SRS, очки (тест) | нет |
+| К5: товарищеский матч тратит лимит баттлов Free | лимит вызывающего проверяется при вызове, **занимается при принятии** под его строкой `learners` (баттл создаётся только тогда); зачётная — `battles.limit_exempt = true`, в лимит не идёт | дополнение: в §5.7 не сказано, когда занимается |
+| docs/29: зачётная дуэль одинаково Free и Pro | ни доступ практики, ни дружба, ни лимит для зачётной не проверяются; только выключатели баттла и режима. **Доступ к практике не проверяется и при игре матча** (чтение, опрос, аудио, ready, ответ, сдача баттла с `cup_duel_id`) — §11.11 п. 2 | дополнение |
+| docs/31 §5г: бренд Muhrla | в текстах дуэли бренда нет | нет |
+| docs/35 §3.3 c (фразы) | кубок и дуэль — только курсы слов | дополнение |
+
+#### 11.9.2 Решения реализации
+
+1. **Порядок блокировок кубка (дополнен):** `cups → cup_duels → [learners] → battles → battle_participants → battle_answers` и
+   `cups → cup_duels → cup_round_attempts → cup_participants → cup_duel_slots / cup_day_scores`. Публичный вызов берёт `FOR NO KEY UPDATE`
+   строки кубка (бюджет чата решается под ней; вставки, ссылающиеся на кубок, не ждут); принятие — `FOR UPDATE` дуэли → слоты одним
+   INSERT в порядке `participant_id` → (товарищеская) `learners` вызывающего (`PracticeLimits::claimBattle`) → баттл; зачёт — дуэль →
+   ~~оба участника `FOR UPDATE` по id → статус кубка отдельным оператором~~ **кубок `FOR KEY SHARE` (статус, `duel_tasks`,
+   `counted_days` — один оператор) → оба участника `FOR UPDATE` по id** (§11.11 п. 3). Транзакции баттла кубок не блокируют: конец
+   матча только ставит job после коммита. ~~Финиш и зачёт не образуют цикла~~ — **образовывали:** вставка первой строки дня
+   (`cup_day_scores`) и строки outbox (`cup_messages`) проверяет FK на `cups` и берёт `FOR KEY SHARE` строки кубка, а финиш держит
+   `cups FOR UPDATE` и ждёт участников → 40P01 (воспроизведено, §11.11 п. 3). **Правило для всего кубка:** транзакция, которая
+   вставляет строку с FK на `cups` после того, как взяла строку, которую ждут под `cups FOR UPDATE` (участник, день), берёт кубок
+   (`FOR KEY SHARE` или сильнее) **до** этой строки. Остаточный риск: удаление ученика (каскад `learners → … → cup_duels`) против принятия товарищеской
+   (`cup_duels → learners`) — PostgreSQL оборвёт одну транзакцию (40P01), повтор безопасен. Так же удаление строки кубка (каскад на
+   дуэли, участников, дни) против `score()` может дать 40P01 — редкость, повтор безопасен.
+2. **Единая дверь:** `accept/decline/cancel` ищут дуэль по id и участие ученика в ЕЁ кубке; нет дуэли, чужой кубок, адресный вызов
+   другому — одинаковый 404 `cup_duel_not_found`. Для маршрутов D2 по `/cups/{id}/…` сначала дверь кубка (`CupMiniApp`, §11.7 п. 2).
+3. **Свежая проверка членства** — тому, кто действует (вызов, принятие): `CupMembershipGate::admitToRound()` (те же правила, что старт
+   раунда, в т. ч. 24 ч при сбое Telegram; «не член» → участник `left` и 403). Второй игрок — по БД: `active` и `membership_checked_at` не
+   старше `stale_ok_hours`; иначе 403 `cup_duel_unavailable` при вызове, при принятии вызов закрывается `canceled/left`. Telegram
+   спрашивается последним — отказы БД его не стоят.
+4. **Блокировка** в `friendships` в любую сторону — 403 `cup_duel_unavailable` без причины (вызов остаётся открытым для других: причина
+   не раскрывается).
+5. **Зачёт ровно раз:** `score()` под `FOR UPDATE` дуэли; дуэль не `accepted` — выход. Очки — присваивание `duel_points` (слот даёт одну
+   зачётную в день), `≤ cups.duel_tasks`. После финиша (статус кубка прочитан под `FOR KEY SHARE` кубка — пока она держится, ни один
+   переход кубка не пройдёт) — `done` с `end_reason = cup_closed`, очков нет, места не меняются (гонка «зачёт — финиш» на PG). `void` —
+   нет ни одного ответа, кроме `timeout`, при любом конце матча, или матч аннулирован системой (`voided`), или баттл удалён: слоты
+   удаляются, можно сыграть зачётную снова (§11.11 п. 4). `finished/absent` с ответом — `done`. Выход
+   игрока из чата во время дуэли зачёт не отменяет (начатая дуэль доигрывается, как попытка раунда).
+6. **День очков** — день принятия (`accepted_day`; `day` — день вызова для лимитов). Принятие после конца последнего дня — вызов
+   закрыт `expired/cup_over`.
+7. **Античит и лимиты (дыры docs закрыты минимально):** сговор очков не даёт (только свои верные, потолок 5 в день — CHECK, и он же в
+   лучших 5 днях); `void` возможен лишь без единого ответа — «переиграть» плохую зачётную нельзя. Новые правила против спама: один
+   открытый вызов от участника (partial unique), за день кубка `duel.daily_challenges` = 20 вызовов, `duel.pair_daily_challenges` = 3
+   одному и тому же участнику, публичных — 3 на участника и 10 на чат (§6.3; сверх — 409 `cup_duel_limit {scope}`, клиент предлагает
+   личный). Принятый риск: соперник может «сжечь» вашу зачётную дуэль дня, сдавшись после первого ответа (вы получаете свои верные) —
+   дружеский формат, жалобы — админу. Сдача **до** первого ответа любого из игроков (в обратном отсчёте или в игре, в том числе в
+   первом раунде, когда задание уже показано) зачётную не сжигает — `void` (§11.11 п. 4; код: `given === 0` при любом конце матча).
+   Принятый риск: игрок может увидеть первое задание и сдаться, пока никто не ответил, — попытка возвращается обоим; набор заданий
+   каждый раз новый, той же паре — не больше 3 вызовов в день.
+8. **Встречные принятия:** уникальные индексы баттла (`open_pair`, `active_learner_id`) и слотов решают; транзакция кубка откатывается
+   целиком (слоты тоже). Отказ: свой матч / матч пары → `battle_busy {battle_id}` (матч, где я игрок); матч вызывающего → 409
+   `cup_duel_opponent_busy` без id (чужой матч не раскрывается). Мёртвое приглашение, державшее игрока, закрывается часами баттла и
+   принятие повторяется один раз.
+9. **Комната:** матч создаётся сразу `room`, оба `active_learner_id`, присутствие считается от принятия — вызвавший должен прийти за
+   `presence_grace_seconds` (30 с), иначе `closed/canceled` → `void`. Экран ожидания вызова (D2) опрашивает дуэль и сразу ведёт в баттл.
+10. **Outbox:** публичный вызов — строка `duel:{id}` (новое сообщение), принятие — строка `duel:{id}:accepted` (правка: «Дуэль идёт», без
+    кнопки; §11.11 п. 7), исход — строка `duel:{id}:end` (правка того же сообщения), все —
+    `kind = duel`, текст `CupDuelRenderer::message()` по состоянию дуэли **на момент отправки** (исход, наступивший до отправки вызова,
+    уходит сразу; правка тогда — «not modified» = успех). Отказ, истечение, отмена, `void` → одна строка «Вызов не состоялся», без
+    кнопки. Истечение пачкой — одна вставка строк правок. **Доставку строк `kind = duel` делает D2** — сделано, §11.10 (вызов, сорвавшийся
+    до отправки, не публикуется вовсе).
+11. **Индексы:** только под запросы выше; частичные — открытые вызовы, непосчитанные дуэли, `open_challenger_id`, `battle_id`,
+    `battles.cup_duel_id`. Обновления дуэли не-HOT (меняется `status` — колонка условий частичных индексов), но их ≤ 3 на дуэль.
+    `winner_participant_id`, `cup_duel_slots.cup_id` — копии без FK.
+
+#### 11.9.3 SQL: операторы и планы
+
+Закреплено `CupDuelQueryBudgetTest` (SQLite = PostgreSQL):
+
+| Путь | Операторов |
+|---|---|
+| Вызов личный / публичный / повтор `request_id` | 8 / 9 / 2 (участник, повтор, адресат, дружба, лимиты+слоты+мой открытый — один, запись проверки, INSERT, событие; публичный: + `FOR NO KEY UPDATE` кубка и пересчёт бюджета, строка outbox, без адресата и дружбы) |
+| Принятие зачётной / повтор | 21 / 4 (3 — материал снимка, 7 — транзакция: блокировка, слоты одним INSERT, баттл + 2 участника, UPDATE, 2 события) |
+| Зачёт зачётной / товарищеской / `void` / повтор | 12 / 5 / 5 / 1 |
+| Отказ публичного вызова | 7 |
+| `cups:sweep-duels`: истечение N вызовов | 3 при любом N (UPDATE … RETURNING пачкой, правки одним INSERT, выбор непосчитанных); пусто — 2 |
+| `cups:sweep-duels`: K законченных матчей | 2 + 12·K (каждая дуэль — своя транзакция под своей блокировкой) |
+
+`EXPLAIN (ANALYZE, BUFFERS)`, PostgreSQL 16, стенд `lexiflow_duel_stand`: 5 000 кубков (4 000 завершены, 600 идут), 200 000 участников,
+300 000 дуэлей (300 открытых, 220 принятых), 146 600 слотов, 187 700 баттлов, 550 800 ответов баттлов, 400 000 дневных очков.
+**Ни одного Seq Scan на путях дуэли.**
+
+| Запрос | План | Буферы / время |
+|---|---|---|
+| Повтор `request_id` | Index Scan unique `(challenger_participant_id, request_id)` | 7 / 0,09 мс |
+| Лимиты + слоты + мой открытый (один оператор) | Index Scan `(cup_id, day)` + InitPlan: partial unique `open_challenger`, Index Only Scan unique слотов ×2 | 19 / 0,2 мс |
+| Бюджет публичных под блокировкой | Index Scan `(cup_id, day)`, фильтр `is_public` | < 10 / 0,03 мс |
+| `FOR NO KEY UPDATE` кубка; `FOR UPDATE` дуэли | PK | ≤ 6 / 0,04 мс |
+| Слоты дня (принятие) / вставка слотов | Index Only Scan unique `(participant_id, day)` / arbiter того же индекса | 1 / 0,02 мс; 47 / 0,4 мс |
+| Баттл и его ответы (зачёт) | PK баттла + 3 подплана по unique `(battle_id, learner_id, request_id)` | 20 / 0,16 мс |
+| Участники `FOR UPDATE`, upsert дня, дни участника | PK / arbiter unique `(participant_id, day)` / тот же индекс | 0,03 / 0,35 / 0,03 мс |
+| Истечение пачки 200 из 300 открытых | частичный `cup_duels_open_expiry_idx` (Hash Semi Join) | 4 853 / 7 мс (200 UPDATE); нечего истекать — 0,01 мс |
+| Принятые с законченным матчем | Bitmap частичного `cup_duels_accepted_idx` (220 строк) → PK баттлов | 1 076 / 1,6 мс (растёт с числом идущих матчей, не с историей) |
+| `settleCup` | BitmapAnd `(cup_id, day)` и `cup_duels_accepted_idx` → PK баттлов | 0,05 мс |
+| Лимит Free с `limit_exempt` | Index Scan `battles (challenger_id, status)`, фильтр | 4 / 0,07 мс |
+| FK: участник → дуэли / слоты; дуэль → слоты, баттлы; баттл → дуэль | `opponent_participant_id`, unique `(challenger, request_id)`, unique слотов, `cup_duel_slots (cup_duel_id)`, partial `battles_cup_duel_id_unique`, partial `cup_duels_battle_unique` | все Index (Only) Scan; удаление кубка из 40 участников и 60 дуэлей — 6,6 мс |
+
+Размеры на стенде: `cup_duels` 48 МБ; unique `(challenger, request_id)` 11 МБ, `opponent_participant_id` 9,2 МБ, `battle_unique` 3 МБ,
+`(cup_id, day)` 3,1 МБ, частичные открытых / принятых / `open_challenger` — по 16 КБ; `battles_cup_duel_id_unique` 3,8 МБ; слоты 11 МБ +
+unique 4,5 МБ + `cup_duel_id` 2,9 МБ. Полный unique `open_challenger_id` (как в §2.9) весил бы 1,9 МБ NULL-ов — сделан частичным.
+
+#### 11.9.4 Контракт для D2
+
+| Кто | Метод | Что делает |
+|---|---|---|
+| TWA `POST /cups/{id}/duels` | `CupDuelService::challenge(Learner, Cup, ?int $opponentParticipantId, bool $public, PracticeMode $mode, string $requestId): CupDuelOutcome{duel, created}` | всё правило внутри; 201/200 по `created` |
+| TWA `…/accept {expect_rated}` | `accept(Learner, int $duelId, bool $expectRated): CupDuelOutcome` | `duel->battle_id` → экран баттла |
+| TWA `…/decline`, `…/cancel` | `decline(Learner, int $duelId): CupDuel`, `cancel(Learner, int $duelId): CupDuel` | повтор — без ошибки |
+| job | `ScoreCupDuelJob` → `score(int $duelId): ?CupDuelStatus` | ставит `BattleClock`; не звать из контроллеров |
+| планировщик | `cups:sweep-duels` → `sweep()`; `CupScheduler` → `settleCup()` | — |
+| бот | `CupDuelRenderer::message(CupDuel, Cup, TelegramGroup): CupCardContent` | для строк `duel:{id}` (send) и `duel:{id}:end` (edit) |
+
+**Ошибки** (`CupException`, `httpStatus()`): 403 `cup_duel_unavailable`, `cup_duel_not_recipient`; 404 `cup_duel_not_found`; 409
+`cup_duel_disabled`, `cup_duel_closed {status, reason}`, `cup_duel_own`, `cup_duel_already_open {duel_id}`, `cup_duel_rating_changed
+{rated}`, `cup_duel_limit {scope: daily | pair | public_participant | public_chat, limit}`, `cup_duel_opponent_busy`; 422 `cup_duel_self`,
+`cup_duel_mode_invalid`; плюс общие кубка (`cup_not_member`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`, `cup_closed`,
+`cup_unverifiable`, `cup_check_busy`) и `BattleException` (`battle_busy {battle_id}`, `battle_disabled`, `battle_material_unavailable`),
+`PracticeException` (`practice_mode_disabled`, `practice_limit_reached`).
+
+**Задачи D2 (coder):**
+1. Маршруты и ресурсы docs/04 A.23d; лимитер `twa-cup-duel` (docs/07 §6); чтения `CupDuelReader`: `GET /cups/{id}/duels` — открытые
+   вызовы мне (`opponent_participant_id = я AND status = open`, индекс `opponent_participant_id`), открытые всем в кубке (`(cup_id, day)`
+   текущего и предыдущего дня, `status = open`, `opponent IS NULL`), мой открытый (`open_challenger_id`), мои дуэли сегодня — **один
+   оператор**, тест бюджета; имена — `display_name`; без `learner_id`.
+2. Доставка `kind = duel` в `CupOutbox::deliver()`: `duel:{id}` — `sendGroupMessage` (тема `card_thread_id`), `message_id` в строке;
+   `duel:{id}:end` — если строка `duel:{id}` `sent` → `editMessageText` её `message_id` без кнопок («not modified» = успех), `pending/sending`
+   → вернуть в `pending` с задержкой, иначе `skipped`; пауза / `CUP_ACCESS` — как у остальных. Тест «отказ и истечение — правка без новых
+   сообщений».
+3. ЛС адресату при личном вызове и вызвавшему при принятии (`SendBattleDmJob`-подобный job, после коммита); экраны `/cups/:id/duel`,
+   `/cups/:id/duels/:duelId`, маршрут `TwaScreen::CupDuel` (`/cups/c/:code/duels/:duel`) в `router/index.ts`.
+4. События `cup.duel_*` — уже пишет ядро; `cups:pilot-report` — по желанию.
+
+**Проверки D1:** `tests/Feature/Cup/CupDuelServiceTest.php` (34), `CupDuelConcurrencyTest.php` (11 гонок на форках PostgreSQL),
+`CupDuelQueryBudgetTest.php` (8), `CupSchemaTest.php` (миграция up/down вместе с остальными таблицами кубка).
+
+### 11.10 D2: сервер дуэлей — HTTP API, доставка в группу, ЛС (coder, 26.11.2026)
+
+Сервер D2 ✅ (экраны D2 — отдельная задача TWA). Контракт для экранов — docs/04 A.23d (формы, коды, переход в баттл); безопасность —
+docs/07 §5 «Дуэль кубка», лимиты — §6. Код: маршруты `routes/api.php` (`/cups/{id}/duels…`), `EnsureCupDuels` (выключатель),
+`Api\Twa\Cup\CupDuelController`, `Requests\Twa\Cup\{CupDuelChallengeRequest, CupDuelAcceptRequest}`, `Resources\Twa\Cup\{CupDuelResource,
+CupDuelListResource}`, `Cup\Services\{CupDuelMiniApp (дверь → ядро → ЛС), CupDuelReader (чтения)}`, `Cup\DTO\{CupDuelView, CupDuelBoard}`,
+`CupOutbox::deliverDuel()`, `Telegram\Services\CupDuelMessenger` + `App\Jobs\SendCupDuelDmJob` + `Cup\Enums\CupDuelDmKind`, лимитеры
+`twa-cup-duel` / `twa-cup-duel-poll` (`config/cup.php` `duel.http.*`), `CupReader::locate(…, $extra)` (скаляры маршрута в операторе двери),
+`CupDuelService::enabled()` (чтение выключателя, ядро не менялось), `me.duel` в `GET /cups/{id}`; тексты `cup.duel_dm.*`,
+`buttons.cup_duel_open` / `cup_duel_play` (uz — в I18N_UZ_REVIEW); типы и методы клиента `api.cups.duels.*`.
+
+Решения:
+
+1. **Дверь дуэлей — только участник `active`, по базе, без Telegram.** Посторонний (в т. ч. член чата без участия), вышедший /
+   исключённый, нет кубка — один 403 `cup_not_member`. В отличие от двери таблицы (§11.7 п. 2) `left` не открывается свежим «член чата»:
+   дуэль — дело двух `active` участников, а вопрос Telegram задаёт ядро тому, кто действует. Выключатель дуэлей — до БД (409
+   `cup_duel_disabled` на всех маршрутах одинаково).
+2. **Дуэль — своего кубка, в том же операторе двери:** `duelScalars()` — имена обоих игроков дуэли `id = ? AND cup_id = cups.id`; NULL →
+   404 `cup_duel_not_found` до ядра. Ядро ищет дуэль только по id (`locate()` по своему кубку дуэли): без этой проверки участник двух
+   кубков действовал бы на дуэль другого кубка по чужому URL. Имена для ответа — из тех же скаляров (вызов — `targetScalars()`): ответ
+   действия не стоит ни одного оператора сверх ядра; эмодзи — кэш таблицы (`CupProEmoji::forCup`, 0 тёплый / 1 холодный).
+3. **`GET …/duels` — один оператор:** id из четырёх индексных проходов `UNION` (вызовы мне — частичный `cup_duels_open_expiry_idx` /
+   `opponent_participant_id`; мой открытый — частичный unique `open_challenger_id`; открытые всем — `(cup_id, day IN (вчера, сегодня))`,
+   вызов живёт 10 мин и переходит полночь; мои сегодня — `(cup_id, day)` ∩ challenger / opponent) → PK дуэли + PK обоих участников. День —
+   `CupClock::dayNumber` без запроса. Доступность («можно ли вызвать сегодня») — скаляры оператора двери (`availabilityScalars()`: день
+   кубка по unique `(cup_id, day)` `cup_days`, мой слот по unique `(participant_id, day)`, мои вызовы дня по `(cup_id, day)`, мой открытый
+   вызов) — и в списке, и в `GET /cups/{id}` (`me.duel`; там операторов столько же, сколько было: 5 тёплый / 7 холодный).
+4. **Доставка (`CupOutbox::deliverDuel`)** — §11.9.2 п. 10, плюс: вызов, сорвавшийся до отправки сообщения, не публикуется
+   (`skipped/fell_through`) — чат не получает нового сообщения «Вызов не состоялся»; правка ждёт исходную строку `pending` / `sending`
+   (строка правки обратно в `pending`, задание через 20 с, попытка не тратится); исходная `skipped` / `unknown` / `failed` → правка `skipped`.
+   403 → `skipped` + `GroupBotRemoval` (правка тоже: у `editMessageText` нет `mapForbidden`, код 403); 429 → `pending` и исключение (клиент
+   ставит паузу только этого чата); таймаут → `unknown`; «message to edit not found» / «can't be edited» → `skipped`; смена чата → `skipped`.
+   Захват строки — тот же условный UPDATE `pending → sending` (гонка четырёх воркеров на форках PostgreSQL — одно сообщение, одна правка).
+5. **ЛС** (`CupDuelMessenger`, правила отправителей docs/34 §4в п. 8, как `FriendsMessenger` / `BattleMessenger`): адресату **личного**
+   (не публичного) вызова — «:name вызывает вас на дуэль в кубке «:group»», зачётная / товарищеская, до HH:MM, кнопка в вызов
+   (`TwaScreen::CupDuel`); вызвавшему при принятии — «:name принял(а) ваш вызов… заходите в течение 30 секунд», кнопка в матч
+   (`TwaScreen::Battle`) — только пока матч в `room`. Перечитывается одним оператором (дуэль, кубок, группа, имена, получатель, матч по PK):
+   не открыт / истёк / публичный / комната закрыта / `CUP_ACCESS` закрыт для чата — молчание; получатель удалён, `blocked_at`,
+   `dm_blocked_at` — молчание. **Отключения этих ЛС нет** — как у ЛС друзей и баттлов (там нет настройки ученика; `reminder_time` управляет
+   только учебными напоминаниями); в лимит «одно сообщение о занятиях в сутки» (`StudyMessageLimit`) они не входят — это ответ на действие
+   другого ученика. Объём ограничивает ядро (20 вызовов в день, 3 одному участнику). Маркер `notifications_log` `cup_duel_dm`
+   `{kind}:{duel}` до вызова; 403 → маркер удаляется, `DmReachability::markUnreachable`; 429 и другой отказ → маркер удаляется,
+   исключение (`ThrottleTelegramOutbound` отложит на `retry_after`); таймаут — маркер остаётся. Задание — после коммита, `retryUntil` 15 мин.
+6. **Экран ожидания:** принявший получает `battle_id` в ответе `accept` (201) и сразу идёт в существующий `/battles/{id}`; вызвавший
+   опрашивает `GET …/duels/{duel}` раз в 3 с (отдельный лимитер 40/мин, чтобы опрос не съедал `twa-cup-read` таблицы) и при `accepted`
+   идёт туда же; ЛС «принят» — запасной путь, если экран закрыт.
+
+**SQL** (`CupDuelHttpQueryBudgetTest`, `CupDuelOutboxTest`, `CupDuelDmTest`; PostgreSQL = SQLite):
+
+| Путь | Операторов | Из них ядро |
+|---|---|---|
+| `GET /cups/{id}/duels` (1 и 9 дуэлей) | 3 тёплый / 4 холодный | — (ученик, дверь со скалярами доступности, список; + эмодзи) |
+| `GET /cups/{id}/duels/{duel}` | 3 | — |
+| `POST /cups/{id}/duels` личный / публичный / повтор | 10 / 11 / 4 | 8 / 9 / 2 |
+| `POST …/accept` / повтор | 22 / 6 | 21 (два события — один INSERT после ответа) / 4 |
+| `POST …/decline` (публичный) / `…/cancel` (личный) | 9 / 8 | 7 / 6 |
+| `GET /cups/{id}` с `me.duel` | 5 тёплый / 7 холодный (как без дуэлей) | — |
+| Доставка `duel:{id}` / `duel:{id}:end` (сорвавшийся вызов) | 7 / 7 (итог матча — 8: имена) | — |
+| ЛС | 3 (всё одним оператором, маркер прочитан, маркер записан) | — |
+
+**Планы** (`EXPLAIN (ANALYZE, BUFFERS)`, PostgreSQL 16, свой стенд `lexiflow_duelapi_stand`, удалён после замеров: 5 000 кубков — 3 840
+завершены, 160 отменены, 600 идут, 300 ждут, 100 черновиков; 4 000 групп; 200 000 учеников и участников; 31 080 дней; **300 000 дуэлей** —
+300 открытых, 220 принятых; 155 331 слот; 171 351 баттл; 33 375 строк outbox дуэлей). **Ни одного Seq Scan; новых индексов нет.**
+
+| Запрос | План | Буферы / время |
+|---|---|---|
+| Дверь + доступность (`GET duels`, `GET /cups/{id}`) | PK кубка → PK группы → участие; скаляры: unique `(cup_id, day)` `cup_days`, Index Only Scan unique слотов, unique `(challenger, request_id)` с фильтром дня, частичный unique `open_challenger_id` ×2 | 34 / 0,2 мс |
+| Список `GET duels` (один оператор) | HashAggregate над Append: частичный `cup_duels_open_expiry_idx` (вызовы мне, открытые всем — фильтр по 300 открытым строкам платформы), частичный unique `open_challenger_id`, BitmapAnd `(cup_id, day)` × BitmapOr (challenger, `opponent_participant_id`) → PK дуэли → PK участников ×2 | 60–73 / 0,2–0,4 мс |
+| Одна дуэль | PK дуэли → PK участников ×2 | 12 / 0,03 мс |
+| Дверь + имена дуэли / + имя адресата | PK кубка, группы, участие + PK дуэли и участников | 26 / 0,1 мс; 14 / 0,05 мс |
+| ЛС (вызов / принятие) | PK дуэли, кубка, группы, участников ×3, ученика, баттла | 26–30 / 0,13 мс |
+| Исходная строка для правки | unique `(cup_id, dedupe_key)` `cup_messages` | 3 / 0,02 мс |
+
+Проходы «вызовы мне» и «открытые всем» читают частичный индекс открытых вызовов всей платформы (≤ 1 на участника, живут 10 минут):
+растут с числом **открытых** вызовов, не с историей; 300 открытых — 7 буферов.
+
+Проверки: `CupDuelHttpTest` (контракт, двери, выключатели, коды ядра, ЛС ставятся после коммита, лимитеры), `CupDuelHttpQueryBudgetTest`,
+`CupDuelOutboxTest` (отказ / истечение / отмена — правка без новых сообщений, 403 / 429 / таймаут / удалённое сообщение, пауза),
+`CupDuelDeliveryConcurrencyTest` (PostgreSQL + Redis, форки), `CupDuelDmTest` (недоступен, заблокирован, удалён, публичный вызов, 403, 429,
+таймаут, бюджет); `CupContractTest` — `me.duel`. **Не проверено на живом боте:** url-кнопка «Принять вызов» в группе ведёт в Mini App на
+экран вызова (`startapp`), правка сообщения вызова в группе-форуме, ЛС с web_app-кнопкой в матч успевает за 30 с комнаты.
+
+### 11.11 Ревью выпусков 6 (дуэли) и 7 (фразы): исправления сервера (architect, 26.11.2026)
+
+Контракт — docs/04 A.23d; безопасность — docs/07 §5 «Дуэль кубка»; фразы — docs/06 §16, docs/35 §3.3; пул вариантов — docs/38.
+
+1. **`rated_for_me` — вид дуэли для смотрящего** (`CupDuelResource`, `GET …/duels`, `GET …/duels/{duel}`). `rated_offered` пишется один раз
+   при вызове и от смотрящего не зависит: участник, уже сыгравший зачётную сегодня, принимал открытый зачётный вызов с
+   `expect_rated = true`, получал 409, перечитывал ту же `rated_offered = true` — и так бесконечно. Теперь сервер отдаёт `rated_for_me`:
+   открытый вызов — зачётная, если ни вызвавший, ни тот, кто примет (адресат; у открытого всем — сам смотрящий), не имеют слота
+   **текущего** дня кубка (то, что решит `accept()`); иначе — `rated ?? rated_offered`. Чтение — два скалярных подзапроса по unique
+   `(participant_id, day)` в том же операторе (`CupDuelReader::SELECT`): бюджет `GET …/duels` и `GET …/duels/{duel}` не изменился (3 / 3).
+   Товарищеская при принятии по-прежнему занимает лимит Free вызвавшего (К5): на лимите вызов закрывается `canceled/challenger_limit`,
+   а не 409. Клиент: `expect_rated = rated ?? rated_for_me ?? rated_offered`; ответ 409 `{rated}` хранится отдельно от дуэли
+   (`DuelRatedExpectation`) и действует, пока статус дуэли тот же — опрос старого сервера его не затирает.
+2. **Матч дуэли играется без доступа к практике.** `prepareForCup` пропускал `assertCanPractice`, а чтение и действия баттла его
+   требовали: при `PRACTICE_ACCESS=pilot` (ученик вне пилота) или `practice.plan=pro` (Free) участник получал 403, комната истекала, дуэль
+   уходила в `void`. Решение: для баттла с `cup_duel_id` доступ определяется участием в кубке — `BattleReader::find/pollFor` (и аудио,
+   и `round`), `BattleService::ready/answer/surrender/audioFailed` не проверяют доступ практики; отказ практики вычисляется до транзакции
+   без запроса и применяется после чтения строки матча (чужой / несуществующий матч — тот же 403, что и раньше). Остальные проверки
+   (игрок матча, блокировка ученика в `TwaAuth`) — как у любого матча. `EnsureCupDuels` согласован: он смотрит только выключатели
+   функции целиком (`CUP_DUELS`, `PRACTICE_BATTLE`, `PRACTICE_ACCESS=off` — тогда уборщик баттлов аннулирует все матчи), а пилот и тариф
+   — это доступ конкретного ученика, дуэлей не выключают. Приглашение, принятие, отказ, отмена обычного баттла — без изменений.
+   Выход из комнаты матча дуэли (`BattleService::cancel`) — тем же приёмом (повторное ревью): раньше ученик без доступа получал 403 и пейволл, обычный матч — 403, как прежде; `audioFailed` не спрашивает диск, когда отказ применится.
+3. **Взаимная блокировка зачёта дуэли и финиша (40P01).** Воспроизведена fork-тестом на PostgreSQL (`CupDuelConcurrencyTest` «never
+   deadlocks the scoring of a duel-only day…»): с BEFORE-триггером, задерживающим вставку дня, — **50 из 50** прогонов падали с 40P01;
+   без триггера (старт в одно мгновение) окно не попадалось (0 из 50). Исправление — вариант «зачёт берёт кубок первым»: `score()` читает
+   кубок `FOR KEY SHARE` сразу после дуэли и **до** участников (тот же оператор, что раньше читал статус после участников, — +0). Вариант
+   «финиш `FOR NO KEY UPDATE`» отвергнут: финиш обнуляет `active_group_id` (полный unique — ключевая колонка), UPDATE всё равно берёт
+   `FOR UPDATE` в конце и ждёт тех, кто держит `FOR KEY SHARE`, — тот же цикл позже. Проверены остальные места, где под `cups FOR UPDATE`
+   ждут строки (участники — финиш; дни без `built_at` — финиш и отмена):
+   - **`cups:post-summaries` против отмены / финиша — та же ошибка, исправлена:** сводка брала день (`UPDATE cup_days … RETURNING`), потом
+     кубок (`UPDATE cups … summary_scores_hash`); отмена держала кубок и закрывала непостроенные дни → цикл, если день не построен
+     (сбой сборки). Воспроизведено (10 из 10 с триггером), теперь сводка берёт кубки, которые будет писать, `FOR NO KEY UPDATE` по id
+     **до** дней (+1 оператор, только когда есть что публиковать: `cups:post-summaries` 5 → 6);
+   - раунд: ответ — попытка → участник → upsert дня, строка дня уже есть (её вставил старт), FK не проверяется; старт — вставка попытки
+     (FK на участника и день, у попытки `cup_id` без FK) → `openDay` (FK на кубок): с финишем разведён во времени (старт требует текущий
+     день, финиш — `ends_at + settle_minutes`); с отменой цикла нет (отмена не ждёт участников, а день старта построен);
+   - вступление: `cups FOR SHARE` первым — порядок соблюдён; вызов дуэли: публичный — `cups FOR NO KEY UPDATE` первым, личный — одна
+     вставка (FK на кубок и участников) без ожиданий после; принятие — слоты (`cup_id` без FK) и баттл, кубок не нужен;
+   - outbox: строка `final` вставляет сам финиш; `markSent` (строка → кубок) не ждёт того, что держит финиш.
+   После исправления: новая гонка — 150 из 150 (три сценария × 50) без падений; гонка сводки — 10 из 10.
+4. **`void` дуэли:** при `given = 0` (ни одного ответа ни у кого) — для любого конечного статуса матча (сдача в обратном отсчёте
+   больше не сжигает чужую зачётную); баттл, аннулированный системой (`BattleEndReason::Voided`: нет аудио, уборщик при выключенной
+   практике), — всегда `void` с новой причиной `battle_voided`, даже если ответы были; слоты освобождаются. CHECK причин — миграция
+   `2026_11_30_100001` (PG, `NOT VALID` + `VALIDATE`).
+5. **Добор дуэлей перед финишем — всегда**, а не только при `cup.duels = true`: принятые до выключения дуэли с законченным матчем
+   попадают в места. Цена — один индексный оператор на завершаемый кубок (`(cup_id, day)` ∩ частичный `cup_duels_accepted_idx`):
+   `cups:advance` при финише — 5 + 10·N (было 5 + 9·N), `CupQueryBudgetTest` обновлён осознанно.
+6. **Экзамен курса фраз:** чужие курсы третьего слоя — того же вида, что курс экзамена (`ofCardKind($phrases)`), docs/35 §3.3 c.
+7. **Публичный вызов при принятии** правится («Дуэль идёт: A — B», без кнопки) строкой outbox `duel:{id}:accepted` — правка того же
+   сообщения, не новое. Порядок правок: `:accepted` дуэли, которая уже не `accepted`, — `skipped/superseded`; `:end` ждёт (как ждёт
+   исходное сообщение), пока `:accepted` в `pending` / `sending` — «идёт», прочитанное до итога, не ляжет поверх итога. Строку итога
+   создаёт транзакция, закрывающая дуэль, поэтому `:accepted`, захваченная позже, читает дуэль уже закрытой. Повторное принятие строки
+   не добавляет (`ON CONFLICT DO NOTHING`). Принятие публичного вызова — 22 оператора ядра (+1 строка outbox), личного — 21, как было.
+8. **Список не показывает открытые всем вызовы** ученика, заблокировавшего меня или заблокированного мной: `NOT EXISTS` по unique
+   `(learner_id, friend_id)` пары в том же операторе списка (один оператор, как был).
+9. **`exam_tag` курса нельзя перевести через границу «фразы / не фразы»**, если в курсе уже есть слова другого вида:
+   `Content\Services\CourseKindGuard` (один оператор `EXISTS`, только при смене вида), в `/admin` — ошибка у поля «Цель»
+   (`EditCourse::mutateFormDataBeforeSave`, ValidationException), тест на прямой Livewire-вызов.
+10. **Пул вариантов платформы** не сбрасывается на запись в колоду ученика — docs/38 «Дополнение: варианты ответа», п. 5.
+11. **Миграция `2026_11_29_100001`:** вне транзакции мигратора; таблицы — в своей транзакции; на PostgreSQL `battles` получает колонки
+    без перезаписи, FK `NOT VALID` + `VALIDATE CONSTRAINT`, частичный unique `CONCURRENTLY` (внутри чужой транзакции — обычные
+    операторы); `down()` симметричен. Проверено up/down на PG и SQLite.
+12. **Не вызвать ученика с `blocked_at` / `deleted_at`:** признак — из той же строки участника (LEFT JOIN `learners` по PK в операторе,
+    который и так читал участника): адресат — 403 `cup_duel_unavailable`, вызвавший при принятии — вызов `canceled/left`.
+13. **`CupDuel`** — даты `immutable_datetime`.
+14. **Ввод всей фразы в `gap`** — docs/06 §16 (одинаково в тренировке и игре).
+15. **`lesson_review` на фразах** (личный и групповой урок): `revealed.phrase` приходит на каждый ответ, раунд ничего не пишет
+    (`PhraseLessonReviewTest`).
+
+Тесты: `CupDuelReviewFixesTest`, `CupDuelConcurrencyTest` (новая гонка), `CupBotConcurrencyTest` (гонка сводки и отмены),
+`CupDuelOutboxTest` (правка при принятии, порядок правок), `CupDuelServiceTest` (добор при выключенных дуэлях), `CupDuelQueryBudgetTest`
+(публичное принятие), `CupSchemaTest` (FK провалидирован, CHECK причин), `DistractorWhitelistTest`, `CourseResourceTest`,
+`PlatformDistractorPoolTest`, `PhraseExercisesTest`, `PhraseGameTest`, `PhraseLessonReviewTest`; vitest `CupDuelView.spec.ts` (мок
+отвечает как сервер: старый и новый), `CupDuelsView.spec.ts`, `cupDuelInfo.spec.ts`.
+
+### 11.12 Решения владельца 27.11.2026: вид дуэли при вызове и «Выйти из кубка» (architect)
+
+Контракт — docs/04 A.23 (`POST /cups/{id}/leave`), A.23d (`kind`); безопасность — docs/07 §5; схема — docs/03 §2.77.
+
+#### 11.12.1 Вид дуэли выбирает вызывающий
+
+1. **Параметр** `kind` в `POST /cups/{id}/duels`: `rated` | `friendly` (`Cup\Enums\CupDuelKind`). Нет поля (старый клиент) — прежнее
+   поведение: зачётная, если слоты обоих свободны, иначе товарищеская, без отказа.
+2. **Товарищеская по выбору** — `cup_duels.rated = false` пишется **при вызове** (`rated_offered = false`); принятие видит `rated = false`
+   и не читает слоты (−1 оператор), слот не занимается, очков кубка нет ни у кого, даже если оба слота свободны. Лимит баттлов Free
+   вызывающего — как у любой товарищеской (К5: проверка при вызове, занятие при принятии). `rated_for_me` открытого вызова = `false`
+   (читатель списка), клиент шлёт `expect_rated = false` (`rated ?? rated_for_me ?? rated_offered`) — старые клиенты тоже.
+3. **Зачётная по выбору** — как раньше: зачётная, если слоты обоих свободны **на момент принятия** (иначе 409 `cup_duel_rating_changed
+   {rated}` принимающему). Если **свой** слот вызывающего на сегодня уже занят в момент вызова — **отказ** 409 `cup_duel_rating_changed
+   {rated: false}`, вызов не создаётся (дух §11.9: «вид виден обоим до принятия — гарантия, а не надежда»; тихое понижение отвергнуто —
+   ученик просил зачётную явно). Экран и так не предлагает зачётную при `rated_available = false` — отказ бывает только в гонке (свой
+   слот занят принятием другой дуэли между чтением экрана и отправкой); экран переключает выбор на товарищескую с пояснением. Слот
+   **адресата** занят — товарищеское предложение (`rated_offered = false`), как раньше: экран предупреждает об этом заранее
+   («Если соперник уже сыграл зачётную дуэль сегодня, это будет товарищеский матч»).
+4. **Хранение — без миграции:** хватило `rated` (null — решит принятие; `false` — решено, товарищеская). CHECK `cup_duels_shape_check`
+   требует `rated IS NOT NULL` только у принятой — `false` у открытой разрешён. Событие `cup.duel_challenged` получило `kind`.
+5. **Гонки:** выбор только понижает — вторую зачётную в день не открыть: слоты по-прежнему решает уникальный индекс под блокировкой
+   дуэли при принятии. Новый fork-тест `CupDuelConcurrencyTest` «never makes a friendly duel by choice rated nor a second rated duel…»:
+   один участник принимает товарищескую по выбору и зачётную в одно мгновение (адресную и открытую всем) — один матч (второй — 409
+   `battle_busy`), у товарищеской слотов нет и `rated = false`, у участника ≤ 1 слота.
+6. **Бот:** текст вызова в группе (`cup.duel.rated` / `cup.duel.friendly`) и ЛС адресату (`cup.duel_dm.rated` / `friendly`) уже
+   называют вид по `rated_offered` — товарищеская по выбору говорит «Товарищеский матч: без очков кубка». Новых строк бота нет.
+7. **Экран** `CupDuelNewView`: radio-группа «Вид дуэли» из двух строк списка (`role="radiogroup"`, `aria-labelledby`, `aria-checked`,
+   токены docs/14: `list` / `list-row`), у зачётной — «Очко кубка за каждый свой верный ответ. Одна в день.»; при `rated_available = false`
+   (уже есть в `me.duel` ответа `GET /cups/{id}`, без нового SQL) зачётная недоступна (`disabled`, `aria-disabled`) с пояснением «Зачётная
+   дуэль сегодня уже сыграна — можно сыграть товарищеский матч»; по умолчанию — зачётная, если доступна. Новые строки — `cup.duel.new.
+   kind_rated_hint`, `cup.duel.new.rated_gone` (uz — docs/I18N_UZ_REVIEW).
+8. **Бюджет:** вызов — 8 / 9 / 2 при любом `kind` (слоты — в том же операторе лимитов, `CupDuelKindTest`); принятие зачётной — 21 / 22
+   (`CupDuelQueryBudgetTest` не менялся), товарищеской по выбору — 19; `GET duels` / `GET duel` — 3 / 3 (читатель не менялся по SQL).
+
+#### 11.12.2 «Выйти из кубка»
+
+1. **Маршрут** `POST /cups/{id}/leave` (`twa-cup-join`, как вступление и имя), ответ `CupLeaveResource {participant_id, cup_id, status,
+   left, left_at}`. Ядро — `CupParticipationService::leave()`; дверь — `CupMiniApp::leave()` **по базе без Telegram** (выйти можно и не
+   будучи в чате): нет кубка, посторонний, член чата без участия — тот же 403 `cup_not_member`, что у всех маршрутов кубка; повтор
+   (двойное нажатие) — 200 с тем же телом, одно событие `cup.left`. Кубок `scheduled` / `running`; завершённый / отменённый — 410
+   `cup_closed`. Пилот без флага — 403 `cup_unavailable` (как везде, после двери).
+2. **Статус — существующий `left`, плюс отметка `withdrawn_at`** (миграция `2026_12_01_100002`, CHECK `withdrawn_at IS NULL OR status =
+   'left'`). Новый статус отвергнут: все места, где `left` значит «очки в таблице с пометкой, новых попыток нет, дуэли недоступны, место
+   на финише» (таблица, финиш, старт «2 active», двери дуэлей, сводки), должны вести себя одинаково — отличается только «вернуться» и
+   «видеть». Отметка закрывает **главный риск** — ученик остаётся в группе Telegram:
+   - `CupMembershipGate::markMember()` — условие `withdrawn_at IS NULL` **в самом UPDATE** (не в прочитанной модели): выход, закоммиченный
+     после чтения двери, всё равно побеждает; `admitToRound` / `admitToRename` тогда — 403;
+   - `assertCanView()` — участнику с `withdrawn_at` 403 `cup_not_member` **без вызова Telegram** (по id и по коду ссылки);
+   - `join()` — строка с `withdrawn_at` → 403 (и дверь id отказывает раньше); `startToday()` — новая попытка 403 до Telegram;
+   - `onLeftChat()` трогает только `active` — вышедшему ничего; «мои кубки» (`CupReader::mine`) — без этих кубков.
+3. **Правила (решено, по аналогии с выходом из чата):** вернуться в этот кубок **нельзя** (до конца и после); очки — в таблице с
+   пометкой «вышел(а)», место на финише — как у всех (`writeFinalRanks` ранжирует всех участников); незавершённая попытка раунда
+   доигрывается до своего срока (ответ не смотрит на статус, очки идут в зачёт); принятая дуэль доигрывается и засчитывается (§11.9.2
+   п. 5); **открытые вызовы** — свой и адресованные ему — закрываются сразу `canceled/left` одним `UPDATE … RETURNING`, у публичных —
+   правка сообщения в чате («Вызов не состоялся», строка outbox `duel:{id}:end`). Таблицу он не видит (решение владельца).
+4. **Организатор / админ кубка может выйти:** кубок принадлежит чату — управление решает Telegram (админ чата, `CupAdminCheck`) при каждом
+   действии, участие прав не даёт (как при выходе создателя из группы: другие админы чата и кнопка бота «Отменить» продолжают работать).
+   Вышедший админ чата управлять из Mini App больше не может (экран кубка ему закрыт), но отменить кубок кнопкой в чате — может.
+5. **Блокировки** — общий порядок кубка: кубок `FOR KEY SHARE` (PostgreSQL; старт, финиш, отмена берут `FOR UPDATE` — статус, прочитанный
+   под ней, держится до коммита; правка outbox ссылается FK на кубок — по правилу §11.9.2 п. 1 кубок берётся **до** строк, которые ждут
+   под `cups FOR UPDATE`) → ~~открытые дуэли участника (UPDATE) → строка участника `FOR UPDATE`~~ **строка участника `FOR NO KEY UPDATE`
+   → открытые дуэли участника (UPDATE)** (ревью 7f46a449, см. п. 8). Ответ раунда (попытка → участник) и
+   принятие (дуэль → слоты → баттл) кубок не берут — цикла нет. Fork-тесты `CupLeaveConcurrencyTest` (PostgreSQL + Redis): выход ↔ ответ
+   раунда (ответ засчитан, участник вышел), выход ↔ принятие его открытого вызова (три сдвига: либо матч и слоты, либо `canceled/left`
+   без матча и 409 `cup_duel_closed` принявшему), выход ↔ финиш (финиш прошёл, места у всех; выход либо до финиша, либо 410), тройное
+   нажатие (один выход, одно событие).
+6. **SQL** (`CupLeaveTest`): HTTP 8 операторов с публичным вызовом для правки / 7 без, повтор — 2; все обращения по PK / unique /
+   частичным индексам дуэлей (`open_challenger_id` — частичный unique, `opponent_participant_id` — индекс), поэтому `EXPLAIN` не
+   снимался. Telegram не вызывается.
+7. **Экран** `CupView`: кнопка «Выйти из кубка» в самом низу (после «Мои кубки»), только участнику открытого кубка; лист подтверждения
+   с последствиями («очки останутся в таблице с пометкой «вышел(а)»… открытые вызовы отменятся… вернуться в этот кубок будет нельзя»),
+   «Остаться» / «Выйти» (`btn-danger`, `aria-busy`); после выхода — список кубков; 403 на выход — тоже список (он уже вне кубка).
+   Текст `cup.duel.outcome.canceled_left` стал «игрок вышел из кубка» (покрывает и выход из чата). Строки `cup.leave.*` (uz —
+   docs/I18N_UZ_REVIEW).
+
+8. **Правило «нет открытого вызова с вышедшим» (ревью 7f46a449, architect).** После коммита вызова и выхода в любом порядке не остаётся
+   `open`-дуэли, где вызвавший или адресат — не `active` участник; вышедшему не уходит ЛС «вас вызвали», в чат — сообщение с кнопкой.
+   Гонка была: цель вызова проверялась чтением до транзакции, а UPDATE закрытия вызовов в `leave` не видел ещё не вставленную дуэль.
+   - **Вызов** (`CupDuelService::insertOpen`): дуэль вставляется одним `INSERT … SELECT … WHERE (SELECT COUNT(*) FROM (кубок ⋈ участники
+     WHERE кубок running AND id IN (вызвавший, адресат) AND status = 'active' AND withdrawn_at IS NULL ORDER BY p.id FOR KEY SHARE OF c
+     FOR SHARE OF p)) = 1|2 RETURNING *`. Ни одной строки — 403 `cup_duel_unavailable` (причина не раскрывается). Кубок — первым
+     (локи берутся в порядке locking-клауз): финиш держит кубок `FOR UPDATE` и затем блокирует всех участников — вызов, держащий
+     участника и ждущий кубок по FK дуэли, дал бы 40P01. Операторов не прибавилось (INSERT заменил INSERT).
+   - **Выход**: строка участника `FOR NO KEY UPDATE` **до** UPDATE открытых дуэлей. Вызов, взявший строку первым, коммитится раньше, и
+     UPDATE (новый оператор — новый снимок) его закрывает; вызов, пришедший после, ждёт коммита выхода, перечитывает строку (READ
+     COMMITTED перепроверяет условия заблокированной строки) и не вставляет ничего. `NO KEY`, а не `FOR UPDATE`: `FOR KEY SHARE` FK
+     слотов у принятия, держащего дуэль этого участника, не должен ждать выход, чей UPDATE ждёт эту дуэль. Повтор выхода под блокировкой
+     дуэли не трогает.
+   - **Принятие и старт раунда** (дверь пропускает по устаревшему `status` при `Unavailable` Telegram): статус перечитывается без
+     нового оператора — в `SELECT … FOR UPDATE` дуэли (подзапросы `x_challenger_active`, `x_me_active`; не блокировка: выход,
+     закоммиченный после этого оператора, — выход после принятия, матч доигрывается) и в `INSERT … SELECT … WHERE EXISTS (участник
+     active)` попытки. Сам не активен — 403 `cup_not_member`, ничего не изменено; вызвавший не активен — дуэль `canceled/left`, 409
+     `cup_duel_closed`.
+   - **Защита в глубину**: `CupDuelMessenger::stillHolds` (ЛС `challenged`) и `CupOutbox::deliverDuel` (новое сообщение `duel:{id}`)
+     молчат, если вызвавший или адресат открытого вызова не `active` / с `withdrawn_at` (`skipped`, `player_gone`) — статус в том же
+     операторе, что читает дуэль.
+   - Порядок блокировок кубка с этим: `cups → cup_participants (FOR SHARE, вызов) → cup_duels (INSERT)`; `cups (KEY SHARE) → участник
+     (NO KEY UPDATE) → cup_duels (UPDATE)` (выход); принятие `cup_duels → слоты (FK KEY SHARE участников)`; зачёт `cup_duels → cups →
+     участники FOR UPDATE`; финиш `cups FOR UPDATE → участники FOR UPDATE`. Ни один путь не ждёт дуэль, держа участника в режиме,
+     конфликтующем с тем, кто держит дуэль и ждёт участника.
+   - Бюджеты не изменились: вызов 8 / публичный 9, выход 8 / 7, повтор 2, принятие 21 / 22. Fork-тесты (`CupLeaveConcurrencyTest`):
+     вызов ↔ выход адресата и вызов ↔ выход вызвавшего (триггер-задержка вставки дуэли / снятия участника, одновременно, Telegram
+     недоступен), вызов ↔ финиш (без 40P01). Не закрыто этим правилом: выход из **чата** (`onLeftChat`) не закрывает открытые вызовы —
+     их закрывает принятие (`canceled/left`) или срок; ЛС и сообщение в чат по ним не уходят (защита выше).
+
+Тесты: `tests/Feature/Cup/CupDuelKindTest.php`, `CupLeaveTest.php`, `CupLeaveConcurrencyTest.php`, `CupLeaveGuardsTest.php`, гонка в `CupDuelConcurrencyTest.php`,
+маршрут в `CupRateLimitTest.php`; vitest `CupDuelNewView.spec.ts`, `CupView.spec.ts`.
+

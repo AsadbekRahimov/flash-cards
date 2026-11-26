@@ -1453,7 +1453,8 @@ it('keeps one league week per Monday and one membership per learner and week', f
     LeagueMember::factory()->create(['league_group_id' => $a->id, 'learner_id' => $learner->id]);
     expectConstraintViolation(fn () => LeagueMember::factory()->create(['league_group_id' => $b->id, 'learner_id' => $learner->id]));
 
-    expect(array_column(Schema::getIndexes('league_groups'), 'columns'))->toContain(['league_week_id', 'tier', 'members_count'])
+    // The seat lookup by week, category and tier (docs/32 §5.1, 2026_11_26_100001: a v1 week has only `free` groups).
+    expect(array_column(Schema::getIndexes('league_groups'), 'columns'))->toContain(['league_week_id', 'category', 'tier'])
         ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['league_group_id'])
         ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['learner_id', 'league_week_id']);
 });

@@ -21,7 +21,7 @@
     @endforeach
     <link rel="alternate" hreflang="x-default" href="{{ $links->defaultUrl($page) }}">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="LexiFlow">
+    <meta property="og:site_name" content="{{ config('app.brand') }}">
     <meta property="og:title" content="{{ $title }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:url" content="{{ $canonical }}">
@@ -32,7 +32,7 @@
 <body>
 <header class="site-header">
     <div class="wrap bar">
-        <a class="brand" href="{{ $links->pageUrl('home', $locale) }}">LexiFlow</a>
+        <a class="brand" href="{{ $links->pageUrl('home', $locale) }}">{{ config('app.brand') }}</a>
         @if ($page === 'home')
             <nav class="nav" aria-label="{{ __('landing.nav.label', [], $locale) }}">
                 <a href="#how">{{ __('landing.nav.how', [], $locale) }}</a>

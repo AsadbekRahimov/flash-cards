@@ -16,6 +16,7 @@ async function mountApp(start: string) {
     routes: [
       { path: '/', name: 'landing', component: screen('landing') },
       { path: '/today', name: 'today', component: screen('today'), meta: { tab: 'today' } },
+      { path: '/course', name: 'my-course', component: screen('my-course'), meta: { tab: 'courses' } },
       { path: '/courses', name: 'courses', component: screen('courses'), meta: { tab: 'courses' } },
       { path: '/league', name: 'league', component: screen('league'), meta: { tab: 'rating' } },
       { path: '/profile', name: 'profile', component: screen('profile'), meta: { tab: 'profile' } },

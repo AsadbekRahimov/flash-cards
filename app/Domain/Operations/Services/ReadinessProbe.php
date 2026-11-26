@@ -60,9 +60,10 @@ final class ReadinessProbe
             $checks['config'] = $this->guard('config', $this->checkConfig(...));
         }
 
-        // A typo in TTS_DRIVER (docs/26 §5.1) breaks only the synthesis, the application serves: `degraded`, shown only then.
-        if (! ConfiguredSpeechSynthesizer::known()) {
-            Log::warning('readiness.tts_driver_unknown');
+        // A typo in TTS_DRIVER (docs/26 §5.1) or `deepgram` without DEEPGRAM_API_KEY (§10) breaks only the synthesis, the
+        // application serves: `degraded`, shown only then.
+        if (ConfiguredSpeechSynthesizer::misconfigured()) {
+            Log::warning(ConfiguredSpeechSynthesizer::known() ? 'readiness.tts_key_missing' : 'readiness.tts_driver_unknown');
             $checks['tts'] = ReadinessReport::DEGRADED;
         }
 

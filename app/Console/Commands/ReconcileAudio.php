@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioScheduler;
 use Illuminate\Console\Command;
 
@@ -12,8 +13,9 @@ use Illuminate\Console\Command;
  * whose `audio_path` is not the path of their current text get a PregenerateWordAudioJob, then the examples whose
  * `example_audio_path` is not the path of theirs a PregenerateExampleAudioJob - at most `--limit` jobs in all per run, the words
  * first. Nothing
- * while the synthesizer is `null` or unknown, the characters of the month are spent, or every job would fail with `google` (the
- * halt marker, no valid key file, not a Google voice) - with a line that says why. See {@see WordAudioScheduler::reconcile()}.
+ * while the synthesizer is `null` or unknown, the characters of the month (of the credit for `deepgram`) are spent, or every job
+ * would fail with `google` (the halt marker, no valid key file, not a Google voice) or `deepgram` (the halt marker, no key, not a
+ * voice of Deepgram - docs/26 §10) - with a line that says why. See {@see WordAudioScheduler::reconcile()}.
  */
 final class ReconcileAudio extends Command
 {
@@ -33,15 +35,24 @@ final class ReconcileAudio extends Command
         }
 
         $result = $scheduler->reconcile((int) $limit);
+        $deepgram = ConfiguredSpeechSynthesizer::driver() === ConfiguredSpeechSynthesizer::DEEPGRAM;
 
         match ($result['reason']) {
             WordAudioScheduler::SKIP_NOT_CONFIGURED => $this->warn('TTS is not configured (TTS_DRIVER=null): nothing queued.'),
-            WordAudioScheduler::SKIP_DRIVER_UNKNOWN => $this->warn('TTS_DRIVER is none of google, http or null: nothing queued. Fix the value in .env.'),
-            WordAudioScheduler::SKIP_HALTED => $this->warn('Google refused the sign-in (tts_auth_failed / tts_forbidden) a short while ago: nothing queued. Replace the key or fix the project, then run `php artisan audio:sample --clear-halt`.'),
-            WordAudioScheduler::SKIP_CREDENTIALS_MISSING => $this->warn('TTS_DRIVER=google, but GOOGLE_TTS_CREDENTIALS is empty: nothing queued.'),
+            WordAudioScheduler::SKIP_DRIVER_UNKNOWN => $this->warn('TTS_DRIVER is none of deepgram, google, http or null: nothing queued. Fix the value in .env.'),
+            WordAudioScheduler::SKIP_HALTED => $deepgram
+                ? $this->warn('Deepgram refused the key or the payment (tts_auth_failed / tts_forbidden / tts_payment_required) a short while ago: nothing queued. Replace the key or top up the account, then run `php artisan audio:sample --clear-halt`.')
+                : $this->warn('Google refused the sign-in (tts_auth_failed / tts_forbidden) a short while ago: nothing queued. Replace the key or fix the project, then run `php artisan audio:sample --clear-halt`.'),
+            WordAudioScheduler::SKIP_CREDENTIALS_MISSING => $deepgram
+                ? $this->warn('TTS_DRIVER=deepgram, but DEEPGRAM_API_KEY is empty: nothing queued.')
+                : $this->warn('TTS_DRIVER=google, but GOOGLE_TTS_CREDENTIALS is empty: nothing queued.'),
             WordAudioScheduler::SKIP_CREDENTIALS_INVALID => $this->warn('TTS_DRIVER=google, but the key file of GOOGLE_TTS_CREDENTIALS is missing, unreadable or not a service-account key (tts_credentials_invalid): nothing queued.'),
-            WordAudioScheduler::SKIP_VOICE_UNSUPPORTED => $this->warn('TTS_VOICE is not a voice of Google (e.g. en-US-Neural2-F, en-US-Chirp3-HD-Charon): nothing queued.'),
-            WordAudioScheduler::SKIP_BUDGET_EXHAUSTED => $this->warn('The monthly TTS character limit is spent: nothing queued until next month.'),
+            WordAudioScheduler::SKIP_VOICE_UNSUPPORTED => $deepgram
+                ? $this->warn('TTS_VOICE is not a voice of Deepgram (e.g. aura-2-thalia-en, or leave TTS_VOICE empty): nothing queued.')
+                : $this->warn('TTS_VOICE is not a voice of Google (e.g. en-US-Neural2-F, en-US-Chirp3-HD-Charon): nothing queued.'),
+            WordAudioScheduler::SKIP_BUDGET_EXHAUSTED => $deepgram
+                ? $this->warn('The Deepgram character limit (DEEPGRAM_TTS_CHAR_LIMIT, the whole credit) is spent: nothing queued. Raise it once the account has credit.')
+                : $this->warn('The monthly TTS character limit is spent: nothing queued until next month.'),
             default => $this->info("Queued: {$result['queued']}"),
         };
         if ($result['reason'] === null) {

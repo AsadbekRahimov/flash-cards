@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 18,
+    "title": "Деловое общение",
+    "title_uz": "Ishbilarmonlik muloqoti"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Проекты",
+    "title_uz": "Loyihalar"
+  },
+  "words": [
+    {
+      "word": "keep me in the loop",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держи меня в курсе",
+        "uz": "meni xabardor qilib tur"
+      },
+      "example": "I'm on holiday next week, but please keep me in the loop.",
+      "example_translations": {
+        "ru": "На следующей неделе я в отпуске, но, пожалуйста, держи меня в курсе.",
+        "uz": "Keyingi hafta ta'tildaman, lekin iltimos, meni xabardor qilib tur."
+      },
+      "hooks": {
+        "ru": "Просят коллегу сообщать новости о проекте или решении",
+        "uz": "Hamkasbdan loyiha yoki qaror haqidagi yangiliklarni aytib turishni so'raganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "loop",
+        "literal": {
+          "ru": "держи меня в петле",
+          "uz": "meni halqa ichida tut"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get the ball rolling",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "запустить процесс",
+        "uz": "ishni boshlab yubormoq"
+      },
+      "example": "Let's get the ball rolling — who wants to share their idea first?",
+      "example_translations": {
+        "ru": "Давайте начнём — кто первым поделится своей идеей?",
+        "uz": "Keling, ishni boshlab yuboraylik — kim birinchi bo'lib g'oyasini aytadi?"
+      },
+      "hooks": {
+        "ru": "Говорят, когда начинают дело, встречу или обсуждение",
+        "uz": "Ish, uchrashuv yoki muhokamani boshlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ball",
+        "literal": {
+          "ru": "заставить мяч покатиться",
+          "uz": "to'pni dumalatmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a step in the right direction",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "шаг в верном направлении",
+        "uz": "to'g'ri yo'nalishdagi qadam"
+      },
+      "example": "The new schedule isn't perfect, but it's a step in the right direction.",
+      "example_translations": {
+        "ru": "Новое расписание не идеально, но это шаг в верном направлении.",
+        "uz": "Yangi jadval mukammal emas, lekin bu to'g'ri yo'nalishdagi qadam."
+      },
+      "hooks": {
+        "ru": "Говорят о небольшом улучшении, которое ведёт к нужной цели",
+        "uz": "Kerakli maqsadga olib boradigan kichik yaxshilanish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "direction",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "up and running",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "запущен и работает",
+        "uz": "ishga tushgan"
+      },
+      "example": "The new website will be up and running by Monday.",
+      "example_translations": {
+        "ru": "Новый сайт будет запущен и заработает к понедельнику.",
+        "uz": "Yangi sayt dushanbagacha ishga tushadi."
+      },
+      "hooks": {
+        "ru": "Говорят о системе, сайте или бизнесе, которые запустили и они работают",
+        "uz": "Ishga tushirilib, ishlab turgan tizim, sayt yoki biznes haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "running",
+        "literal": {
+          "ru": "на ногах и на ходу",
+          "uz": "oyoqqa turib, yurib ketgan"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hit the ground running",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сразу взяться за дело",
+        "uz": "darhol ishga kirishmoq"
+      },
+      "example": "We need someone who can hit the ground running from the first day.",
+      "example_translations": {
+        "ru": "Нам нужен человек, который с первого дня сразу возьмётся за дело.",
+        "uz": "Bizga birinchi kundanoq darhol ishga kirisha oladigan odam kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о новом сотруднике или проекте, который с самого начала работает в полную силу",
+        "uz": "Boshidanoq to'liq kuch bilan ishlaydigan yangi xodim yoki loyiha haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ground",
+        "literal": {
+          "ru": "коснуться земли уже на бегу",
+          "uz": "yerga yugurib tushmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "wrap up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "завершить",
+        "uz": "yakunlamoq"
+      },
+      "example": "Let's wrap up the meeting — it's almost five.",
+      "example_translations": {
+        "ru": "Давайте завершать встречу — уже почти пять.",
+        "uz": "Keling, uchrashuvni yakunlaylik — soat beshga yaqinlashdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда заканчивают встречу, работу или разговор",
+        "uz": "Uchrashuv, ish yoki suhbatni tugatayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wrap",
+        "literal": {
+          "ru": "завернуть",
+          "uz": "o'rab qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "move the goalposts",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "менять правила по ходу игры",
+        "uz": "ish davomida shartlarni o'zgartirmoq"
+      },
+      "example": "We finished the design, and then the client moved the goalposts again.",
+      "example_translations": {
+        "ru": "Мы закончили дизайн, а клиент снова поменял правила по ходу игры.",
+        "uz": "Dizaynni tugatdik, mijoz esa yana shartlarni o'zgartirdi."
+      },
+      "hooks": {
+        "ru": "Жалуются на того, кто меняет требования, когда работа уже идёт",
+        "uz": "Ish ketayotganda talablarni o'zgartiradigan odamdan shikoyat qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "goalposts",
+        "literal": {
+          "ru": "передвинуть ворота",
+          "uz": "darvozani boshqa joyga surmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "low-hanging fruit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "самое лёгкое",
+        "uz": "eng oson erishiladigan natija"
+      },
+      "example": "Let's start with the low-hanging fruit — the easy fixes on the website.",
+      "example_translations": {
+        "ru": "Начнём с самого лёгкого — простых исправлений на сайте.",
+        "uz": "Eng oson ishdan boshlaylik — saytdagi oddiy tuzatishlardan."
+      },
+      "hooks": {
+        "ru": "Говорят о задачах, которые легко выполнить и быстро получить результат",
+        "uz": "Oson bajariladigan va tez natija beradigan vazifalar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fruit",
+        "literal": {
+          "ru": "низко висящие плоды",
+          "uz": "past osilgan mevalar"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "follow up on something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проследить за чем-то",
+        "uz": "biror narsani oxirigacha kuzatib bormoq"
+      },
+      "example": "I'll follow up on your request and call you tomorrow.",
+      "example_translations": {
+        "ru": "Я прослежу за вашим запросом и позвоню вам завтра.",
+        "uz": "So'rovingizni kuzatib boraman va ertaga sizga qo'ng'iroq qilaman."
+      },
+      "hooks": {
+        "ru": "Обещают вернуться к вопросу и довести его до результата",
+        "uz": "Masalaga qaytib, uni natijaga yetkazishga va'da berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "follow",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "flesh out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проработать в деталях",
+        "uz": "batafsil ishlab chiqmoq"
+      },
+      "example": "The idea is good, but we need to flesh it out before the meeting.",
+      "example_translations": {
+        "ru": "Идея хорошая, но до встречи её нужно проработать в деталях.",
+        "uz": "G'oya yaxshi, lekin uchrashuvgacha uni batafsil ishlab chiqishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о плане или идее, которым нужно добавить подробности",
+        "uz": "Tafsilot qo'shish kerak bo'lgan reja yoki g'oya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "flesh",
+        "literal": {
+          "ru": "нарастить плоть",
+          "uz": "et qo'ndirmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    }
+  ]
+}

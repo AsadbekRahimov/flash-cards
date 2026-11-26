@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 17,
+    "title": "Успех и неудача",
+    "title_uz": "Muvaffaqiyat va omadsizlik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Успех",
+    "title_uz": "Muvaffaqiyat"
+  },
+  "words": [
+    {
+      "word": "make it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "добиться успеха",
+        "uz": "muvaffaqiyat qozonmoq"
+      },
+      "example": "She moved to London with almost nothing and really made it as a designer.",
+      "example_translations": {
+        "ru": "Она переехала в Лондон почти ни с чем и действительно добилась успеха как дизайнер.",
+        "uz": "U Londonga deyarli hech narsasiz ko'chib borib, dizayner sifatida chinakam muvaffaqiyat qozondi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто добился успеха в профессии или жизни; другое значение — успеть, прийти",
+        "uz": "Kasbda yoki hayotda muvaffaqiyatga erishgan odam haqida aytiladi; boshqa ma'nosi — ulgurmoq"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "make",
+        "literal": {
+          "ru": "сделать это",
+          "uz": "buni qilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pull it off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "справиться",
+        "uz": "uddalamoq"
+      },
+      "example": "Nobody thought we could finish the project in a week, but we pulled it off.",
+      "example_translations": {
+        "ru": "Никто не думал, что мы закончим проект за неделю, но мы справились.",
+        "uz": "Loyihani bir haftada tugatamiz deb hech kim o'ylamagandi, lekin biz uddaladik."
+      },
+      "hooks": {
+        "ru": "Говорят об успехе в трудном деле, в которое мало кто верил",
+        "uz": "Kam odam ishongan qiyin ishni uddalash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pull",
+        "literal": {
+          "ru": "вытянуть это",
+          "uz": "buni tortib olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "go places",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "далеко пойти",
+        "uz": "katta yutuqlarga erishmoq"
+      },
+      "example": "Your daughter is so talented — she's going to go places.",
+      "example_translations": {
+        "ru": "Ваша дочь такая талантливая — она далеко пойдёт.",
+        "uz": "Qizingiz juda iqtidorli — u katta yutuqlarga erishadi."
+      },
+      "hooks": {
+        "ru": "Говорят о способном молодом человеке, у которого большое будущее",
+        "uz": "Kelajagi porloq bo'lgan qobiliyatli yosh odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "places",
+        "literal": {
+          "ru": "ходить по местам",
+          "uz": "joylarga bormoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "The sky's the limit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "нет предела возможностям",
+        "uz": "imkoniyatlar cheksiz"
+      },
+      "example": "With your skills and a bit of luck, the sky's the limit.",
+      "example_translations": {
+        "ru": "С твоими навыками и небольшой удачей нет предела возможностям.",
+        "uz": "Mahorating va ozgina omad bilan imkoniyatlaring cheksiz."
+      },
+      "hooks": {
+        "ru": "Подбадривают того, у кого впереди большие возможности",
+        "uz": "Oldida katta imkoniyatlar turgan odamni ruhlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "limit",
+        "literal": {
+          "ru": "небо — это предел",
+          "uz": "osmon — chegara"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pay off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "окупиться",
+        "uz": "o'z samarasini bermoq"
+      },
+      "example": "All those evenings of practice finally paid off — I got the job!",
+      "example_translations": {
+        "ru": "Все эти вечера тренировок наконец окупились — меня взяли на работу!",
+        "uz": "O'sha kechki mashg'ulotlarning hammasi nihoyat o'z samarasini berdi — meni ishga olishdi!"
+      },
+      "hooks": {
+        "ru": "Говорят о труде, риске или вложениях, которые принесли результат",
+        "uz": "Natija bergan mehnat, tavakkal yoki sarmoya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pay",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make a name for yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать себе имя",
+        "uz": "nom chiqarmoq"
+      },
+      "example": "Aziz made a name for himself as the best tailor in Samarkand.",
+      "example_translations": {
+        "ru": "Азиз сделал себе имя как лучший портной Самарканда.",
+        "uz": "Aziz Samarqanddagi eng yaxshi tikuvchi sifatida nom chiqardi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто своим трудом стал известен в своём деле",
+        "uz": "O'z mehnati bilan sohasida tanilgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "name",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "come out on top",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выйти победителем",
+        "uz": "g'olib chiqmoq"
+      },
+      "example": "It was a tough competition, but our team came out on top.",
+      "example_translations": {
+        "ru": "Соревнование было трудным, но наша команда вышла победителем.",
+        "uz": "Musobaqa qiyin bo'ldi, lekin jamoamiz g'olib chiqdi."
+      },
+      "hooks": {
+        "ru": "Говорят о победе в трудной борьбе, споре или конкуренции",
+        "uz": "Qiyin kurash, bahs yoki raqobatdagi g'alaba haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "top",
+        "literal": {
+          "ru": "выйти наверху",
+          "uz": "tepada chiqmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "against all odds",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вопреки всему",
+        "uz": "hamma narsaga qaramay"
+      },
+      "example": "Against all odds, the small village school won the national science prize.",
+      "example_translations": {
+        "ru": "Вопреки всему маленькая сельская школа выиграла национальную премию по науке.",
+        "uz": "Hamma narsaga qaramay, kichkina qishloq maktabi milliy fan mukofotini qo'lga kiritdi."
+      },
+      "hooks": {
+        "ru": "Говорят об успехе, в который почти никто не верил",
+        "uz": "Deyarli hech kim ishonmagan muvaffaqiyat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "odds",
+        "literal": {
+          "ru": "против всех шансов",
+          "uz": "barcha ehtimollarga qarshi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on a roll",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на волне успеха",
+        "uz": "omadi chopib turibdi"
+      },
+      "example": "Three sales in one morning — you're on a roll today!",
+      "example_translations": {
+        "ru": "Три продажи за одно утро — ты сегодня на волне успеха!",
+        "uz": "Bir ertalabda uchta savdo — bugun omading chopib turibdi!"
+      },
+      "hooks": {
+        "ru": "Говорят тому, у кого одна удача идёт за другой",
+        "uz": "Ketma-ket omadi kelayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "roll",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "nail it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать на отлично",
+        "uz": "a'lo darajada uddalamoq"
+      },
+      "example": "How was your job interview? — I think I nailed it!",
+      "example_translations": {
+        "ru": "Как прошло собеседование? — Думаю, я справился на отлично!",
+        "uz": "Ish suhbati qanday o'tdi? — Menimcha, a'lo darajada uddaladim!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда что-то сделали идеально: экзамен, выступление, собеседование",
+        "uz": "Imtihon, chiqish yoki suhbat kabi ishni a'lo bajarganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "nail",
+        "literal": {
+          "ru": "прибить это гвоздём",
+          "uz": "buni mixlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    }
+  ]
+}

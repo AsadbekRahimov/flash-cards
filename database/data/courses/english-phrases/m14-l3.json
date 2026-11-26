@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 14,
+    "title": "Идиомы: еда",
+    "title_uz": "Iboralar: ovqat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Вкусы и мнения",
+    "title_uz": "Didlar va fikrlar"
+  },
+  "words": [
+    {
+      "word": "not my cup of tea",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не моё, не в моём вкусе",
+        "uz": "didimga to'g'ri kelmaydi"
+      },
+      "example": "Do you want to come to the opera? — Thanks, but opera is not my cup of tea.",
+      "example_translations": {
+        "ru": "Хочешь пойти в оперу? — Спасибо, но опера — это не моё.",
+        "uz": "Operaga borasanmi? — Rahmat, lekin opera didimga to'g'ri kelmaydi."
+      },
+      "hooks": {
+        "ru": "Вежливо говорят, что что-то не нравится или не интересно",
+        "uz": "Biror narsa yoqmasligi yoki qiziq emasligini muloyimlik bilan aytishda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tea",
+        "literal": {
+          "ru": "не моя чашка чая",
+          "uz": "mening choy piyolam emas"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take it with a grain of salt",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "относиться с долей сомнения",
+        "uz": "ko'r-ko'rona ishonmaslik"
+      },
+      "example": "He says he met a famous singer, but take it with a grain of salt.",
+      "example_translations": {
+        "ru": "Он говорит, что встретил известного певца, но относись к этому с долей сомнения.",
+        "uz": "U mashhur xonandani uchratganini aytyapti, lekin bunga ko'r-ko'rona ishonma."
+      },
+      "hooks": {
+        "ru": "Советуют не верить всему услышанному до конца; в Британии чаще with a pinch of salt",
+        "uz": "Eshitgan hamma narsaga to'liq ishonmaslikni maslahat berishadi; Britaniyada ko'pincha with a pinch of salt"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "salt",
+        "literal": {
+          "ru": "принимать это с крупинкой соли",
+          "uz": "buni bir chimdim tuz bilan qabul qilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "sour grapes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зелен виноград",
+        "uz": "qo'li yetmaganini yomonlash"
+      },
+      "example": "He says he didn't want the job anyway. — That's just sour grapes.",
+      "example_translations": {
+        "ru": "Он говорит, что всё равно не хотел эту работу. — Зелен виноград.",
+        "uz": "U baribir bu ishni xohlamaganini aytyapti. — Qo'li yetmaganini yomonlayapti-da."
+      },
+      "hooks": {
+        "ru": "Говорят, когда человек ругает то, чего сам не смог получить",
+        "uz": "Odam qo'lga kirita olmagan narsasini yomonlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "grapes",
+        "literal": {
+          "ru": "кислый виноград",
+          "uz": "nordon uzum"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "eat your words",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взять свои слова обратно",
+        "uz": "aytgan gapidan qaytmoq"
+      },
+      "example": "You said our team would lose. Now you'll have to eat your words!",
+      "example_translations": {
+        "ru": "Ты говорил, что наша команда проиграет. Теперь придётся взять свои слова обратно!",
+        "uz": "Jamoamiz yutqazadi degan eding. Endi aytgan gapingdan qaytishingga to'g'ri keladi!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда чьи-то уверенные слова оказались неправдой",
+        "uz": "Kimningdir ishonch bilan aytgan gapi noto'g'ri chiqqanda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eat",
+        "literal": {
+          "ru": "съесть свои слова",
+          "uz": "o'z so'zlarini yemoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "half-baked",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сырой, непродуманный",
+        "uz": "puxta o'ylanmagan"
+      },
+      "example": "It's a half-baked plan; we need to think it through.",
+      "example_translations": {
+        "ru": "Это сырой план, нам нужно его продумать.",
+        "uz": "Bu puxta o'ylanmagan reja, uni yaxshilab o'ylab chiqishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят об идее или плане, которые не продуманы до конца",
+        "uz": "Oxirigacha o'ylanmagan g'oya yoki reja haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "baked",
+        "literal": {
+          "ru": "недопечённый",
+          "uz": "chala pishgan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the best thing since sliced bread",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лучшее изобретение на свете",
+        "uz": "dunyodagi eng zo'r ixtiro"
+      },
+      "example": "My dad thinks his new phone is the best thing since sliced bread.",
+      "example_translations": {
+        "ru": "Папа считает свой новый телефон лучшим изобретением на свете.",
+        "uz": "Dadam yangi telefonini dunyodagi eng zo'r ixtiro deb hisoblaydi."
+      },
+      "hooks": {
+        "ru": "С восторгом или с иронией говорят о новинке, которую все очень хвалят",
+        "uz": "Hamma juda maqtaydigan yangilik haqida zavq bilan yoki kinoya bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sliced",
+        "literal": {
+          "ru": "лучшее со времён нарезанного хлеба",
+          "uz": "to'g'ralgan nondan beri eng yaxshi narsa"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a matter of taste",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дело вкуса",
+        "uz": "did masalasi"
+      },
+      "example": "I like the blue one, but it's a matter of taste.",
+      "example_translations": {
+        "ru": "Мне нравится синий, но это дело вкуса.",
+        "uz": "Menga ko'k rangdagisi yoqadi, lekin bu did masalasi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда спорить о том, что красиво или вкусно, бесполезно",
+        "uz": "Nima chiroyli yoki mazali ekani haqida tortishish befoyda bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "taste",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bitter pill to swallow",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "горькая пилюля",
+        "uz": "hazm qilish qiyin achchiq haqiqat"
+      },
+      "example": "Losing the final at home was a bitter pill to swallow.",
+      "example_translations": {
+        "ru": "Проиграть финал дома было горькой пилюлей.",
+        "uz": "Finalni o'z maydonimizda boy berishni hazm qilish qiyin bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о неприятной правде или неудаче, с которой трудно смириться",
+        "uz": "Ko'nikish qiyin bo'lgan noxush haqiqat yoki muvaffaqiyatsizlik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pill",
+        "literal": {
+          "ru": "горькая таблетка, которую надо проглотить",
+          "uz": "yutish kerak bo'lgan achchiq dori"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "leave a bad taste in your mouth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оставить неприятный осадок",
+        "uz": "ko'ngilda g'ubor qoldirmoq"
+      },
+      "example": "The way they treated us at the shop left a bad taste in my mouth.",
+      "example_translations": {
+        "ru": "То, как с нами обошлись в магазине, оставило неприятный осадок.",
+        "uz": "Do'konda bizga qilingan muomala ko'nglimda g'ubor qoldirdi."
+      },
+      "hooks": {
+        "ru": "Говорят о случае, после которого остались неприятные чувства",
+        "uz": "Keyin noxush his qoldirgan voqea haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mouth",
+        "literal": {
+          "ru": "оставить плохой вкус во рту",
+          "uz": "og'izda yomon ta'm qoldirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "apples and oranges",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это совсем разные вещи",
+        "uz": "mutlaqo boshqa-boshqa narsalar"
+      },
+      "example": "You can't compare city life and village life; it's apples and oranges.",
+      "example_translations": {
+        "ru": "Нельзя сравнивать жизнь в городе и в деревне: это совсем разные вещи.",
+        "uz": "Shahar va qishloq hayotini solishtirib bo'lmaydi: bular mutlaqo boshqa-boshqa narsalar."
+      },
+      "hooks": {
+        "ru": "Говорят, когда сравнивают вещи, которые сравнивать нельзя",
+        "uz": "Solishtirib bo'lmaydigan narsalar solishtirilayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "oranges",
+        "literal": {
+          "ru": "яблоки и апельсины",
+          "uz": "olmalar va apelsinlar"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

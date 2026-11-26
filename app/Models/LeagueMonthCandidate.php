@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed> $signals
  * @property string $status
  * @property int|null $place
+ * @property string|null $category the category table of a v2 month the candidate stands in (docs/32 §7); NULL in a v1 month
  * @property Carbon|null $disqualified_at
  * @property int|null $disqualified_by_user_id
  * @property string|null $disqualify_reason
@@ -44,6 +45,7 @@ class LeagueMonthCandidate extends Model
     protected $fillable = [
         'league_month_id', 'learner_id', 'rank', 'points', 'active_days', 'signals', 'status', 'place',
         'disqualified_at', 'disqualified_by_user_id', 'disqualify_reason', 'prize_delivered_at', 'prize_delivered_by_user_id',
+        'category',
     ];
 
     /** @return array<string, string> */

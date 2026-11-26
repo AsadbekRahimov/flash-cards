@@ -35,6 +35,10 @@ use Illuminate\Support\Str;
  *
  * Words are never deleted (docs/03 §8): removing a word or the whole deck sets `words.is_active = false`;
  * `word_repetitions` stay, so the progress survives.
+ *
+ * A deck is outside the catalog of lexemes (owner's decision of 27.11.2026, docs/32 §2.1, §12.12): a new or revived word gets
+ * `lexeme_id` NULL - the learner writes the translation himself, so the word earns no points of the rating, and its answers neither
+ * credit nor spend the attempt of the day of the same spelling in a course of the platform. It is studied as usual.
  */
 final class LearnerDeckService
 {
@@ -201,13 +205,14 @@ final class LearnerDeckService
                     'id' => $word->id,
                     'lesson_id' => $word->lesson_id,
                     'word' => $word->word,
+                    'lexeme_id' => null,
                     'is_active' => true,
                     'translation' => $row->translation,
                     'example' => $row->example,
                 ];
             }
             if ($updates !== []) {
-                Word::query()->upsert($updates, ['id'], ['is_active', 'translation', 'example']);
+                Word::query()->upsert($updates, ['id'], ['lexeme_id', 'is_active', 'translation', 'example']);
             }
 
             $counts = [];
@@ -226,7 +231,7 @@ final class LearnerDeckService
                 // Bulk upserts skip WordTranslationObserver.
                 rescue(fn () => $this->translations->forget(array_keys($changed)));
                 foreach ($lessonsToForget as $lesson) {
-                    $this->cache->forgetLesson($lesson);
+                    $this->cache->forgetLesson($lesson, platform: false); // a learner's deck: never in the pool of the platform
                 }
             });
 
@@ -259,7 +264,7 @@ final class LearnerDeckService
             $word->forceFill(['is_active' => false])->save();
             $this->publisher->recount($deck);
 
-            DB::afterCommit(fn () => $this->cache->forgetLesson($word->lesson()->firstOrFail()));
+            DB::afterCommit(fn () => $this->cache->forgetLessonId((int) $word->lesson_id, platform: false));
         });
     }
 
@@ -297,7 +302,7 @@ final class LearnerDeckService
 
         DB::afterCommit(function () use ($lessons): void {
             foreach ($lessons as $lesson) {
-                $this->cache->forgetLesson($lesson);
+                $this->cache->forgetLesson($lesson, platform: false);
             }
         });
     }
@@ -375,6 +380,7 @@ final class LearnerDeckService
             foreach ($words as $row) {
                 $inserts[] = [
                     'lesson_id' => $lesson->id,
+                    'lexeme_id' => null,
                     'word' => $row->word,
                     'translation' => $row->translation,
                     'example' => $row->example,

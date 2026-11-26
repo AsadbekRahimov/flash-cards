@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 2,
+    "title": "Разговор и понимание",
+    "title_uz": "Suhbat va tushunish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Живая реакция",
+    "title_uz": "Jonli munosabat"
+  },
+  "words": [
+    {
+      "word": "Is that so?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вот как?",
+        "uz": "shunaqami?"
+      },
+      "example": "Our teacher used to be a famous singer. — Is that so? I didn't know that!",
+      "example_translations": {
+        "ru": "Наш учитель когда-то был известным певцом. — Вот как? Я не знал!",
+        "uz": "O'qituvchimiz ilgari mashhur xonanda bo'lgan. — Shunaqami? Bilmagan ekanman!"
+      },
+      "hooks": {
+        "ru": "Вежливо выражают интерес или лёгкое удивление, иногда с сомнением",
+        "uz": "Qiziqish yoki yengil hayratni bildiradi, ba'zan shubha bilan"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "so",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You don't say",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "да ну!",
+        "uz": "nahotki!"
+      },
+      "example": "I've passed my driving test! — You don't say! Congratulations!",
+      "example_translations": {
+        "ru": "Я сдал на права! — Да ну! Поздравляю!",
+        "uz": "Haydovchilik imtihonidan o'tdim! — Nahotki! Tabriklayman!"
+      },
+      "hooks": {
+        "ru": "Удивление новостью; часто иронично, когда новость и так очевидна",
+        "uz": "Yangilikdan hayratlanish; yangilik ayon bo'lsa, ko'pincha kinoya bilan"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "say",
+        "literal": {
+          "ru": "ты не говоришь",
+          "uz": "sen aytmaysan"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Tell me more",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "расскажите подробнее",
+        "uz": "batafsilroq gapirib bering"
+      },
+      "example": "I met someone interesting at the conference. — Really? Tell me more!",
+      "example_translations": {
+        "ru": "Я познакомился на конференции с интересным человеком. — Правда? Расскажи подробнее!",
+        "uz": "Konferensiyada qiziq odam bilan tanishdim. — Rostdanmi? Batafsilroq gapirib ber!"
+      },
+      "hooks": {
+        "ru": "Показывают интерес и просят продолжить рассказ",
+        "uz": "Qiziqish bildirib, hikoyani davom ettirishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "more",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Good for you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рад за тебя",
+        "uz": "yaxshi qilibsan"
+      },
+      "example": "I finally stopped eating sweets. — Good for you!",
+      "example_translations": {
+        "ru": "Я наконец перестал есть сладкое. — Рад за тебя!",
+        "uz": "Nihoyat shirinlik yeyishni tashladim. — Yaxshi qilibsan!"
+      },
+      "hooks": {
+        "ru": "Одобряют решение или успех собеседника; иногда звучит иронично",
+        "uz": "Suhbatdoshning qarori yoki yutug'ini ma'qullash; ba'zan kinoyali eshitiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "good",
+        "literal": {
+          "ru": "хорошо для тебя",
+          "uz": "sen uchun yaxshi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Sounds like fun",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "звучит здорово",
+        "uz": "qiziqarli bo'lsa kerak"
+      },
+      "example": "We're going camping in the mountains this weekend. — Sounds like fun!",
+      "example_translations": {
+        "ru": "В выходные мы едем в горы с палатками. — Звучит здорово!",
+        "uz": "Dam olish kunlari tog'ga chodir bilan boramiz. — Qiziqarli bo'lsa kerak!"
+      },
+      "hooks": {
+        "ru": "Живо откликаются на рассказ о чужих планах",
+        "uz": "Birovning rejalari haqidagi hikoyaga jonli munosabat"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fun",
+        "literal": {
+          "ru": "звучит как веселье",
+          "uz": "qiziqarli eshitiladi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How interesting",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как интересно",
+        "uz": "qanday qiziq"
+      },
+      "example": "My grandfather speaks five languages. — How interesting!",
+      "example_translations": {
+        "ru": "Мой дедушка говорит на пяти языках. — Как интересно!",
+        "uz": "Bobom besh tilda gapiradi. — Qanday qiziq!"
+      },
+      "hooks": {
+        "ru": "Вежливый интерес к рассказу; холодным тоном выдаёт скуку",
+        "uz": "Hikoyaga xushmuomala qiziqish; sovuq ohangda zerikishni bildiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "interesting",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Poor you!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "бедняжка!",
+        "uz": "voy, bechora!"
+      },
+      "example": "I've got a terrible cold. — Poor you! Do you need anything?",
+      "example_translations": {
+        "ru": "Я сильно простыл. — Бедняжка! Тебе что-нибудь нужно?",
+        "uz": "Qattiq shamollab qoldim. — Voy, bechora! Biror narsa kerakmi?"
+      },
+      "hooks": {
+        "ru": "Сочувствуют другу, у которого мелкая неприятность",
+        "uz": "Kichik ko'ngilsizlikka uchragan do'stga hamdardlik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "poor",
+        "literal": {
+          "ru": "бедный ты",
+          "uz": "bechora sen"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Lucky you!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "везёт же тебе!",
+        "uz": "omading bor ekan!"
+      },
+      "example": "I'm going to Turkey for a week. — Lucky you!",
+      "example_translations": {
+        "ru": "Я еду в Турцию на неделю. — Везёт же тебе!",
+        "uz": "Bir haftaga Turkiyaga ketyapman. — Omading bor ekan!"
+      },
+      "hooks": {
+        "ru": "Говорят с доброй завистью, услышав о чужой удаче",
+        "uz": "Birovning omadi haqida eshitib, havas bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "lucky",
+        "literal": {
+          "ru": "везучий ты",
+          "uz": "omadli sen"
+        },
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Well done!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "молодец!",
+        "uz": "barakalla!"
+      },
+      "example": "I got an A on my math test! — Well done! I knew you could do it.",
+      "example_translations": {
+        "ru": "Я получил пятёрку за контрольную по математике! — Молодец! Я знал, что ты сможешь.",
+        "uz": "Matematikadan nazorat ishida a'lo baho oldim! — Barakalla! Uddalashingni bilardim."
+      },
+      "hooks": {
+        "ru": "Хвалят за хорошо сделанную работу: детей, учеников, коллег",
+        "uz": "Yaxshi bajarilgan ish uchun bolalar, o'quvchilar yoki hamkasblarni maqtash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "done",
+        "literal": {
+          "ru": "хорошо сделано",
+          "uz": "yaxshi bajarildi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Oh dear",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ой-ой",
+        "uz": "voy, attang"
+      },
+      "example": "I left my keys at home. — Oh dear! What are you going to do?",
+      "example_translations": {
+        "ru": "Я оставил ключи дома. — Ой-ой! И что теперь будешь делать?",
+        "uz": "Kalitlarimni uyda qoldiribman. — Voy, attang! Endi nima qilasan?"
+      },
+      "hooks": {
+        "ru": "Лёгкая досада или сочувствие, когда что-то пошло не так",
+        "uz": "Biror narsa yomon ketganda yengil afsus yoki hamdardlik"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "dear",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    }
+  ]
+}

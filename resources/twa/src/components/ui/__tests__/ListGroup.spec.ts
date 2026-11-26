@@ -20,4 +20,24 @@ describe('ListGroup', () => {
     expect(html.indexOf('Обучение')).toBeLessThan(html.indexOf('class="list"'))
     expect(html.indexOf('class="list"')).toBeLessThan(html.indexOf('Время'))
   })
+
+  it('highlight: the list lies on a tinted plate with the label inside it, 18 px extra bold (Profile mock-up)', () => {
+    const w = mount(ListGroup, {
+      props: { header: 'Мой аккаунт', highlight: true },
+      slots: { default: '<div class="list-row" data-testid="row">A</div>' },
+    })
+
+    const plate = w.get('section')
+    expect(plate.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+    expect(plate.get('h2').text()).toBe('Мой аккаунт')
+    expect(plate.get('h2').classes()).toEqual(expect.arrayContaining(['text-lg', 'font-extrabold']))
+    expect(plate.find('.section-label').exists()).toBe(false)
+    expect(plate.get('.list').find('[data-testid=row]').exists()).toBe(true)
+  })
+
+  it('is the plain group by default', () => {
+    const w = mount(ListGroup, { props: { header: 'Обучение' } })
+
+    expect(w.get('section').classes()).not.toContain('bg-highlight')
+  })
 })

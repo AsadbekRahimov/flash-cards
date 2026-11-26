@@ -109,6 +109,26 @@ it('shows the loss before the checkout on the rows over all providers only', fun
         ->and($html)->toMatch('/data-row="all:all".*?<td class="lm-num">2<\/td>\s*<td class="lm-num">1<\/td>/s');
 });
 
+it('shows the offers after the trial per step, with the payments after each and the opt-outs', function (): void {
+    $at = CarbonImmutable::now()->subDays(5);
+    foreach ([0, 0, 3] as $i => $step) {
+        $learner = Learner::factory()->create();
+        ProductEvent::query()->create(['name' => 'trial_offer.sent', 'learner_id' => $learner->id, 'props' => ['step' => $step], 'occurred_at' => $at]);
+        if ($i === 0) {
+            ProductEvent::query()->create(['name' => 'payment.succeeded', 'learner_id' => $learner->id, 'props' => ['provider' => 'telegram_stars', 'kind' => 'charge'], 'occurred_at' => $at->addHour()]);
+        }
+        if ($i === 2) {
+            ProductEvent::query()->create(['name' => 'trial_offer.opted_out', 'learner_id' => $learner->id, 'props' => [], 'occurred_at' => $at->addHour()]);
+        }
+    }
+
+    Livewire::test(BillingFunnelWidget::class)
+        ->assertOk()
+        ->assertSee('Предложения после пробного Pro')
+        ->assertSee('Отказались от предложений: 1.')
+        ->assertSeeInOrder(['в день окончания', '2', '1 / 2 · 50 %', 'через 3 дня', '1', '0 / 1 · 0 %']);
+});
+
 it('says so when there is nothing yet', function (): void {
     Livewire::test(BillingFunnelWidget::class)
         ->assertOk()
@@ -128,8 +148,8 @@ it('costs the same number of queries for 4 and for 40 learners, and none on the 
     $large = QueryLog::during(fn () => Livewire::test(BillingFunnelWidget::class)->assertOk());
 
     expect(count($large))->toBe(count($small))
-        // The three statements of the report, whatever the volume.
-        ->and(QueryLog::matching($small, '/product_events|payment_orders/'))->toHaveCount(3)
+        // The five statements of the report, whatever the volume.
+        ->and(QueryLog::matching($small, '/product_events|payment_orders/'))->toHaveCount(5)
         ->and(QueryLog::matching($warm, '/product_events|payment_orders/'))->toBe([]);
 });
 

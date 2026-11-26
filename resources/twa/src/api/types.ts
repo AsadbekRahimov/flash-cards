@@ -29,7 +29,8 @@ export interface AccountDeletedResponse {
 }
 
 export interface MeResponse {
-  learner: Learner & { username: string | null }
+  /** `pro_emoji`: the emoji next to the name (docs/31 §5а) - only while the learner has Pro, else null */
+  learner: Learner & { username: string | null; pro_emoji?: string | null }
   groups: { id: number; title: string }[]
   stats: {
     words_learned: number
@@ -83,12 +84,47 @@ export interface LearnerSettings {
   /** The SRS arm of the learner (docs/06 §9): the retention dial is shown for `fsrs` only. */
   scheduler?: 'sm2' | 'fsrs'
   retention_mode?: RetentionMode
+  /**
+   * The region (docs/35 §2.3, docs/04 A.2b): a code of `options.regions` (`UZ-TK` … or `other`); null = not given. Optional here (as
+   * `scheduler`) so that the fixtures of older specs stay complete; the server always sends it.
+   */
+  region_code?: string | null
+  /** ISO 8601 UTC: another region can be chosen from then on (once in 30 days); null = now. */
+  region_change_available_at?: string | null
+  /** until when the last change of the region can be taken back (10 minutes); null = it cannot */
+  region_undo_available_until?: string | null
+  /** show the card "Choose your region" on the Rating tab: no region and no "Not now" in the last 30 days */
+  region_prompt?: boolean
+  /** The emoji of Pro (docs/31 §5а): the CODE chosen, kept without Pro too (a Free learner sees it as a plus of Pro). */
+  pro_emoji_choice?: string | null
   options: {
     locales: SettingsChoice[]
     reminder_times: string[]
     daily_goals: number[]
+    /**
+     * The highest daily goal the plan allows (docs/04 A.2, docs/05 §8c-1): the goals above it are shown with a lock and open the
+     * paywall instead of saving; null = no limit (Pro).
+     */
+    daily_goal_max: number | null
     retention_modes?: RetentionMode[]
+    /** The 14 regions of Uzbekistan in the order of the language (Tashkent City first), then `other`; names localized by the server. */
+    regions?: RegionChoice[]
+    /** The set of the emoji of Pro, in the order of the picker. */
+    pro_emojis?: ProEmojiChoice[]
+    /** true = the emoji is a Pro feature for this learner: the picker shows a lock and opens the paywall */
+    pro_emoji_locked?: boolean
   }
+}
+
+export interface RegionChoice {
+  code: string
+  name: string
+}
+
+export interface ProEmojiChoice {
+  code: string
+  /** one emoji, ready to show */
+  emoji: string
 }
 
 /** One active membership of GET /me/organizations (docs/04 A.11). */
@@ -147,12 +183,21 @@ export type LeagueTierKey = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond
 export type LeagueResult = 'promoted' | 'stayed' | 'demoted'
 export type LeagueZone = 'promotion' | 'safe' | 'demotion'
 
+/** The table of the word points v2 a learner competes in (docs/32 §2.3): fixed by the first credit of the week / month. */
+export type ScoreCategory = 'free' | 'pro'
+
 export interface LeagueStandingItem {
+  /** A v2 week: the competition rank - a shared place reads 1, 2, 2, 4. */
   rank: number
   /** First name of the member; null = no name to show. Nothing else of other people is sent. */
   name: string | null
   points: number
   is_me: boolean
+  /** The emoji of Pro next to the name (docs/31 §5а): only while the member's Pro is live; absent on an older server. */
+  pro_emoji?: string | null
+  /** A v2 week (docs/32 §5.1): the tie-break facts of the best days - long repetitions, days with points. Absent in a v1 week. */
+  long_words?: number
+  active_days?: number
 }
 
 export interface LeagueMembership {
@@ -167,6 +212,11 @@ export interface LeagueMembership {
   /** Points missing to leave the demotion zone; null when not in it or the tier cannot demote. */
   points_to_safety: number | null
   standings: LeagueStandingItem[]
+  /** A v2 week (docs/32 §8.3): the table of the group; absent in a v1 week. */
+  category?: ScoreCategory
+  rules_version?: number
+  /** Points that overtake the nearest better place for sure; null for a leader. Absent in a v1 week. */
+  next_gap?: number | null
 }
 
 export interface LeagueResponse {
@@ -176,7 +226,12 @@ export interface LeagueResponse {
   week: { starts_on: string; ends_on: string; closes_at: string }
   rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
   membership: LeagueMembership | null
-  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+  /** `rank`: 0 or null - the learner was out of the ranks of that week (opted out, blocked). */
+  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number | null; points: number } | null
+  /** 2: the week counts by the word points (docs/32); absent: the v1 points. */
+  rules_version?: number
+  /** A v2 week: how many best days of the week count (docs/32 §3.5); absent on an older server. */
+  best_days?: number
 }
 
 /** GET /league/month (docs/04 A.19, docs/13 §7.6): the monthly rating over the same league points. */
@@ -204,6 +259,73 @@ export interface MonthlyTopRow {
   points: number
   active_days: number
   is_me: boolean
+  /** The emoji of Pro next to the name (docs/31 §5а), only while that Pro is live; absent on an older server. */
+  pro_emoji?: string | null
+  /** A v2 month: the tie-break fact (distinct long repetitions); absent in a v1 month. */
+  long_words?: number
+}
+
+/** A row of a v2 table outside the top (neighbours, pages after a cursor, docs/32 §5.3). */
+export interface BoardRow {
+  /** The competition rank: a shared place reads 7, 7, 9. */
+  rank: number
+  name: string | null
+  points: number
+  long_words: number
+  active_days: number
+  is_me: boolean
+  pro_emoji: string | null
+}
+
+/**
+ * A table of a region (docs/35 §2.4, R7): any region may be opened. Shown from `min_participants` (5) participants; below that
+ * `shown` is false and the table has no rows ("в вашей области пока 3 участника").
+ */
+export interface BoardRegion {
+  /** `UZ-TK`, … or `other` (docs/35 §2.2). */
+  code: string
+  /** The name in the interface language. */
+  name: string
+  participants: number
+  shown: boolean
+  min_participants: number
+}
+
+/** The learner's place in their region (`me.region`): `rank` null while the table is hidden or the learner has no place. */
+export interface BoardMyRegion extends BoardRegion {
+  rank: number | null
+}
+
+/** `scope` of a table: the whole category, or a region (`?scope=region[&region=<code>]`). */
+export type BoardScopeName = 'all' | 'region'
+
+/**
+ * The table asked of GET /league/month and GET /league/all-time (docs/04 A.19, A.19a): `category` left out - the learner's own;
+ * `scope` left out - the whole category; `region` only with `scope: 'region'` (left out - the learner's own region).
+ */
+export interface BoardQuery {
+  category?: ScoreCategory
+  scope?: 'region'
+  region?: string
+}
+
+/**
+ * GET /league/month?category=&after=… and GET /league/all-time?category=&after=… : the page of a v2 table after a cursor; 422
+ * `invalid_cursor` for a cursor of another table (another month, period, category or region).
+ */
+export interface LeagueBoardPage {
+  rules_version: number
+  category: ScoreCategory
+  /** The learner has no place in this table (the other category, another region): shown, read-only. */
+  read_only: boolean
+  rows: BoardRow[]
+  /** `after` of the next page; null on the last one. */
+  next_cursor: string | null
+  /** "All time" (docs/32 §12.11); absent on a page of a month. */
+  period?: 'all_time'
+  /** "All time" and a table of a region: the scope and the region shown (null: the whole category). Absent on a page of a whole month. */
+  scope?: BoardScopeName
+  region?: BoardRegion | null
 }
 
 export interface MonthlyMe {
@@ -215,14 +337,31 @@ export interface MonthlyMe {
   /** Whether the learner takes part in the prize draw; `missing` says what is not enough yet. */
   eligible: boolean
   missing: { active_days: number; account_days: number }
+  /** Why the learner has no place (docs/34 §3): `opted_out`, `blocked`; null for a participant. */
+  not_counted_reason: 'opted_out' | 'blocked' | null
+  /** A v2 month (docs/32 §8.3): the learner's table, the tie-break fact, the points to the next place (null: leader / no place). */
+  category?: ScoreCategory | null
+  long_words?: number
+  next_gap?: number | null
+  /** A v2 month: the place in the region of the learner's month (docs/35 §2.4); null without a region; absent on an older server. */
+  region?: BoardMyRegion | null
+}
+
+export interface MonthlyWinner {
+  place: number
+  name: string | null
+  points: number
 }
 
 export interface MonthlyLastMonth {
   starts_on: string
   ends_on: string
   status: MonthlyRatingStatus
-  winners: { place: number; name: string | null; points: number }[]
-  me: { rank: number; points: number } | null
+  /** A v2 month: the winners of the table shown now (`category` of the answer). */
+  winners: MonthlyWinner[]
+  me: { rank: number; points: number; category?: ScoreCategory | null } | null
+  /** A v2 month: every table under its category; absent in a v1 month. */
+  winners_by_category?: { free: MonthlyWinner[]; pro: MonthlyWinner[] }
 }
 
 export interface MonthlyRatingResponse {
@@ -244,6 +383,68 @@ export interface MonthlyRatingResponse {
   /** null: the learner has not studied this month yet. */
   me: MonthlyMe | null
   last_month: MonthlyLastMonth | null
+  /**
+   * A month of the word points v2 (docs/32 §8.3); every key below is absent in a v1 month. `month.participants`, `prizes` and `top`
+   * are those of the table shown (`category`: `?category=` or the learner's own).
+   */
+  rules_version?: number
+  category?: ScoreCategory
+  my_category?: ScoreCategory
+  /** The other table: no place of the learner in it, no neighbours. */
+  read_only?: boolean
+  /** `?after=` of the page after the top; null: the top is the whole table. */
+  next_cursor?: string | null
+  /** Two rows above and below the learner in their own table; null: not shown (other table, no place). */
+  neighbours?: { above: BoardRow[]; below: BoardRow[] } | null
+  /** A v2 month (docs/35 §2.4): `region` - the table of a region shown (`?scope=region`), null for the whole category; no prizes there. */
+  scope?: BoardScopeName
+  region?: BoardRegion | null
+}
+
+/** GET /league/all-time (docs/04 A.19a, docs/32 §8.3, §12.11): the learner's row of the category shown. */
+export interface AllTimeMe {
+  category: ScoreCategory
+  /** null while not a participant (opted out, blocked). */
+  rank: number | null
+  points: number
+  long_words: number
+  active_days: number
+  participant: boolean
+  not_counted_reason: 'opted_out' | 'blocked' | null
+  first_day: string
+  last_day: string
+  /** Points to the next place of the table shown; null: leader, or no place in it. */
+  next_gap: number | null
+  /** The place in the learner's current region; null without a region. */
+  region: BoardMyRegion | null
+}
+
+/**
+ * GET /league/all-time?category=&scope=&region= . `enabled: false` (the word points not live): no other key. 422 `region_not_set`
+ * for `scope=region` without `region` from a learner without one, `invalid_cursor` for a cursor of another table.
+ */
+export interface AllTimeResponse {
+  enabled: boolean
+  period: 'all_time'
+  rules_version?: number
+  /** `Y-m-d`: the points are counted from this day ("Учёт с …"). */
+  counted_since?: string | null
+  category?: ScoreCategory
+  /** The learner's table now: the category of their current month, else of their plan. */
+  my_category?: ScoreCategory
+  /** The learner has no place in the table shown. */
+  read_only?: boolean
+  opted_out?: boolean
+  scope?: BoardScopeName
+  region?: BoardRegion | null
+  participants?: number
+  top?: BoardRow[]
+  next_cursor?: string | null
+  neighbours?: { above: BoardRow[]; below: BoardRow[] } | null
+  /** null: no points in the category shown. */
+  me?: AllTimeMe | null
+  /** The learner's own sum over both tables (the opt-out does not hide it from them); a category without points - null. */
+  my_total?: { points: number; free: number | null; pro: number | null }
 }
 
 /** GET /league/month/me: the light variant for the finish screen. */
@@ -281,6 +482,8 @@ export interface AchievementsResponse {
 export interface FriendItem {
   id: number
   first_name: string | null
+  /** The friend's emoji of Pro (docs/31 §5а) while his Pro is live; absent on an older server. */
+  pro_emoji?: string | null
   streak: number
   words_learned: number
   since: string | null
@@ -344,7 +547,14 @@ export interface ExerciseSettings {
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out' | 'retention_mode'>
-> & { exercises?: Partial<ExerciseSettings> }
+> & {
+  exercises?: Partial<ExerciseSettings>
+  /** the region (null = "rather not say"); `region_via` says which screen chose it, for the product event only */
+  region_code?: string | null
+  region_via?: 'settings' | 'prompt'
+  /** the CODE of an emoji of Pro; null takes it back */
+  pro_emoji?: string | null
+}
 
 /** The FSRS target retention the learner picked (docs/06 §12.8); shown only to learners scheduled by FSRS. */
 export type RetentionMode = 'calm' | 'normal' | 'intense'
@@ -471,7 +681,15 @@ export interface LessonHeader {
 }
 
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
-export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete' | 'hard_round_complete'
+export type DoneReason =
+  | 'lesson_complete'
+  | 'nothing_due'
+  | 'new_quota_exhausted'
+  | 'session_cap'
+  | 'sprint_complete'
+  | 'hard_round_complete'
+  /** `lesson_review` (docs/06 §15): every word of the set answered right or out of serves. */
+  | 'lesson_review_complete'
 
 /**
  * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
@@ -481,10 +699,14 @@ export interface Quota {
   new_words_remaining: number | null
 }
 
-export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review'
+/**
+ * `lesson_review` (docs/04 A.3, docs/06 §15): the review of a lesson studied today - the words met today, objective exercises only;
+ * it moves no schedule and brings no points, goal or streak (step 2 of the day plan).
+ */
+export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review' | 'lesson_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish' | 'plan'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -504,8 +726,12 @@ export interface TrainingStartResponse {
 
 /** Body of POST /training/sessions. */
 export interface OpenSessionRequest {
-  /** `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`. */
-  mode: 'lesson' | 'daily_review' | 'hard_review'
+  /**
+   * `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`.
+   * `lesson_review`: the review of a lesson studied today (docs/06 §15) - needs `lesson_id`; 409 `lesson_review_unavailable`
+   * `{reason: no_new_words | no_objective_exercise | disabled}` when it cannot open.
+   */
+  mode: 'lesson' | 'daily_review' | 'hard_review' | 'lesson_review'
   lesson_id?: number
   source?: SessionSource
 }
@@ -556,6 +782,42 @@ export interface SessionSummary {
   corrected?: CorrectedMistake | null
   /** The invitation to the round of hard words after a daily round / a lesson; null: none (the round itself, the feature is off). */
   hard_round_offer?: HardRound | null
+  /** The review of a lesson (docs/06 §15): words of its set answered right / on the first serve; null / absent in every other mode. */
+  lesson_review?: { total: number; won: number; first_try: number } | null
+  /** The word points of the session (docs/32 §8.2); absent outside the v2 rules (then `league_points` is the v1 formula). */
+  score_session?: SessionScore
+}
+
+/** "Today N of 100" (docs/32 §8.2): the rating day as it stands; `month` only when the monthly count differs. */
+export interface ScoreTodayCount {
+  points: number
+  /** null: the count is on the old rules. */
+  cap: number | null
+  category: ScoreCategory
+  new: [number, number | null]
+  review: [number, number | null]
+  /** What is left of the cap today; null without a cap. */
+  remaining: number | null
+}
+
+export interface ScoreToday extends ScoreTodayCount {
+  /** Midnight of the rating day (Tashkent), ISO 8601 UTC: "the rating day ends at 22:00". */
+  day_ends_at: string
+  month: ScoreTodayCount | null
+}
+
+/** What a training session brought in word points (docs/32 §8.2). */
+export interface SessionScore {
+  /** By the rules, before the limits ("+70 for the session"). */
+  earned: number
+  week_added: number
+  month_added: number
+  /** How much the week's sum of the best days grew ("+40 to the weekly rating"). */
+  week_rating_delta: number
+  /** What the limits of the day cut off. */
+  capped_off: number
+  /** The rating day after the session; null: no credit today. */
+  today: ScoreToday | null
 }
 
 /** A word failed in an earlier session (objective exercise) and answered right at its first grade in the round of hard words. */
@@ -598,12 +860,61 @@ export interface TodayLesson {
   stage: number | null
   lesson: number
   title: string | null
+  /** The lesson's words never served to the learner ("5 new words"); absent on an older server. */
+  words_left?: number
+}
+
+/** Step 2 of the day plan: the review of the lesson studied today (`POST /training/sessions {mode: 'lesson_review', lesson_id}`). */
+export interface DayPlanTraining {
+  lesson_id: number
+  /** The slug of the lesson's course - not necessarily the active one (an assignment, a course switched since); absent on an older server. */
+  course?: string | null
+  /** In the learner's language; null when the lesson is not in the active course (a deck, an assignment). */
+  title: string | null
+  /** Words the review asks (met today, at most 20). */
+  words: number
+  /** A review of this lesson was played to its end today. */
+  done: boolean
+  /** A live review of this lesson to continue ("Continue"). */
+  open_session_id: number | null
+}
+
+/** Step 3 of the day plan: the game on the words of the lesson (`POST /practice/sessions {mode: 'pairs_timed', lesson_id, source: 'deeplink'}`). */
+export interface DayPlanGame {
+  lesson_id: number
+  /** The slug of the lesson's course: the practice hub opens there (`/practice/{course}?lesson=`); absent on an older server. */
+  course?: string | null
+  mode: 'pairs_timed'
+  /** A practice session on this lesson was begun today and answered at least once. */
+  played: boolean
+}
+
+/** `plan` of GET /today (docs/04 A.2a, docs/31 §5б): lesson -> review of the lesson -> game on its words. */
+export interface DayPlan {
+  /** The step to do now; null - nothing to suggest (the chain is done, or there is no lesson to start). */
+  step: 1 | 2 | 3 | null
+  /** The chain of today is complete. */
+  done: boolean
+  lesson: {
+    /** A lesson with new words was played to its end today (`lesson_id` - that lesson). */
+    done: boolean
+    lesson_id: number | null
+    /** = `active_course.next_lesson.id`. */
+    next_lesson_id: number | null
+    words_left: number | null
+  }
+  /** null until a lesson is done today, or while the review is switched off. */
+  training: DayPlanTraining | null
+  /** null until a lesson is done today, or while the game is not open to the learner. */
+  game: DayPlanGame | null
 }
 
 export interface TodayCourse {
   id: number
   slug: string
   title: string
+  /** The section of the catalog (`phrases` - a course of phrases, `courses` - every other), as `CourseSection`; absent on an older server. */
+  section?: CourseSection
   progress: { learned: number; total: number }
   /** null once every word of the course has been served. */
   next_lesson: TodayLesson | null
@@ -698,6 +1009,10 @@ export interface TodayResponse {
    * and Home is not held for it; `true` - maybe; absent: an older server (the list is asked as before).
    */
   assignments_possible?: boolean
+  /** The plan of the day (docs/31 §5б); absent on an older server. */
+  plan?: DayPlan | null
+  /** "Today N of 100" of the word points (docs/32 §8.2); absent outside the v2 rules. */
+  score_today?: ScoreToday
 }
 
 export interface TodayGame {
@@ -814,6 +1129,16 @@ export interface Card {
   note?: string | null
   /** The word a hard word is mixed up with (docs/06 §12.6). */
   confused_with?: { word: string; translation: string | null } | null
+  /** A phrase card (docs/35 §3.3 d, docs/06 §16); null for a word, absent on an older server. */
+  phrase?: PhraseInfo | null
+}
+
+/** The labels of a phrase card: kind, register, UK / US and «Буквально: …» (null while the card hides its answer). */
+export interface PhraseInfo {
+  kind: 'formula' | 'fixed' | 'idiom' | 'phrasal_verb' | 'proverb' | null
+  register: 'neutral' | 'informal' | 'formal' | 'slang' | 'rude' | null
+  variant: 'both' | 'uk' | 'us'
+  literal: string | null
 }
 
 export interface NextCardResponse {
@@ -851,7 +1176,8 @@ export interface Graded {
 export interface Revealed {
   word: string
   translation: string
-  /** The right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation). */
+  /** The right option exactly as it stands among the options (reverse: the word; meaning / audio / pretest: the translation;
+   *  gap_fill of a phrase: the whole phrase). */
   correct: string
   example: string | null
   example_translation?: string | null
@@ -862,6 +1188,9 @@ export interface Revealed {
   hook: string | null
   note: string | null
   confused_with: { word: string; translation: string | null } | null
+  /** The phrase labels with the literal translation; null for a word, absent on an older server. A phrase also comes back here after
+   *  gap_fill and pretest (docs/06 §16): `example*`, `hook`, `confused_with` are null then. */
+  phrase?: PhraseInfo | null
 }
 
 /** What the server said about a pick of a meaning / reverse / audio card: the screen colours the options by it. */
@@ -886,6 +1215,34 @@ export interface ReviewResponse {
   /** The daily round ended and one more can be played (only with `done_reason = 'sprint_complete'`); absent on an older server. */
   can_continue?: boolean
   quota?: Quota
+  /** The word points of the answer (docs/32 §8.1); null while they are off / shadow, absent on an older server. Not shown yet. */
+  score?: WordScore | null
+}
+
+/** One count (weekly or monthly) of the rating day after an answer (docs/32 §8.1 `score.today`). */
+export interface WordScoreDay {
+  points: number
+  /** null while the count is on the old rules. */
+  cap: number | null
+  category: 'free' | 'pro'
+  /** [used, limit] of the day; the limit is null on the old rules. */
+  new: [number, number | null]
+  review: [number, number | null]
+}
+
+/** The `score` block of the answer of the training and of the game (docs/32 §8.1). */
+export interface WordScore {
+  kind: 'new' | 'review' | 'long' | null
+  reason: string
+  /** The points of the kind by the rules (0 when nothing was credited). */
+  base: number
+  /** What the weekly / monthly count really got (limits and the day cap applied). */
+  week: number
+  month: number
+  /** The weekly count of the day; null when the answer credited nothing. */
+  today: WordScoreDay | null
+  /** The monthly count, only when it differs from the weekly one. */
+  today_month: WordScoreDay | null
 }
 
 export interface ApiError {
@@ -1009,6 +1366,8 @@ export interface Progress {
   total: number
 }
 
+export type CourseSection = 'courses' | 'phrases'
+
 /** Row of GET /courses and the answer of POST /me/course. Texts are localized by the server. */
 export interface Course {
   slug: string
@@ -1016,6 +1375,8 @@ export interface Course {
   description: string | null
   level: string | null
   exam_tag: string | null
+  /** The section of the catalog (docs/35 §3.3 a): `phrases` - a course of phrases, `courses` - every other. */
+  section?: CourseSection
   words_count: number
   is_featured: boolean
   is_active: boolean
@@ -1047,6 +1408,7 @@ export interface CourseDetail {
   description: string | null
   level: string | null
   exam_tag: string | null
+  section?: CourseSection
   words_count: number
   is_active: boolean
   progress: Progress
@@ -1624,6 +1986,8 @@ export type BattleVerdict = PracticeVerdict | 'timeout'
 
 export interface BattleOpponent {
   first_name: string | null
+  /** The emoji of Pro next to the name (docs/31 §5а) while that Pro is live; absent on an older server. */
+  pro_emoji?: string | null
 }
 
 /** One format of GET /practice/battles/options (docs/16 §7.3). */
@@ -1851,4 +2215,418 @@ export interface BattleAudioFailedRequest {
 export interface BattleAudioFailedResponse {
   verified: boolean
   battle: Battle
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The friends' cup of a Telegram group (docs/04 A.23, docs/33 §7.2; K7). Only the types of the server's answers: the screens are K8.
+// Every field the server may add later is optional; the codes of the errors are in `CupErrorCode`.
+
+export type CupStatus = 'draft' | 'scheduled' | 'running' | 'finished' | 'canceled'
+export type CupPause = 'bot_removed' | 'blocked'
+export type CupParticipantStatus = 'active' | 'left'
+export type CupTodayState = 'not_started' | 'active' | 'done' | 'not_available'
+
+/**
+ * The codes of `error.code` of the routes of the cup. 403 `cup_not_member` is also "no such cup" (one answer); 404
+ * `cup_round_not_found` is also "a stranger's attempt"; 403 `cup_unavailable` - the cup is switched off or not open for the chat.
+ * `details`: `cup_paused {reason}`, `cup_unverifiable {reason: bot_not_admin | telegram_unavailable}`, `cup_round_done {points}`,
+ * `cup_round_expired {points}`, `element_not_current {current}`, `answer_already_accepted {verdict}`,
+ * `cup_display_name_invalid {reason: CupDisplayNameReason}`.
+ */
+export type CupErrorCode =
+  | 'cup_unavailable'
+  | 'cup_not_member'
+  | 'cup_not_chat_admin'
+  | 'cup_round_not_found'
+  | 'cup_paused'
+  | 'cup_unverifiable'
+  | 'cup_bot_not_admin'
+  | 'cup_already_active'
+  | 'cup_not_open'
+  | 'cup_already_published'
+  | 'cup_not_started'
+  | 'cup_round_unavailable'
+  | 'cup_round_done'
+  | 'cup_round_expired'
+  | 'element_not_current'
+  | 'answer_already_accepted'
+  | 'cup_rename_limit'
+  | 'cup_closed'
+  | 'cup_material_unavailable'
+  | 'cup_display_name_invalid'
+  | 'cup_level_invalid'
+  | 'invalid_answer_shape'
+  | 'unknown_element_id'
+  | 'unknown_option_id'
+  | 'cup_check_busy'
+
+/**
+ * Why a name in the cup was refused (422 `cup_display_name_invalid`, `error.details.reason`): `empty`, `too_long` (over 32 graphemes
+ * or 64 code points), `marks` (more than 2 combining marks in a row), `link` (`://`, `www.`, a dot between a letter or digit and a
+ * letter - `site.com`, `t.me/x`, `J.R`), `mention` (`@` at the start of a word), `command` (`/` at the start of a word), `tag` (`#word`,
+ * `$ABC`). The last four Telegram would make a link of in the chat.
+ */
+export type CupDisplayNameReason = 'empty' | 'too_long' | 'marks' | 'link' | 'mention' | 'command' | 'tag'
+
+/** The rules of a cup: 2 points for a clean right answer (a typo is 0), the best `counted_days` days count. */
+export interface CupRules {
+  points_per_answer: number
+  typo_points: number
+  max_day_points: number
+  counted_days: number
+  days: number
+  max_total: number
+}
+
+/** The fields of a cup every answer shares. Times are ISO 8601 UTC; the days are local midnights of `timezone`. */
+export interface CupFields {
+  id: number
+  status: CupStatus
+  group_title: string
+  level: string
+  days: number
+  counted_days: number
+  round_tasks: number
+  round_minutes: number
+  timezone: string
+  starts_at: string | null
+  ends_at: string | null
+  /** The day of now while the cup runs (1…days), else null. */
+  day: number | null
+  summaries_enabled: boolean
+  /** `HH:MM` in `timezone`. */
+  summary_time: string
+  paused: CupPause | null
+  /**
+   * When the next round opens (ISO 8601 UTC, decided by the server - the local midnight of `timezone`, a change of the clocks
+   * included): day 1 before the start, the next day while the cup runs; null on the last day, in a draft and in a closed cup.
+   */
+  next_day_at?: string | null
+}
+
+/** GET /cups/by-code/{code}: the invitation of the link of the chat. */
+export interface CupInvite extends CupFields {
+  participants_count: number
+  rules: CupRules
+  me: {
+    joined: boolean
+    participant_id: number | null
+    status: CupParticipantStatus | null
+    /** His name in the cup, or the name he would join with (the Telegram first name). */
+    display_name: string | null
+    left: boolean
+  }
+}
+
+/** POST /cups/{id}/join (201 new / 200 already in) and PATCH /cups/{id}/me. */
+export interface CupParticipantView {
+  participant_id: number
+  cup_id: number
+  display_name: string
+  status: CupParticipantStatus
+  first_day: number
+  renames_left: number
+}
+
+/** POST /cups/{id}/leave (docs/33 §11.12): the participant has left the cup for good (200, a repeat too). */
+export interface CupLeaveResponse {
+  participant_id: number
+  cup_id: number
+  status: CupParticipantStatus
+  left: boolean
+  left_at: string | null
+}
+
+/** GET /cups: the open cups first, then the last ten finished or canceled. */
+export interface CupListResponse {
+  cups: Array<
+    CupFields & {
+      me: {
+        participant_id: number
+        display_name: string
+        status: CupParticipantStatus
+        total: number
+        days_played: number
+        final_rank: number | null
+        /** The round of today (`not_available`: the cup does not run, or he joined later). */
+        today?: { state: CupTodayState; day: number | null }
+      } | null
+    }
+  >
+}
+
+/** One row of the table of a cup. */
+export interface CupStandingRow {
+  participant_id: number
+  rank: number
+  display_name: string
+  /** The emoji of Pro next to the name (docs/31 §5а), null without a live Pro. */
+  pro_emoji: string | null
+  total: number
+  round_points: number
+  days_played: number
+  /** Left the chat: shown as "вышел(а)". */
+  left: boolean
+  me: boolean
+}
+
+/** The state of the round of today (GET /cups/{id}/rounds/today without `server_now`, and `me.today` of the table). */
+export interface CupToday {
+  state: CupTodayState
+  day: number | null
+  attempt_id: number | null
+  points: number | null
+  expires_at: string | null
+}
+
+export interface CupDayResult {
+  day: number
+  points: number
+  round_points: number
+  duel_points: number
+  played: boolean
+  /** The day counts in the total (the best `counted_days`). */
+  counted: boolean
+  /** The participant may play it (`day >= first_day`). */
+  available: boolean
+}
+
+/** GET /cups/{id}: the table and my day. `me` is null for a member of the chat who has not joined. */
+export interface CupBoardResponse {
+  cup: CupFields & { rules: CupRules }
+  standings: CupStandingRow[]
+  me: {
+    participant_id: number
+    display_name: string
+    status: CupParticipantStatus
+    first_day: number
+    renames_left: number
+    total: number
+    final_rank: number | null
+    today: CupToday
+    days: CupDayResult[]
+    /** May I challenge today (D2); null while the duels are off. */
+    duel?: CupDuelAvailability | null
+  } | null
+  /** A hint for the link to the settings; the server asks Telegram again on every action of an administrator. */
+  can_manage: boolean
+  server_now: string
+}
+
+/** GET /cups/{id}/rounds/today. */
+export interface CupTodayResponse extends CupToday {
+  server_now: string
+}
+
+/** A task of the round: the projection of the game - never the right answer. Options are in the participant's own order. */
+export interface CupTask {
+  position: number
+  id: string
+  kind: 'translate_fwd' | 'translate_back' | 'listen' | 'spell' | 'gap'
+  prompt?: string
+  /** `translate_fwd`: the word has a recording; `listen`: always true. */
+  audio?: boolean
+  /** `listen`: the clip of the task (the route of the attempt). */
+  audio_url?: string
+  options?: Array<{ id: string; text: string }>
+  answer_length?: number
+  masked?: string
+  translation?: string
+}
+
+export interface CupReviewEntry {
+  element_id: string
+  kind: CupTask['kind']
+  verdict: string | null
+  points: number
+  answer: Record<string, unknown> | null
+  reveal: Record<string, unknown>
+  audio_url?: string
+}
+
+/** POST /cups/{id}/rounds/today (201 / 200) and GET /cup-rounds/{attempt}: the attempt of the day. */
+export interface CupRound {
+  attempt_id: number
+  cup_id: number
+  participant_id: number
+  day: number
+  status: 'active' | 'finished'
+  finish_reason: 'completed' | 'expired' | null
+  total: number
+  answered: number
+  correct: number
+  points: number
+  max_points: number
+  position: number
+  started_at: string
+  /** The deadline fixed at the start; a reload does not move it. The timer counts against `server_now`. */
+  expires_at: string
+  server_now: string
+  current: CupTask | null
+  answers: Array<{ element_id: string; verdict: string; points: number }>
+  /** Only once the attempt is over: the right answer of every task. */
+  review: CupReviewEntry[] | null
+  /** When the round of the next day opens (the end of this attempt's day); null on the last day. */
+  next_day_at?: string | null
+}
+
+/** Body of POST /cup-rounds/{attempt}/answer: `{option_id}`, `{text}` or `{skip: true}`. */
+export interface CupAnswerRequest {
+  request_id: string
+  element_id: string
+  answer: { option_id?: string; text?: string; skip?: boolean }
+}
+
+/** Answer of POST /cup-rounds/{attempt}/answer; a repeated `request_id` answers the same (`replayed: true`). */
+export interface CupAnswerResponse {
+  verdict: 'correct' | 'typo' | 'wrong' | 'skipped' | string
+  points: number
+  /** The right answer of the task just answered. */
+  reveal: Record<string, unknown> | null
+  finished: boolean
+  total_points: number
+  replayed: boolean
+  round: CupRound
+}
+
+/** The screens of an administrator of the chat: setup, publish, settings, cancel. */
+export interface CupSetup extends CupFields {
+  locale: string
+  summary_minute: number
+  cancel_reason: 'draft_expired' | 'chat_admin' | 'platform_admin' | 'no_players' | null
+  options: { levels: string[]; locales: string[] }
+  rules: CupRules
+}
+
+/** Body of PATCH /cups/{id}/settings: `level` and `locale` in a draft only. */
+export interface CupSettingsPatch {
+  level?: string
+  locale?: string
+  summaries_enabled?: boolean
+  /** The minute of the local day, 0…1439. */
+  summary_minute?: number
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The duels of a cup (docs/04 A.23d, docs/33 §11.9; D2). Only the types of the server's answers: the screens are D2 (TWA). The routes
+// answer 409 `cup_duel_disabled` while the duels are off; by id every refusal of a stranger, a participant who left and a missing cup is
+// 403 `cup_not_member`; a duel the participant may not see (missing, of another cup, addressed to somebody else) is 404
+// `cup_duel_not_found`.
+
+export type CupDuelStatus = 'open' | 'accepted' | 'declined' | 'expired' | 'canceled' | 'done' | 'void'
+export type CupDuelEndReason =
+  | 'declined'
+  | 'expired'
+  | 'cup_over'
+  | 'challenger'
+  | 'cup_closed'
+  | 'left'
+  | 'challenger_limit'
+  | 'material'
+  | 'no_answers'
+  | 'battle_gone'
+  | 'battle_voided'
+
+/**
+ * The codes of the duels on top of `CupErrorCode` (and `battle_busy {battle_id}`, `battle_disabled`, `battle_material_unavailable`,
+ * `practice_mode_disabled`, `practice_limit_reached` of the battles). `details`: `cup_duel_closed {status, reason}`,
+ * `cup_duel_already_open {duel_id}`, `cup_duel_rating_changed {rated}`, `cup_duel_limit {scope: daily | pair | public_participant |
+ * public_chat, limit}`.
+ */
+export type CupDuelErrorCode =
+  | 'cup_duel_disabled'
+  | 'cup_duel_unavailable'
+  | 'cup_duel_not_recipient'
+  | 'cup_duel_not_found'
+  | 'cup_duel_closed'
+  | 'cup_duel_own'
+  | 'cup_duel_already_open'
+  | 'cup_duel_rating_changed'
+  | 'cup_duel_limit'
+  | 'cup_duel_opponent_busy'
+  | 'cup_duel_self'
+  | 'cup_duel_mode_invalid'
+
+/** A player of a duel: a participant of the cup (never a learner id). */
+export interface CupDuelPlayer {
+  participant_id: number
+  display_name: string
+  pro_emoji: string | null
+}
+
+/**
+ * A duel (`CupDuelResource`): the answer of a challenge, an acceptance, a decline, a withdrawal, of GET one duel and every row of the
+ * list. `role` - who looks (`null`: somebody who may accept an open challenge). `battle_id` - once accepted: go to `/battles/{battle_id}`
+ * at once, the room waits 30 s. `points` - once `done`.
+ */
+export interface CupDuel {
+  id: number
+  status: CupDuelStatus
+  end_reason: CupDuelEndReason | null
+  /** Rated or friendly as the challenger offered it (written once, at the challenge). */
+  rated_offered: boolean
+  /**
+   * The kind for the one who looks: an open challenge as HIS acceptance would make it now (the slots of today of the two who would play
+   * it), else `rated` / `rated_offered`. The `expect_rated` of "Accept". Absent from an older server.
+   */
+  rated_for_me?: boolean
+  /**
+   * The kind decided for good: null while the acceptance will decide it; `false` already on an open challenge the challenger made friendly
+   * by choice (`kind = friendly`, docs/33 §11.12); else what the acceptance made of it.
+   */
+  rated: boolean | null
+  public: boolean
+  mode: PracticeMode
+  day: number
+  accepted_day: number | null
+  expires_at: string
+  battle_id: number | null
+  role: 'challenger' | 'opponent' | null
+  challenger: CupDuelPlayer
+  opponent: CupDuelPlayer | null
+  points: { challenger: number; opponent: number } | null
+  winner_participant_id: number | null
+  server_now: string
+}
+
+/** May I challenge today: `me.duel` of GET /cups/{id} and `availability` of GET /cups/{id}/duels (null: duels off / not a participant). */
+export interface CupDuelAvailability {
+  /** Today's day of a running cup, else null. */
+  day: number | null
+  can_challenge: boolean
+  /** My rated duel of the day is not played yet. */
+  rated_available: boolean
+  challenges_left: number
+  /** My open challenge: show it instead of a new one. */
+  open_duel_id: number | null
+}
+
+/** GET /cups/{id}/duels. */
+export interface CupDuelListResponse {
+  /** Open challenges addressed to me. */
+  incoming: CupDuel[]
+  /** Open challenges to anybody (not mine). */
+  open: CupDuel[]
+  /** My open challenge. */
+  mine: CupDuel | null
+  /** My duels of today that are not open any more, newest first. */
+  today: CupDuel[]
+  availability: CupDuelAvailability | null
+  server_now: string
+}
+
+/**
+ * The kind the challenger chooses (docs/33 §11.12): `rated` - the duel of the cup (one a day; 409 `cup_duel_rating_changed {rated: false}`
+ * when the rated duel of today is played already), `friendly` - never rated, no points of the cup. Absent - an older client: the server
+ * offers rated while both slots are free.
+ */
+export type CupDuelKindChoice = 'rated' | 'friendly'
+
+/** Body of POST /cups/{id}/duels. `opponent_participant_id` absent - an open challenge to anybody; `request_id` - a UUID per tap. */
+export interface CupDuelChallengeRequest {
+  opponent_participant_id?: number | null
+  public: boolean
+  mode?: PracticeMode
+  kind?: CupDuelKindChoice
+  request_id: string
 }

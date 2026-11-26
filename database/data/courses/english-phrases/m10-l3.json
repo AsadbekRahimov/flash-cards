@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 10,
+    "title": "Учёба",
+    "title_uz": "O'qish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Как учиться",
+    "title_uz": "Qanday o'qish kerak"
+  },
+  "words": [
+    {
+      "word": "Practice makes perfect",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "повторение — мать учения",
+        "uz": "takrorlash — bilim onasi"
+      },
+      "example": "I still make mistakes when I play the piano. — Keep going. Practice makes perfect.",
+      "example_translations": {
+        "ru": "Я всё ещё ошибаюсь, когда играю на пианино. — Продолжай. Повторение — мать учения.",
+        "uz": "Pianino chalganimda hali ham xato qilaman. — Davom et. Takrorlash — bilim onasi."
+      },
+      "hooks": {
+        "ru": "Подбадривают того, кто учится: умение приходит с тренировкой",
+        "uz": "O'rganayotgan odamga dalda beriladi: mahorat mashq bilan keladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "perfect",
+        "literal": {
+          "ru": "практика делает совершенным",
+          "uz": "mashq mukammal qiladi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "brush up on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "освежить знания",
+        "uz": "bilimini yangilamoq"
+      },
+      "example": "I need to brush up on my French before the trip.",
+      "example_translations": {
+        "ru": "Мне нужно освежить свой французский перед поездкой.",
+        "uz": "Safardan oldin fransuz tilimni yangilab olishim kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы повторить то, что знали раньше, но подзабыли",
+        "uz": "Oldin bilgan, lekin biroz unutgan narsani takrorlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "brush",
+        "literal": {
+          "ru": "почистить щёткой",
+          "uz": "cho'tka bilan tozalamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "look up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "посмотреть в словаре",
+        "uz": "lug'atdan qarab olmoq"
+      },
+      "example": "If you don't know a word, look it up in the dictionary.",
+      "example_translations": {
+        "ru": "Если не знаешь слово, посмотри его в словаре.",
+        "uz": "Agar so'zni bilmasang, lug'atdan qarab ol."
+      },
+      "hooks": {
+        "ru": "Говорят о поиске слова или факта в словаре, справочнике, интернете",
+        "uz": "So'z yoki ma'lumotni lug'at, ma'lumotnoma yoki internetdan qidirish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "go over",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "повторить, просмотреть",
+        "uz": "qayta ko'rib chiqmoq"
+      },
+      "example": "Let's go over the main points before the test.",
+      "example_translations": {
+        "ru": "Давайте повторим главное перед контрольной.",
+        "uz": "Nazorat ishidan oldin asosiy nuqtalarni qayta ko'rib chiqaylik."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы ещё раз внимательно просмотреть материал",
+        "uz": "Materialni yana bir bor diqqat bilan ko'rib chiqish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "over",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep up with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не отставать",
+        "uz": "ortda qolmaslik"
+      },
+      "example": "The teacher speaks so fast that I can't keep up with her.",
+      "example_translations": {
+        "ru": "Учитель говорит так быстро, что я за ней не успеваю.",
+        "uz": "O'qituvchi shunchalik tez gapiradiki, unga yetib ulgurmayman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы успевать за другими или за темпом",
+        "uz": "Boshqalar yoki sur'atdan ortda qolmaslik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "keep",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "read up on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "почитать о",
+        "uz": "o'qib o'rganmoq"
+      },
+      "example": "Before the trip, I read up on the history of Samarkand.",
+      "example_translations": {
+        "ru": "Перед поездкой я почитал об истории Самарканда.",
+        "uz": "Safardan oldin Samarqand tarixini o'qib o'rgandim."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы много прочитать по одной теме и разобраться в ней",
+        "uz": "Bir mavzu bo'yicha ko'p o'qib, uni tushunib olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "read",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "test yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проверить себя",
+        "uz": "o'zini sinab ko'rmoq"
+      },
+      "example": "After each lesson, test yourself with these cards.",
+      "example_translations": {
+        "ru": "После каждого урока проверяйте себя по этим карточкам.",
+        "uz": "Har bir darsdan keyin bu kartochkalar bilan o'zingizni sinab ko'ring."
+      },
+      "hooks": {
+        "ru": "Советуют проверять свои знания без подсказки",
+        "uz": "Bilimni yordamsiz tekshirib turishni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "test",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "do your homework",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать домашнее задание",
+        "uz": "uy vazifasini bajarmoq"
+      },
+      "example": "You can watch TV after you do your homework.",
+      "example_translations": {
+        "ru": "Ты сможешь посмотреть телевизор, когда сделаешь домашнее задание.",
+        "uz": "Uy vazifangni bajarib bo'lgach, televizor ko'rishing mumkin."
+      },
+      "hooks": {
+        "ru": "Говорят о домашних заданиях; о взрослом — «хорошо подготовиться заранее»",
+        "uz": "Uy vazifasi haqida aytiladi; kattalar haqida — «oldindan yaxshi tayyorlanmoq»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "homework",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It's never too late to learn",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "учиться никогда не поздно",
+        "uz": "o'rganish uchun hech qachon kech emas"
+      },
+      "example": "My grandmother started English at seventy. It's never too late to learn!",
+      "example_translations": {
+        "ru": "Моя бабушка начала учить английский в семьдесят. Учиться никогда не поздно!",
+        "uz": "Buvim ingliz tilini yetmish yoshida o'rgana boshladi. O'rganish uchun hech qachon kech emas!"
+      },
+      "hooks": {
+        "ru": "Подбадривают взрослого, который начинает учиться чему-то новому",
+        "uz": "Yangi narsani o'rganishni boshlagan katta yoshli odamga dalda berishadi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "late",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "set a goal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поставить цель",
+        "uz": "maqsad qo'ymoq"
+      },
+      "example": "Set a goal: ten new words every day.",
+      "example_translations": {
+        "ru": "Поставьте цель: десять новых слов каждый день.",
+        "uz": "Maqsad qo'ying: har kuni o'nta yangi so'z."
+      },
+      "hooks": {
+        "ru": "Советуют решить, чего именно хотите достичь",
+        "uz": "Aynan nimaga erishmoqchi ekanini aniqlashni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "goal",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

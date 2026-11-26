@@ -29,6 +29,7 @@ use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -179,6 +180,7 @@ it('gives the URL of the example shown only when the path is the one of that sen
     $disk = Mockery::mock(FilesystemAdapter::class);
     $disk->shouldReceive('url')->andReturnUsing(fn (string $path): string => 'https://audio.example.uz/'.$path);
     Storage::set('public', $disk); // anything but url() would fail: there is no look at the disk
+    Config::set('twa.tts.public_disk_audio_url', 'https://audio.example.uz'); // the /audio/ base of the public disk (docs/31 §5д)
 
     expect($audio->exampleUrlFor($word, 'I ate an apple.'))->toBe('https://audio.example.uz/'.exPath('I ate an apple.'))
         ->and($audio->exampleUrlFor($word, ' I ate  an apple. '))->toBe('https://audio.example.uz/'.exPath('I ate an apple.'))

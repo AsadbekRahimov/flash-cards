@@ -651,3 +651,100 @@ describe('TrainingView — exercises', () => {
     })
   })
 })
+
+/**
+ * The line of the answer panel after a miss (docs/design/2026-11-25-redesign Feedback «Слово вернётся ещё раз в этом уроке»): a
+ * promise only when the session goes on (the answer brought the next card) in a mode whose queue serves a missed word again
+ * (docs/06 §4.2 learn-ahead, §14); otherwise a neutral line.
+ */
+describe('TrainingView — the word comes back after a miss', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    state.backHandler = null
+  })
+  afterEach(() => setLocale('ru'))
+
+  const missed = (exercise: 'reverse' | 'spelling', overrides: Partial<ReviewResponse> = {}): ReviewResponse => ({
+    next_review_at: null,
+    new_interval_days: 0,
+    easiness_factor: 2.5,
+    graded: { quality: 1, correct: false, expected: 'walk' },
+    revealed:
+      exercise === 'reverse'
+        ? { word: 'walk', translation: 'идти', correct: 'walk', example: 'They walked home.', transcription: null, audio_url: null, hook: null, note: null, confused_with: null }
+        : null,
+    card: card(null, { word_id: 8 }),
+    progress: { done: 1, total: 3 },
+    ...overrides,
+  })
+
+  async function missChoice(mode: TrainingStartResponse['mode'], overrides: Partial<ReviewResponse> = {}) {
+    vi.mocked(api.training.answer).mockResolvedValue(missed('reverse', overrides))
+    const { wrapper } = await render(card(prompts.reverse), mode)
+    await wrapper.get('[data-testid=option-2]').trigger('click')
+    await flushPromises()
+    return wrapper
+  }
+
+  it.each([
+    ['lesson', 'Слово вернётся ещё раз в этом уроке.'],
+    ['group_lesson', 'Слово вернётся ещё раз в этом уроке.'],
+    ['daily_review', 'Слово вернётся ещё раз в этом раунде.'],
+    ['hard_review', 'Слово вернётся ещё раз в этом раунде.'],
+  ] as const)('a missed pick in %s, the session going on: «%s» above "Next"', async (mode, text) => {
+    const wrapper = await missChoice(mode)
+
+    const line = wrapper.get('[data-testid=feedback] [data-testid=miss-note]')
+    expect(line.text()).toBe(text)
+    expect(line.element.nextElementSibling?.getAttribute('data-testid')).toBe('continue-btn')
+  })
+
+  it('promises nothing when the session is over with this answer: the neutral line', async () => {
+    const wrapper = await missChoice('lesson', { card: null, done_reason: 'lesson_complete', progress: { done: 3, total: 3 } })
+
+    expect(wrapper.get('[data-testid=miss-note]').text()).toBe('Запомните правильный ответ.')
+  })
+
+  it('promises nothing in the review of a lesson (a word is served there a few times at most): the neutral line', async () => {
+    const wrapper = await missChoice('lesson_review')
+
+    expect(wrapper.get('[data-testid=miss-note]').text()).toBe('Запомните правильный ответ.')
+  })
+
+  it('has no line after a right pick', async () => {
+    vi.mocked(api.training.answer).mockResolvedValue(missed('reverse', { graded: { quality: 4, correct: true, expected: 'walk' } }))
+    const { wrapper } = await render(card(prompts.reverse))
+    await wrapper.get('[data-testid=option-1]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid=feedback]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid=miss-note]').exists()).toBe(false)
+  })
+
+  it('says it on the verdict of a wrong typed answer too, and not on a close one', async () => {
+    vi.mocked(api.training.answer).mockResolvedValue(missed('spelling'))
+    const { wrapper } = await render(card(prompts.spelling), 'daily_review')
+    await wrapper.get('[data-testid=answer-input]').setValue('wlak')
+    await wrapper.get('[data-testid=answer-form]').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=answer-verdict]').attributes('data-kind')).toBe('wrong')
+    expect(wrapper.get('[data-testid=actions] [data-testid=miss-note]').text()).toBe('Слово вернётся ещё раз в этом раунде.')
+
+    vi.mocked(api.training.answer).mockResolvedValue(missed('spelling', { graded: { quality: 4, correct: true, expected: 'walk' } }))
+    const close = (await render(card(prompts.spelling), 'lesson')).wrapper
+    await close.get('[data-testid=answer-input]').setValue('wlak')
+    await close.get('[data-testid=answer-form]').trigger('submit')
+    await flushPromises()
+    expect(close.get('[data-testid=answer-verdict]').attributes('data-kind')).toBe('close')
+    expect(close.find('[data-testid=miss-note]').exists()).toBe(false)
+  })
+
+  it('writes the lines in Uzbek', async () => {
+    setLocale('uz')
+    expect((await missChoice('lesson')).get('[data-testid=miss-note]').text()).toBe("So'z shu darsda yana qaytadi.")
+    expect((await missChoice('daily_review')).get('[data-testid=miss-note]').text()).toBe("So'z shu raundda yana qaytadi.")
+    expect((await missChoice('lesson_review')).get('[data-testid=miss-note]').text()).toBe("To'g'ri javobni eslab qoling.")
+  })
+})

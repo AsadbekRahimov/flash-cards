@@ -12,5 +12,5 @@
 
 {{ __('org.mail.invoice_request.next') }}
 
-{{ config('app.name') }}
+{{ config('app.brand') }}
 </x-mail::message>

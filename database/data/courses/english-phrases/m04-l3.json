@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 4,
+    "title": "Покупки и деньги",
+    "title_uz": "Xarid va pul"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Цены",
+    "title_uz": "Narxlar"
+  },
+  "words": [
+    {
+      "word": "a good deal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выгодная покупка",
+        "uz": "foydali xarid"
+      },
+      "example": "I bought this laptop for only two hundred dollars. — Wow, that's a good deal!",
+      "example_translations": {
+        "ru": "Я купил этот ноутбук всего за двести долларов. — Ого, выгодная покупка!",
+        "uz": "Bu noutbukni atigi ikki yuz dollarga oldim. — Voy, foydali xarid ekan!"
+      },
+      "hooks": {
+        "ru": "Радуются хорошей цене за покупку",
+        "uz": "Xarid narxi yaxshi bo'lganidan xursand bo'lish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "deal",
+        "literal": {
+          "ru": "хорошая сделка",
+          "uz": "yaxshi bitim"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a rip-off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "грабёж",
+        "uz": "talonchilik"
+      },
+      "example": "Ten dollars for a coffee? That's a rip-off!",
+      "example_translations": {
+        "ru": "Десять долларов за кофе? Это грабёж!",
+        "uz": "Bir kofe o'n dollar? Bu talonchilik-ku!"
+      },
+      "hooks": {
+        "ru": "Возмущаются слишком высокой ценой",
+        "uz": "Haddan tashqari baland narxdan norozilik"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rip",
+        "literal": {
+          "ru": "обдирание",
+          "uz": "shilib olish"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on sale",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "со скидкой",
+        "uz": "chegirmada"
+      },
+      "example": "These boots are on sale this week. They're thirty percent off.",
+      "example_translations": {
+        "ru": "Эти ботинки на этой неделе продаются со скидкой тридцать процентов.",
+        "uz": "Bu etiklar shu hafta chegirmada: narxi o'ttiz foizga arzon."
+      },
+      "hooks": {
+        "ru": "Говорят о товаре, который продаётся дешевле обычного",
+        "uz": "Odatdagidan arzonroq sotilayotgan mahsulot haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sale",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It's worth it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оно того стоит",
+        "uz": "bunga arziydi"
+      },
+      "example": "The course is expensive, but it's worth it.",
+      "example_translations": {
+        "ru": "Курс дорогой, но он того стоит.",
+        "uz": "Kurs qimmat, lekin bunga arziydi."
+      },
+      "hooks": {
+        "ru": "Оправдывают затраты денег, времени или сил",
+        "uz": "Sarflangan pul, vaqt yoki kuchni oqlash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "worth",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "cost a fortune",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "стоить целое состояние",
+        "uz": "bir dunyo pulga tushmoq"
+      },
+      "example": "Fixing the car cost a fortune.",
+      "example_translations": {
+        "ru": "Ремонт машины стоил целое состояние.",
+        "uz": "Mashinani tuzatish bir dunyo pulga tushdi."
+      },
+      "hooks": {
+        "ru": "Преувеличенно говорят об очень высокой цене",
+        "uz": "Juda baland narx haqida mubolag'a bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fortune",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "dirt cheap",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дешевле некуда",
+        "uz": "suvtekin"
+      },
+      "example": "Fruit is dirt cheap at the market in summer.",
+      "example_translations": {
+        "ru": "Летом фрукты на рынке стоят копейки.",
+        "uz": "Yozda bozorda meva suvtekin bo'ladi."
+      },
+      "hooks": {
+        "ru": "Довольно говорят об очень низкой цене",
+        "uz": "Juda arzon narx haqida mamnun bo'lib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "dirt",
+        "literal": {
+          "ru": "дёшево, как грязь",
+          "uz": "tuproqdek arzon"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "half price",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "за полцены",
+        "uz": "yarim narxda"
+      },
+      "example": "On Mondays, movie tickets are half price.",
+      "example_translations": {
+        "ru": "По понедельникам билеты в кино за полцены.",
+        "uz": "Dushanba kunlari kino chiptalari yarim narxda."
+      },
+      "hooks": {
+        "ru": "Говорят о скидке в пятьдесят процентов",
+        "uz": "Ellik foizlik chegirma haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "half",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can you give me a discount?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно подешевле?",
+        "uz": "arzonroq bera olasizmi?"
+      },
+      "example": "I really like this carpet. Can you give me a discount? — OK, ten percent.",
+      "example_translations": {
+        "ru": "Мне очень нравится этот ковёр. Можно подешевле? — Ладно, скину десять процентов.",
+        "uz": "Bu gilam menga juda yoqdi. Arzonroq bera olasizmi? — Mayli, o'n foiz kamaytiraman."
+      },
+      "hooks": {
+        "ru": "Просят снизить цену; на рынке торговаться — обычное дело",
+        "uz": "Narxni tushirishni so'rash; bozorda savdolashish odatiy hol"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "discount",
+        "literal": {
+          "ru": "можете дать мне скидку?",
+          "uz": "menga chegirma bera olasizmi?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a bit pricey",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дороговато",
+        "uz": "sal qimmatroq"
+      },
+      "example": "I like the hotel, but it's a bit pricey for us.",
+      "example_translations": {
+        "ru": "Отель мне нравится, но для нас дороговато.",
+        "uz": "Mehmonxona menga yoqdi, lekin biz uchun sal qimmatroq."
+      },
+      "hooks": {
+        "ru": "Мягко говорят, что цена высоковата",
+        "uz": "Narx biroz balandligini muloyim aytish"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pricey",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "good value for money",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "стоит своих денег",
+        "uz": "narxiga yarasha sifatli"
+      },
+      "example": "The meals here are simple, but they're good value for money.",
+      "example_translations": {
+        "ru": "Блюда здесь простые, но стоят своих денег.",
+        "uz": "Bu yerdagi taomlar oddiy, lekin narxiga yarasha sifatli."
+      },
+      "hooks": {
+        "ru": "Хвалят товар или услугу, за которые не жалко заплатить",
+        "uz": "Pul to'lashga arziydigan mahsulot yoki xizmatni maqtash"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "value",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

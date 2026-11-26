@@ -11,7 +11,13 @@ use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
+use App\Domain\Telegram\Services\DmReachability;
+use App\Domain\Telegram\Services\ProPitch;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\RenewalReminderJob;
 use App\Mail\SubscriptionRenewalDueMail;
 use App\Models\Learner;
@@ -29,7 +35,11 @@ use Throwable;
  * The body of {@see RenewalReminderJob} (docs/13 §4.4): tells the subscriber that a non-renewing
  * subscription ends in N days.
  *
- *  - learner: a DM with a button into the TWA `/billing`; `notifications_log.type = renewal_reminder`;
+ *  - learner: a DM with a button into the TWA `/billing`; `notifications_log.type = renewal_reminder`; the welcome trial: what Pro
+ *    gives, the prices and the buy buttons instead (docs/34 §2б.4), under the lock of "one message about Pro a local day"
+ *    ({@see TrialOfferSender::proDmLock()}). The reminder has the priority (owner's decision 26.11.2026): it goes even when an offer
+ *    after the trial already went out in the learner's local day, and an offer due on the day of a reminder waits for the next day
+ *    ({@see TrialOfferSender});
  *    skipped for a blocked learner or `dm_blocked_at`; a Telegram 403 sets `dm_blocked_at`;
  *  - organization: an e-mail to every active owner (`organization_users.role = owner`) in the owner's
  *    language, plus a DM to an owner whose Telegram is VERIFIED (`users.telegram_verified_at`, review W1: a hand-typed id
@@ -42,21 +52,26 @@ use Throwable;
  * At most once per (recipient, subscription, period end, days left), including retries of the job:
  * the marker (a `notifications_log` row for a known learner, a cache key otherwise) is written BEFORE
  * the call — a timeout may mean "delivered anyway", and a missed reminder is better than a double one.
- * A Telegram 403 (certainly not delivered) removes the marker again; a failed e-mail transport also
- * releases its marker, and the exception makes the queue retry. A failure for one recipient never
- * blocks the others: the first exception is rethrown after all were tried.
+ * A Telegram 403 (certainly not delivered) removes the marker again, and so does any other definite refusal of the
+ * Bot API (a 429 included), which is rethrown; a failed e-mail transport also releases its marker, and the exception
+ * makes the queue retry. A failure for one recipient never blocks the others: the first exception is rethrown after all
+ * were tried - except a 429, rethrown at once (the others would get it too; docs/34 §4в п. 8).
  */
 final class RenewalReminderSender
 {
     public const NOTIFICATION_TYPE = 'renewal_reminder';
 
-    public const TWA_PATH = '/twa/billing?from=renewal';
+    /** `from=` of the button "Renew": the Billing screen. */
+    public const FROM = 'renewal';
 
     private const MARKER_TTL_DAYS = 45;
 
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
+        private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
+        private readonly ProPitch $pitch,
     ) {}
 
     /** @return int how many messages (DM + e-mail) went out */
@@ -109,6 +124,10 @@ final class RenewalReminderSender
 
         $locale = $this->locales->forLearner($learner);
 
+        if ($subscription->provider === SubscriptionProvider::Trial->value) {
+            return $this->trialDm($learner, $subscription, $daysLeft, $endsAt, $locale, $key);
+        }
+
         return $this->dm(
             $learner,
             $learner->telegram_user_id,
@@ -116,6 +135,37 @@ final class RenewalReminderSender
             $locale,
             $key,
             null,
+        );
+    }
+
+    /**
+     * The welcome trial ends (docs/34 §2б.4, step −3): not a renewal but the first purchase, so the message sells - what Pro gives
+     * ({@see ProPitch::benefits()}), the prices of the catalog at this moment and the buy buttons of `/pro`, then "Invite friends".
+     * With nothing for sale: the same without prices, with the hint of `/pro` and `/invite`.
+     */
+    private function trialDm(Learner $learner, Subscription $subscription, int $daysLeft, CarbonImmutable $endsAt, string $locale, string $key): bool
+    {
+        ['selling' => $selling, 'catalog' => $catalog] = $this->pitch->offer($learner);
+
+        $parts = [trans_choice('billing.renewal.trial_dm', $daysLeft, ['date' => $endsAt->setTimezone($learner->timezone)->format('d.m.Y')], $locale)];
+
+        $benefits = $this->pitch->benefits($learner, $locale);
+        if ($benefits !== '') {
+            $parts[] = $benefits;
+        }
+
+        $parts[] = $selling
+            ? trim($this->pitch->prices($catalog, $locale)."\n".__('billing.pro.choose', [], $locale))
+            : (string) __('billing.renewal.hint_trial', [], $locale);
+
+        return $this->dm(
+            $learner,
+            $learner->telegram_user_id,
+            implode("\n\n", $parts),
+            $locale,
+            $key,
+            null,
+            $this->pitch->keyboard($learner, $locale, $selling, optOut: false, from: self::FROM),
         );
     }
 
@@ -133,6 +183,9 @@ final class RenewalReminderSender
         foreach ($owners as $owner) {
             try {
                 $sent += $this->notifyOwner($owner, $organization, $subscription, $daysLeft, $endsAt, $key);
+            } catch (TelegramRateLimitedException $e) {
+                // Flood control: the next owners would get a 429 too. Out at once; the job is put back for `retry_after`.
+                throw $e;
             } catch (Throwable $e) {
                 $failure ??= $e;
             }
@@ -178,6 +231,8 @@ final class RenewalReminderSender
                 if ($this->dm($learner, (int) $chatId, $text, $locale, $key.':user'.$owner->id, $this->panelUrl())) {
                     $sent++;
                 }
+            } catch (TelegramRateLimitedException $e) {
+                throw $e;
             } catch (Throwable $e) {
                 $failure ??= $e;
             }
@@ -226,71 +281,92 @@ final class RenewalReminderSender
 
     /**
      * One DM with the "Renew" button: into the TWA `/billing` for a learner, a link to the `/org` panel
-     * (`$panelUrl`) for an owner. `$learner` (when known) carries the `notifications_log` marker and
-     * `dm_blocked_at`; without a learner row the marker is a cache key.
+     * (`$panelUrl`) for an owner, or `$markup` as given (the welcome trial). `$learner` (when known) carries the `notifications_log`
+     * marker and `dm_blocked_at`; without a learner row the marker is a cache key.
+     *
+     * @param  array{inline_keyboard: list<list<array<string, mixed>>>}|null  $markup
      */
-    private function dm(?Learner $learner, int $chatId, string $text, string $locale, string $key, ?string $panelUrl): bool
+    private function dm(?Learner $learner, int $chatId, string $text, string $locale, string $key, ?string $panelUrl, ?array $markup = null): bool
     {
-        return Cache::lock('billing:renewal-reminder:lock:'.$key, 60)->block(10, function () use ($learner, $chatId, $text, $locale, $key, $panelUrl): bool {
-            $log = null;
-
-            if ($learner !== null) {
-                $exists = NotificationLog::query()
-                    ->where('learner_id', $learner->id)
-                    ->where('type', self::NOTIFICATION_TYPE)
-                    ->where('payload->key', $key)
-                    ->exists();
-
-                if ($exists) {
-                    return false;
-                }
-
-                $log = NotificationLog::query()->create([
-                    'learner_id' => $learner->id,
-                    'type' => self::NOTIFICATION_TYPE,
-                    'payload' => ['key' => $key],
-                    'sent_at' => now(),
-                ]);
-            } elseif (! Cache::add('billing:renewal-reminder:dm:'.$key, 1, now()->addDays(self::MARKER_TTL_DAYS))) {
-                return false;
-            }
-
-            try {
-                $button = __('billing.renewal.button', [], $locale);
-
-                if ($panelUrl === null) {
-                    $this->telegram->sendWebAppButton(
-                        chatId: $chatId,
-                        text: $text,
-                        buttonText: $button,
-                        url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
-                    );
-                } else {
-                    $this->telegram->sendMessage($chatId, $text, replyMarkup: ['inline_keyboard' => [[['text' => $button, 'url' => $panelUrl]]]]);
-                }
-            } catch (TelegramForbiddenException $e) {
-                // Certainly not delivered: it must not count, and the learner leaves the DM selections.
-                $log?->delete();
-
-                if ($learner !== null) {
-                    Learner::query()->whereKey($learner->id)->update(['dm_blocked_at' => now()->utc()->format('Y-m-d H:i:s')]);
-                }
-
-                Log::warning('telegram.renewal_reminder_forbidden', ['learner_id' => $learner?->id, 'reason' => $e->reason]);
-
-                return false;
-            }
-
-            return true;
-        });
+        return Cache::lock('billing:renewal-reminder:lock:'.$key, 60)->block(10, fn (): bool => $learner === null
+            ? $this->dmLocked(null, $chatId, $text, $locale, $key, $panelUrl, $markup)
+            // One message about Pro a local day (docs/34 §2д п. 4): TrialOfferSender reads this marker under the same lock and puts its
+            // offer off to the next day; the reminder itself is never silenced by an offer (it has the priority).
+            : Cache::lock(TrialOfferSender::proDmLock($learner->id), 60)->block(10, fn (): bool => $this->dmLocked($learner, $chatId, $text, $locale, $key, $panelUrl, $markup)));
     }
 
+    /** @param  array{inline_keyboard: list<list<array<string, mixed>>>}|null  $markup */
+    private function dmLocked(?Learner $learner, int $chatId, string $text, string $locale, string $key, ?string $panelUrl, ?array $markup): bool
+    {
+        $log = null;
+
+        if ($learner !== null) {
+            $exists = NotificationLog::query()
+                ->where('learner_id', $learner->id)
+                ->where('type', self::NOTIFICATION_TYPE)
+                ->where('payload->key', $key)
+                ->exists();
+
+            if ($exists) {
+                return false;
+            }
+
+            $log = NotificationLog::query()->create([
+                'learner_id' => $learner->id,
+                'type' => self::NOTIFICATION_TYPE,
+                'payload' => ['key' => $key],
+                'sent_at' => now(),
+            ]);
+        } elseif (! Cache::add('billing:renewal-reminder:dm:'.$key, 1, now()->addDays(self::MARKER_TTL_DAYS))) {
+            return false;
+        }
+
+        try {
+            $button = __('billing.renewal.button', [], $locale);
+
+            if ($markup !== null) {
+                $this->telegram->sendMessage($chatId, $text, replyMarkup: $markup);
+            } elseif ($panelUrl === null) {
+                $this->telegram->sendWebAppButton(
+                    chatId: $chatId,
+                    text: $text,
+                    buttonText: $button,
+                    url: $this->buttons->twaUrl(TwaScreen::Billing, query: ['from' => self::FROM]),
+                );
+            } else {
+                $this->telegram->sendMessage($chatId, $text, replyMarkup: ['inline_keyboard' => [[['text' => $button, 'url' => $panelUrl]]]]);
+            }
+        } catch (TelegramForbiddenException $e) {
+            // Certainly not delivered: it must not count, and the learner leaves the DM selections.
+            $log?->delete();
+
+            if ($learner !== null) {
+                $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
+            }
+
+            Log::warning('telegram.renewal_reminder_forbidden', ['learner_id' => $learner?->id, 'reason' => $e->reason]);
+
+            return false;
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no marker and send.
+                $log?->delete();
+                if ($learner === null) {
+                    Cache::forget('billing:renewal-reminder:dm:'.$key);
+                }
+            }
+
+            // A timeout / 5xx may have been delivered: the marker stays (docs/34 §4в п. 8).
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /** A paid subscription or an organization; the welcome trial has its own message ({@see self::trialDm()}). */
     private function dmText(string $key, Subscription $subscription, int $daysLeft, CarbonImmutable $endsAt, string $timezone, string $locale, string $organization = ''): string
     {
-        // The welcome trial (docs/13 §7.1 "2C.9") is not a renewal: its own words, `billing.renewal.trial_dm` / `hint_trial`.
-        $trial = $organization === '' && $subscription->provider === SubscriptionProvider::Trial->value;
-
-        $text = trans_choice($trial ? 'billing.renewal.trial_dm' : $key, $daysLeft, [
+        $text = trans_choice($key, $daysLeft, [
             'date' => $endsAt->setTimezone($timezone)->format('d.m.Y'),
             'organization' => $organization,
         ], $locale);
@@ -298,7 +374,6 @@ final class RenewalReminderSender
         // A stopped Stars auto-renewal needs a different hint than a Payme / Click period.
         $hint = match (true) {
             $organization !== '' => 'billing.renewal.org_hint',
-            $trial => 'billing.renewal.hint_trial',
             $subscription->status === SubscriptionStatus::Canceled->value => 'billing.renewal.hint_canceled',
             default => 'billing.renewal.hint',
         };

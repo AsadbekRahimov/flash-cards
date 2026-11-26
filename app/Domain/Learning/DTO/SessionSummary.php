@@ -25,6 +25,9 @@ final readonly class SessionSummary
      * @param  int|null  $hardTotal  round of hard words only: the size of its set; null in other modes
      * @param  CorrectedMistake|null  $corrected  round of hard words only, on `/finish`: one mistake of an earlier session the learner
      *                                            corrected in this round ({@see CorrectedMistakeFinder}); null otherwise
+     * @param  int|null  $reviewWon  review of a lesson only (docs/06 §15): words of its set answered right; null in other modes
+     * @param  int|null  $reviewTotal  review of a lesson only: the size of its set; null in other modes
+     * @param  int|null  $reviewFirstTry  review of a lesson only: words answered right on their first serve; null in other modes
      */
     public function __construct(
         public TrainingSession $session,
@@ -38,6 +41,9 @@ final readonly class SessionSummary
         public ?int $hardWon = null,
         public ?int $hardTotal = null,
         public ?CorrectedMistake $corrected = null,
+        public ?int $reviewWon = null,
+        public ?int $reviewTotal = null,
+        public ?int $reviewFirstTry = null,
     ) {}
 
     public function withCorrected(?CorrectedMistake $corrected): self
@@ -54,6 +60,9 @@ final readonly class SessionSummary
             hardWon: $this->hardWon,
             hardTotal: $this->hardTotal,
             corrected: $corrected,
+            reviewWon: $this->reviewWon,
+            reviewTotal: $this->reviewTotal,
+            reviewFirstTry: $this->reviewFirstTry,
         );
     }
 }

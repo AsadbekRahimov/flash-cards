@@ -10,6 +10,8 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Exceptions\OrganizationStaffException;
+use App\Domain\Polls\Exceptions\PollEditException;
+use App\Domain\Polls\Exceptions\PollLaunchException;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Exceptions\PracticeItemStateException;
 use Illuminate\Support\Facades\Lang;
@@ -39,6 +41,7 @@ final class AdminErrors
             // The text of a practice task is refused with the field it is in; the editor names the field by its caption.
             $e instanceof PracticeContentException => [$e->errorCode, self::practiceContext([...$e->context, 'field' => AdminLabels::value('practice_items.field_names', $e->field)])],
             $e instanceof PracticeItemStateException => [$e->errorCode, []],
+            $e instanceof PollLaunchException, $e instanceof PollEditException => [$e->reason, []],
             default => ['', []],
         };
 

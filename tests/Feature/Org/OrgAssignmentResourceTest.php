@@ -224,8 +224,13 @@ it('counts a learner who joined after a recount once the report is opened', func
 
 it('shows up to three hard words of the lesson that at least two learners of the group keep failing', function (): void {
     config(['learning.leech.threshold' => 4]);
-    $words = Word::factory()->count(3)->for($this->lesson)->create();
-    $foreignWord = Word::factory()->create(['word' => 'elsewhere']);
+    // Explicit words: random lorem ones can end with one another ("rem" in "lorem"), and assertDontSee would then find a substring.
+    $words = Word::factory()->count(3)->for($this->lesson)->sequence(
+        ['word' => 'harbor', 'translation' => 'гавань'],
+        ['word' => 'meadow', 'translation' => 'луг'],
+        ['word' => 'quilt', 'translation' => 'одеяло'],
+    )->create();
+    $foreignWord = Word::factory()->create(['word' => 'elsewhere', 'translation' => 'где-то ещё']);
     [$l1, $l2, $l3] = Learner::factory()->count(3)->memberOf($this->g1)->seatedIn($this->a)->create()->all();
     $notMine = Learner::factory()->count(2)->memberOf($this->g2)->seatedIn($this->a)->create()->all();
     $lapses = fn (Learner $learner, Word $word, int $n) => WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id, 'lapses' => $n]);

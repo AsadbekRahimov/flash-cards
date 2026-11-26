@@ -143,6 +143,8 @@ it('is the bound new-card budget resolver', function (): void {
 });
 
 it('serves 20 new words a day to a Free learner over several rounds and not the 21st: the last round ends with new_quota_exhausted', function (): void {
+    // An explicit limit (not the launch default): 20 = three full rounds of six and a short fourth one.
+    config()->set('billing.plans.free.limits.new_words_per_day', 20);
     $learner = nwqLearner(25);
     $headers = nwqHeaders($learner);
     $introduced = [];
@@ -194,6 +196,7 @@ it('serves 20 new words a day to a Free learner over several rounds and not the 
 
 it('without the sprint a daily session runs to the quota in one go: 20 new cards, then new_quota_exhausted', function (): void {
     config()->set('learning.sprint.enabled', false);
+    config()->set('billing.plans.free.limits.new_words_per_day', 20);
     $learner = nwqLearner(25);
 
     $walk = nwqWalk($this, $learner);

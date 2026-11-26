@@ -114,10 +114,12 @@ erDiagram
 | id | bigint PK | |
 | chat_id | bigint unique | Telegram chat_id (может быть отрицательный для supergroup) |
 | title | string(255) | Название группы |
-| status | enum('pending','active','disabled') default 'pending' | |
+| status | enum('pending','active','disabled') default 'pending' | решение платформы. `disabled` ставят `my_chat_member` `left` / `kicked` и 403 при отправке в группу (`GroupBotRemoval`, через Eloquent — наблюдатель сбрасывает тарифы участников; docs/34 §4в п. 3) |
+| bot_status | string(16) nullable | статус бота из последнего `my_chat_member`: `member`, `administrator`, `left`, `kicked` *(K2, docs/33 §2.1)*. Только зеркало Telegram: повторно добавленный бот здесь `member`, а `disabled`-группа остаётся `disabled` |
+| bot_status_at | timestamp nullable | `date` того апдейта. `MyChatMemberHandler` под `FOR UPDATE` строки не применяет апдейт старше записанного (ни `bot_status`, ни `status`); одна и та же секунда — по порядку прихода. При слиянии строк при переходе в супергруппу более новый статус переезжает на выжившую строку |
 | organization_id | bigint nullable FK → organizations, ON DELETE SET NULL | организация-владелец (спонсор Pro для участников) |
 | course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для команд учителя; `NULL` = курс `default` |
-| meta | jsonb default '{}' | Member count, type и т.п. |
+| meta | jsonb default '{}' | Member count, type и т.п. Кубок (docs/33): `cup_pilot` (bool, группа пилота при `CUP_ACCESS=pilot`), `cups_blocked` (bool, админ платформы запретил кубки — активный кубок на паузе) |
 | created_at, updated_at | | |
 
 **Индексы:** `chat_id` unique, `status`, `organization_id`, `course_id`.
@@ -189,13 +191,14 @@ ru-дерево никогда не достаётся uz-ученику), «С�
 | word | string(100) | английское слово |
 | translation | string(500) | русский перевод по умолчанию (NOT NULL); читать переводы в коде — только через `WordTranslationResolver` (см. 2.21) |
 | example | text nullable | пример предложения |
-| part_of_speech | string(30) nullable | noun/verb/... |
+| part_of_speech | string(30) nullable | noun/verb/... (белый список `VocabularyImporter::ALLOWED_POS`); `phrase` — карточка-фраза курса фраз (docs/35 §3.3 a, выпуск 7) |
 | transcription | string(100) nullable | IPA |
 | audio_path | string(255) nullable | предгенерированное аудио (задача 1.2c) |
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
-| meta | jsonb default '{}' | |
+| meta | jsonb default '{}' | `confusable_with` (список слов курса, docs/06 §12.5); `phrase` — только у `part_of_speech = phrase` (docs/35 §3.4): `{kind, register, variant, gap, literal?, cefr?, frequency?, synonyms?}` — `kind` `formula`/`fixed`/`idiom`/`phrasal_verb`/`proverb`, `register` `neutral`/`informal`/`formal`/`slang`/`rude`, `variant` `both`/`uk`/`us` (по умолчанию `both`), `gap` — ключевое слово пропуска (одно слово a–z, входит во фразу ровно один раз, не вся фраза), `literal` `{ru, uz}` — дословный перевод, `cefr` `A1`..`C2`, `frequency` 1–3, `synonyms` — до 10 английских синонимов. Пишет только импорт (`VocabularyImporter`), проверка — там же; читает `App\Domain\Content\Support\Phrase` |
+| lexeme_id | bigint nullable FK → lexemes, ON DELETE SET NULL | лексема написания (§2.66, docs/32 §2.1): единица учёта очков за слова. Курсы платформы и организаций создают лексему, колода ученика только сопоставляется (нет совпадения — `NULL`: слово учится, но очков не даёт). Пишет `LexemeCatalog` (импорт, правка в `/admin`, колоды, `lexemes:backfill`) через query builder — `updated_at` слова не двигается |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `(id) WHERE is_active = false` — partial
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `words_lexeme_id_idx (lexeme_id)` (CONCURRENTLY на PostgreSQL); `(id) WHERE is_active = false` — partial
 `words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
 выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
 **PostgreSQL, `pg_trgm`** (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): поиск `/admin/words` — `like '%…%'`, b-tree по `word`
@@ -301,7 +304,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id, lesson_id) WHERE status = 'open' AND mode = 'lesson'` unique (`training_sessions_one_open_lesson_per_learner`);
 - `(learner_id) WHERE status = 'open' AND mode = 'hard_review'` unique (`training_sessions_one_open_hard_per_learner`) — один открытый раунд трудных слов на ученика; раунд трудных слов и ежедневный открыты одновременно — это разные режимы;
 - PostgreSQL-only CHECK `training_sessions_mode_shape_check`: `group_lesson` ⇒ есть группа и урок, любой другой режим ⇒ есть `learner_id` (на других драйверах инвариант держит сервис);
-- индексы `(learner_id, status, started_at)`, `(status, expires_at)`, `course_id`.
+- индексы `(learner_id, status, started_at)`, `(status, expires_at)`, `course_id`. Отдельный индекс `(status)` (`training_sessions_status_index`, создавался вместе с таблицей) **снят** миграцией `2026_11_26_200001` (PostgreSQL — `DROP INDEX CONCURRENTLY`, `down()` возвращает): он был началом индекса `(status, expires_at)`, который обслуживает те же запросы (поиск просроченных — 0,14 мс, счёт открытых — 0,05 мс), а каждая открытая и закрытая сессия платила за запись в него (20 000 вставок: 610 мс с ним, 407 мс без; `docs/38` §5.1).
 
 ### 2.10 `training_reviews` — каждая оценка карточки
 | Колонка | Тип |
@@ -441,7 +444,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 |---------|-----|
 | id | bigint PK |
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
-| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
+| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `trial_offer` (предложение Pro после пробного, docs/34 §2д), `trial_offer_deferred` (не сообщение: шаг предложения перенесён на следующий день из-за напоминания о подписке, тот же `payload.key`), `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
 | payload | jsonb | — что отправили: `{kind, due_count, streak, scheduled_for}` |
 | sent_at | timestamp |
 
@@ -509,10 +512,15 @@ Append-only журнал для продуктовой аналитики (не 
 | level | string(2) nullable | `A1`..`C2` |
 | active_course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для новых слов экрана «Сегодня» |
 | daily_goal | smallint default 20 (колонка; новым ученикам — 10 из config) | карточек (оценок) в день |
+| daily_goal_before_limit | smallint nullable (25.11.2026, docs/34 §2б.2) | цель, которую ученик выбрал до автоснижения к лимиту Free (`DailyGoalLimiter`); возвращается при покупке Pro; стирается ручной сменой цели. `NULL` — снижения не было |
 | reminder_time | time nullable default '19:00' | локальное время напоминания; `NULL` = выключено |
 | next_reminder_at | timestamp nullable | ближайшее напоминание, UTC |
-| dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС |
-| onboarding_state | string(16) default 'new' | `new` → `locale` → `goal` → `level` → `timezone` → `reminder` → `done` |
+| dm_blocked_at | timestamp nullable | с какого момента бот не может писать в ЛС (403 / `chat not found` на отправку или `my_chat_member` `kicked`); при повторном отказе дата не сдвигается. Пишет **только** `DmReachability` (тест-страж `DmReachabilityGuardTest`) |
+| dm_blocked_reason | varchar(24) nullable | почему *(B2, docs/34 §4в п. 3)*: `bot_blocked`, `not_started`, `user_deactivated`, `chat_not_found`, `forbidden` (ответ Telegram на отправку), `kicked` (`my_chat_member`); обновляется при каждом отказе, снимается вместе с датой. Для «мёртвых» `user_deactivated` / `chat_not_found` `next_reminder_at` обнуляется (B7). Переходы пишут события `bot.dm_closed {reason, via}` / `bot.dm_reopened {via}` |
+| onboarding_state | string(16) default 'new' | `new` → `locale` → `region` (25.11.2026, docs/35 §2.3) → `goal` (только если целей несколько) → `level` → `reminder` → `done`; `timezone` — устаревший шаг, ученик на нём переводится дальше |
+| region_code | varchar(8) nullable, индекс `learners_region_code_idx` (25.11.2026, docs/35 R1; аудит `docs/38` §5.3: планировщик берёт его только для редкой или отсутствующей области — 0,03 мс против 11–20 мс чтения всей таблицы; колонка меняется раз в 30 дней, на HOT не влияет — оставлен, снять, если на рабочей базе `idx_scan = 0`) | регион ученика: код ISO 3166-2:UZ (`UZ-TK` … `UZ-XO`, 14 единиц) или `other` («другая страна»); `NULL` — не указан / «Не указывать». CHECK нет: справочник — `config/regions.php`, проверяет `Regions` / `LearnerRegionService` (единственный, кто пишет колонку). Названия — `lang/{ru,uz}/regions.php`. Чужим ученикам не показывается |
+| region_changed_at | timestamp nullable (25.11.2026) | момент последнего принятого выбора региона (не сброса): следующая смена — не раньше чем через `regions.change_days` (30) дней. Снимок для отмены за 10 минут — `meta.region_change_undo` `{code, changed_at, previous_changed_at}`; «Не сейчас» карточки на вкладке «Рейтинг» — `meta.region_prompt_dismissed_at` |
+| pro_emoji | varchar(32) nullable (25.11.2026, docs/31 §5а, E1) | **код** эмодзи Pro из `config/pro_emoji.php` (не сам символ и не текст); `NULL` — не выбран. Выбирает только ученик с действующим Pro; без Pro не показывается, но хранится и возвращается вместе с Pro (`ProEmojiService`) |
 | onboarding_completed_at | timestamp nullable | |
 | acquisition_source | string(64) nullable | `ref`, `org`, `src:<channel>`, `course:<slug>`, `group` |
 | start_payload | string(64) nullable | сырой payload `/start` |
@@ -531,7 +539,7 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
-(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
+(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `dm_blocked_at` — **partial** `WHERE dm_blocked_at IS NOT NULL` (`learners_dm_blocked_at_idx`, под счётчик дашборда и фильтр «Бот недоступен» `/admin`, docs/34 B5); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
 Под список `/admin/learners` (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): `learners_first_name_id_idx (first_name, id)` —
 сортировка по умолчанию (Filament добавляет первичный ключ вторым ключом); **PostgreSQL, `pg_trgm`:** GIN-триграммы под поиск `like '%…%'` —
 `learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме
@@ -584,7 +592,7 @@ Append-only журнал для продуктовой аналитики (не 
 | description | jsonb default '{}' | по локалям |
 | target_language | string(5) default 'en' | |
 | level | string(2) nullable | `A1`..`C2` |
-| exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` |
+| exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` / `phrases` (курс фраз, docs/35 §3: раздел «Фразы» каталога, онбордингом не рекомендуется, в нём только карточки `part_of_speech = phrase`) |
 | source | string(12) default 'platform' | происхождение для фильтров: `platform` / `organization` / `learner` |
 | visibility | string(10) default 'public' | `public` / `unlisted` / `private` |
 | status | string(10) default 'draft' | `draft` → `review` → `published` (→ `archived`) |
@@ -1004,7 +1012,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |
 
-**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом; он же (по префиксу `league_week_id`) — выбор групп недели без штампа при закрытии.
+**Индексы:** `league_groups_week_category_tier_idx (league_week_id, category, tier)` — выбор группы с местом (с S8, миграция `2026_11_26_100001`: фильтр по категории и в v1, где все группы `free`); он же (по префиксу `league_week_id`) — FK и выбор групп недели без штампа при закрытии. `members_count` не индексируется: условие `members_count < capacity` сравнивает две колонки и по индексу не ищется, а инкремент на каждом размещении без индексированной колонки остаётся HOT. Прежние `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)` сняты.
 
 ### 2.36 `league_members` — место learner'а в группе недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -1389,6 +1397,8 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** unique `(league_month_id, learner_id)`; `league_month_scores_standings_idx (league_month_id, participant, points desc, active_days desc, learner_id)` — топ-N и «участников впереди меня».
 
+*(R6, docs/35 §2.4)* `region_code` string(8) nullable — область месяца ученика (из `learner_score_periods.region_code` месяца, пишет обновление месяца v2; у месяца v1 — `NULL`). Индекс *(миграция `2026_11_27_200002`, CONCURRENTLY)* partial `league_month_scores_region_standings_idx (league_month_id, category, region_code, points desc, long_words desc, active_days desc, learner_id) WHERE participant AND region_code IS NOT NULL` — таблица области месяца; цена записи — docs/32 §12.11.
+
 **Правила:** пишет только `MonthlyRatingService::upsertScores` — ОДИН `INSERT … SELECT … ON CONFLICT (league_month_id, learner_id) DO UPDATE … WHERE <любая колонка изменилась>` по строкам `learner_daily_stats` месяца для множества учеников (все / недавно активные / один), **никогда** в транзакции оценки (docs/13 §3 правило 5): планировщик каждые 10 минут, строка зрителя при показе рейтинга. Пока месяц `open`, строки других учеников отстают не больше чем на 10 минут; закрытие пересчитывает всех.
 
 ### 2.64 `league_month_candidates` — кандидаты на приз, снимок закрытия
@@ -1432,6 +1442,276 @@ CHECK не создаются — инвариант дублируют серв
 **Правила:** строку пишет `LevelQuizService::finalize` под `FOR UPDATE` строки сессии, **только если был хотя бы один ответ**; вставка зачётной строки — во вложенной транзакции
 (savepoint), нарушение partial unique → та же строка записывается как `scored = false`. Тест не пишет в `word_repetitions`, `training_*`, `learner_daily_stats`.
 Читают: `LevelQuizService::weekLine` (`/today`, один запрос) и `overview` / `history` (экран готовности, один запрос).
+
+## Очки за слова v2, таблицы Free / Pro *(выпуск 2, docs/28, проект — docs/32 §2; решения владельца — docs/31 §5)*
+
+Фундамент (S1–S3) готов: каталог лексем заполняется, остальные таблицы созданы, но **пока никем не пишутся** — начисление
+(`WordScoreService`, S4) подключается следующим шагом, до него `leagues.scoring.mode = off`. Все даты — **рейтинговые дни**
+по поясу лиги (`leagues.timezone`, Ташкент), пишутся через `StoredDate::of` (как `learner_daily_stats.date`). Все FK на
+`learners` — `ON DELETE CASCADE` (окончательное удаление ученика забирает строки). CHECK (только PostgreSQL) дублируют enum'ы
+`ScoreCategory` / `ScorePeriod` / `ScoreKind` / `ScoreSource` / `LexemeConfirmSource`.
+
+### 2.66 `lexemes` — каталог лексем *(S1, docs/32 §2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| language | string(5) | `courses.target_language` курса, создавшего лексему (`en`) |
+| key | string(100) | нормализованное написание `LexemeKey::of`: trim, нижний регистр, схлопнутые пробелы, ASCII-апострофы и дефисы, без финальной `.,!?;:` и артикля `a/an/the` в начале (если что-то остаётся); `to ` не снимается |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(language, key)`. **Правила:** пишет только `LexemeCatalog` — `insertOrIgnore` + select (гонка двух импортов одного слова безопасна); строки не меняются и не удаляются. Связывание старых слов — `php artisan lexemes:backfill` (пачками по `words.id`, идемпотентно; `--decks` — только отвязка слов колод). **Слова колод учеников (`owner_type = learner`) с каталогом не связываются никогда** (`words.lexeme_id = NULL`, решение владельца 27.11.2026, docs/32 §12.12; миграция `2026_12_01_100001` отвязала прежние связи).
+
+### 2.67 `learner_lexemes` — ученик × лексема *(S2, docs/32 §2.2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, lexeme_id)` |
+| lexeme_id | bigint FK → lexemes, ON DELETE RESTRICT | правило записано явно (26.11.2026): лексемы не удаляются. Индекса на этой стороне ключа **нет намеренно** — он нужен был бы только удалению лексемы, а таблица пишется на каждом ответе; все чтения идут по PK (`docs/38` §4) |
+| confirmed_on | date nullable | день первого подтверждения нового слова (`NULL` — не подтверждено) |
+| confirmed_source | string(8) nullable | `training` / `game` / `legacy` (разовая загрузка изученных слов, S7) |
+| last_attempt_on | date nullable | день последней засчитанной попытки — одна попытка в день |
+| last_credit_due_at | timestamp nullable | назначенный срок (`last_reviewed_at + interval`), за который повторение уже оплачено |
+| first_long_on | date nullable | первый засчитанный длинный повтор (достижение `long_recall_25`) |
+| long_free_on, long_pro_on | date nullable | первый длинный повтор в **месячном** зачёте категории (ничьи «За всё время») |
+
+**Индексы:** PK; partial `learner_lexemes_first_long_idx (learner_id) WHERE first_long_on IS NOT NULL`. PostgreSQL: `fillfactor = 90` (строка обновляется в транзакции ответа).
+
+### 2.68 `learner_score_periods` — категория и версия недели / месяца *(S2–S3, docs/32 §2.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, period, starts_on)` |
+| period | string(5) | `week` / `month` |
+| starts_on | date | понедельник / 1-е число по поясу лиги |
+| category | string(4) | `free` / `pro` — тариф (`EntitlementResolver`: пробный Pro и место в организации — Pro) в момент первого начисления периода |
+| rules_version | smallint | `ScoreRules::versionFor(starts_on)` на момент фиксации |
+| fixed_at | timestamp | |
+| region_code | string(8) nullable | *(R6, docs/35 §2.4; миграция `2026_11_27_200001`)* область ученика (`learners.region_code`) в момент первого начисления периода — тем же оператором `INSERT … SELECT`, скалярным подзапросом по PK `learners`; `NULL` — области не было |
+
+**Правила:** пишет только `ScorePeriodService::fix/fixDay` — `INSERT … ON CONFLICT DO NOTHING` + чтение: побеждает первый, строка не меняется до конца периода (смена тарифа действует со следующего периода). Неделя и месяц фиксируются независимо. Область месяца не меняется сменой области (новая действует со следующего месяца, очки остаются там, где набраны); **исключение** — пустая область открытого месяца v2 заполняется один раз первой выбранной областью (`MonthlyRatingService::regionChanged` после commit смены, затем пересчёт строки месяца). Сброс области («не указывать») зафиксированную область месяца не трогает.
+
+### 2.69 `learner_score_days` — итоги рейтингового дня *(S2, docs/32 §2.4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, CASCADE | |
+| rating_day | date | день по поясу лиги |
+| week_starts_on, week_category, week_version | date, string(4), smallint | неделя дня — копия из `learner_score_periods` при создании строки |
+| month_starts_on, month_category, month_version | date, string(4), smallint | месяц дня — так же |
+| raw_points | int default 0 | очки без лимитов |
+| new_count, review_count, long_count | smallint default 0 | события без лимитов (`review_count` включает длинные) |
+| week_points, week_new, week_review, week_long | smallint default 0 | недельный зачёт с лимитами категории недели |
+| week_capped_at | timestamp nullable | момент упора в дневной потолок недельного зачёта |
+| month_points, month_new, month_review, month_long, month_capped_at | — | то же для месячного зачёта |
+| revision | int default 0 | растёт при исправлении дня |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(learner_id, rating_day)`; `(rating_day)`. PostgreSQL: `fillfactor = 70` (как `learner_daily_stats`). Хранится всегда.
+
+### 2.70 `score_credits` — журнал начислений *(S2, docs/32 §2.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, CASCADE | |
+| rating_day | date | |
+| lexeme_id | bigint (на PostgreSQL без FK с 300101) | лексема; лексемы не удаляются и не меняются, а проверка FK на каждой вставке брала `FOR KEY SHARE` на общую строку популярного слова |
+| word_id | bigint (без FK) | карточка, давшая начисление; журнал переживает слово |
+| source | string(12) | `training` / `group_lesson` / `game` |
+| source_id | bigint (без FK) | `training_sessions.id` или `game_runs.id` |
+| kind | string(6) | `new` / `review` / `long` |
+| week_points, month_points | smallint | добавлено в каждый зачёт (0 — срезано лимитом / потолком) |
+| voided_at, voided_by_user_id, void_reason | timestamp, FK → users SET NULL, string(255) | аннулирование (`ScoreCorrectionService`, S11) |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день (вторая линия обороны за блокировкой `learner_lexemes`; ядро пишет `INSERT … ON CONFLICT DO NOTHING`) и все чтения по ученику (месяц, финиш занятия и забега); PostgreSQL (миграция `2026_11_25_300101`): **BRIN** `score_credits_rating_day_brin (rating_day)` вместо B-tree — его читает только очистка (`DELETE … WHERE rating_day < ?`, S16), строки приходят в порядке дня, BRIN занимает десятки КБ и не обновляется на каждой вставке; partial `score_credits_voided_by_idx (voided_by_user_id) WHERE voided_by_user_id IS NOT NULL` — для `ON DELETE SET NULL` при удалении администратора (вставка его не касается). На sqlite (тесты) — B-tree `(rating_day)` и FK, как в 300004. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16). **BRIN заменён обратно на B-tree** `score_credits_rating_day_index (rating_day)` (миграция `2026_11_26_100003`, PostgreSQL, CONCURRENTLY): ночная очистка удаляет «голову» кучи, VACUUM отдаёт это место новым вставкам, физический порядок дней ломается, и BRIN перестаёт отсекать страницы (план очистки уходил в Seq Scan всей таблицы); ключ B-tree только растёт — вставка всегда в правый лист, это самая дешёвая форма B-tree. С S9 (миграция `2026_11_26_100002`, CONCURRENTLY): partial `score_credits_long_idx (learner_id, rating_day, lexeme_id) WHERE kind = 'long' AND month_points > 0 AND voided_at IS NULL` — `long_words` месяца v2 (`COUNT(DISTINCT lexeme_id)` для ученика, «недавних» и всех при закрытии) читается index-only, без просмотра всего месяца журнала; в индекс попадают только длинные повторы с месячными очками (обычное начисление его не трогает), аннулирование (редкое) выводит строку из него (docs/32 §12.6).
+
+### 2.71 `learner_score_totals` — «За всё время» *(S2, docs/32 §2.6)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, category)` |
+| category | string(4) | `free` / `pro` |
+| points, long_words, active_days | int default 0 | сумма месячного зачёта по категории месяца, лексемы с длинным повтором, дни с очками |
+| first_day, last_day | date | |
+| participant | boolean default true | как в месяце: не удалён, не заблокирован, без opt-out |
+| updated_at | timestamp nullable | момент пересчёта (сравнивается с `learner_score_days.updated_at` для свежести своей строки; более старый пересчёт строку не перезаписывает) |
+| region_code | string(8) nullable | *(R6)* **текущая** область ученика (`learners.region_code`): «За всё время» — «люди области» (docs/35 §2.4) |
+
+**Индексы:** PK; `learner_score_totals_standings_idx (category, participant, points desc, long_words desc, active_days desc, learner_id)`; *(R6, миграция `2026_11_27_200003`, CONCURRENTLY)* partial `learner_score_totals_region_standings_idx (category, region_code, points desc, long_words desc, active_days desc, learner_id) WHERE participant AND region_code IS NOT NULL` — таблица области в порядке таблицы (топ, страница, место, соседи; редкая область — диапазон индекса, а не фильтр всей категории); ученики без области и не-участники в него не пишут.
+
+**Запись (S10, `Scoring\ScoreTotalsService`, docs/32 §12.11):** никогда в ответе; один `INSERT … SELECT … ORDER BY learner_id, category ON CONFLICT DO UPDATE … WHERE learner_score_totals.updated_at <= excluded.updated_at` из `learner_score_days` (`month_version >= 2`, сумма `month_points` по `month_category`, дни с очками, первый/последний день), `learner_lexemes` (`COUNT(long_free_on)` / `COUNT(long_pro_on)` по partial `learner_lexemes_first_long_idx`) и `learners` (участие, область). Наборы: один ученик (хуки: исправление дня, смена участия, смена области, своя строка устарела); «недавние» — ученики, чьи дни записаны с начала прошлого запуска минус `leagues.all_time.refresh_margin_seconds` (маркер `league:alltime:refreshed:v1` на невытесняемом хранилище; `leagues:refresh-month`, раз в 10 минут); все — пачками по `leagues.all_time.reconcile_batch` (5 000) id после закрытия месяца и `--full`.
+
+`learner_score_legacy` (docs/32 §2.6) **не создаётся**: по решению владельца (docs/31 §5, В1) старые очки не переносятся.
+
+**Изменения таблиц лиг** *(S2, docs/32 §2.6; читаются с S8/S9, до этого v1-код их не трогает)*:
+- `league_weeks.rules_version`, `league_months.rules_version` — smallint default 1: версия правил периода, пишется при создании строки и не меняется;
+- `league_groups.category` — string(4) default `free` (категория группы недели v2; в неделе v1 все группы `free`); индекс выбора места — `(league_week_id, category, tier)` (§2.35, S8);
+- `league_members.category` string(4) nullable, `final_long_words`, `final_days` smallint nullable — итог v2-недели для ничьих;
+- `league_month_scores.category` string(4) nullable (`NULL` — месяц v1, одна общая таблица), `long_words` int default 0; новый индекс `league_month_scores_category_standings_idx (league_month_id, category, participant, points desc, long_words desc, active_days desc, learner_id)` (CONCURRENTLY), v1-индекс `league_month_scores_standings_idx` остаётся (нужен открытым и проверяемым v1-месяцам; каждое изменение строки v2 пишет запись и в него — предложение: снять отдельной миграцией после подтверждения последнего v1-месяца, docs/32 §12.6). Аудит 26.11.2026 (`docs/38` §5.2) предложение подтвердил: пока режим `off`, месяцы идут по v1 и индекс читается; цена — около 15–20 % записи при обновлении месяца (20 000 изменённых строк: 313–359 мс с ним, 267–286 мс без). С S9 таблица месяца v2 читается только по новому индексу: топ, страница после курсора, соседи, свой ранг (`ScoreBoard`) — index-only по `points` как диапазону;
+- `league_month_candidates.category` string(4) nullable.
+
+## Опросы в боте *(выпуск 4, проект — docs/35 §1; решения владельца — docs/31 §5г)*
+
+Фото с подписью (или текст) и inline-кнопки `pl1:<token>:<n>`, свой учёт голосов (вариант A docs/35 §1.3). Модели — `Poll`,
+`PollOption`, `PollDelivery`, `PollVote` (`app/Models`), enum'ы статусов — `App\Domain\Polls\Enums\PollStatus` /
+`PollDeliveryStatus`; CHECK (только PostgreSQL) дублируют их. Тексты — jsonb `{ru, uz}`. Индексы — только под запросы docs/35 §1.5;
+FK без индекса перечислены с причиной.
+
+### 2.72 `polls` — опрос *(O2, docs/35 §1.4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| title | string(120) | внутреннее название для `/admin` |
+| question | jsonb | `{ru, uz}`, оба обязательны, ≤ 700 символов каждое (проверяет форма, O6) |
+| image_path | string(255) nullable | файл на приватном диске `local`, каталог `polls/` |
+| image_file_id | string(255) nullable | `file_id` Telegram (наибольший `PhotoSize`) после первой удачной отправки; дальше фото уходит по нему |
+| allows_multiple | boolean default false | несколько ответов |
+| max_choices | smallint nullable | предел выбора при нескольких ответах; CHECK `1..10` |
+| allow_change | boolean default true | можно ли сменить ответ до закрытия |
+| audience | jsonb | `{plan: all\|free\|pro, locales: [], course_ids: [], region_codes: [], onboarded_only: true}` |
+| status | string(10) default `draft` | `draft` → `sending` → `sent` → `closed`; `cancelled` из `draft`/`sending` (CHECK) |
+| closes_at | timestamp nullable | срок; пусто — до ручного закрытия |
+| launched_at, closed_at | timestamp nullable | |
+| created_by_user_id, launched_by_user_id | bigint FK → users, SET NULL nullable | |
+| results_snapshot | jsonb nullable | итоги на момент закрытия (не меняются после окончательного удаления учеников) |
+| recipient_count | integer nullable | *(O3, миграция `2026_11_27_100005`)* получателей вставлено при запуске; пишется один раз, когда вставка закончена. `NULL` у опроса `sending` = вставка не дошла до конца (упал запускающий процесс) — `polls:sweep` её продолжает. Это же «получателей» в `/admin` без подсчёта |
+| created_at, updated_at | | |
+
+**Индексы:** partial `polls_close_due_idx (closes_at) WHERE status IN ('sending','sent') AND closes_at IS NOT NULL` — `polls:close-due`
+каждые 5 минут читает только открытые опросы со сроком. FK на `users` **без индекса**: таблица маленькая (десятки строк в год),
+индекс нужен был бы только удалению пользователя.
+
+### 2.73 `poll_options` — варианты ответа *(O2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | |
+| position | smallint | `0..9` (CHECK) — `n` кнопки `pl1:<token>:<n>` |
+| label | jsonb | `{ru, uz}`, ≤ 40 символов каждое (форма) |
+
+**Индексы:** unique `(poll_id, position)` — он же индекс FK (варианты всегда читаются по опросу).
+
+### 2.74 `poll_deliveries` — получатель опроса *(O2; запись — O3/O4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | |
+| learner_id | bigint FK → learners, CASCADE, nullable | `NULL` только у тестовой отправки (CHECK `is_test = (learner_id IS NULL)`) |
+| telegram_user_id | bigint | куда отправлено; с ним сверяется `from.id` нажатия |
+| is_test | boolean default false | тестовая отправка администратору: в итоги не входит |
+| token | char(12) | `Str::random(12)`, токен кнопок |
+| locale | string(5) | язык сообщения (`interface_locale` ученика при вставке) |
+| status | string(10) default `pending` | `pending`, `sending`, `sent`, `skipped`, `forbidden`, `failed`, `unknown` (CHECK) |
+| message_id | bigint nullable | |
+| sent_at | timestamp nullable | |
+| error_code | string(40) nullable | причина: `bot_blocked`/`not_started`/… (403), `http_<код>` (прочий отказ), `transport` (таймаут — `unknown`), `stuck` (`polls:sweep`), `unreachable` (ученик стал недоступен до отправки), `cancelled`/`closed`/`expired`/`stopped` (не отправлено) |
+| draft | jsonb nullable | отмеченные, но не отправленные варианты (id `poll_options`) |
+| answered_at | timestamp nullable | |
+| changed_count | smallint default 0 | CHECK `>= 0` |
+| claimed_at | timestamp nullable | *(O3, миграция `2026_11_27_100005`)* последний захват воркером. `pending` + `claimed_at` — аренда: строка в пачке воркера (`FOR UPDATE SKIP LOCKED`), сообщение ещё **не** отправлялось; другие воркеры её пропускают до `polls.lease_seconds` (300 с), после — забирают (упавший воркер ничего не теряет и не дублирует). `sending` + `claimed_at` — момент шага `pending → sending` прямо перед вызовом Telegram: `polls:sweep` через `polls.stuck_minutes` (15) делает такую строку `unknown`. Без индекса: читается только через `poll_deliveries_unsent_idx`; не входит ни в индекс, ни в предикат — запись аренды идёт HOT-обновлением |
+
+**Индексы** (таблица большая — опросы × аудитория — и горячая на запись во время рассылки, поэтому только эти):
+- unique `token` — каждое нажатие находит строку по токену кнопки;
+- unique `(poll_id, learner_id)` — одна доставка на ученика и опрос; цель `ON CONFLICT` вставки при запуске. **Не частичный**
+  (в docs/35 — `WHERE learner_id IS NOT NULL`): NULL в уникальном индексе различны и в PostgreSQL, и в sqlite, поэтому тестовые
+  строки не конфликтуют так же, но индекс содержит и их и обслуживает все чтения «все строки опроса» — счётчики страницы итогов,
+  CSV, `polls:prune`, каскад удаления опроса;
+- `(learner_id)` — окончательное удаление ученика каскадом идёт сюда; без индекса каждое удаление читало бы всю таблицу;
+- partial `poll_deliveries_unsent_idx (poll_id, id) WHERE status IN ('pending','sending')` — пачки рассылки, проверка «что-то
+  осталось» перед `sending → sent`, `polls:sweep` (зависшие `sending`). Вместо полного `(poll_id, status)` из docs/35: в нём только
+  неотправленные строки, законченная строка в него больше не попадает.
+
+### 2.75 `poll_votes` — голоса *(O2; запись — O4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | копия из доставки — для подсчёта |
+| poll_delivery_id | bigint FK → poll_deliveries, CASCADE | |
+| poll_option_id | bigint FK → poll_options, CASCADE | |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(poll_delivery_id, poll_option_id)` — один голос за вариант; через него `DELETE` голосов доставки при смене
+ответа и каскад доставки (а значит, ученика); `(poll_id, poll_option_id)` — подсчёт `GROUP BY poll_option_id`, CSV, каскад опроса.
+FK `poll_option_id` **без своего индекса**: вариант удаляется только вместе с опросом (покрыто выше) или в черновике из формы
+(O6), где есть самое большее тестовые голоса администраторов — редкий последовательный просмотр вместо записи в индекс на
+каждом голосе.
+
+**Правила:** голос не пишет ничего в `learner_daily_stats`, очки и серию. Окончательное удаление ученика забирает его доставки и
+голоса; итоги закрытого опроса остаются в `polls.results_snapshot`. Хранение доставок и голосов — 365 дней после закрытия
+(`polls:prune`, O7).
+
+## Кубок друзей в группе *(выпуск 5, проект — docs/33 §2; решения владельца — docs/31 §5)*
+
+Модели — `Cup`, `CupParticipant`, `CupDay`, `CupDayScore`, `CupRoundAttempt`, `CupRoundAnswer`, `CupMessage` (`app/Models`), enum'ы —
+`App\Domain\Cup\Enums\*`; CHECK (только PostgreSQL) дублируют их. Время — UTC, границы дней — полночь пояса кубка. Очки кубка живут
+только здесь: ни `learner_daily_stats`, ни лига, ни очки за слова, ни SRS кубок не пишет. Индексы — только под запросы docs/33 §11.3;
+счётчики `best_*`, `round_points`, `state` не индексируются, их обновления — HOT (fillfactor 90 / 80 / 80).
+
+### 2.76 `cups` — кубок чата *(K4, docs/33 §2.2)*
+Колонки — как docs/33 §2.2. `status` draft/scheduled/running/finished/canceled; `active_group_id` = `telegram_group_id`, пока кубок
+открыт (draft/scheduled/running), иначе NULL — UNIQUE: один открытый кубок на чат. `public_code` string(22) UNIQUE (128 бит).
+`seed_secret` (64 hex) и `word_plan` (`{"1": [word ids], …}`) — только сервер (`$hidden`). `course_id` FK → courses **RESTRICT** —
+курс с кубками не удаляется.
+**Индексы:** `active_group_id` unique, `public_code` unique, `(telegram_group_id, created_at)` (история чата и FK), частичные
+`cups_draft_created_idx (created_at) WHERE status='draft'`, `cups_scheduled_start_idx (starts_at) WHERE status='scheduled'`,
+`cups_running_end_idx (ends_at) WHERE status='running'` — планировщик читает только открытые строки. FK `course_id` без индекса
+(RESTRICT при удалении курса читает тысячи строк, удаление курса — редкость). **CHECK:** статус; `(status открыт) = (active_group_id
+IS NOT NULL)`; `(status='canceled') = (cancel_reason IS NOT NULL)` и причина из списка; размеры (`counted_days ≤ days`,
+`round_tasks ≤ 10`); у не-draft/не-canceled есть `starts_at < ends_at`.
+
+### 2.77 `cup_participants` — участник *(K4, docs/33 §2.3)*
+Как docs/33 §2.3 плюс `rename_count` smallint (смена имени ≤ 3 раз). `cup_id` FK CASCADE, `learner_id` FK → learners CASCADE.
+**Индексы:** unique `(cup_id, learner_id)` (одна строка на ученика; таблица кубка; FK `cup_id`), `(learner_id)` («мои кубки», каскад
+ученика). Индекса по `(cup_id, best_total, best_round_points)` из docs/33 **нет**: таблица кубка (десятки строк) сортируется в памяти,
+а очки меняются с каждым верным ответом — с индексом обновление не было бы HOT. **CHECK:** статус active/left, `first_day ≥ 1`,
+`0 ≤ best_round_points ≤ best_total`.
+`withdrawn_at` timestamp null (миграция `2026_12_01_100002`, docs/33 §11.12): участник **сам вышел из кубка** («Выйти из кубка») —
+статус `left` навсегда: ни вступление, ни свежий «член чата» не делают его `active`, кубок ему не виден и не входит в «мои кубки».
+Без индекса (читается в строке участника, которую и так читают по unique). **CHECK** `cup_participants_withdrawn_check`:
+`withdrawn_at IS NULL OR status = 'left'` (PostgreSQL, `NOT VALID` + `VALIDATE`).
+
+### 2.78 `cup_days` — день кубка *(K4/K5, docs/33 §2.4)*
+`snapshot` jsonb — задания дня на всех языках (только сервер), `built_at` — снимок построен **или** день закрыт без снимка (отмена /
+финиш). **Индексы:** unique `(cup_id, day)`; частичный `cup_days_unbuilt_idx (starts_at) WHERE built_at IS NULL` — планировщик снимков.
+
+### 2.79 `cup_day_scores` — очки дня *(K4, docs/33 §2.7)*
+`round_points` 0–20, `duel_points` 0–5, только `updated_at`. **Индексы:** unique `(participant_id, day)`, `(cup_id)` — каскад кубка и
+«есть новые результаты» (K6: `EXISTS … WHERE cup_id = ? AND updated_at > ?` читает строки одного кубка); `(cup_id, updated_at)` из
+docs/33 не сделан — `updated_at` меняется с каждым очком. **CHECK** диапазонов.
+
+### 2.80 `cup_messages` — исходящие кубка (outbox) *(K4 схема, K6 логика, docs/33 §2.8)*
+**Индексы:** unique `(cup_id, dedupe_key)`; частичный `cup_messages_outbox_idx (created_at) WHERE status IN ('pending','sending')`.
+**CHECK** `kind`, `status`. Строку `final` создаёт финиш (`ON CONFLICT DO NOTHING`).
+
+### 2.81 `cup_round_attempts` — попытка раунда дня *(K5, docs/33 §2.5)*
+`cup_day_id` FK CASCADE, `participant_id` FK CASCADE; `cup_id` и `learner_id` — **копии без FK** (строки уходят каскадом участника
+и дня; FK потребовал бы ещё двух индексов на самой большой таблице кубка). **Индексы:** unique `(cup_day_id, participant_id)` —
+одна попытка в день; `(participant_id)`; частичный `cup_round_attempts_active_expiry_idx (expires_at) WHERE status='active'`.
+**CHECK:** статус/причина/`finished_at` согласованы, `points 0–20`, `correct ≤ answered ≤ 10`, `expires_at > started_at`.
+
+### 2.82 `cup_round_answers` — принятые ответы *(K5, docs/33 §2.6)*
+Без `learner_id` (он у попытки). **Индексы:** unique `(attempt_id, element_id)` — один ответ на задание; unique `(attempt_id,
+request_id)` — повтор запроса. **CHECK:** вердикт из списка, `points ∈ {0, 2}`, `points = 2 ⇔ verdict = 'correct'` (опечатка — 0,
+решение владельца К4).
+
+### 2.83 `cup_duels` — дуэль кубка *(D1, docs/33 §2.9, §5.7, §11.9; миграция `2026_11_29_100001_create_cup_duels_tables`)*
+Вызов участника (адресный — `opponent_participant_id`, открытый — NULL до принятия) и его живой баттл. `day` — день вызова (не
+меняется), `accepted_day` — день принятия (в него идут очки), `rated_offered` — что видели оба до принятия, `rated` — что решило
+принятие; `status` `open → accepted → done | void`, `open → declined | expired | canceled`; `end_reason` — причина (docs/33 §11.9);
+`challenger_points` / `opponent_points` — свои верные ответы (0–5); `winner_participant_id` — копия без FK (победитель — один из двух
+игроков, их строки уносят дуэль каскадом). FK: `cup_id`, `challenger_participant_id`, `opponent_participant_id` — CASCADE;
+`battle_id` → `battles` SET NULL. **Индексы:** `(cup_id, day)` — дуэли дня кубка (лимиты, список, финиш) и каскад кубка; unique
+`(challenger_participant_id, request_id)` — повтор запроса и FK вызывающего; `(opponent_participant_id)` — вызовы мне и FK; частичные
+unique `open_challenger_id WHERE NOT NULL` («один открытый вызов от участника») и `battle_id WHERE NOT NULL` (одна дуэль на матч, FK);
+частичные `cup_duels_open_expiry_idx (expires_at) WHERE status = 'open'` и `cup_duels_accepted_idx (accepted_at) WHERE status =
+'accepted'` — `cups:sweep-duels`. **CHECK (PG):** статус и причина из списков, форма открытого / принятого / закрытого вызова,
+`challenger ≠ opponent`, очки 0–5; причина `battle_voided` (матч аннулирован системой) — миграция `2026_11_30_100001` (docs/33 §11.11).
+
+### 2.84 `cup_duel_slots` — зачётная дуэль дня *(D1, docs/33 §2.9)*
+`cup_id` (копия без FK), `participant_id` (FK CASCADE), `day`, `cup_duel_id` (FK CASCADE), `created_at`. **Индексы:** unique
+`(participant_id, day)` — «одна зачётная дуэль на участника в день» (две строки вставляются одним оператором при принятии; нарушение —
+409 `cup_duel_rating_changed`), `(cup_duel_id)` — освобождение слотов несостоявшейся дуэли и FK.
+
+`battles` (D1): `cup_duel_id` (FK → `cup_duels` SET NULL; частичный unique `WHERE cup_duel_id IS NOT NULL`) — матч дуэли кубка, его
+конец ставит `ScoreCupDuelJob`; `limit_exempt` bool default false — зачётная дуэль не считается в лимит баттлов Free (без индекса:
+фильтр подсчёта баттлов одного ученика по `(challenger_id, status)`).
 
 ## 3. Порядок миграций
 
@@ -1545,6 +1825,36 @@ CHECK не создаются — инвариант дублируют серв
 82. `2026_11_18_100002_create_level_quiz_results_table` — `level_quiz_results` и partial unique «один зачётный на неделю» *(§2.65)*
 82a. `2026_11_18_300001_add_hard_review_to_training_sessions` — `training_sessions.meta` jsonb и partial unique `training_sessions_one_open_hard_per_learner` (режим `hard_review`) *(docs/06 §14, §2.9)*
 82b. `2026_11_18_300002_add_word_repetitions_hard_idx` — partial `word_repetitions (learner_id, next_review_at) WHERE is_hard = true OR lapses >= 1` для кандидатов раунда трудных слов (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`, `down()` — `DROP INDEX`; на sqlite откатывается раньше миграции, снимающей `lapses`) *(§2.8)*
+
+Очки за слова v2 (docs/32 S1–S2; откат и повтор — `WordScoreSchemaTest`):
+
+83. `2026_11_25_300001_create_lexemes_table` — каталог лексем *(§2.66)*
+84. `2026_11_25_300002_add_lexeme_id_to_words_table` — `words.lexeme_id` FK SET NULL (на sqlite — `ADD COLUMN … REFERENCES` на месте: пересборка таблицы теряла предикат `words_inactive_idx`; `down()` на sqlite пересобирает и возвращает partial-индекс) *(§2.7)*
+85. `2026_11_25_300003_add_words_lexeme_id_index` — `words_lexeme_id_idx` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.7)*
+86. `2026_11_25_300004_create_word_score_tables` — `learner_lexemes`, `learner_score_periods`, `learner_score_days`, `score_credits`, `learner_score_totals`, fillfactor и CHECK (PostgreSQL) *(§2.67–2.71)*
+87. `2026_11_25_300005_add_scoring_columns_to_league_tables` — версии правил, категории и признаки ничьих в таблицах лиг *(§2.71, «Изменения таблиц лиг»)*
+88. `2026_11_25_300006_add_category_standings_index_to_league_month_scores` — индекс таблицы месяца по категории (CONCURRENTLY на PostgreSQL) *(§2.63)*
+89. `2026_11_25_300101_tune_score_credits_indexes` — только PostgreSQL: B-tree `score_credits (rating_day)` → BRIN, снят FK `score_credits.lexeme_id`, partial-индекс `voided_by_user_id`; `down()` возвращает форму 300004 *(§2.70, S4)*
+90. `2026_11_26_100001_reindex_league_groups_seat_lookup` — `league_groups`: `(league_week_id, category, tier)` вместо `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)`; `down()` возвращает оба *(§2.35, S8)*
+91. `2026_11_26_100002_add_long_credits_index_to_score_credits` — partial `score_credits_long_idx` (CONCURRENTLY на PostgreSQL) *(§2.70, S9)*
+92. `2026_11_26_100003_replace_score_credits_rating_day_brin` — только PostgreSQL: BRIN `score_credits (rating_day)` → B-tree (CONCURRENTLY); `down()` возвращает BRIN *(§2.70, S16)*
+92a. `2026_11_27_200001_add_region_code_to_score_tables` — `region_code` в `learner_score_periods`, `league_month_scores`, `learner_score_totals` (nullable, без перезаписи таблиц) *(§2.63, §2.68, §2.71; docs/35 R6)*
+92b. `2026_11_27_200002_add_region_standings_index_to_league_month_scores` — partial `league_month_scores_region_standings_idx` (CONCURRENTLY на PostgreSQL) *(§2.63)*
+92c. `2026_11_27_200003_add_region_standings_index_to_learner_score_totals` — partial `learner_score_totals_region_standings_idx` (CONCURRENTLY на PostgreSQL) *(§2.71)*
+
+Опросы в боте (docs/35 O2; откат и повтор — `PollSchemaTest`):
+
+93. `2026_11_27_100001_create_polls_table` — `polls`, partial `polls_close_due_idx`, CHECK (PostgreSQL) *(§2.72)*
+94. `2026_11_27_100002_create_poll_options_table` — `poll_options` *(§2.73)*
+95. `2026_11_27_100003_create_poll_deliveries_table` — `poll_deliveries`, partial `poll_deliveries_unsent_idx`, CHECK (PostgreSQL) *(§2.74)*
+96. `2026_11_27_100004_create_poll_votes_table` — `poll_votes` *(§2.75)*
+97. `2026_11_27_100005_add_broadcast_columns_to_polls_tables` — `poll_deliveries.claimed_at`, `polls.recipient_count` (O3) *(§2.72, §2.74)*
+98. `2026_11_28_100001_create_cups_tables` — `cups`, `cup_participants`, `cup_days`, `cup_day_scores`, `cup_messages`, частичные индексы планировщика, CHECK и fillfactor (PostgreSQL) *(§2.76–§2.80)*
+99. `2026_11_28_100002_create_cup_rounds_tables` — `cup_round_attempts`, `cup_round_answers` *(§2.81–§2.82)*
+100. `2026_11_29_100001_create_cup_duels_tables` — `cup_duels`, `cup_duel_slots`, `battles.cup_duel_id` / `limit_exempt`, частичные индексы, CHECK (PostgreSQL); `down()` сначала обнуляет `battles.cup_duel_id` *(§2.83–§2.84)*. Вне транзакции мигратора (`$withinTransaction = false`): таблицы — в своей транзакции; на `battles` (PostgreSQL) колонки без перезаписи, FK `NOT VALID` + отдельный `VALIDATE CONSTRAINT`, частичный unique `CONCURRENTLY`; SQLite — как раньше
+101. `2026_11_30_100001_add_battle_voided_to_cup_duel_end_reasons` — CHECK причин `cup_duels` с `battle_voided` (PostgreSQL; `NOT VALID` + `VALIDATE`); `down()` переводит `battle_voided` в `battle_gone` *(§2.83)*
+102. `2026_12_01_100001_unlink_deck_words_from_lexemes` — только данные: `words.lexeme_id = NULL` у слов колод учеников (docs/32 §12.12), пачками по 1 000 `words.id`, вне транзакции мигратора, перезапускаемая; `down()` связывает их обратно с существующими лексемами по написанию *(§2.66)*
+103. `2026_12_01_100002_add_withdrawn_at_to_cup_participants` — `cup_participants.withdrawn_at` (без перезаписи таблицы) и CHECK `withdrawn_at IS NULL OR status = 'left'` (PostgreSQL, `NOT VALID` + отдельный `VALIDATE`; вне транзакции мигратора, `IF NOT EXISTS` — перезапускаемая); `down()` снимает CHECK и колонку *(§2.77)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

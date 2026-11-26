@@ -12,7 +12,9 @@ use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
+use App\Domain\Learning\Events\LessonWithNewWordsFinished;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Learning\Support\LessonReviewState;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Assignment;
 use App\Models\Course;
@@ -228,8 +230,9 @@ final class TrainingSessionService
     /**
      * Closes a personal session (idempotent) and summarises what the learner did in it.
      *
-     * The side effects of a session the learner finished — the event `training.session_finished` with the summary's numbers
-     * and the evaluation of a pending referral (docs/13 §7.1) — happen here, once, after the commit, and only when THIS call
+     * The side effects of a session the learner finished — the event `training.session_finished` with the summary's numbers,
+     * the evaluation of a pending referral (docs/13 §7.1) and, for a lesson with new words, {@see LessonWithNewWordsFinished}
+     * (the bot's reminder after a lesson, docs/31 §5б) — happen here, once, after the commit, and only when THIS call
      * closed the session with `finished`: `/finish` and the re-open of a completed round share them, a repeat of `/finish`
      * and a close as `expired` have none.
      *
@@ -346,6 +349,11 @@ final class TrainingSessionService
 
         // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
         $this->referrals->evaluate($learner, $now);
+
+        // A lesson with new words: the bot may remind of the game on its words later (docs/31 §5б).
+        if ($session->mode === TrainingSession::MODE_LESSON && $session->lesson_id !== null && $summary->newWords > 0) {
+            LessonWithNewWordsFinished::dispatch($learner, (int) $session->id, (int) $session->lesson_id, $summary->newWords);
+        }
     }
 
     /**
@@ -429,12 +437,16 @@ final class TrainingSessionService
             return;
         }
 
-        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW, TrainingSession::MODE_HARD_REVIEW], true)) {
+        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW, TrainingSession::MODE_HARD_REVIEW, TrainingSession::MODE_LESSON_REVIEW], true)) {
             throw new LogicException("Unknown training session mode '{$mode}'.");
         }
 
         if (($attributes['learner_id'] ?? null) === null) {
             throw new LogicException("A {$mode} session needs learner_id.");
+        }
+
+        if ($mode === TrainingSession::MODE_LESSON_REVIEW && ($attributes['lesson_id'] ?? null) === null) {
+            throw new LogicException('A lesson_review session needs lesson_id.');
         }
     }
 
@@ -447,6 +459,17 @@ final class TrainingSessionService
         if ($group->status !== 'active') {
             throw TrainingSessionException::groupInactive();
         }
+    }
+
+    /**
+     * The lesson may be opened by the learner as a personal session (the rule of `mode: lesson`): its course is available to them, or it
+     * is a live assignment of a group they are in. For the review of a lesson (LessonReviewService), which opens on the same terms.
+     *
+     * @throws TrainingSessionException lesson_not_available
+     */
+    public function assertLessonOpenable(Lesson $lesson, Learner $learner): void
+    {
+        $this->assertLessonAvailable($lesson, $learner);
     }
 
     /** @param  Learner|null  $learner  the owner of a personal session: the lessons of their own deck are available to them */
@@ -658,6 +681,22 @@ final class TrainingSessionService
      */
     private function summarise(TrainingSession $session, bool $wasOpen): SessionSummary
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // The review of a lesson writes no `training_reviews` (docs/06 §15): its numbers are its own state. No new word, no stage moved.
+            $state = LessonReviewState::of($session);
+
+            return new SessionSummary(
+                $session,
+                $state->answers(),
+                $state->correct(),
+                0,
+                $wasOpen,
+                reviewWon: $state->wonCount(),
+                reviewTotal: $state->total(),
+                reviewFirstTry: $state->firstTryCount(),
+            );
+        }
+
         $t = WordStage::thresholds();
         $startedAt = $session->started_at->format(DB::connection()->getQueryGrammar()->getDateFormat());
 

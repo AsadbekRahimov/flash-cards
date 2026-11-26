@@ -50,6 +50,27 @@ final readonly class RunLimits
         );
     }
 
+    /**
+     * The round of a day of a group cup (docs/33 §5.1, K5): exactly `$tasks` tasks made of words - no pairs, no authored tasks, no
+     * events, no flasks; the composer must build all of them or the day has no snapshot.
+     */
+    public static function forCup(int $tasks): self
+    {
+        return new self(
+            sizeMin: $tasks,
+            sizeMax: $tasks,
+            minElements: $tasks,
+            authoredMax: 0,
+            pairsRoundsMax: 0,
+            pairsPerRound: (int) config('game.run.pairs_per_round', 4),
+            flasks: 0,
+            eventsChance: 0.0,
+            withPairs: false,
+            withAuthored: false,
+            withEvents: false,
+        );
+    }
+
     /** The same limits with another chance of an event (the tests pin it to 0 or 1). */
     public function withEventsChance(float $chance): self
     {

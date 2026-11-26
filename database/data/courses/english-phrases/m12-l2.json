@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 12,
+    "title": "Здоровье и отдых",
+    "title_uz": "Salomatlik va dam olish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Отдых",
+    "title_uz": "Dam olish"
+  },
+  "words": [
+    {
+      "word": "put your feet up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "посидеть отдохнуть, вытянув ноги",
+        "uz": "oyoq uzatib dam olmoq"
+      },
+      "example": "You've worked hard all week. Sit down and put your feet up.",
+      "example_translations": {
+        "ru": "Ты всю неделю много работал. Садись и отдохни.",
+        "uz": "Butun hafta qattiq ishlading. O'tir, oyog'ingni uzatib dam ol."
+      },
+      "hooks": {
+        "ru": "Говорят, приглашая уставшего человека сесть и отдохнуть",
+        "uz": "Charchagan odamni o'tirib dam olishga taklif qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "feet",
+        "literal": {
+          "ru": "положить ноги повыше",
+          "uz": "oyoqlarni yuqoriga qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "chill out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "расслабиться, отдохнуть",
+        "uz": "maza qilib dam olmoq"
+      },
+      "example": "What are you doing this weekend? — Nothing much, just chilling out at home.",
+      "example_translations": {
+        "ru": "Что делаешь в выходные? — Да ничего особенного, просто отдыхаю дома.",
+        "uz": "Dam olish kunlari nima qilasan? — Hech narsa, uyda maza qilib dam olaman."
+      },
+      "hooks": {
+        "ru": "Дружески говорят об отдыхе без дел; Chill out! — ещё и «успокойся»",
+        "uz": "Hech ish qilmay dam olish haqida do'stona aytiladi; Chill out! — yana «tinchlan» degani"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chill",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take it easy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не напрягаться, поберечь себя",
+        "uz": "zo'riqmaslik, o'zini ehtiyot qilmoq"
+      },
+      "example": "The doctor told me to take it easy for a few days.",
+      "example_translations": {
+        "ru": "Врач сказал мне несколько дней не напрягаться.",
+        "uz": "Shifokor menga bir necha kun zo'riqmaslikni aytdi."
+      },
+      "hooks": {
+        "ru": "Советуют отдохнуть и не перегружать себя; друзьям так говорят и на прощание",
+        "uz": "Dam olib, o'zini ortiqcha yuklamaslikni maslahat berishadi; do'stlar xayrlashganda ham aytishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "easy",
+        "literal": {
+          "ru": "принимать это легко",
+          "uz": "buni yengil qabul qilmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "recharge your batteries",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "набраться сил",
+        "uz": "kuch to'plamoq"
+      },
+      "example": "I'm going to the mountains for a week to recharge my batteries.",
+      "example_translations": {
+        "ru": "Я еду в горы на неделю, чтобы набраться сил.",
+        "uz": "Kuch to'plash uchun bir haftaga tog'ga ketyapman."
+      },
+      "hooks": {
+        "ru": "Говорят об отдыхе, после которого снова есть силы и энергия",
+        "uz": "Keyin yana kuch va g'ayrat paydo bo'ladigan dam olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "batteries",
+        "literal": {
+          "ru": "перезарядить батарейки",
+          "uz": "batareyalarni qayta quvvatlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take a nap",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вздремнуть",
+        "uz": "biroz mizg'ib olmoq"
+      },
+      "example": "I'm so tired after lunch. I'm going to take a nap.",
+      "example_translations": {
+        "ru": "Я так устал после обеда. Пойду вздремну.",
+        "uz": "Tushlikdan keyin juda charchadim. Biroz mizg'ib olaman."
+      },
+      "hooks": {
+        "ru": "Говорят о коротком дневном сне, чтобы отдохнуть",
+        "uz": "Dam olish uchun kunduzi qisqa uxlab olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nap",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a change of scenery",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "смена обстановки",
+        "uz": "muhitni o'zgartirish"
+      },
+      "example": "Let's work in the park today. I need a change of scenery.",
+      "example_translations": {
+        "ru": "Давай сегодня поработаем в парке. Мне нужна смена обстановки.",
+        "uz": "Bugun parkda ishlaylik. Menga muhitni o'zgartirish kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда надоело одно и то же место и хочется побыть где-то ещё",
+        "uz": "Bir joy jonga tegib, boshqa joyda bo'lgisi kelganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "scenery",
+        "literal": {
+          "ru": "смена пейзажа",
+          "uz": "manzaraning o'zgarishi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get away from it all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сбежать от суеты",
+        "uz": "barcha tashvishlardan uzoqlashmoq"
+      },
+      "example": "We rented a small house by the lake to get away from it all.",
+      "example_translations": {
+        "ru": "Мы сняли домик у озера, чтобы сбежать от суеты.",
+        "uz": "Barcha tashvishlardan uzoqlashish uchun ko'l bo'yidan kichik uy ijaraga oldik."
+      },
+      "hooks": {
+        "ru": "Говорят о поездке подальше от работы, шума и повседневных забот",
+        "uz": "Ish, shovqin va kundalik tashvishlardan uzoqroqqa sayohat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "away",
+        "literal": {
+          "ru": "уйти от всего этого",
+          "uz": "bularning hammasidan uzoqlashmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "soak up the sun",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понежиться на солнце",
+        "uz": "quyoshda toblanmoq"
+      },
+      "example": "We spent the whole afternoon on the beach, soaking up the sun.",
+      "example_translations": {
+        "ru": "Мы весь день провели на пляже, нежась на солнце.",
+        "uz": "Tushdan keyin bo'yi sohilda quyoshda toblandik."
+      },
+      "hooks": {
+        "ru": "Говорят о приятном отдыхе под солнцем: на пляже, в саду, на улице",
+        "uz": "Sohilda, bog'da yoki ochiq havoda quyosh ostida maza qilib dam olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "soak",
+        "literal": {
+          "ru": "впитывать солнце",
+          "uz": "quyoshni shimib olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "me time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время для себя",
+        "uz": "o'zim uchun vaqt"
+      },
+      "example": "After a busy week, I really need some me time.",
+      "example_translations": {
+        "ru": "После тяжёлой недели мне очень нужно время для себя.",
+        "uz": "Og'ir haftadan keyin menga o'zim uchun vaqt juda kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о времени, которое проводят одни, отдыхая и занимаясь любимым делом",
+        "uz": "Yolg'iz, dam olib va sevimli ish bilan shug'ullanib o'tkaziladigan vaqt haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "time",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get some fresh air",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подышать свежим воздухом",
+        "uz": "toza havodan nafas olmoq"
+      },
+      "example": "Let's go for a walk and get some fresh air.",
+      "example_translations": {
+        "ru": "Пойдём прогуляемся, подышим свежим воздухом.",
+        "uz": "Yur, sayr qilib, toza havodan nafas olamiz."
+      },
+      "hooks": {
+        "ru": "Предлагают выйти на улицу после долгого сидения в помещении",
+        "uz": "Uzoq vaqt xonada o'tirgandan keyin tashqariga chiqishni taklif qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fresh",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

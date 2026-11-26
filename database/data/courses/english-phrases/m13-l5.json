@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 13,
+    "title": "Решения и проблемы",
+    "title_uz": "Qarorlar va muammolar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Легко и трудно",
+    "title_uz": "Oson va qiyin"
+  },
+  "words": [
+    {
+      "word": "a piece of cake",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проще простого",
+        "uz": "juda oson ish"
+      },
+      "example": "How was the test? — A piece of cake!",
+      "example_translations": {
+        "ru": "Как контрольная? — Проще простого!",
+        "uz": "Nazorat ishi qanday o'tdi? — Juda oson bo'ldi!"
+      },
+      "hooks": {
+        "ru": "Говорят о задаче, которая оказалась совсем лёгкой",
+        "uz": "Juda oson bo'lib chiqqan vazifa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cake",
+        "literal": {
+          "ru": "кусок торта",
+          "uz": "bir bo'lak tort"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Easier said than done",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "легко сказать",
+        "uz": "aytish oson, qilish qiyin"
+      },
+      "example": "Just stop worrying about it. — That's easier said than done.",
+      "example_translations": {
+        "ru": "Просто перестань об этом переживать. — Легко сказать.",
+        "uz": "Bu haqda qayg'urishni bas qil. — Aytish oson, qilish qiyin."
+      },
+      "hooks": {
+        "ru": "Отвечают на совет, который трудно выполнить на деле",
+        "uz": "Amalda bajarish qiyin bo'lgan maslahatga javoban aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "said",
+        "literal": {
+          "ru": "легче сказать, чем сделать",
+          "uz": "aytish qilishdan osonroq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "No sweat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "да запросто",
+        "uz": "hech gap emas"
+      },
+      "example": "Can you carry this box upstairs? — No sweat!",
+      "example_translations": {
+        "ru": "Можешь отнести эту коробку наверх? — Без проблем!",
+        "uz": "Bu qutini yuqoriga olib chiqa olasanmi? — Hech gap emas!"
+      },
+      "hooks": {
+        "ru": "Небрежно отвечают на просьбу: это нетрудно, сделаю легко",
+        "uz": "Iltimosga beparvo javob: bu qiyin emas, osongina qilaman"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sweat",
+        "literal": {
+          "ru": "никакого пота",
+          "uz": "ter yo'q"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "an uphill battle",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тяжёлая борьба",
+        "uz": "og'ir kurash"
+      },
+      "example": "Learning Chinese in six months will be an uphill battle.",
+      "example_translations": {
+        "ru": "Выучить китайский за полгода — это будет тяжёлая борьба.",
+        "uz": "Olti oyda xitoy tilini o'rganish og'ir kurash bo'ladi."
+      },
+      "hooks": {
+        "ru": "Говорят о долгом и трудном деле, где много препятствий",
+        "uz": "To'siqlari ko'p bo'lgan uzoq va qiyin ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "uphill",
+        "literal": {
+          "ru": "битва в гору",
+          "uz": "tepalikka qarab jang"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's harder than it looks",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это сложнее, чем кажется",
+        "uz": "bu ko'ringanidan qiyinroq"
+      },
+      "example": "Juggling three balls? It's harder than it looks!",
+      "example_translations": {
+        "ru": "Жонглировать тремя мячами? Это сложнее, чем кажется!",
+        "uz": "Uchta to'p bilan jonglyorlik qilishmi? Bu ko'ringanidan qiyinroq!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда задача только со стороны кажется простой",
+        "uz": "Vazifa faqat chetdan oson ko'ringanda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "looks",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a tall order",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "непростая задача",
+        "uz": "oson bo'lmagan vazifa"
+      },
+      "example": "Finishing the whole project by Monday is a tall order.",
+      "example_translations": {
+        "ru": "Закончить весь проект к понедельнику — непростая задача.",
+        "uz": "Butun loyihani dushanbagacha tugatish oson vazifa emas."
+      },
+      "hooks": {
+        "ru": "Говорят о просьбе или задаче, которую очень трудно выполнить",
+        "uz": "Bajarish juda qiyin bo'lgan iltimos yoki vazifa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tall",
+        "literal": {
+          "ru": "высокий заказ",
+          "uz": "baland buyurtma"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "There's nothing to it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тут нет ничего сложного",
+        "uz": "buning hech qiyin joyi yo'q"
+      },
+      "example": "Can you show me how to set up the printer? — Sure, there's nothing to it.",
+      "example_translations": {
+        "ru": "Покажешь, как настроить принтер? — Конечно, тут нет ничего сложного.",
+        "uz": "Printerni qanday sozlashni ko'rsatib bera olasanmi? — Albatta, buning hech qiyin joyi yo'q."
+      },
+      "hooks": {
+        "ru": "Говорят, показывая или объясняя, что дело совсем простое",
+        "uz": "Ish juda oddiy ekanini ko'rsatib yoki tushuntirib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "nothing",
+        "literal": {
+          "ru": "в этом ничего нет",
+          "uz": "unda hech narsa yo'q"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take the easy way out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти по лёгкому пути",
+        "uz": "oson yo'lni tanlamoq"
+      },
+      "example": "Don't take the easy way out and copy the answers. Do it yourself.",
+      "example_translations": {
+        "ru": "Не иди по лёгкому пути и не списывай ответы. Сделай сам.",
+        "uz": "Oson yo'lni tanlab, javoblarni ko'chirib olma. O'zing bajar."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о простом, но не лучшем или нечестном выходе из трудностей",
+        "uz": "Qiyinchilikdan oson, lekin eng to'g'ri bo'lmagan yoki nohalol yo'l bilan chiqish haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "easy",
+        "literal": {
+          "ru": "выбрать лёгкий выход",
+          "uz": "oson chiqish yo'lini olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "struggle with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с трудом справляться с",
+        "uz": "... bilan qiynalmoq"
+      },
+      "example": "Many students struggle with grammar at first.",
+      "example_translations": {
+        "ru": "Многим студентам сначала трудно даётся грамматика.",
+        "uz": "Ko'p talabalar avvaliga grammatika bilan qiynaladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что даётся с большим трудом",
+        "uz": "Katta qiyinchilik bilan beriladigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "struggle",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "go smoothly",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пройти гладко",
+        "uz": "ko'ngildagidek o'tmoq"
+      },
+      "example": "How was your first day at work? — Everything went smoothly.",
+      "example_translations": {
+        "ru": "Как прошёл первый день на работе? — Всё прошло гладко.",
+        "uz": "Ishdagi birinchi kuning qanday o'tdi? — Hammasi ko'ngildagidek o'tdi."
+      },
+      "hooks": {
+        "ru": "Говорят о деле, которое прошло без проблем и задержек",
+        "uz": "Muammo va kechikishlarsiz o'tgan ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "smoothly",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

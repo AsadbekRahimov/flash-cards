@@ -90,7 +90,7 @@ it('allows a pending Payme order with the right amount and adds the fiscal detai
         ->and($result['detail'])->toBe([
             'receipt_type' => 0,
             'items' => [[
-                'title' => 'LexiFlow Pro — 1 oy',
+                'title' => 'Muhrla Pro — 1 oy',
                 'price' => $order->amount,
                 'count' => 1,
                 'code' => '10899002001000000',

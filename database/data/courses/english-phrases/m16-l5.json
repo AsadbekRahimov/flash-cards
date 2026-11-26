@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 16,
+    "title": "Идиомы: тело",
+    "title_uz": "Iboralar: tana a'zolari"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Тело: разное",
+    "title_uz": "Tana: turli iboralar"
+  },
+  "words": [
+    {
+      "word": "Break a leg!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ни пуха ни пера!",
+        "uz": "omad yor bo'lsin!"
+      },
+      "example": "My first concert is tonight. — Break a leg! You'll be great.",
+      "example_translations": {
+        "ru": "Сегодня мой первый концерт. — Ни пуха ни пера! У тебя всё получится.",
+        "uz": "Bugun birinchi konsertim. — Omad yor bo'lsin! Zo'r chiqasan."
+      },
+      "hooks": {
+        "ru": "Желают удачи перед выступлением на сцене: концертом, спектаклем, речью",
+        "uz": "Sahnaga chiqishdan oldin — konsert, spektakl yoki nutqdan oldin omad tilab aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "leg",
+        "literal": {
+          "ru": "сломай ногу!",
+          "uz": "oyog'ingni sindir!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "keep your chin up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не вешай нос",
+        "uz": "ruhingni tushirma"
+      },
+      "example": "Keep your chin up — next year you'll get into the university.",
+      "example_translations": {
+        "ru": "Не вешай нос — в следующем году ты поступишь в университет.",
+        "uz": "Ruhingni tushirma — kelasi yili universitetga kirasan."
+      },
+      "hooks": {
+        "ru": "Подбадривают друга, который расстроен из-за неудачи",
+        "uz": "Muvaffaqiyatsizlikdan xafa bo'lgan do'stga dalda berib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chin",
+        "literal": {
+          "ru": "держи подбородок поднятым",
+          "uz": "iyagingni baland tut"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "stick your neck out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подставить себя под удар",
+        "uz": "o'zini xavf ostiga qo'ymoq"
+      },
+      "example": "Aziz stuck his neck out for me when I made a mistake at work.",
+      "example_translations": {
+        "ru": "Азиз подставил себя под удар, заступившись за меня, когда я ошибся на работе.",
+        "uz": "Ishda xato qilganimda Aziz o'zini xavf ostiga qo'yib, meni himoya qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто рискует своей репутацией, чтобы помочь или высказаться",
+        "uz": "Yordam berish yoki fikr aytish uchun obro'sini xavf ostiga qo'ygan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "neck",
+        "literal": {
+          "ru": "высунуть свою шею",
+          "uz": "bo'ynini cho'zmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "by the skin of your teeth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чудом, едва-едва",
+        "uz": "arang-arang"
+      },
+      "example": "We caught the last train by the skin of our teeth.",
+      "example_translations": {
+        "ru": "Мы чудом успели на последний поезд.",
+        "uz": "Oxirgi poyezdga arang-arang ulgurdik."
+      },
+      "hooks": {
+        "ru": "Говорят, когда едва успели, сдали или спаслись — почти не получилось",
+        "uz": "Zo'rg'a ulgurgan, o'tgan yoki qutulgan holat haqida aytiladi — sal bo'lmasa bo'lmasdi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "skin",
+        "literal": {
+          "ru": "кожей своих зубов",
+          "uz": "tishlaringning terisi bilan"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get something off your chest",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "снять камень с души",
+        "uz": "ko'nglidagini aytib, yengil tortmoq"
+      },
+      "example": "I need to get this off my chest: I broke your phone last week.",
+      "example_translations": {
+        "ru": "Мне нужно снять камень с души: на прошлой неделе я разбил твой телефон.",
+        "uz": "Ko'nglimdagini aytib qo'yay: o'tgan hafta telefoningni men sindirib qo'ydim."
+      },
+      "hooks": {
+        "ru": "Говорят перед признанием или разговором о том, что давно мучает",
+        "uz": "Uzoq vaqt qiynagan narsa haqida tan olish yoki gaplashishdan oldin aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chest",
+        "literal": {
+          "ru": "снять что-то со своей груди",
+          "uz": "nimanidir ko'kragidan olib tashlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a rule of thumb",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "простое практическое правило",
+        "uz": "amaliy qoida"
+      },
+      "example": "As a rule of thumb, drink a glass of water before every meal.",
+      "example_translations": {
+        "ru": "Есть простое правило: выпивайте стакан воды перед каждым приёмом пищи.",
+        "uz": "Oddiy bir qoida bor: har ovqatdan oldin bir stakan suv iching."
+      },
+      "hooks": {
+        "ru": "Говорят о простом правиле из опыта, которое обычно работает, хотя и не всегда точно",
+        "uz": "Tajribadan kelib chiqqan, odatda to'g'ri chiqadigan oddiy qoida haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "thumb",
+        "literal": {
+          "ru": "правило большого пальца",
+          "uz": "bosh barmoq qoidasi"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "behind someone's back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "за чьей-то спиной",
+        "uz": "birovning orqasidan"
+      },
+      "example": "Don't talk about Anna behind her back — it isn't fair.",
+      "example_translations": {
+        "ru": "Не обсуждай Анну за её спиной — это нечестно.",
+        "uz": "Annani orqasidan gapirma — bu insofdan emas."
+      },
+      "hooks": {
+        "ru": "Говорят о сплетнях или поступках тайком от человека; звучит как упрёк",
+        "uz": "Odamdan yashirincha qilingan g'iybat yoki ish haqida aytiladi; tanbeh ohangida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep someone on their toes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держать кого-то в тонусе",
+        "uz": "birovni hushyor qilib turmoq"
+      },
+      "example": "Our new coach keeps us on our toes with surprise tests.",
+      "example_translations": {
+        "ru": "Новый тренер держит нас в тонусе внезапными проверками.",
+        "uz": "Yangi murabbiyimiz kutilmagan sinovlar bilan bizni doim hushyor qilib turadi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что не даёт расслабиться и заставляет быть начеку",
+        "uz": "Bo'shashishga qo'ymaydigan, doim tayyor turishga majbur qiladigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "toes",
+        "literal": {
+          "ru": "держать кого-то на цыпочках",
+          "uz": "birovni oyoq uchida turg'izmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a shoulder to cry on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тот, кто выслушает и утешит",
+        "uz": "dardini tinglab, ko'nglini ko'taradigan odam"
+      },
+      "example": "When I lost my job, my sister was always a shoulder to cry on.",
+      "example_translations": {
+        "ru": "Когда я потерял работу, сестра всегда была рядом, чтобы выслушать и утешить.",
+        "uz": "Ishdan ayrilganimda, opam doim dardimni tinglab, ko'nglimni ko'tardi."
+      },
+      "hooks": {
+        "ru": "Говорят о близком человеке, который поддержит в трудную минуту",
+        "uz": "Qiyin damda qo'llab-quvvatlaydigan yaqin odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "shoulder",
+        "literal": {
+          "ru": "плечо, чтобы поплакать",
+          "uz": "yig'lash uchun yelka"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "give someone the cold shoulder",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "холодно обходиться с кем-то",
+        "uz": "birovga sovuq muomala qilmoq"
+      },
+      "example": "After our argument, Malika gave me the cold shoulder for a week.",
+      "example_translations": {
+        "ru": "После нашей ссоры Малика неделю держалась со мной холодно.",
+        "uz": "Janjalimizdan keyin Malika bir hafta menga sovuq muomala qildi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто нарочно игнорирует человека или отвечает ему холодно",
+        "uz": "Odamni ataylab e'tiborsiz qoldirgan yoki unga sovuq javob bergan kishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cold",
+        "literal": {
+          "ru": "дать кому-то холодное плечо",
+          "uz": "birovga sovuq yelka bermoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

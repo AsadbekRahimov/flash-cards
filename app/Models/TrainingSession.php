@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Learning\Services\LessonReviewService;
 use Carbon\CarbonInterface;
 use Database\Factories\TrainingSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $completed_at the server had no more cards for this personal session after its grades (docs/06 §13.2)
  * @property Carbon|null $expires_at
  * @property string|null $done_reason
- * @property array<string, mixed>|null $meta `{"hard_words": list<int>}` of a `hard_review` session (the set of the round); `{}` otherwise
+ * @property array<string, mixed>|null $meta `{"hard_words": list<int>}` of a `hard_review` session (the set of the round); the state of a `lesson_review` (LessonReviewService); `{}` otherwise
  */
 class TrainingSession extends Model
 {
@@ -42,6 +43,12 @@ class TrainingSession extends Model
 
     /** The round of hard words (docs/06 §14): a personal session over a fixed set of words, `meta.hard_words`. */
     public const MODE_HARD_REVIEW = 'hard_review';
+
+    /**
+     * The review of a lesson just studied (docs/04 A.3, docs/06 §15): a personal practice round over the words of `lesson_id` met
+     * today, fixed in `meta.lesson_words`; it never touches the schedule ({@see LessonReviewService}).
+     */
+    public const MODE_LESSON_REVIEW = 'lesson_review';
 
     /** `done_reason`: closed explicitly by the learner (`/finish`). */
     public const DONE_FINISHED = 'finished';

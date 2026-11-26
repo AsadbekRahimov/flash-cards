@@ -376,21 +376,83 @@ describe('TrainingView — header and states', () => {
     progress: { done: 7, total: 20 },
   })
 
-  it('has a 44 px ✕, a thin line of progress and the counter "7 / 20" in mono (docs/design Question)', async () => {
+  it('has a 44 px ✕, a line of progress for a long session and the counter «7 из 20» (docs/design/2026-11-25-redesign Question)', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 2, lesson: 4, title: null }))
     const { wrapper } = await render(1)
 
     const close = wrapper.get('[data-testid=close-btn]')
     expect(close.attributes('aria-label')).toBe('Закрыть')
-    expect(close.classes()).toContain('size-11')
+    expect(close.classes()).toEqual(expect.arrayContaining(['size-11', 'text-muted']))
     expect(close.findComponent(AppIcon).props('name')).toBe('x-mark')
     const counter = wrapper.get('[data-testid=progress]')
-    expect(counter.text()).toBe('7 / 20')
-    expect(counter.classes()).toEqual(expect.arrayContaining(['font-mono', 'text-muted']))
+    expect(counter.text()).toBe('7 из 20')
+    expect(counter.classes()).toEqual(expect.arrayContaining(['text-sm', 'font-semibold', 'text-muted', 'tabular-nums']))
+    // 20 cards are too many for segments at 320 px: the line, 6 px.
+    expect(wrapper.find('[data-testid=progress-segment]').exists()).toBe(false)
     const bar = wrapper.get('[data-testid=progress-bar]')
-    expect(bar.classes()).toEqual(expect.arrayContaining(['progress', 'h-[3px]']))
+    expect(bar.classes()).toEqual(expect.arrayContaining(['progress', 'h-1.5']))
     expect(bar.get('.progress-fill').classes()).toContain('progress-primary')
     expect(bar.get('.progress-fill').attributes('style')).toContain('width: 35%')
+  })
+
+  it('draws a short session as segments, one per card, the done ones filled (the mock-up: 3 of 8)', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({ ...withLesson({ stage: null, lesson: 3, title: 'Напитки' }), total_words: 8, progress: { done: 3, total: 8 } })
+    const { wrapper } = await render(1)
+
+    expect(wrapper.get('[data-testid=progress]').text()).toBe('3 из 8')
+    const bar = wrapper.get('[data-testid=progress-bar]')
+    expect(bar.attributes('aria-hidden')).toBe('true')
+    expect(bar.attributes('style')).toContain('repeat(8, minmax(0, 1fr))')
+    const segments = bar.findAll('[data-testid=progress-segment]')
+    expect(segments).toHaveLength(8)
+    expect(segments.map((s) => s.attributes('data-done') === 'true')).toEqual([true, true, true, false, false, false, false, false])
+    expect(segments[2]!.classes()).toEqual(expect.arrayContaining(['bg-primary', 'h-1.5', 'rounded-full']))
+    expect(segments[3]!.classes()).toContain('bg-track')
+    expect(bar.find('.progress').exists()).toBe(false)
+  })
+
+  it('writes the counter in Uzbek', async () => {
+    setLocale('uz')
+    vi.mocked(api.training.start).mockResolvedValue({ ...withLesson(null, 'daily_review'), total_words: 8, progress: { done: 3, total: 8 } })
+    const { wrapper } = await render(1)
+
+    expect(wrapper.get('[data-testid=progress]').text()).toBe('8 tadan 3 ta')
+  })
+
+  it('puts the lesson in a pill under the header (docs/design Question «Урок 3 · Напитки»)', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: null, lesson: 3, title: 'Напитки' }))
+    const { wrapper } = await render(1)
+
+    const pill = wrapper.get('[data-testid=lesson-header] span')
+    expect(pill.text()).toBe('Урок 3 · Напитки')
+    expect(pill.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent-ink', 'font-bold', 'truncate']))
+  })
+
+  it('names the review of a lesson in its own pill, with the lesson when the session has one', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: null, lesson: 3, title: 'Напитки' }, 'lesson_review'))
+    const { wrapper } = await render(1)
+
+    expect(wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Тренировка · Урок 3 · Напитки')
+    expect(wrapper.find('[data-testid=lesson-header]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=daily-header]').exists()).toBe(false)
+
+    vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'lesson_review'))
+    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Тренировка урока')
+
+    setLocale('uz')
+    vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 2, lesson: 4, title: 'Food' }, 'lesson_review'))
+    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Mashq · 2-modul · 4-dars · Food')
+  })
+
+  it('a group lesson is named as a lesson; a session with neither a lesson nor a known mode has no pill', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 1, lesson: 2, title: null }, 'group_lesson'))
+    expect((await render(1)).wrapper.get('[data-testid=lesson-header]').text()).toBe('Модуль 1 · Урок 2')
+
+    vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'group_lesson'))
+    const { wrapper } = await render(1)
+    for (const id of ['lesson-header', 'daily-header', 'lesson-review-header', 'hard-round-header']) {
+      expect(wrapper.find(`[data-testid=${id}]`).exists(), id).toBe(false)
+    }
   })
 
   it('is a white screen: the lesson stands on the card colour, not on the grey page', async () => {

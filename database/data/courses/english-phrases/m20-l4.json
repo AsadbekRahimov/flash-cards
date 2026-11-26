@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 20,
+    "title": "Мудрость и пословицы",
+    "title_uz": "Hikmatlar va maqollar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Осторожность",
+    "title_uz": "Ehtiyotkorlik"
+  },
+  "words": [
+    {
+      "word": "Look before you leap",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не зная броду, не суйся в воду",
+        "uz": "suvni ko'rmay etik yechma"
+      },
+      "example": "I want to quit my job and open a café tomorrow! — Look before you leap.",
+      "example_translations": {
+        "ru": "Хочу завтра уволиться и открыть кафе! — Не зная броду, не суйся в воду.",
+        "uz": "Ertaga ishdan ketib, kafe ochmoqchiman! — Suvni ko'rmay etik yechma."
+      },
+      "hooks": {
+        "ru": "Советуют хорошо подумать перед рискованным решением",
+        "uz": "Xavfli qarordan oldin yaxshilab o'ylashni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "leap",
+        "literal": {
+          "ru": "посмотри, прежде чем прыгнуть",
+          "uz": "sakrashdan oldin qara"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't count your chickens before they hatch",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "цыплят по осени считают",
+        "uz": "jo'jani kuzda sanaydilar"
+      },
+      "example": "I'm sure I'll win the competition! — Don't count your chickens before they hatch.",
+      "example_translations": {
+        "ru": "Я точно выиграю конкурс! — Цыплят по осени считают.",
+        "uz": "Tanlovda albatta yutaman! — Jo'jani kuzda sanaydilar."
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кто радуется успеху, которого ещё нет",
+        "uz": "Hali yo'q muvaffaqiyatdan oldindan quvonayotgan odamni ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "chickens",
+        "literal": {
+          "ru": "не считай цыплят, пока они не вылупились",
+          "uz": "jo'jalar chiqmasdan ularni sanama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Haste makes waste",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поспешишь — людей насмешишь",
+        "uz": "shoshilgan ish puxta bo'lmaydi"
+      },
+      "example": "Check your answers again before you hand in the test. Haste makes waste.",
+      "example_translations": {
+        "ru": "Проверь ответы ещё раз, прежде чем сдать тест. Поспешишь — людей насмешишь.",
+        "uz": "Testni topshirishdan oldin javoblaringni yana tekshir. Shoshilgan ish puxta bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Советуют не торопиться: спешка ведёт к ошибкам",
+        "uz": "Shoshilmaslikni maslahat berganda aytiladi: shoshqaloqlik xatoga olib keladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "haste",
+        "literal": {
+          "ru": "спешка порождает потери",
+          "uz": "shoshqaloqlik isrofga olib keladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Slow and steady wins the race",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тише едешь — дальше будешь",
+        "uz": "sekin yurgan manzilga yetadi"
+      },
+      "example": "I study ten new words every day. Slow and steady wins the race.",
+      "example_translations": {
+        "ru": "Я учу по десять новых слов каждый день. Тише едешь — дальше будешь.",
+        "uz": "Har kuni o'nta yangi so'z o'rganaman. Sekin yurgan manzilga yetadi."
+      },
+      "hooks": {
+        "ru": "Говорят, что упорная работа без спешки приводит к успеху",
+        "uz": "Shoshilmay, tinimsiz ishlash muvaffaqiyatga olib borishini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "steady",
+        "literal": {
+          "ru": "медленный и упорный выигрывает гонку",
+          "uz": "sekin va bir maromda yurgan poygada yutadi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Measure twice, cut once",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "семь раз отмерь, один раз отрежь",
+        "uz": "yetti o'lchab, bir kes"
+      },
+      "example": "Before you sign the contract, read it again. Measure twice, cut once.",
+      "example_translations": {
+        "ru": "Прежде чем подписать договор, прочитай его ещё раз. Семь раз отмерь, один раз отрежь.",
+        "uz": "Shartnomani imzolashdan oldin yana bir bor o'qib chiq. Yetti o'lchab, bir kes."
+      },
+      "hooks": {
+        "ru": "Советуют всё проверить перед важным действием, которое не исправить",
+        "uz": "Tuzatib bo'lmaydigan muhim ishdan oldin hammasini tekshirishni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "measure",
+        "literal": {
+          "ru": "отмерь дважды, отрежь один раз",
+          "uz": "ikki marta o'lcha, bir marta kes"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "Once bitten, twice shy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обжёгшись на молоке, дуют на воду",
+        "uz": "og'zi kuygan qatiqni ham puflab ichar"
+      },
+      "example": "After losing his wallet once, Aziz never leaves his bag open. Once bitten, twice shy.",
+      "example_translations": {
+        "ru": "Однажды потеряв кошелёк, Азиз никогда не оставляет сумку открытой. Обжёгшись на молоке, дуют на воду.",
+        "uz": "Bir marta hamyonini yo'qotgandan beri Aziz sumkasini hech qachon ochiq qoldirmaydi. Og'zi kuygan qatiqni ham puflab ichar."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто после неприятного опыта стал слишком осторожным",
+        "uz": "Noxush tajribadan keyin haddan tashqari ehtiyotkor bo'lib qolgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bitten",
+        "literal": {
+          "ru": "раз укушенный — вдвойне робкий",
+          "uz": "bir marta tishlangan ikki karra qo'rqoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Prevention is better than cure",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "болезнь легче предупредить, чем лечить",
+        "uz": "oldini olish davolashdan oson"
+      },
+      "example": "Wash your hands before every meal — prevention is better than cure.",
+      "example_translations": {
+        "ru": "Мойте руки перед каждой едой — болезнь легче предупредить, чем лечить.",
+        "uz": "Har ovqatdan oldin qo'lingizni yuving — oldini olish davolashdan oson."
+      },
+      "hooks": {
+        "ru": "Советуют заранее избегать проблемы, а не потом её исправлять; о здоровье и не только",
+        "uz": "Muammoni keyin tuzatish emas, oldindan oldini olishni maslahat berganda aytiladi; sog'liq va boshqa sohalarda"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cure",
+        "literal": {
+          "ru": "предотвращение лучше лечения",
+          "uz": "oldini olish davolashdan yaxshiroq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "If it ain't broke, don't fix it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работает — не трогай",
+        "uz": "yaxshi ishlab turgan narsaga tegma"
+      },
+      "example": "Why change the menu? Customers love it. If it ain't broke, don't fix it.",
+      "example_translations": {
+        "ru": "Зачем менять меню? Клиентам оно нравится. Работает — не трогай.",
+        "uz": "Menyuni nega o'zgartiramiz? Mijozlarga yoqadi. Yaxshi ishlab turgan narsaga tegma."
+      },
+      "hooks": {
+        "ru": "Советуют не менять то, что и так хорошо работает; ain't — нарочно разговорная форма",
+        "uz": "Yaxshi ishlab turgan narsani o'zgartirmaslikni maslahat beradi; ain't — ataylab so'zlashuv shakli"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fix",
+        "literal": {
+          "ru": "если не сломано, не чини",
+          "uz": "buzilmagan bo'lsa, tuzatma"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Think before you speak",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сначала подумай, потом говори",
+        "uz": "avval o'yla, keyin so'yla"
+      },
+      "example": "Don't say the first thing that comes into your head — think before you speak.",
+      "example_translations": {
+        "ru": "Не говори первое, что пришло в голову, — сначала подумай, потом говори.",
+        "uz": "Xayolingga kelgan birinchi gapni aytma — avval o'yla, keyin so'yla."
+      },
+      "hooks": {
+        "ru": "Советуют обдумывать слова, чтобы никого не обидеть и не пожалеть",
+        "uz": "Hech kimni xafa qilmaslik va keyin afsuslanmaslik uchun so'zni o'ylab aytishni maslahat beradi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "speak",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "The walls have ears",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "и у стен есть уши",
+        "uz": "devorning ham qulog'i bor"
+      },
+      "example": "Let's not talk about the surprise here — the walls have ears.",
+      "example_translations": {
+        "ru": "Давай не будем говорить о сюрпризе здесь — и у стен есть уши.",
+        "uz": "Kutilmagan sovg'a haqida bu yerda gaplashmaylik — devorning ham qulog'i bor."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что разговор могут подслушать",
+        "uz": "Suhbatni kimdir eshitib qolishi mumkinligidan ogohlantirganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "walls",
+        "cefr": "B2",
+        "frequency": 3
+      }
+    }
+  ]
+}

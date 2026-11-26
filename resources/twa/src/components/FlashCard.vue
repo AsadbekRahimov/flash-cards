@@ -3,9 +3,11 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
 import ExampleAudioButton from '@/components/ExampleAudioButton.vue'
+import PhraseLabels from '@/components/PhraseLabels.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAutoSpeak } from '@/composables/useAutoSpeak'
+import { phraseHeadingClass } from '@/composables/phraseText'
 import { useSayAloudHint } from '@/composables/useSayAloudHint'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
@@ -31,6 +33,9 @@ import { useI18n } from '@/i18n'
  *
  * The word is read aloud by itself (unless the learner switched "auto-speak" off): when a new word opens, and at the reveal of a
  * review card — never before it, the word is what is being recalled. The translation of the example comes with the example.
+ *
+ * A phrase card (`card.phrase`, docs/35 §3.3 d): the phrase takes a size by its length and wraps by words, its labels (register, UK / US,
+ * kind) are under it, and «Буквально: …» comes with the translation.
  */
 /**
  * The answer is acknowledged on the spot (docs/14 §6.2): the pressed grade is lit while the answer is on its way, and the
@@ -60,6 +65,7 @@ const isNew = computed(() => props.card.card_kind === 'new')
 /** A new word shows its translation at once. */
 const revealed = computed(() => props.showTranslation || isNew.value)
 const isLeech = computed(() => props.card.is_leech === true)
+const phrase = computed(() => props.card.phrase ?? null)
 /** The hooks: with the translation, or before it for a hard word. */
 const hooksOpen = computed(() => revealed.value || isLeech.value)
 
@@ -135,29 +141,40 @@ function onGrade(q: Quality): void {
 <template>
   <div class="flex flex-1 flex-col" data-testid="flashcard">
     <!-- One family with the other exercises (docs/design Question): the word large on the white screen, no box around it. -->
-    <article class="flex flex-col items-center px-5 pt-10 pb-4 text-center short:pt-4">
+    <article class="flex flex-col items-center px-5 pt-[30px] pb-4 text-center short:pt-4">
       <span class="flex flex-wrap items-center justify-center gap-1.5">
         <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
         <span v-if="isLeech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
       </span>
 
       <h2
-        class="mt-4 max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:mt-2 short:text-[36px] short:leading-[42px]"
+        v-if="phrase"
+        class="mt-4 max-w-full font-extrabold text-balance break-words short:mt-2"
+        :class="phraseHeadingClass(card.word)"
         lang="en"
         data-testid="word"
       >
         {{ card.word }}
       </h2>
-      <div class="mt-1.5 flex items-center gap-1">
-        <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+      <h2
+        v-else
+        class="mt-4 max-w-full text-[52px] leading-[58px] font-extrabold tracking-[-1px] break-words short:mt-2 short:text-[40px] short:leading-[46px]"
+        lang="en"
+        data-testid="word"
+      >
+        {{ card.word }}
+      </h2>
+      <PhraseLabels v-if="phrase" :phrase="phrase" class="mt-2" />
+      <div class="mt-2 flex items-center gap-2.5">
+        <span v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</span>
         <button
           type="button"
-          class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
+          class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent active:bg-fill"
           :aria-label="t('card.speak')"
           data-testid="speak-btn"
           @click="onSpeak"
         >
-          <AppIcon name="speaker-wave" :size="20" />
+          <AppIcon name="speaker-wave" :size="22" />
         </button>
       </div>
       <p v-if="sayAloud" class="text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
@@ -165,16 +182,20 @@ function onGrade(q: Quality): void {
       <template v-if="revealed">
         <hr class="mt-5 w-full border-divider short:mt-3" />
         <div class="w-full pt-5 short:pt-3">
-          <p class="text-2xl leading-[30px] font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
+          <p class="text-2xl leading-[30px] font-bold break-words" data-testid="translation">{{ card.translation }}</p>
           <p v-if="card.translation_fallback" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="translation-fallback">
             {{ t('card.translation_fallback') }}
           </p>
+          <p v-if="phrase?.literal" class="mt-1.5 text-[15px] leading-5 break-words" data-testid="phrase-literal">
+            <span class="text-muted">{{ t('phrase.literal') }}:</span>
+            {{ phrase.literal }}
+          </p>
           <!-- The speaker of the example (docs/26 §9.11) on its first line; the sentence wraps beside it. -->
-          <div v-if="card.example" class="mt-3 flex items-start justify-center gap-1">
-            <p class="min-w-0 text-base leading-[22px] break-words italic" lang="en" data-testid="example">
+          <div v-if="card.example" class="mt-3 flex items-start justify-center gap-2.5">
+            <p class="min-w-0 text-[17px] leading-[23px] break-words italic" lang="en" data-testid="example">
               {{ card.example }}
             </p>
-            <ExampleAudioButton v-if="card.example_audio_url" :url="card.example_audio_url" class="-mt-[11px]" />
+            <ExampleAudioButton v-if="card.example_audio_url" :url="card.example_audio_url" class="-mt-2.5" />
           </div>
           <p v-if="card.example && card.example_translation" class="mt-1 text-sm leading-5 text-muted" data-testid="example-translation">
             {{ card.example_translation }}

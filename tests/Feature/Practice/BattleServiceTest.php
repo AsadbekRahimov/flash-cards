@@ -1066,10 +1066,10 @@ it('lists the battles of a learner: the one they are busy with, the invitations 
     $mine = BattleKit::invite($me, $withFourth, PracticeMode::Sentence, $course, $lesson);   // not to the third: that would cross his invitation to me
 
     $list = BattleKit::reader()->list($me, CarbonImmutable::now());
-    expect($list->active)->toBe(['id' => $mine->id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger', 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'opponent' => ['first_name' => 'Madina']])
-        ->and($list->incoming)->toBe([['id' => $incoming->id, 'mode' => 'pairs', 'from' => ['first_name' => 'Aziz'], 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'rematch' => false]])
+    expect($list->active)->toBe(['id' => $mine->id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger', 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'opponent' => ['first_name' => 'Madina', 'pro_emoji' => null]])
+        ->and($list->incoming)->toBe([['id' => $incoming->id, 'mode' => 'pairs', 'from' => ['first_name' => 'Aziz', 'pro_emoji' => null], 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'rematch' => false]])
         ->and($list->finished)->toHaveCount(10)
-        ->and($list->finished[0])->toMatchArray(['mode' => 'collocation', 'opponent' => ['first_name' => 'Dilnoza'], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T09:11:00.000Z'])
+        ->and($list->finished[0])->toMatchArray(['mode' => 'collocation', 'opponent' => ['first_name' => 'Dilnoza', 'pro_emoji' => null], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T09:11:00.000Z'])
         ->and($list->finished[1]['outcome'])->toBe('lost')
         ->and(array_column($list->finished, 'finished_at'))->toBe(array_map(fn (int $i): string => sprintf('2026-10-30T09:%02d:00.000Z', $i), range(11, 2)));
 
@@ -1090,7 +1090,7 @@ it('tells the options of a battle with a friend: every format with its state for
     config(['practice.modes.dictation' => false]);
 
     $options = BattleKit::reader()->options($me, $friendship->id, $course->slug, $lesson->id);
-    expect($options->friend)->toBe(['first_name' => 'Dilnoza'])
+    expect($options->friend)->toBe(['first_name' => 'Dilnoza', 'pro_emoji' => null])
         ->and($options->course)->toBe(['slug' => $course->slug, 'title' => 'Английский A1'])
         ->and($options->lesson)->toBe(['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'])
         ->and($options->friendAccess)->toBe('available')
@@ -1126,8 +1126,8 @@ it('shows the battle to each side in their language with the numbers the client 
         ->and($mine->course)->toBe(['slug' => $course->slug, 'title' => 'Английский A1'])
         ->and($theirs->course)->toBe(['slug' => $course->slug, 'title' => 'Ingliz tili A1'])
         ->and($mine->lesson)->toBe(['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'])
-        ->and($mine->opponent)->toBe(['first_name' => 'Dilnoza'])
-        ->and($theirs->opponent)->toBe(['first_name' => 'Bek'])
+        ->and($mine->opponent)->toBe(['first_name' => 'Dilnoza', 'pro_emoji' => null])
+        ->and($theirs->opponent)->toBe(['first_name' => 'Bek', 'pro_emoji' => null])
         ->and($theirs->role)->toBe('opponent')
         ->and([$mine->roundsTotal, $mine->roundSeconds, $mine->countdownSeconds, $mine->revealSeconds, $mine->presenceGraceSeconds, $mine->deadlineGraceMs])->toBe([5, 45, 3, 4, 30, 1500])
         ->and($mine->inviteExpiresAt->toDateTimeString())->toBe('2026-10-30 10:05:00')

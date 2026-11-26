@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PlayerName from '@/components/PlayerName.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -15,11 +16,13 @@ import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { BASE_CAMEL_ASSET } from '@/assets/game'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
+import { prefersReducedMotion } from '@/composables/motion'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { useShare } from '@/composables/useShare'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleStore } from '@/stores/battle'
@@ -43,13 +46,20 @@ import type { BattleIncoming, BattleStatus, ChallengeItem, ChallengeMetric, Chal
  * Free has a few battles a day (docs/18 §3): under the list of friends a quiet line says how many are left ("Battles today: 1 of 1
  * left"; Pro sees nothing). With none left "Battle" opens the paywall of the limit instead of a setup that would end in it - once `/me`
  * has been read again and still says none. "Accept" is never limited.
+ *
+ * The buttons of the bot lead here (docs/36 §3а, docs/05 §3): `?challenge=<id>` scrolls to the card of that challenge and highlights it
+ * ("Open the challenge"); `?friend=<friendship_id>` opens the picker of a new challenge to that friend ("New challenge", "Rematch",
+ * "Challenge") - or, when the two have a challenge open already, shows that one the same way. An id that is not in this learner's own
+ * lists (`GET /friends`, `GET /challenges`) does nothing: the screen opens as always.
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
 const battles = useBattleStore()
 const billing = useBillingStore()
 const router = useRouter()
-const { shareUrl, haptic } = useTelegram()
+const route = useRoute()
+const { haptic } = useTelegram()
+const { pending: sharing, share: shareThroughBot } = useShare()
 const { copy } = useCopyToClipboard()
 const { t, tn, locale } = useI18n()
 
@@ -242,10 +252,11 @@ function myShare(c: ChallengeItem): number | null {
   return total <= 0 ? 50 : Math.round((c.my_score / total) * 100)
 }
 
-function share(): void {
-  if (!friends.value?.invite_link) return
+/** "Let's be friends" through the bot with the button "Add as a friend" (`useShare`, docs/36 §1в); else the share dialog with the f_ link. */
+async function share(): Promise<void> {
+  if (!friends.value?.invite_link || sharing.value) return
   haptic('light')
-  shareUrl(friends.value.invite_link, t('friends.invite.share_text'))
+  await shareThroughBot('friend_invite', null, { link: friends.value.invite_link, text: t('friends.invite.share_text') })
 }
 
 async function copyLink(): Promise<void> {
@@ -263,6 +274,52 @@ async function propose(friendshipId: number, metric: ChallengeMetric): Promise<v
   if (await store.propose(friendshipId, metric)) picking.value = null
 }
 
+/** A positive whole number out of a query value (`?challenge=15`); anything else is "none". */
+function queryId(value: unknown): number | null {
+  const text = Array.isArray(value) ? value[0] : value
+  return typeof text === 'string' && /^[1-9]\d*$/.test(text) ? Number(text) : null
+}
+
+/** The challenge card the address points at (`?challenge=`, or the open challenge of `?friend=`): highlighted. */
+const highlighted = ref<number | null>(null)
+const root = ref<HTMLElement | null>(null)
+/** The address is followed once per visit: a retry or a later reload of the lists does not jump again. */
+let followed = false
+
+async function scrollTo(selector: string): Promise<void> {
+  await nextTick()
+  root.value?.querySelector(selector)?.scrollIntoView?.({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+}
+
+/** `?challenge=` / `?friend=` of a button of the bot, against the learner's own lists; anything unknown is ignored. */
+function followAddress(): void {
+  if (followed || friends.value === null || challenges.value === null) return
+  followed = true
+
+  const all = [...openChallenges.value, ...finishedChallenges.value]
+  const challengeId = queryId(route.query.challenge)
+  if (challengeId !== null && all.some((c) => c.id === challengeId)) {
+    highlighted.value = challengeId
+    void scrollTo(`[data-challenge-id="${challengeId}"]`)
+    return
+  }
+
+  const friendshipId = queryId(route.query.friend)
+  if (friendshipId === null || !friends.value.friends.some((f) => f.id === friendshipId)) return
+
+  const open = openChallenges.value.find((c) => c.friendship_id === friendshipId)
+  if (open) {
+    // One open challenge per pair: a new one would be refused, so the one that is there is shown.
+    highlighted.value = open.id
+    void scrollTo(`[data-challenge-id="${open.id}"]`)
+    return
+  }
+
+  removing.value = null
+  picking.value = friendshipId
+  void scrollTo(`[data-friend-id="${friendshipId}"]`)
+}
+
 async function load(): Promise<void> {
   failed.value = ''
   try {
@@ -272,6 +329,7 @@ async function load(): Promise<void> {
     return
   }
   await Promise.all([store.load(), billing.load()])
+  followAddress()
 }
 
 function retry(): void {
@@ -285,8 +343,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="page" data-testid="friends-view">
-    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mt-3.5" />
+  <div ref="root" class="page" data-testid="friends-view">
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mt-3.5" />
     <PageHeader :title="t('friends.title')" large />
 
     <LoadingState v-if="!friends && !message" />
@@ -347,8 +405,21 @@ onMounted(() => {
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
           <div class="field mt-4 font-mono text-[13px] leading-[18px] break-all select-all" data-testid="link">{{ friends.invite_link }}</div>
           <div class="mt-3 space-y-2">
-            <button type="button" class="btn btn-primary btn-block" data-testid="share-btn" @click="share">
-              {{ t('friends.invite.share') }}
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              :disabled="sharing"
+              :aria-busy="sharing ? 'true' : undefined"
+              data-testid="share-btn"
+              @click="share"
+            >
+              <span
+                v-if="sharing"
+                class="size-5 shrink-0 animate-spin rounded-full border-2 border-on-primary/40 border-t-on-primary motion-reduce:animate-none"
+                aria-hidden="true"
+                data-testid="share-busy"
+              />
+              <span>{{ t('friends.invite.share') }}</span>
             </button>
             <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
               {{ t('friends.copy') }}
@@ -416,11 +487,11 @@ onMounted(() => {
         <div class="list">
           <EmptyState v-if="friends.friends.length === 0" icon="users" :text="t('friends.list.empty')" data-testid="friends-empty" />
 
-          <div v-for="friend in friends.friends" :key="friend.id" class="list-row flex-wrap gap-y-3" data-testid="friend-row">
+          <div v-for="friend in friends.friends" :key="friend.id" class="list-row flex-wrap gap-y-3" :data-friend-id="friend.id" data-testid="friend-row">
             <InitialAvatar :name="personName(friend)" />
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <span class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</span>
+                <PlayerName :name="personName(friend)" :emoji="friend.pro_emoji" class="text-base leading-[22px] font-medium" data-testid="friend-name" />
                 <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
                 <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
               </div>
@@ -514,7 +585,15 @@ onMounted(() => {
             <EmptyState icon="bolt" :text="t('friends.challenge.empty')" data-testid="challenges-empty" />
           </div>
           <div v-else class="list" data-testid="open-challenges">
-            <div v-for="c in openChallenges" :key="c.id" class="list-row flex-wrap gap-y-2" data-testid="challenge-row">
+            <div
+              v-for="c in openChallenges"
+              :key="c.id"
+              class="list-row flex-wrap gap-y-2"
+              :class="highlighted === c.id ? 'bg-accent-soft' : ''"
+              :data-challenge-id="c.id"
+              :data-highlighted="highlighted === c.id ? 'true' : undefined"
+              data-testid="challenge-row"
+            >
               <div class="min-w-0 flex-1">
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
                 <div class="truncate text-[13px] leading-[18px] text-muted">
@@ -559,7 +638,15 @@ onMounted(() => {
         <template v-if="finishedChallenges.length > 0">
           <h2 class="section-label">{{ t('friends.challenge.finished_title') }}</h2>
           <div class="list" data-testid="finished-challenges">
-            <div v-for="c in finishedChallenges" :key="c.id" class="list-row" data-testid="finished-row">
+            <div
+              v-for="c in finishedChallenges"
+              :key="c.id"
+              class="list-row"
+              :class="highlighted === c.id ? 'bg-accent-soft' : ''"
+              :data-challenge-id="c.id"
+              :data-highlighted="highlighted === c.id ? 'true' : undefined"
+              data-testid="finished-row"
+            >
               <div class="min-w-0 flex-1">
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
                 <div class="mt-0.5 flex items-center gap-2">

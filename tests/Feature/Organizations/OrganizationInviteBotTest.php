@@ -7,6 +7,7 @@ use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Course;
@@ -19,6 +20,7 @@ use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
@@ -68,10 +70,11 @@ function orgbTap(int $tgId, string $data, int $messageId = 100, string $chatType
     ]]);
 }
 
-/** Runs the three onboarding steps (the default: no goal and no time zone step) from the first one to `done` (Russian). */
+/** Runs the four onboarding steps (the default: no goal and no time zone step) from the first one to `done` (Russian). */
 function orgbOnboard(int $tgId): void
 {
     orgbTap($tgId, 'onb1:locale:ru', 1);
+    orgbTap($tgId, 'onb1:region:none', 2);
     orgbTap($tgId, 'onb1:level:A1', 2);
     orgbTap($tgId, 'onb1:reminder:1900', 3);
 }
@@ -135,7 +138,7 @@ it('remembers the link, finishes the onboarding, asks to join and seats the lear
     // The DM comes from the OrganizationMemberJoined listener: Pro is on, with a button into the app.
     $dm = end($this->tg->sent);
     expect($dm['text'])->toBe('Вы в центре «Bright Center». Pro активен — занимайтесь без ограничений.')
-        ->and($dm['button'])->toBe('Открыть LexiFlow')
+        ->and($dm['button'])->toBe('Открыть Muhrla')
         ->and($dm['url'])->toBe('https://twa.test/twa/?from=organization')
         ->and($dm['chat_id'])->toBe(8001);
 
@@ -164,7 +167,7 @@ it('writes the confirmation in the learner\'s language', function (): void {
     orgbOnboarded(8003, 'uz');
 
     orgbSend(8003, '/start org_'.$invite->code);
-    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?");
+    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni Muhrla'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?");
 
     orgbTap(8003, 'org1:join:'.$invite->code);
     expect(end($this->tg->sent)['text'])->toBe("Siz «Bright Center» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning.");
@@ -191,7 +194,7 @@ it('keeps showing "Today" for a learner who has finished the onboarding and has 
     orgbSend(8005, '/start');
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow');
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla');
 });
 
 // --- idempotency --------------------------------------------------------------
@@ -287,7 +290,7 @@ it('explains a code that cannot be used and runs the ordinary onboarding', funct
     $learner = orgbLearner(8010);
     expect($this->tg->sent)->toHaveCount(2)
         ->and($this->tg->sent[0]['text'])->toBe($expected)
-        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 3\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
+        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 4\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
         ->and($this->tg->sent[1]['text'])->not->toContain('Вас пригласил')
         ->and($learner->onboarding_state)->toBe('locale')
         ->and($learner->meta)->not->toHaveKey('pending_org_invite');
@@ -381,7 +384,7 @@ it('tells a waiting member, and only an invite or admin one, when a seat is free
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(8020)
         ->and($this->tg->sent[0]['text'])->toBe('В центре «Bright Center» освободилось место для вас. Pro активен!')
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow');
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla');
 });
 
 it('says nothing about a join through a group', function (): void {
@@ -432,6 +435,24 @@ it('marks the DM as closed when Telegram answers 403 and does not fail the join'
 
     expect(OrganizationMember::query()->sole()->seat_state)->toBe('seated')
         ->and($learner->refresh()->dm_blocked_at)->not->toBeNull();
+});
+
+it('lets a 429 out of the message (the middleware defers the job) and the retry delivers it exactly once', function (): void {
+    Queue::fake();
+    $org = orgbCenter();
+    $learner = Learner::factory()->create(['telegram_user_id' => 8028]);
+    $member = app(OrganizationMembershipService::class)->joinByAdmin($learner, $org, User::factory()->create());
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 6;
+
+    expect(fn () => app(OrganizationMessenger::class)->notifyJoined($member->id))->toThrow(TelegramRateLimitedException::class);
+    expect($this->tg->sent)->toBe([]);
+
+    app(OrganizationMessenger::class)->notifyJoined($member->id);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['chat_id'])->toBe(8028)
+        ->and($learner->refresh()->dm_blocked_at)->toBeNull();
 });
 
 it('does not promise a seat the member has already lost', function (): void {

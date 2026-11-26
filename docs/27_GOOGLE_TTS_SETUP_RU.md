@@ -1,6 +1,10 @@
 # Настройка озвучки: Google Cloud TTS и Cloudflare R2
 
+> **Основной сервис озвучки теперь Deepgram (решение владельца 25.11.2026):** инструкция — [37_DEEPGRAM_TTS_SETUP_RU.md](37_DEEPGRAM_TTS_SETUP_RU.md). Google Cloud TTS (часть A, переменные `GOOGLE_TTS_*`, `TTS_MONTHLY_CHAR_LIMIT`) остаётся рабочей **альтернативой** (`TTS_DRIVER=google`). Части B (R2), C2 (диск и адрес файлов), C3 (воркер) и справочник команд C6 действуют и для Deepgram.
+
 > **Будет изменено.** Владелец решил (25.11.2026): озвучка отдаётся с основного домена — `https://основной-домен/audio/…`, без отдельного `audio.ваш-домен`. План — [31_COMPETITION_PLAN_RU.md](31_COMPETITION_PLAN_RU.md) §5д. До выполнения задач U0–U4 инструкция ниже описывает текущее поведение.
+
+> **Уже сделано (U2, диск `public`):** файлы на вашем сервере открываются по адресу `https://основной-домен/audio/<хеш>.mp3` (переменная `TTS_PUBLIC_DISK_AUDIO_URL` в C2). Старый адрес `/storage/audio/<хеш>.mp3` продолжает работать. Раздача файлов R2 с основного домена — ещё не сделана.
 
 Пошаговое руководство для владельца. Как устроен код — `docs/26_AUDIO_TTS_PLAN_RU.md`. Имена переменных и команд ниже сверены с кодом (`config/twa.php`, `config/filesystems.php`, `.env.example`, `docker-compose.prod.yml`, `docker-compose.coolify.yml`, команды `audio:*`).
 
@@ -99,7 +103,7 @@ curl -s -X POST "https://texttospeech.googleapis.com/v1/text:synthesize" \
 
 ## Часть B. Cloudflare R2
 
-Сайт должен быть подключён к Cloudflare (`docs/23_CLOUDFLARE_RU.md`). R2 не обязателен: без него файлы лежат и раздаются с вашего сервера (`TTS_AUDIO_DISK=public`, по умолчанию). R2 разгружает сервер и даёт кэш Cloudflare.
+Сайт должен быть подключён к Cloudflare (`docs/23_CLOUDFLARE_RU.md`). R2 не обязателен: без него файлы лежат и раздаются с вашего сервера по адресу `https://ваш-домен/audio/<хеш>.mp3` (`TTS_AUDIO_DISK=public`, по умолчанию). R2 разгружает сервер и даёт кэш Cloudflare.
 
 ### B1. Бакет
 
@@ -181,12 +185,13 @@ sudo install -m 0440 -o root -g 1000 lexiflow-tts-XXXX.json /etc/lexiflow/google
 
 | Переменная | По умолчанию | Что значит |
 |---|---|---|
-| `TTS_DRIVER` | пусто | `google` — Google Cloud TTS; `http` — старый edge-tts-совместимый сервис `TTS_SERVICE_URL` (для локальной разработки); `null` — озвучки нет. **Пусто = `http`, если задан `TTS_SERVICE_URL`, иначе `null`.** Опечатка (не `google`/`http`/`null`) сайт не ломает: синтез не работает, `/health/ready` показывает `"tts": "degraded"`, `audio:sample` и `audio:reconcile` пишут об этом |
+| `TTS_DRIVER` | пусто | `deepgram` — Deepgram Aura-2, основной (docs/37); `google` — Google Cloud TTS; `http` — старый edge-tts-совместимый сервис `TTS_SERVICE_URL` (для локальной разработки); `null` — озвучки нет. **Пусто = `http`, если задан `TTS_SERVICE_URL`, иначе `null`.** Опечатка (не `deepgram`/`google`/`http`/`null`) сайт не ломает: синтез не работает, `/health/ready` показывает `"tts": "degraded"`, `audio:sample` и `audio:reconcile` пишут об этом |
 | `TTS_SERVICE_URL` | `http://tts:8000` в `.env.example` | только для `http` |
 | `TTS_SERVICE_TIMEOUT` | `8` | только для `http`, секунд |
 | `TTS_VOICE` | `en-US-AriaNeural` | голос; для `google` — обязательно голос Google (A5) |
 | `TTS_AUDIO_VERSION` | `1` | входит в имя файла; поднять = переозвучить всё (C9) |
-| `TTS_AUDIO_DISK` | `public` | где лежат файлы слов: `public` — этот сервер (`/storage/audio/`), `audio` — R2 |
+| `TTS_AUDIO_DISK` | `public` | где лежат файлы слов: `public` — этот сервер (адрес `/audio/<хеш>.mp3` основного домена), `audio` — R2 |
+| `TTS_PUBLIC_DISK_AUDIO_URL` | `APP_URL` | только для `public`: начало адреса файла, адрес = это значение + `/audio/<хеш>.mp3`. Файл отдаёт nginx (`location /audio/`); старый адрес `/storage/audio/` nginx тоже отдаёт. `${APP_URL}/storage` (или пустая строка) возвращает старые адреса. Без nginx (`php artisan serve`) — `php artisan storage:link` |
 | `GOOGLE_TTS_CREDENTIALS` | пусто | путь к файлу ключа **внутри контейнера**: в Docker всегда `/run/secrets/google-tts.json`. Пусто — `tts_service_not_configured` |
 | `GOOGLE_TTS_KEY_FILE` | пусто | только Docker: путь к файлу ключа **на хосте** (C1) |
 | `GOOGLE_TTS_TIMEOUT` | `20` | секунд ждать ответа Google (соединение — 5 с, не настраивается) |
@@ -234,7 +239,7 @@ AUDIO_PUBLIC_URL=https://audio.ваш-домен
 1. **Выкатить код с выключенной озвучкой.** В `.env` явно `TTS_DRIVER=null`. Внимание: пустой `TTS_DRIVER` при заданном `TTS_SERVICE_URL` (в `.env.example` он задан: `http://tts:8000`) означает драйвер `http`, а контейнера `tts` в продакшене нет — задания будут падать с `tts_service_failed`. С `null` новые слова и ночная сверка заданий не ставят.
 2. **Настроить Google и R2** по частям A и B, положить ключ (C1).
 3. **Задать переменные R2** (`AUDIO_*`, включая `AUDIO_PUBLIC_URL`) и **пересоздать nginx** (C2).
-4. **Если на сервере уже есть файлы озвучки** (`TTS_AUDIO_DISK=public`, папка `/storage/audio/` не пуста) — перенести их в R2, пока сайт ещё раздаёт их с сервера:
+4. **Если на сервере уже есть файлы озвучки** (`TTS_AUDIO_DISK=public`, папка `storage/app/public/audio/` не пуста — адреса `/audio/…`, раньше `/storage/audio/…`) — перенести их в R2, пока сайт ещё раздаёт их с сервера:
 
    ```bash
    php artisan audio:migrate-disk --to=audio --dry-run   # только посчитать
@@ -296,7 +301,7 @@ curl -sI https://audio.ваш-домен/audio/<имя-файла>.mp3 | grep -i
 
 | Команда | Что делает | Что печатает |
 |---|---|---|
-| `audio:sample [--voice=] [--dir=] [--clear-halt]` | Сразу (без очереди) озвучивает контрольный набор ≈ 30 слов и фраз (короткие слова, омографы, сокращения, числа, даты, фразы, два диктанта) текущим драйвером в `storage/app/audio-samples/<голос>/` (`--dir` — другая папка). Символы считаются в месячный предел. `--clear-halt` сначала снимает маркер остановки (C8) | `Voice …, driver …, into …`; предупреждения о неизвестном `TTS_DRIVER`, не-гугловском голосе, маркере остановки; таблицу «текст → файл → размер» (вместо файла — код ошибки); итог `Voiced N of M` (код выхода 1, если что-то не вышло; после окончательной ошибки останавливается: `Stopped after a final error: …`) |
+| `audio:sample [--voice=] [--voices=a,b,c] [--dir=] [--clear-halt]` | Сразу (без очереди) озвучивает контрольный набор ≈ 30 слов и фраз (короткие слова, омографы, сокращения, числа, даты, фразы, два диктанта) текущим драйвером в `storage/app/audio-samples/<голос>/` (`--dir` — другая папка; `--voices` — до 10 голосов за запуск, каждый в свою папку, docs/37 шаг 5). Символы считаются в месячный предел. `--clear-halt` сначала снимает маркер остановки (C8) | `Voice …, driver …, into …`; предупреждения о неизвестном `TTS_DRIVER`, не-гугловском голосе, маркере остановки; таблицу «текст → файл → размер» (вместо файла — код ошибки); итог `Voiced N of M` (код выхода 1, если что-то не вышло; после окончательной ошибки останавливается: `Stopped after a final error: …`) |
 | `audio:pregenerate <slug>` / `audio:pregenerate --all` `[--only=words\|examples]` `[--force]` | Ставит в очередь `tts` задания для активных слов курса (или всех курсов, кроме своих колод учеников) и их основных примеров, у которых нет актуального файла (файл проверяется на диске). По умолчанию — слова и примеры; `--only=words` — только слова, `--only=examples` — только примеры. Нужен ровно один из `<slug>` и `--all`. `--force` — пересоздать и готовые (один вызов Google на уникальный текст за весь прогон — и между словами и примерами) | `--all`: по строке на курс `<slug>: queued N, already up to date M` (слова) и `<slug> examples: queued N, already up to date M` (примеры); итог `Queued: N, already up to date: M` (слова) и `Examples queued: N, already up to date: M` (примеры); с `--only` — только строки своего вида |
 | `audio:reconcile [--limit=]` | Ночная сверка (её же запускает расписание): сначала слова курсов, у которых путь не совпадает с текущим текстом, затем основные примеры, у которых путь не совпадает с текущим примером; `--limit` (по умолчанию 2000) — **общий** на слова и примеры за раз. Диск не опрашивается | `Queued: N` и строку `Words: W, examples: E` или причину, почему ничего не поставлено (C8) |
 | `audio:coverage <slug> [--verify] [--min=] [--limit=20]` | Отчёт по курсу: активные слова и слова с озвучкой, по модулям и всего. `--verify` проверяет сами файлы (на R2 — по HEAD-запросу на файл) и перечисляет битые (`missing` / `empty` / `stale`). `--min=95` — код выхода 1 ниже 95 % | таблицу по модулям; с `--verify` — `No broken audio files.` или список и подсказку `audio:pregenerate <slug>`; итог `<slug>: N of M active words voiced (X%)`; затем строка `Examples: N of M voiced (X%), by the DB.` (с `--verify` — `…, files checked.`): M — активные слова с примером, который озвучивается (не пустой и не длиннее 5 000 байт). Примеры в `--min` **не** входят — порог только по словам |
@@ -358,7 +363,7 @@ php artisan audio:sample --clear-halt
 | Строка | Причина |
 |---|---|
 | `TTS is not configured (TTS_DRIVER=null): nothing queued.` | озвучка выключена |
-| `TTS_DRIVER is none of google, http or null: nothing queued.` | опечатка в `TTS_DRIVER` |
+| `TTS_DRIVER is none of deepgram, google, http or null: nothing queued.` | опечатка в `TTS_DRIVER` |
 | `Google refused the sign-in … nothing queued.` | висит маркер остановки |
 | `TTS_DRIVER=google, but GOOGLE_TTS_CREDENTIALS is empty: nothing queued.` | не задан путь к ключу |
 | `… the key file of GOOGLE_TTS_CREDENTIALS is missing, unreadable or not a service-account key …` | ключ не читается (C1) |

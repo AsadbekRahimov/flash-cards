@@ -229,12 +229,12 @@ it('answers in the sender\'s Telegram language', function (): void {
     expect(talLastText($this->tg))->toStartWith('✅ Telegram Nodira K. akkauntiga ulandi.');
 });
 
-it('names the account without a center as "LexiFlow", and masks short and odd e-mails without revealing them', function (): void {
+it('names the account without a center as "Muhrla", and masks short and odd e-mails without revealing them', function (): void {
     OrganizationUser::query()->delete();
     $link = $this->service->issueLink($this->staff);
 
     talStart(777008, 'link_'.$link->code);
-    expect(talLastText($this->tg))->toStartWith('Подключить этот Telegram к кабинету центра LexiFlow?');
+    expect(talLastText($this->tg))->toStartWith('Подключить этот Telegram к кабинету центра Muhrla?');
 
     expect(AccountLinkCallbackHandler::maskEmail('a@b.co'))->toBe('a***@b***.co')
         ->and(AccountLinkCallbackHandler::maskEmail('nodira.k@mail.example.org'))->toBe('n***@m***.org')

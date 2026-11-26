@@ -10,8 +10,9 @@ import AppIcon from './AppIcon.vue'
 import type { IconName } from './icons'
 
 /**
- * One row of a `ListGroup` (docs/design Main / Practice): an optional quiet icon or a custom leading element, a title (15 px
- * semibold) with an optional subtitle (13 px, secondary colour), a value (13 px, secondary colour) and a chevron on the right.
+ * One row of a `ListGroup` (docs/design/2026-11-25-redesign Profile / Practice): an optional bare icon or a custom leading element,
+ * a title (16 px bold) with an optional subtitle (13 px, secondary colour), a value (15 px, secondary colour) and a chevron on the
+ * right.
  *
  * Root element (decided by the props and the parent's listeners):
  * - `to` — a `RouterLink`, with the chevron unless `chevron` is `false`;
@@ -81,15 +82,15 @@ function onClick(event: MouseEvent): void {
     @click="onClick"
   >
     <slot name="leading">
-      <span v-if="icon" class="icon-tile" :class="`tile-${tile ?? 'gray'}`"><AppIcon :name="icon" :size="18" /></span>
+      <span v-if="icon" class="icon-tile" :class="`tile-${tile ?? 'gray'}`"><AppIcon :name="icon" :size="24" /></span>
     </slot>
     <span class="min-w-0 flex-1">
-      <span class="block text-[15px] leading-5 font-semibold" :class="{ 'text-danger': danger }">{{ title }}</span>
+      <span class="block text-base leading-[22px] font-bold" :class="{ 'text-danger': danger }">{{ title }}</span>
       <span v-if="subtitle" class="mt-0.5 block text-[13px] leading-[18px] text-muted">{{ subtitle }}</span>
     </span>
     <slot name="trailing">
-      <span v-if="value" class="shrink-0 text-[13px] leading-[18px] text-muted">{{ value }}</span>
+      <span v-if="value" class="shrink-0 text-[15px] leading-5 text-muted">{{ value }}</span>
     </slot>
-    <AppIcon v-if="showChevron" name="chevron-right" :size="16" class="text-muted" />
+    <AppIcon v-if="showChevron" name="chevron-right" :size="20" class="shrink-0 text-body" />
   </component>
 </template>

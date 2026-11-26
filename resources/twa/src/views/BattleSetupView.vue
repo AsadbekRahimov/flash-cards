@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import PlayerName from '@/components/PlayerName.vue'
 import BattleFormatCard from '@/components/battle/BattleFormatCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -181,7 +182,7 @@ const blockedKey = computed(() => {
       <section class="card flex items-center gap-3" data-testid="friend-card">
         <InitialAvatar :name="shownName" />
         <span class="min-w-0 flex-1">
-          <span class="block truncate text-[15px] leading-5 font-semibold" data-testid="friend-name">{{ shownName }}</span>
+          <PlayerName :name="shownName" :emoji="setup.friendEmoji" class="text-[15px] leading-5 font-semibold" data-testid="friend-name" />
           <span class="block text-[13px] leading-[18px] text-muted">{{ t('battle.setup.friend') }}</span>
         </span>
         <AppIcon v-if="options && !noAccess" name="check-circle" :size="22" class="text-success" />

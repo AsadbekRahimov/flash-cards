@@ -42,9 +42,17 @@ final class LeagueMonthException extends RuntimeException
 
     public const REASON_INVALID = 'reason_invalid';
 
+    public const TIE_BEYOND_RESERVE = 'tie_beyond_reserve';
+
     public function __construct(public readonly string $errorCode, string $message)
     {
         parent::__construct($message);
+    }
+
+    /** A shared prize place of a v2 category gives more winners than `places + tie_reserve` (docs/32 §7): the administrator decides. */
+    public static function tieBeyondReserve(string $category, int $winners, int $allowed): self
+    {
+        return new self(self::TIE_BEYOND_RESERVE, "A shared prize place in {$category} gives {$winners} winners, the reserve allows {$allowed}: disqualify, or confirm accepting the overflow.");
     }
 
     public static function reasonInvalid(int $maxLength): self

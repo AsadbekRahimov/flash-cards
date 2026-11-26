@@ -29,9 +29,29 @@ return [
      * meanwhile keeps the pending marker and gets one if the trial is switched on again before their next contact.
      */
     'trial' => [
-        'days' => (int) env('BILLING_TRIAL_DAYS', 7),
+        'days' => (int) env('BILLING_TRIAL_DAYS', 14),
         // Key of the HMAC in the `pro_trials` book; empty = `app.key`. Set once and never change it.
         'hash_key' => env('BILLING_TRIAL_HASH_KEY'),
+        // Days before its end the trial is reminded (docs/34 §2б.4, owner's decision docs/31 §5г: only 3, no "tomorrow"); the paid
+        // subscriptions keep `checkout.renewal_reminder_days`. Empty = no reminder for the trial.
+        'remind_days' => [3],
+    ],
+
+    /**
+     * The offers after the welcome trial (docs/34 §2д, TrialOfferSender, `billing:trial-offers` hourly): one bot message on the day the
+     * trial ended and N days after it. `after_days` from BILLING_TRIAL_OFFERS_AFTER_DAYS ("0,3,10"; empty = off). Sent only between
+     * `window_from_hour` and `window_to_hour` of the learner's clock ([11:00, 19:00)), step 0 not earlier than `min_delay_minutes` after
+     * the end, and a step older than `max_age_hours` is dropped, not sent late.
+     */
+    'trial_offers' => [
+        'after_days' => array_values(array_filter(
+            array_map('trim', explode(',', (string) env('BILLING_TRIAL_OFFERS_AFTER_DAYS', '0,3,10'))),
+            static fn (string $day): bool => $day !== '',
+        )),
+        'window_from_hour' => 11,
+        'window_to_hour' => 19,
+        'min_delay_minutes' => 60,
+        'max_age_hours' => 24,
     ],
 
     /**
@@ -47,16 +67,18 @@ return [
      * a learner's effective plan is the highest-ranked one among Free, their own
      * live subscription and the live subscription of a sponsoring organization.
      * `limits.new_words_per_day`: null = unlimited.
+     * `limits.daily_goal_max` (docs/34 §2б.1): the largest daily goal (graded cards a day) the plan allows; null = no limit. Must be one
+     * of `learners.daily_goal_options`, and `learners.default_daily_goal` must not exceed the Free one (DailyGoalConfigTest).
      */
     'plans' => [
         'free' => [
             'rank' => 0,
-            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)],
+            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10), 'daily_goal_max' => (int) env('BILLING_FREE_DAILY_GOAL_MAX', 10)],
             'features' => ['courses.public', 'training.daily', 'training.lesson'],
         ],
         'pro' => [
             'rank' => 1,
-            'limits' => ['new_words_per_day' => null],
+            'limits' => ['new_words_per_day' => null, 'daily_goal_max' => null],
             // `practice.unlimited`: no daily limit of practice sessions and battle calls (docs/18 §3; the Free limits are `practice.free_limits`).
             // `game.*` (docs/18 §12.7): `unlimited_runs` - no limit of map runs, no tickets; `all_bosses` - the bosses of every city and the purchase
             // of `exclusive` / `seasonal` cosmetics; `boosters_plus` - the weekly limit of boosters of `game.pro_limits`.

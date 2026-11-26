@@ -60,6 +60,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ExamResultView.vue'),
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
+  // The "Course" tab (docs/14 §6.5): looks up the learner's course and replaces itself with its screen (the catalog without one).
+  {
+    path: '/course',
+    name: 'my-course',
+    component: () => import('@/views/MyCourseView.vue'),
+    meta: { tab: 'courses' },
+  },
   {
     path: '/courses',
     name: 'courses',
@@ -100,8 +107,15 @@ const routes: RouteRecordRaw[] = [
     name: 'practice-hub',
     component: () => import('@/views/PracticeHubView.vue'),
     meta: { tab: 'courses' },
-    // `?from=finished`: the learner came from the finish screen of a training session, so the sessions it opens are "after training".
-    props: (route) => ({ slug: String(route.params.slug), lessonId: queryId(route.query.lesson), from: route.query.from === 'finished' ? 'finished' : null }),
+    // `?from=finished`: the learner came from the finish screen of a training session, so the sessions it opens are "after training";
+    // `?from=plan` (the plan of "Today") and `?from=lesson_nudge` (the bot's reminder after a lesson): "Back" then leads to "Today".
+    // `?play=pairs_timed` (with `?lesson=`): open the game on the words of the lesson at once (step 3 of the day plan); any other value is ignored.
+    props: (route) => ({
+      slug: String(route.params.slug),
+      lessonId: queryId(route.query.lesson),
+      from: route.query.from === 'finished' || route.query.from === 'plan' || route.query.from === 'lesson_nudge' ? route.query.from : null,
+      play: route.query.play === 'pairs_timed' ? 'pairs_timed' : null,
+    }),
   },
   {
     path: '/practice/sessions/:id(\\d+)',
@@ -227,6 +241,12 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'rating' },
   },
   {
+    path: '/league/all-time',
+    name: 'league-all-time',
+    component: () => import('@/views/AllTimeRatingView.vue'),
+    meta: { tab: 'rating' },
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),
@@ -237,6 +257,80 @@ const routes: RouteRecordRaw[] = [
     name: 'friends',
     component: () => import('@/views/FriendsView.vue'),
     meta: { tab: 'rating' },
+  },
+  // The friends' cup of a Telegram group (docs/33 §7.1, docs/05 §5d). The bot's buttons lead to `/cups/c/:code` (`TwaScreen::CupInvite`),
+  // `/cups/c/:code/play` (`CupPlay`) and `/cups/setup/:code` (`CupSetup`); the code is a hint which cup to open, the server decides access.
+  {
+    path: '/cups',
+    name: 'cups',
+    component: () => import('@/views/CupsView.vue'),
+    meta: { tab: 'rating' },
+  },
+  {
+    path: '/cups/c/:code',
+    name: 'cup-invite',
+    component: () => import('@/views/CupInviteView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code), play: false, rules: route.query.view === 'rules' }),
+  },
+  {
+    path: '/cups/c/:code/play',
+    name: 'cup-play',
+    component: () => import('@/views/CupInviteView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code), play: true, rules: false }),
+  },
+  {
+    path: '/cups/setup/:code',
+    name: 'cup-setup',
+    component: () => import('@/views/CupSetupView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code) }),
+  },
+  {
+    path: '/cups/:id(\\d+)',
+    name: 'cup',
+    component: () => import('@/views/CupView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    // The round of the day: immersive, no tab.
+    path: '/cups/:id(\\d+)/round',
+    name: 'cup-round',
+    component: () => import('@/views/CupRoundView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  // The duels of a cup (docs/33 §7.1, docs/04 A.23d): the list, a new challenge, one duel (the waiting screen of the challenger), and the
+  // link of a public challenge in the chat (`TwaScreen::CupDuel`): the code is a hint which cup to open, the duel id one which duel - a
+  // duel id that is not a number is a missing duel (the screen says so), never the landing.
+  {
+    path: '/cups/:id(\\d+)/duels',
+    name: 'cup-duels',
+    component: () => import('@/views/CupDuelsView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    path: '/cups/:id(\\d+)/duel',
+    name: 'cup-duel-new',
+    component: () => import('@/views/CupDuelNewView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    path: '/cups/:id(\\d+)/duels/:duelId(\\d+)',
+    name: 'cup-duel',
+    component: () => import('@/views/CupDuelView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id), duelId: Number(route.params.duelId), code: null }),
+  },
+  {
+    path: '/cups/c/:code/duels/:duel',
+    name: 'cup-duel-link',
+    component: () => import('@/views/CupDuelView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: null, duelId: queryId(route.params.duel), code: String(route.params.code) }),
   },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },

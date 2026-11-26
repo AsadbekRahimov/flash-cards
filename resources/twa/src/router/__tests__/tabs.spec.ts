@@ -4,7 +4,7 @@ import router from '../index'
 /** The screens that belong to a tab of the bottom navigation (docs/14 §5.1). */
 const TABS = {
   today: ['today'],
-  courses: ['courses', 'course', 'decks', 'deck', 'practice-hub'],
+  courses: ['my-course', 'courses', 'course', 'decks', 'deck', 'practice-hub'],
   rating: ['league', 'league-month', 'friends', 'battle-new'],
   profile: ['profile', 'achievements', 'referrals', 'billing', 'settings'],
 } as const
@@ -31,6 +31,13 @@ describe('router: meta.tab', () => {
 
     expect(profile?.path).toBe('/profile')
     expect(typeof profile?.components?.default).toBe('function')
+  })
+
+  it('has /course for the "Course" tab (the learner course, docs/14 §6.5), lazy-loaded', () => {
+    const tab = record('my-course')
+
+    expect(tab?.path).toBe('/course')
+    expect(typeof tab?.components?.default).toBe('function')
   })
 
   it('resolves the tab of an inner route from its location', () => {

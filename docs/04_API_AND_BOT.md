@@ -94,17 +94,19 @@
     "options": {
       "locales": [{ "id": "ru", "label": "🇷🇺 Русский" }, { "id": "uz", "label": "🇺🇿 O'zbekcha" }],
       "reminder_times": ["08:00", "13:00", "19:00", "21:00"],
-      "daily_goals": [10, 20, 40]
+      "daily_goals": [10, 20, 40],
+      "daily_goal_max": null
     }
   },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
-                "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
+                "limits": { "sessions": { "limit": 3, "used": 1, "remaining": 2, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } },
   "game": { "available": true, "pro_promise": "full", "coins": 35, "tickets": 2,
             "limits": { "runs": { "limit": 1, "used": 1, "remaining": 0, "resets_at": "2026-10-30T19:00:00.000Z" }, "tickets": { "balance": 2, "max": 10 },
                         "boosters": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-11-01T19:00:00.000Z" }, "boss_stages": 1 } }
 }
 ```
 
+- `settings.options.daily_goal_max` (25.11.2026, docs/34 §2б.3) — наибольшая цель дня, которую разрешает тариф (`Entitlement::$dailyGoalMax`): у Free `10`, у Pro (личного, пробного, от центра) — `null` (без лимита). Список `daily_goals` остаётся полным; значения больше `daily_goal_max` Mini App показывает с замком и по нажатию открывает пейвол с причиной `daily_goal`. Если цель ученика больше лимита (Pro только что кончился), `GET /me`, `GET /today` и старт дневного раунда сами снижают её (`DailyGoalLimiter::enforce`, docs/06 §4.2), а при возвращении Pro возвращают прежнюю.
 - `groups` — группы, где learner состоит **сейчас** (активное членство в активной группе); пустой массив, если групп нет.
 - `words_learned` — слова с хотя бы одним успешным повторением (`repetitions >= 1`).
 - `words_due_today` — то же правило, что у напоминаний (`DueRepetitionCriteria`, docs/06 §6): карточки в
@@ -151,9 +153,9 @@
   "goal": { "target": 20, "done": 8, "met": false },
   "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
   "active_course": {
-    "id": 3, "slug": "english-a1", "title": "English A1",
+    "id": 3, "slug": "english-a1", "title": "English A1", "section": "courses",
     "progress": { "learned": 120, "total": 900 },
-    "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food" },
+    "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food", "words_left": 5 },
     "readiness": {
       "level_label": "B1", "percent": 31,
       "words": { "total": 1000, "learned": 310, "mastered": 120, "in_progress": 120, "not_started": 570 },
@@ -167,7 +169,13 @@
   "game": { "available": true, "daily_available": true, "active_run": null, "class_caravan": null },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" },
   "hard_round": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null },
-  "assignments_possible": false
+  "assignments_possible": false,
+  "plan": {
+    "step": 2, "done": false,
+    "lesson": { "done": true, "lesson_id": 40, "next_lesson_id": 41, "words_left": 5 },
+    "training": { "lesson_id": 40, "course": "english-a1", "title": "Напитки", "words": 5, "done": false, "open_session_id": null },
+    "game": { "lesson_id": 40, "course": "english-a1", "mode": "pairs_timed", "played": false }
+  }
 }
 ```
 
@@ -191,6 +199,20 @@
   `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: кандидаты (по индексу `word_repetitions_hard_idx`) — `count(*)` в общем операторе скаляров экрана (`docs/19` §5.2 K10), не свой оператор; «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
   Бюджет всего `GET /today` после K10: у Free с курсом 5 операторов при закрытой игре, 6 при `GAME_ACCESS=all`; таблица — `docs/19` §5.2.
 - `assignments_possible` **(с 19.11.2026, аудит 18.11.2026 «Рабочая спецификация первого входа»)** — может ли `GET /assignments` (A.9) вернуть хоть что-то: `false` — **точно нет**, `true` — «возможно». Условие — у ученика есть активное членство (`group_members.status = active`) в группе, привязанной к центру (`telegram_groups.organization_id IS NOT NULL`), **при любом статусе группы и центра**. Это надмножество выборки `AssignmentService::forLearner` (активное членство + группа всё ещё привязана к центру задания + центр активен + задание активно; статус группы список не проверяет — задание видно и после удаления бота из чата), поэтому `false` никогда не прячет задание; `true` при приостановленном центре или без активных заданий — норма. Значение — из снимка «Сегодня» (`twa:today:v2`, docs/19 K10): на тёплом запросе **ни одного оператора**, на холодном — ещё один подзапрос `select 1 … limit 1` в общем операторе скаляров (число операторов прежнее). Версию снимка поднимает каждая запись, которая может превратить «нет» в «да»: вступление (`GroupMembershipService::join` — сообщение о входе, `chat_member`), привязка группы к центру (`TelegramGroupObserver`), а также выход/удаление/бан, отвязка, смена статуса и удаление группы. TWA при `false` не запрашивает `/assignments` и не держит экран загрузки; при `true` и при отсутствии поля (старый сервер) — прежний путь (docs/05, «Сегодня»).
+
+- `active_course.section` **(с 26.11.2026, docs/35 §3.3 a)** — раздел каталога курса, как `section` в `GET /courses`: `phrases` (курс фраз, `exam_tag = phrases`) или `courses` (всё остальное); экран «Сегодня» открывает экраны фраз. Считается из строки курса, уже прочитанной (кэш строки курса), операторов не добавляет.
+- `active_course.next_lesson.words_left` **(с 25.11.2026)** — сколько активных слов этого урока ученику ещё ни разу не показывалось («5 новых слов» на карточке урока); квота Free дня может выдать меньше (`new_words_remaining`). Считается из того же запроса прогресса по урокам, операторов не добавляет.
+- `plan` **(с 25.11.2026, docs/31 §5б, макет `docs/design/2026-11-25-redesign`)** — план дня «урок → тренировка → игра» (`Learners\Services\DayPlanService`, DTO `DayPlan`). «Сегодня» — **локальный день** ученика (`LearnerClock::dayBoundsUtc`, тот же, что у `goal` и `streak`; граница — местная полночь). Ключ есть всегда.
+  - **Урок дня** — урок последней личной сессии `lesson`, пройденной **до конца** сегодня (`completed_at` в локальном дне: сервер ответил `card: null`, в том числе на исчерпании квоты Free), в которой ученик **встретил новые слова сегодня** (строки `word_repetitions` урока созданы сегодня и уже оценены). Брошенный посреди урок («Завершить» раньше) — не пройден. Повторно пройденный старый урок без новых слов — не урок дня.
+  - `step` — что делать сейчас: `1` — урок (урока дня нет, есть `next_lesson`), `2` — закрепление урока дня (`lesson_review`, A.3), `3` — игра на его словах; `null` — предложить нечего (цепочка выполнена, или урока дня нет и курс пройден / курса нет). `done` — цепочка дня выполнена.
+  - `lesson` — `done` (урок дня есть), `lesson_id` (урок дня или `null`), `next_lesson_id` / `words_left` — то же, что `active_course.next_lesson.id` / `.words_left` (`null` без следующего урока).
+  - `training` — `null`, пока урока дня нет или при `LEARNING_LESSON_REVIEW_ENABLED=false`; иначе `{lesson_id, course, title, words, done, open_session_id}`: `course` — slug курса урока дня (не обязательно активного: задание центра, курс сменён после урока; `null` — только если урока уже нет); `title` — название урока на языке ученика, если урок из активного курса (иначе `null` — клиент пишет «Урок»); `words` — сколько слов спросит закрепление (встреченные сегодня, не больше 20); `done` — закрепление этого урока сегодня пройдено до конца; `open_session_id` — живое незаконченное закрепление этого урока («Продолжить»). Кнопка — `POST /training/sessions {"mode": "lesson_review", "lesson_id", "source": "plan"}`.
+  - `game` — `null`, пока урока дня нет или игра ученику недоступна (практика закрыта, за Pro или `pairs_timed` выключен); иначе `{lesson_id, course, mode: "pairs_timed", played}`: `course` — тот же slug курса урока, что у `training` (хаб практики открывается в нём: `/practice/{course}?lesson=…`, а не в активном курсе); `played` — сегодня была практика (любой режим) на этом уроке хотя бы с одним ответом. Кнопка — `POST /practice/sessions {"mode": "pairs_timed", "course", "lesson_id", "source": "deeplink"}` (A.16: короткий урок добирается выученными словами курса). Лимит Free практики (3 в день) действует: открытие может дать 403 `practice_limit_reached`.
+  - **Стоимость — 0 операторов:** сессии дня (уроки, пройденные сегодня, и закрепления, начатые сегодня) читаются в том же операторе, что `open_session_id` и раунды трудных слов; слова урока дня и «играл ли» — три подзапроса в общем операторе скаляров (`plan_words`, `plan_game`, `plan_course` — slug курса урока по первичным ключам); `title` и `next_lesson` — из уже прочитанного блока курса. Бюджет `TwaTodayMeQueryBudgetTest` прежний; закреплено `DayPlanTest`.
+  - Бот (напоминание после урока, §5б G1): `DayPlanService::forLearner($learner)->offersGame()` — урок дня есть, игра доступна и сегодня не сыграна (2–3 оператора).
+- `score_today` **(с 26.11.2026, docs/32 §8.2, S12)** — «Сегодня N из 100» очков за слова: **ключа нет** при `LEAGUES_SCORING_MODE=off`/`shadow` и пока оба зачёта рейтингового дня на v1 (`live` до `starts_on`). Иначе
+  `{points, cap, category, new: [использовано, лимит], review: [использовано, лимит], remaining, day_ends_at, month}`: недельный зачёт рейтингового дня (день — по Ташкенту, не локальный день ученика), `cap` — потолок категории (Free 100, Pro 150), `remaining = cap − points` (не меньше 0), `day_ends_at` — полночь рейтингового дня по зоне лиг (ISO-8601 UTC: «рейтинговый день закончится в 22:00»), `month` — месячный зачёт той же формы без `day_ends_at`, **только** если он отличается от недельного (другая категория или сумма), иначе `null`. Нет начислений сегодня — нули с категорией, уже зафиксированной первым начислением недели / месяца (`learner_score_periods`), иначе категорией текущего тарифа.
+  **Стоимость — 0 операторов:** строка `learner_score_days` (unique `(learner_id, rating_day)`, одной строкой-конкатенацией), периоды ученика (PK `learner_score_periods`) и версии строк недели и месяца (unique `starts_on`) — пять подзапросов в общем операторе скаляров (`ScoreTodayService::addScalars`); вне `live` подзапросов нет. `TwaTodayMeQueryBudgetTest` прежний; равенство числа операторов в `off` и `live` закреплено `LeagueApiV2Test`.
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -217,11 +239,21 @@
 | `interface_locale` | `ru` \| `uz` |
 | ~~`timezone`~~ | **убрано 2026-11-16 (решение владельца):** правила нет, поле игнорируется — `FormRequest::validated()` отдаёт только поля с правилом, поэтому старый закешированный клиент, приславший `timezone`, получает `200` (остальные поля сохраняются), а пояс не меняется |
 | `reminder_time` | `HH:MM`, минуты кратны 15 (`00/15/30/45`); `null` — выключить напоминания |
-| `daily_goal` | целое (не строка) из `config('learners.daily_goal_options')`: 10 / 20 / 40 |
+| `daily_goal` | целое (не строка) из `config('learners.daily_goal_options')`: 10 / 20 / 40. Значение не из списка — `422`. Значение больше лимита тарифа (`settings.options.daily_goal_max`, у Free 10) — **`403 daily_goal_pro_required`** `{"error": {"code": "daily_goal_pro_required", "message": "…", "details": {"max": 10}}}`, ничего из запроса не применяется (формат — как у `practice_limit_reached`; Mini App открывает пейвол `daily_goal`). Любой принятый `daily_goal` (даже равный текущему) стирает запомненную до снижения цель (`learners.daily_goal_before_limit`): ручной выбор важнее автоматики, при покупке Pro цель не вернётся |
 | `goal`, `level` | как в онбординге: цель — одна из **включённых** (`config('learners.goals')`, env `LEARNERS_GOALS`, по умолчанию только `general`; выключенная цель → 422, сохранённая у learner'а не меняется), `A1`..`B2` |
 | `exercises` | объект `{meaning, reverse, audio, spelling, gap_fill}` со строгими булевыми (2D.2, docs/13 §8.2; `meaning` — docs/06 §12.1); **частичный** — меняются только переданные ключи; другие ключи / не-булевы → 422. Хранится в `learners.meta.exercises`; flash выключить нельзя. В ответе `settings.exercises` — всегда все пять ключей (по умолчанию `true`). Выключенный тип селектор не выдаёт; `spelling`/`gap_fill` у Free и так не выдаются (Pro-features) — настройка хранится и действует после покупки |
 
+| `region_code` *(25.11.2026, docs/35 R4)* | код из `config/regions.php` (`UZ-TK` … `UZ-XO`, `other`) или `null` («не указывать»). Правила — `LearnerRegionService`: первый выбор — сразу; другой регион — не раньше чем через 30 дней после прошлого выбора, иначе **`422 region_change_too_soon`** `{"details": {"available_at": "<ISO-8601 UTC>"}}` и ничего из запроса не применяется; сброс в `null` — всегда, но не обнуляет срок (следующий выбор после сброса ждёт те же 30 дней). Событие `region.set {from, to, via}` |
+| `region_via` | необязательно: `settings` (по умолчанию) \| `prompt` — откуда выбран регион (карточка на вкладке «Рейтинг»); только для события, не настройка |
+| `pro_emoji` *(25.11.2026, docs/31 §5а E1)* | **код** эмодзи из `config/pro_emoji.php` (набор и порядок — `settings.options.pro_emojis`) или `null` (снять). Другой код / сам символ / текст — `422`. Код без действующего Pro — **`403 pro_emoji_pro_required`**, ничего из запроса не применяется (Mini App открывает пейвол); `null` можно всегда |
+
 Невалидное значение — `422` (стандартный ответ валидации Laravel), ничего не меняется. Активный курс меняется отдельно — `POST /me/course` (A.5a).
+
+**Регион и эмодзи в ответе (`GET /me` и все ответы его формы).** `settings` += `region_code`, `region_change_available_at` (ISO-8601 UTC, когда можно выбрать другой регион; `null` — сейчас), `region_undo_available_until` (до какого момента можно отменить последнюю смену; `null` — нельзя), `region_prompt` (bool: показывать карточку «Укажите регион» — региона нет и «Не сейчас» не нажимали 30 дней), `pro_emoji_choice` (сохранённый код, есть ли Pro или нет — Free видит выбор как плюс Pro); `settings.options` += `regions` (`[{code, name}]`: 14 регионов Узбекистана в порядке языка — сначала город Ташкент, — затем `other`), `pro_emojis` (`[{code, emoji}]`), `pro_emoji_locked` (bool: выбор закрыт до Pro). `learner` += `pro_emoji` — **сам символ** выбранного эмодзи, только пока у ученика действующий Pro, иначе `null`.
+
+**Отмена смены региона — `POST /api/twa/me/settings/region/revert`** (без тела). В течение 10 минут после принятой смены (и после сброса) возвращает прежний регион и прежний `region_changed_at`; ответ — как у `GET /me`. Позже, без смены или повторно — `422 region_revert_unavailable`. Бот: под «Сохранено: ….» (до 26.11.2026 — «Регион: …. Сохранено.»; область, решение владельца) в `/settings` — кнопка «↩️ Отменить» (`set1:rgundo`).
+
+**«Не сейчас» карточки региона — `POST /api/twa/me/region-prompt/dismiss`** (без тела): `204`, идемпотентно; карточка скрыта 30 дней (`learners.meta.region_prompt_dismissed_at`).
 **Часовой пояс (механика осталась в `LearnerSettingsService`, но клиента, который её вызывает, больше нет — 2026-11-16):** смена не чаще раза в 24 ч (docs/12 §5.3): новое значение, отличное от текущего, раньше срока → `TimezoneChangeTooSoonException` (в прежнем HTTP-виде — `422` в общем конверте ошибок
 `{"error": {"code": "timezone_change_too_soon", "message": "…; next change at <ISO-8601 UTC>."}}`, и **ничего** из запроса не применяется (в том числе другие поля). Та же зона
 повторно — не смена и не считается. Первая установка в онбординге интервал не запускает; но если пояс уже менялся через настройки (или перенос дня ещё активен), шаг пояса онбординга идёт по тем же правилам (24 ч, перенос дня; отказ — тот же текст `timezone_too_soon`, шаг остаётся). Смена пояса **переносит** текущий локальный день в новый пояс: окно квоты новых слов
@@ -246,9 +278,9 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 **Request:**
 ```json
 {
-  "mode": "lesson",          // lesson | daily_review | hard_review (group_lesson открывает только учитель из бота)
-  "lesson_id": 321,          // обязателен для lesson (integer ≥ 1), запрещён для daily_review и hard_review
-  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding | assignment | finish (кнопка на итоге занятия); записывается только в НОВУЮ сессию
+  "mode": "lesson",          // lesson | daily_review | hard_review | lesson_review (group_lesson открывает только учитель из бота)
+  "lesson_id": 321,          // обязателен для lesson и lesson_review (integer ≥ 1), запрещён для daily_review и hard_review
+  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding | assignment | finish (кнопка на итоге занятия) | plan (план дня на «Сегодня»); записывается только в НОВУЮ сессию
 }
 ```
 
@@ -263,7 +295,7 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 планировщик) и открывается новая. Поэтому «Начать занятие» после закрытого на вердикте Mini App всегда даёт новый раунд, а `/finish` старой сессии
 остаётся идемпотентным (200 с её итогом, без второго события). Урочная сессия (`lesson`) возвращается как есть в любом случае.
 
-**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`/`hard_review`, `lesson_id` не integer, `source` вне списка) →
+**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`/`hard_review`/`lesson_review`, `lesson_id` не integer, `source` вне списка) →
 422 `lesson_mismatch` (`lesson` без `lesson_id` или `daily_review` с ним) → 404 `lesson_not_found` (урока нет **или** его курс
 не `published` — статус курса не раскрывается) → 429 (лимит `twa-session-create`, 10 запросов/мин на learner'а).
 (`invalid_mode` из сервиса при HTTP недостижим — режим отсекает валидация; код оставлен в списке для клиента.)
@@ -275,6 +307,22 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 упражнения, **никогда** `flash`, кроме редкого понижения для слова без трёх вариантов), `progress: {done: побеждено, total: размер набора}`, `quota: {new_words_remaining: null}` (новых слов нет, квота Free не тратится).
 Идемпотентно для живой сегодняшней сессии (две вкладки — одна сессия). Ошибки сверх общих: **409 `hard_round_unavailable`** с `error.details {reason: disabled | not_enough | played_today | no_objective_exercise, resets_at}`
 (`resets_at` только при `played_today`, иначе `null`); 422 `lesson_mismatch`, если передан `lesson_id` (урок не проверяется на существование); 429 `twa-session-create`. Событие отказа — `hard_round.refused {reason, source}`.
+
+**`mode: lesson_review` — закрепление урока (с 25.11.2026, docs/06 §15; шаг 2 плана дня, A.2a `plan`).** Открывает `LessonReviewService::open`. Слова — слова урока `lesson_id`,
+встреченные учеником **сегодня** (локальный день; строка `word_repetitions` создана сегодня и уже оценена), не больше 20, набор фиксируется при открытии (`meta.lesson_words`).
+Каждое слово спрашивается, пока не будет верного ответа, но не больше 3 раз; ошибочное возвращается после остальных. Только `meaning` / `reverse` / `audio` (с файлом), `flash` —
+лишь как запасной для слова без трёх вариантов. **Режим ничего не меняет вне себя:** расписание (`word_repetitions`), `training_reviews`, `learner_daily_stats` —
+поэтому нет баллов лиги, цели дня, серии, достижений; квота Free не тратится. Ответ 200 — как у `/start`: `mode: "lesson_review"`, `lesson` — заголовок урока,
+`total_words` = размер набора, `progress: {done: слова с верным ответом, total: размер набора}`, `quota: {new_words_remaining: null}`, `card.card_kind` — по состоянию строки (обычно `due`),
+`card.serve_token` — **всегда строка**: одноразовый токен показа, клиент возвращает его в `/review` (как у learn-ahead). Повторное открытие того же урока возвращает живую сессию (та же карточка и токен);
+пройденная до конца закрывается (`finished`) и открывается новая — режим можно проходить сколько угодно раз, он ничего не начисляет; открытая сессия другого урока / вчерашняя закрывается `expired` (одна открытая на ученика).
+Ошибки сверх общих: **422 `lesson_mismatch`** без `lesson_id`; **404 `lesson_not_found`** — урока нет или он ученику недоступен (то же правило, что у `lesson`); **409 `lesson_review_unavailable`**
+с `error.details {reason}`: `no_new_words` (сегодня ни одного слова этого урока не встречено — урок не пройден сегодня или пройден давно), `no_objective_exercise` (недоступны и «Выберите перевод», и «Выберите слово»),
+`disabled` (`LEARNING_LESSON_REVIEW_ENABLED=false`). `/next`, `/review`, `/finish` — общие маршруты; отличия: `/review` — 409 `card_not_due`, если `serve_token` не того показа (повтор запроса, вторая вкладка),
+422 `out_of_scope` — слово не из набора; ответ `/review` — `next_review_at` / `new_interval_days` / `easiness_factor` строки **без изменений** (расписание не двигалось), `graded` и `revealed` — как у `meaning`/`reverse`.
+`done_reason = lesson_review_complete` — все слова набора отвечены верно или исчерпали 3 показа. Итог `/finish`: `reviewed` — ответы, `correct` — верные, `new_words: 0`, `stages` нули,
+**`league_points: 0`**, `hard_round_offer: null`, `practice_entry` — урок (кнопка игры, шаг 3), `lesson_review: {"total": 5, "won": 4, "first_try": 3}` (слова набора, отвеченные верно; верно с первого показа).
+Событие `training.session_finished` — как у других режимов (`mode: "lesson_review"`).
 
 #### `POST /api/twa/training/sessions/{session_id}/finish`
 Learner завершает **свою личную** сессию (`status = closed`, `ended_at`, `done_reason = finished`) и получает итог по ней.
@@ -303,10 +351,12 @@ Learner завершает **свою личную** сессию (`status = clo
 объективное упражнение (не `flash`, не `pretest`) с `quality >= 3`, а в более ранней сессии (id оценки меньше первой оценки этой сессии) была объективная оценка `< 3`; из таких — с самой поздней прошлой ошибкой.
 `translation` — на языке ученика (`WordTranslationResolver`, запасной — ru), `mistaken_at` — время той ошибки (ISO-8601 UTC), `answer` — что ученик тогда ВВЁЛ (только `spelling` / `gap_fill`; не пустое и не само слово), иначе `null`.
 Стоимость — +1 оператор только у `/finish` сессии `hard_review` (`CorrectedMistakeFinder`; перевод тёплый — карточка выдавалась в этом раунде); у остальных режимов оператора нет.
+**С 25.11.2026 (docs/06 §15):** `lesson_review` — `{"total", "won", "first_try"}` у сессии `lesson_review`, `null` у остальных режимов (ключ есть всегда); у `lesson_review` `league_points` всегда `0`.
 **С 18.11.2026 (docs/06 §14):** `hard_round` — `{"total": 10, "won": 8}` у сессии `hard_review` (`won` — слова набора, чья ПОСЛЕДНЯЯ оценка в сессии ≥ 3), `null` у остальных режимов; `hard_round_offer` — приглашение на раунд трудных слов
 на итоге ежедневного занятия / урока: тот же блок, что `hard_round` в `GET /today` (A.2a), `null` у самого раунда трудных слов и при `LEARNING_HARD_ROUND_ENABLED=false`. Стоимость `/finish` — +2 оператора (сессии окна дня и
 кандидаты). Событие `training.session_finished` у `hard_review` получает `hard_won`, `hard_total`; `practice_entry` у него `null`.
 `league_points` — баллы лиг / месячного рейтинга, которые принесло занятие (A.19, docs/13 §7.6): `reviewed×1 + correct×1 + new_words×2` + 10, если цель дня была достигнута во время этой сессии; считается по числам ответа, запросов не добавляет.
+**С 26.11.2026 (docs/32 §8.2, S12): `score_session`** — очки за слова занятия; **ключа нет** вне `live`, у `lesson_review`, у сессии без ответов и пока оба зачёта дня на v1. Иначе `{earned, week_added, month_added, week_rating_delta, capped_off, today}`: `earned` — очки начислений сессии по правилам (новое 2, повтор 3, длинный 5) до лимитов («За занятие +70»), `week_added` / `month_added` — что реально получили недельный и месячный зачёты (`score_credits.week_points` / `month_points`, аннулированные не считаются), `week_rating_delta` — на сколько выросла сумма лучших дней недели (docs/32 §3.5: лучшие дни сейчас минус лучшие дни без очков сессии — «в недельный рейтинг +40»), `capped_off` = `earned − week_added` (при неделе v1 — `− month_added`): срезано лимитами дня, `today` — рейтинговый день после занятия в форме `GET /today.score_today` (`null`, если сегодня начислений нет). В неделе v2 `league_points` = `week_added`. Финиш ничего не начисляет: повтор отдаёт те же числа. Стоимость — **+2 оператора только в `live`** у сессии с ответами: начисления сессии (`score_credits` по unique `(learner_id, rating_day, lexeme_id)` за дни сессии, фильтр `source_id`, группировка по дню и виду) и дни текущей недели (`learner_score_days`, ≤ 7 строк по unique); в `off` — 0.
 **С 17.11.2026 (docs/06 §13.3):** `+ "stages": { "graduated": 5, "promoted": 2, "mastered": 1 }` — рост слов за сессию: `graduated` — новые слова
 сессии, вышедшие из минутных шагов (ступень `learning`); `promoted` — слова, встреченные раньше, чья ступень выросла (`new → learning → known → mastered`,
 пороги 7 и 21 день интервала); `mastered` — слова, ставшие выученными в этой сессии. Считается тем же одним оператором, что `reviewed`/`correct`/`new_words`.
@@ -351,13 +401,20 @@ Learner присоединяется к открытой тренировке. �
   "progress": { "done": 0, "total": 25 },
   "done_reason": null,       // см. ниже; не null ровно когда card = null
   "can_continue": false,     // true только с done_reason = sprint_complete: «Ещё раунд» (docs/06 §13.2)
-  "quota": { "new_words_remaining": 19 }   // см. «Квота новых слов» ниже; null = безлимит (Pro)
+  "quota": { "new_words_remaining": 9 }    // см. «Квота новых слов» ниже; null = безлимит (Pro)
 }
 ```
 
 Для `prompt.type` = `meaning` / `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null`; `meaning` и `audio` — `translation` = `""`, `example`, `example_translation`, `example_audio_url` = `null` (у `meaning` слово, транскрипция и `audio_url` на месте — это вопрос); у всех `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
 
 Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
+
+**Фраза** (docs/35 §3.3, docs/06 §16; выпуск 7): `card.phrase` = `{ "kind": "idiom", "register": "informal", "variant": "both", "literal": "кусок торта" | null }`
+у карточки с `part_of_speech = phrase`, `null` у слова. `kind` — `formula`/`fixed`/`idiom`/`phrasal_verb`/`proverb`, `register` —
+`neutral`/`informal`/`formal`/`slang`/`rude`, `variant` — `both`/`uk`/`us`; `literal` («Буквально: …») — на языке карточки (иначе ru) и `null`, пока
+карточка прячет ответ (meaning / reverse / audio / pretest / gap_fill) — тогда он приходит в `revealed.phrase`. **С 26.11.2026** ответ `/review` фразы на `gap_fill` и `pretest` тоже несёт `revealed` (у слова на них `revealed` по-прежнему `null`): `word`, `translation`, `transcription`, `audio_url`, `note`, `phrase` (с `literal`); `correct` — у `pretest` перевод (правильный вариант), у `gap_fill` вся фраза; `example`, `example_translation`, `example_audio_url`, `hook`, `confused_with` — `null`. Из уже прочитанных строки и перевода — операторов не добавляет. `gap_fill` фразы: `prompt.front` —
+перевод (смысловой эквивалент), `prompt.masked_example` — сама фраза с пропуском ключевого слова (`"Easy come, easy ____"`), `answer_length` —
+длина этого слова; `spelling` фразе не выдаётся.
 
 `card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
 Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
@@ -414,6 +471,7 @@ Learner присоединяется к открытой тренировке. �
 | `session_cap` | принято `TWA_MAX_CARDS_PER_SESSION` оценок в этой сессии |
 | `sprint_complete` | scope `daily_review` (с 17.11.2026, docs/06 §13.2): раунд окончен — выбраны `LEARNING_SPRINT_DUE_CARDS` (15) дневных повторений и/или `LEARNING_SPRINT_NEW_WORDS` (6) новых слов с их шагами, а для следующего раунда ещё есть карточки (due сверх потолка или невыданные слова в пределах дневной квоты). Всегда с `can_continue = true` |
 | `hard_round_complete` | scope `hard_review` (с 18.11.2026, docs/06 §14): все слова набора выданы, повторять нечего; `can_continue = false`, `progress.done` — побеждённые слова (последняя оценка слова в сессии ≥ 3) |
+| `lesson_review_complete` | `lesson_review` (с 25.11.2026, docs/06 §15): каждое слово набора отвечено верно или исчерпало 3 показа; `progress.done` — слова с верным ответом |
 
 `can_continue: bool` — есть всегда; `true` только вместе с `sprint_complete`. Экран итога при этом показывает «Ещё раунд»: клиент
 делает `POST /finish` текущей сессии и `POST /training/sessions {mode: daily_review}`. Шаг с `card: null` после оценок сессии сам
@@ -425,7 +483,7 @@ Learner присоединяется к открытой тренировке. �
 
 **Квота новых слов (`quota`, 1.4b; docs/12 §5.3).** `quota.new_words_remaining: int|null` есть в ответах `/start`, `/next`, `/review` и `POST /training/sessions`
 (в том числе когда `card = null`): сколько новых карточек learner ещё получит **сегодня** (локальный день, `learners.timezone`) **после** этого шага — только что выданная
-новая карточка уже учтена. `null` — безлимит (Pro, личный или спонсорский центром, **а также любая групповая сессия `group_lesson`**). Free: `20` (`BILLING_FREE_NEW_WORDS_PER_DAY`)
+новая карточка уже учтена. `null` — безлимит (Pro, личный или спонсорский центром, **а также любая групповая сессия `group_lesson`**). Free: `10` (`BILLING_FREE_NEW_WORDS_PER_DAY`)
 минус число строк `word_repetitions` learner'а, созданных в этот день в **личных** сессиях (`lesson`, `daily_review`; `introduced_mode <> 'group_lesson'`). Групповой урок, который
 ведёт учитель, квотой не ограничивается и её не расходует: Free-ученик видит все слова урока, а введённые там слова личную квоту не уменьшают (docs/12 §5.3). Повторения (due,
 learning, learn-ahead) квотой не ограничиваются: после исчерпания `/next` по-прежнему отдаёт due-карточки, а `done_reason = new_quota_exhausted` приходит, только когда больше нечего показать.
@@ -493,14 +551,26 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
   "graded": { "quality": 4, "correct": true, "expected": "resilient" } | null, // вердикт сервера по answer; null при quality
-  "revealed": { "word", "translation", "correct", "example", "example_translation", "example_audio_url", "transcription", "audio_url", "hook", "note", "confused_with" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
+  "revealed": { "word", "translation", "correct", "example", "example_translation", "example_audio_url", "transcription", "audio_url", "hook", "note", "confused_with", "phrase" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,
   "can_continue": false,
-  "quota": { "new_words_remaining": 12 }
+  "quota": { "new_words_remaining": 12 },
+  "score": { "kind", "reason", "base", "week", "month", "today", "today_month" } | null // очки за слова v2 (ниже); null при off / shadow
 }
 ```
+
+**`score` — очки за слова v2 (docs/32 §8.1, 26.11.2026).** `ReviewResultResource.score` = `WordScoreOutcome::toApi()`, лишних запросов нет.
+`null`, пока `LEAGUES_SCORING_MODE` = `off` или `shadow`, а в `live` — до `LEAGUES_SCORING_V2_STARTS_ON` (оба зачёта дня ещё по старым
+правилам): контракт старых клиентов не меняется. Ответ `lesson_review` (docs/06 §15) — всегда `null`. Иначе:
+`{kind: new|review|long|null, reason, base, week, month, today, today_month}` — `reason` из `credited`, `capped` (начисление записано,
+лимиты дали 0), `already_today`, `closed`, `early`, `same_cycle`, `not_due`, `introductory` (первое знакомство `flash`, попытка дня
+открыта), `no_catalog` (у слова нет лексемы: **слово своей колоды ученика** — колода вне каталога, docs/32 §12.12, 27.11.2026 —
+`{kind: null, reason: no_catalog, base: 0, week: 0, month: 0, today: null, today_month: null}`, никаких «+N»); `base` — очки вида по правилам (2 / 3 / 5, 0 без начисления); `week` / `month` — сколько реально добавлено в
+недельный и месячный зачёт (с лимитами и остатком до потолка); `today` — недельный зачёт рейтингового дня после ответа
+`{points, cap, category: free|pro, new: [used, limit], review: [used, limit]}` (`null`, если начисления не было); `today_month` — то же
+для месяца, только когда он отличается от недели (другая категория или сумма), иначе `null`. Mini App пока поле не показывает (S13).
 
 Ошибки: 409 `card_not_started` (карточка не выдавалась), 409 `card_not_due` (повторный submit:
 карточка ещё не due, а `serve_token` отсутствует, устарел или чужой — docs/06 §5.2; клиенту следует
@@ -715,14 +785,15 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 {
   "courses": [
     {
-      "slug": "english-a1", "title": "Английский A1", "description": "Первые 500 слов", "level": "A1", "exam_tag": "general",
+      "slug": "english-a1", "title": "Английский A1", "description": "Первые 500 слов", "level": "A1", "exam_tag": "general", "section": "courses",
       "words_count": 500, "is_featured": true, "is_active": true,
       "progress": { "done": 120, "total": 500 }
     }
   ]
 }
 ```
-Порядок — `position`, затем `id`. `is_active` — это `learners.active_course_id`. Активный курс learner'а остаётся в списке,
+Порядок — `position`, затем `id`. `is_active` — это `learners.active_course_id`. `section` (и в списке, и в `GET /courses/{slug}`) —
+раздел каталога: `phrases` у курса фраз (`exam_tag = phrases`, docs/35 §3.3 a), `courses` у остальных; курс фраз онбординг не рекомендует. Активный курс learner'а остаётся в списке,
 даже если он `unlisted` (выбран по ссылке), пока курс доступен. Список курсов без прогресса кэшируется на 10 минут
 (по локали) и сбрасывается при публикации/архивации/правке курса и `CoursePublisher::recount`.
 
@@ -773,7 +844,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 **собственными** колодами: чужая, архивная и неизвестная колода отвечают одинаково — `404 deck_not_found`.
 Выбор колоды активным курсом — существующий `POST /me/course {slug}` (A.5a): владелец может выбрать свою колоду, остальные получают
 `404 course_not_found`. Активная колода попадает в `GET /courses` (как и любой доступный активный курс). Колода участвует в
-`daily_review` и в квоте Free (20 новых слов/день) как обычный курс.
+`daily_review` и в квоте Free (10 новых слов/день) как обычный курс.
 
 Лимиты — `config/decks.php`, по плану из `EntitlementResolver`: Free 1 колода × 50 слов, Pro 20 × 2000 (`limits.decks`, `limits.deck_words`).
 Считаются неархивные колоды и **активные** слова колоды. Превышение — `422` с кодом-paywall (`deck_limit_reached` — колод,
@@ -888,7 +959,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 `checkout.kind`: `invoice_link` (Stars — открыть `Telegram.WebApp.openInvoice(url)`) | `redirect` (Payme/Click — `openLink(url)`). Заказ живёт `BILLING_ORDER_TTL_MINUTES` (24 ч); просроченные закрывает `billing:expire-orders` (каждые 15 мин).
 Событие `checkout.started` (с `locale` — язык интерфейса ученика на момент начала — и `placement`). Если провайдер не смог выдать ссылку — заказ `failed`, ответ `502 provider_unavailable`.
 
-**`POST /billing/offer-viewed`** `{ "placement": "paywall_quota" }` → `204` без тела. Клиент шлёт, когда предложение Pro стало видно (fire-and-forget: не ждёт ответа, ошибки глотает), и только при `paywall.mode = purchase` в `/me`. `placement` ∈ `OfferPlacement` (`App\Domain\Billing\Enums\OfferPlacement`, зеркало — `resources/twa/src/composables/offerViewed.ts`): `paywall_quota | paywall_info | paywall_decks | paywall_streak_freeze | paywall_exam_simulator | paywall_practice | paywall_practice_limit | paywall_game` (лист покупки `PaywallSheet` по своей причине), `billing_view` (экран «Подписка» с кнопкой «Купить / Продлить»), `lapsed_banner` («Pro закончился» с кнопкой продления), `finished_pro_tip` (совет о Pro на экране итога), `finished_trial_ending` (карточка «пробный период кончается»); иное — `422`. Пишет `billing.offer_viewed {placement, locale}` не чаще раза на (ученик, место, локальный день ученика): маркер `billing:offer_viewed:v1:<learner>:<placement>:<Y-m-d>` (`Cache::add`, невытесняемое хранилище, TTL 48 ч). Повтор того же дня — `204` без записи и **без SQL сверх аутентификации** (1 оператор: ученик); новый — плюс один INSERT после ответа. Пока продавать нечего (`paywall.mode` опущен до `coming_soon`, как в `/me`) — `204` без записи и без маркера.
+**`POST /billing/offer-viewed`** `{ "placement": "paywall_quota" }` → `204` без тела. Клиент шлёт, когда предложение Pro стало видно (fire-and-forget: не ждёт ответа, ошибки глотает), и только при `paywall.mode = purchase` в `/me`. `placement` ∈ `OfferPlacement` (`App\Domain\Billing\Enums\OfferPlacement`, зеркало — `resources/twa/src/composables/offerViewed.ts`): `paywall_quota | paywall_info | paywall_decks | paywall_streak_freeze | paywall_exam_simulator | paywall_practice | paywall_practice_limit | paywall_game` (лист покупки `PaywallSheet` по своей причине; **план docs/34 P4/P7:** `paywall_daily_goal` — цель дня больше лимита Free, `paywall_trial_ended` — разовый пейвол после конца пробного Pro), `billing_view` (экран «Подписка» с кнопкой «Купить / Продлить»), `lapsed_banner` («Pro закончился» с кнопкой продления), `finished_pro_tip` (совет о Pro на экране итога), `finished_trial_ending` (карточка «пробный период кончается»); иное — `422`. Пишет `billing.offer_viewed {placement, locale}` не чаще раза на (ученик, место, локальный день ученика): маркер `billing:offer_viewed:v1:<learner>:<placement>:<Y-m-d>` (`Cache::add`, невытесняемое хранилище, TTL 48 ч). Повтор того же дня — `204` без записи и **без SQL сверх аутентификации** (1 оператор: ученик); новый — плюс один INSERT после ответа. Пока продавать нечего (`paywall.mode` опущен до `coming_soon`, как в `/me`) — `204` без записи и без маркера.
 
 **`GET /billing/orders/{token}`** → `200 { "status": "pending|paid|canceled|expired|failed", "paid_at": "…"|null, "reason": "replaced"|null, "replaced_by": "<token>"|null, "subscription": { …как в catalog.subscription… }|null }`;
 `subscription` заполнена у `paid`. `reason = replaced` — заказ `canceled` самой логикой offer (скидка перенесена на более новый заказ или уже использована): это **не ошибка**, TWA показывает «Заказ заменён новым» и переходит к `replaced_by` — **токену** (не id) заказа-преемника, если он известен и принадлежит тому же learner'у, иначе `null`. У прочих заказов `reason` и `replaced_by` — `null`. Чужой, неизвестный или неправильный `token` — `404 order_not_found` (чужой заказ неотличим от несуществующего).
@@ -981,9 +1052,13 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `week` — текущая неделя в `LEAGUES_TIMEZONE` (`closes_at` — UTC-момент ближайшего понедельника 00:00). `membership` — `null`, пока learner не размещён на этой неделе (нет оценок, opt-out, лиги выключены). `zone`: `promotion` (топ-`promote`), `demotion` (низ-`demote`, только если tier > 0), иначе `safe`; `points_to_promote` — сколько очков не хватает до зоны повышения (`null` — уже там или высший tier), `points_to_safety` — сколько не хватает, чтобы выйти из зоны понижения (`null` — не в ней). `standings` — вся группа (≤ 30), по убыванию очков, ничьи — по более раннему размещению: **только** `name` (имя, может быть `null`), `points`, `rank`, `is_me`; никаких id, username, Telegram-данных. `last_week` — последняя закрытая неделя learner'а (или `null`). Очки считаются из `learner_daily_stats` (кэш 60 с на группу), поэтому отстают от оценок не больше чем на минуту.
 
+**Эмодзи Pro (с 26.11.2026, docs/31 §5а E2):** у каждой строки `standings` — `pro_emoji` (символ эмодзи участника, пока у него действующий Pro, иначе `null`). Один запрос на группу (`ProEmojiService::visibleForMany`), кэш `league:emoji:v1:group:{группа}` 60 с (как таблица): из кэша 0 операторов; смена эмодзи участником сбрасывает ключ его группы сразу, истёкший Pro виден не дольше 60 с.
+
+**Неделя на очках v2 (с 26.11.2026, docs/32 §8.3, S12).** Только у недели с `league_weeks.rules_version = 2` (у недели v1 этих ключей **нет**): верхний `rules_version: 2` и рядом с ним `best_days` (сколько лучших дней недели идёт в зачёт — из правил версии недели, `leagues.scoring.versions.{N}.best_days`, сейчас 5; без нового оператора; Mini App берёт число отсюда, а не из своей константы); в `membership` — `category` (`free` | `pro`, таблица группы), `rules_version`, `next_gap` (сколько очков гарантированно обгоняют ближайшее строго лучшее место: `P' − P + 1`; `null` у лидера); в строках `standings` — `long_words` и `active_days` (признаки ничьей по лучшим дням); `rank` — конкурентный (1, 2, 2, 4), `zone` — по рангу (все, кто делит проходное место, повышаются). Неделю другой категории не показываем: недельная таблица — это группа. Бюджет `GET /league` v2: таблица группы 1 оператор на промахе (`LeagueV2BudgetTest`), эмодзи +1 на промахе; из кэша — ни одного.
+
 `GET /today` += `league: {tier, tier_key, rank, points, members_count} | null` — строка «Лига» на «Сегодня». `PATCH /me/settings` += `leagues_opt_out: bool` (только JSON-boolean; `settings.leagues_opt_out` в ответе) — `true` = не размещать (текущее членство остаётся до конца недели; возврат действует с первой оценки следующего локального дня).
 
-**ЛС победителю месяца (бот, §7.6 docs/13).** После подтверждения итогов администратором (`LeagueMonthConfirmed`, после commit) слушатель `SendMonthWinnerMessages` (очередь, бюджет исходящих `ThrottleTelegramOutbound`) через `MonthWinnerSender` шлёт каждому из 1–3 победителей: «🏆 Поздравляем! Вы заняли 1-е место в рейтинге за ноябрь 2026 — 1204 балла. Ваш приз: <приз места на языке ученика>. Мы свяжемся с вами в Telegram, чтобы вручить его.»; если призов нет — без фраз о призе. Язык — `interface_locale`. Заблокированный, удалённый ученик и закрытый ЛС (`dm_blocked_at`) — молча; 403 закрывает ЛС и снимает маркер. Идемпотентность — строка `notifications_log` типа `league_month_won` (`payload.key = month:<id>`), пишется до вызова Telegram под `Cache::lock`: повтор события или job'а второго сообщения не даёт. Остальным ученикам рассылки нет (итоги — в приложении, `last_month`).
+**ЛС победителю месяца (бот, §7.6 docs/13).** После подтверждения итогов администратором (`LeagueMonthConfirmed`, после commit) слушатель `SendMonthWinnerMessages` (очередь, бюджет исходящих `ThrottleTelegramOutbound`) через `MonthWinnerSender` шлёт каждому из 1–3 победителей (в месяце v2 — каждой таблицы, все разделившие призовое место) **фото** — картинку `MonthWinnerCardBuilder` («1 место», «в рейтинге за ноябрь 2026 — 1204 балла», метка «Рейтинг месяца[ · Free/Pro]», без имени; docs/36 A5, docs/13 §7.4), файлом через `sendPhotoMessage(PhotoSource::file)` — с подписью; если картинки нет (ошибка рисовальщика, диск карточек не локальный) — прежним текстом, ошибка в `report()`. Подпись: «🏆 Поздравляем! Вы заняли 1-е место в рейтинге за ноябрь 2026 — 1204 балла. Ваш приз: <приз места на языке ученика>. Мы свяжемся с вами в Telegram, чтобы вручить его.»; если призов нет — без фраз о призе. Язык — `interface_locale`. Заблокированный, удалённый ученик и закрытый ЛС (`dm_blocked_at`) — молча; 403 закрывает ЛС и снимает маркер. Идемпотентность — строка `notifications_log` типа `league_month_won` (`payload.key = month:<id>`), пишется до вызова Telegram под `Cache::lock`: повтор события или job'а второго сообщения не даёт. Остальным ученикам рассылки нет (итоги — в приложении, `last_month`).
 
 **Итоги недели** — ЛС `leagues.result.{promoted|stayed|demoted}` (`lang/*/leagues.php`) с web_app-кнопкой «Открыть лигу» → `/twa/league`; очередь `SendLeagueResultsJob` — пачка до `LEAGUES_NOTIFY_BATCH_SIZE` участников, слот глобального лимита исходящих B.7/2R.3 на каждое сообщение (пропускаемые участники — opt-out, закрытый ЛС, уже отправлено — слот не тратят), остаток после `LEAGUES_NOTIFY_BATCH_SECONDS` или без слота уходит новым job'ом (`tries = 0`, `maxExceptions = 3`, `retryUntil` — единый дедлайн рассылки: закрытие недели + `LEAGUES_NOTIFY_TTL_HOURS`, у остатка он тот же), не больше одного сообщения на learner'а и закрытую неделю (`notifications_log.type = league_result` пишется до вызова Telegram); 403 → `dm_blocked_at`.
 
@@ -1001,7 +1076,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 }
 ```
 `invite_link` — `null`, пока не задан `TELEGRAM_BOT_USERNAME`. О другом человеке уходят только имя, `streak` (хранимая серия друга; 0, если последний удержанный день старше «вчера» по поясу друга — без записи в чужой профиль) и `words_learned` (слова с `repetitions ≥ 1`; только у принятых друзей и **до 10 минут давности** — кэш `stats:words_learned:{id}`, в БД считаются лишь друзья без записи в кэше, одним запросом); ни id, ни username, ни пояс.
-`friends[].camel_asset` (G2.6) — `asset` надетого верблюда друга (`string`) или `null`; ключ есть, **только когда игра открыта смотрящему** (`GAME_ACCESS`, docs/18 §12.7.4), при закрытой игре его нет и таблиц `game_*` запрос не трогает; когда открыта — один запрос на всех друзей.
+`friends[].pro_emoji` **(с 26.11.2026, docs/31 §5а)** — эмодзи Pro друга, пока у него действующий Pro, иначе `null`; ключ есть всегда; один запрос на весь список (у входящих/исходящих запросов эмодзи нет). `friends[].camel_asset` (G2.6) — `asset` надетого верблюда друга (`string`) или `null`; ключ есть, **только когда игра открыта смотрящему** (`GAME_ACCESS`, docs/18 §12.7.4), при закрытой игре его нет и таблиц `game_*` запрос не трогает; когда открыта — один запрос на всех друзей.
 - `POST /friends/{id}/accept` — принять входящий (идемпотентно; лимит `friends.max` проверяется у обеих сторон: **409** `friend_limit` / `friend_limit_other`; приглашавший сам принять не может: **403** `not_recipient`); `POST …/decline` — отклонить входящий (строка удаляется); `POST …/remove` — удалить из друзей / отозвать свой запрос / снять свою блокировку (открытые вызовы пары → `canceled`).
 
 **`GET /api/twa/challenges`** → `{ "days": 7, "open": [Challenge], "finished": [Challenge] }` (`open` — `pending`/`active`, `finished` — последние 20). `Challenge` (то же — ответ остальных вызовов):
@@ -1031,7 +1106,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   ]
 }
 ```
-`title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`), `current` не больше `target`; у разовых — `null`. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
+`title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`, `long_recall_25` — по лексемам с длинным повтором `learner_lexemes.first_long_on`, считаются только до 25), `current` не больше `target`; у разовых — `null`. `long_recall_25` («Долгая память», docs/32 §8.4) открывается на 25-й лексеме с длинным повтором (интервал ≥ 7 суток, засчитанный очками за слова v2); пока `LEAGUES_SCORING_MODE=off`, признак не пишется и ключ в списке остаётся закрытым. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
 - `POST /api/twa/achievements/{key}/shared` — learner открыл диалог «Поделиться» (`useTelegram().shareUrl`): ставит `shared_at` один раз (+ событие `achievement.shared`), повтор — без изменений. **404** `achievement_not_found` — ключ неизвестен, не получен или чужой.
 
 ### A.16 Практика — четыре режима и «Пары на время» (docs/16 §7, §10; задачи 18.1–18.5)
@@ -1044,7 +1119,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 (TWA открывает пейвол `practice`). Выключатель режима `PRACTICE_MODE_*` проверяется **только при создании** сессии (**409** `practice_mode_disabled`) и показывается в хабе как `disabled`: открытые сессии доигрываются.
 Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
 
-**Лимиты Free** (G1, docs/16 §3.2, docs/18 §3; `PracticeLimits`). При `PRACTICE_PLAN=all` Free практикует в пределах локального дня: `PRACTICE_FREE_SESSIONS_PER_DAY` (2) открытий сессий и `PRACTICE_FREE_BATTLES_PER_DAY` (1) вызовов на баттл (A.17); Pro (фича `practice.unlimited`, в т. ч. спонсорский) — без лимита; `0` — только Pro; пустое значение — без лимита. Замена активной сессии считается. Повтор ошибок (`retry_of`): бесплатен **один** повтор на исходную сессию, открытую сегодня; второй повтор того же источника, повтор повтора и повтор вчерашней сессии считаются как сессия (при лимите 0 — только Pro); проверка «повтора ещё не было» — под тем же замком ученика.
+**Лимиты Free** (G1, docs/16 §3.2, docs/18 §3; `PracticeLimits`). При `PRACTICE_PLAN=all` Free практикует в пределах локального дня: `PRACTICE_FREE_SESSIONS_PER_DAY` (3) открытий сессий и `PRACTICE_FREE_BATTLES_PER_DAY` (1) вызовов на баттл (A.17); Pro (фича `practice.unlimited`, в т. ч. спонсорский) — без лимита; `0` — только Pro; пустое значение — без лимита. Замена активной сессии считается. Повтор ошибок (`retry_of`): бесплатен **один** повтор на исходную сессию, открытую сегодня; второй повтор того же источника, повтор повтора и повтор вчерашней сессии считаются как сессия (при лимите 0 — только Pro); проверка «повтора ещё не было» — под тем же замком ученика.
 Отказ — **403** `practice_limit_reached` с `details` `{kind: "sessions" | "battles", limit, used, resets_at}` и событие `practice.limit_reached {kind, limit}`; `message` — текст на языке ученика (`lang/*/practice.php`), TWA ведёт по коду: пейвол `practice_limit` с остатком. Порядок: доступ → выключатель режима → **лимит** → курс, урок, активная сессия, материал (ученик у лимита получает 403 и при неизвестном курсе, и при незавершённой сессии — её можно доиграть из `hub.active_session`).
 Решает БД: подсчёт — в транзакции создания под `FOR NO KEY UPDATE` строки ученика (две вкладки за последнее место — одна сессия, `PracticeLimitsConcurrencyTest`). Остаток — в `GET /me` → `practice.limits` (A.2), в хабе (`limits`) и в ответе 201 открытия (значение после открытия). Цена: один SQL на блок (оба счётчика), на открытие у Free — 4 запроса сверх прежних; у Pro — ничего.
 
@@ -1067,7 +1142,7 @@ TWA различает отказ по статусу, а не по коду: `a
   "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
                       "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } },
   "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 },
-  "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } }
+  "limits": { "sessions": { "limit": 3, "used": 1, "remaining": 2, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } }
 ```
 - `lesson` — `null` без `lesson_id` (хаб курса); `stage` и `number` — номера модуля и урока, `title` — название (у безымянного урока `null`; у колоды ученика — по `DeckTitles`). Тексты на языке ученика.
 - `limits` (G1) — лимиты Free на сегодня, как `practice.limits` в `/me` (A.2): `null` у Pro, за пейволом (`state: pro_required`) и когда лимиты не заданы. Один SQL (оба счётчика) — бюджет хаба Free с лимитами 10, без них 9.
@@ -1103,6 +1178,7 @@ TWA различает отказ по статусу, а не по коду: `a
 
 #### «Пары на время» (`pairs_timed`, docs/16 §5.5a) — отличия контракта
 - **Хаб:** строка `{mode: "pairs_timed", state, available, required: 8, reason, estimate_seconds: 60, record: {score, achieved_at} | null}`; ключ `record` есть только у неё. Баттл режим не предлагает (`POST /battles` с ним — 422, `GET /battles/options` его не перечисляет).
+- **Урок короче `min_words` (с 25.11.2026, шаг 3 плана дня, docs/31 §5б):** при `lesson_id` и нехватке слов урока доска добирается **выученными** словами того же курса вне урока (`word_repetitions.state = review`) до `min_words`, округлённого до целых раундов (8); выбор — по зерну сессии (детерминирован в её снимке, у новой сессии другой); **все** слова урока остаются. Урок без единого встреченного слова не добирается; если выученных слов курса не хватает — прежний 422 `practice_not_enough_material` (`no_words`). Хаб урока (`GET /practice/hub?lesson_id`) по-прежнему считает только слова урока — его бюджет операторов не растёт; игра плана дня открывается напрямую (`source: "deeplink"`).
 - **`POST /practice/sessions`** `{mode: "pairs_timed", course, lesson_id?, source}`: 201, `timed: {seconds: 60, deadline_at: null, started: false, score: 0, penalty_ms: 2000}`, **`current: null`** (доска первого раунда не отдаётся до `start`, так же в `GET` сессии, пока `timed.started = false`; после `POST …/start` — `pairs_round` с `round`, `rounds: 10`), `progress {done: 0, total: 10}`. Лимит Free как у любой сессии. Выключен `PRACTICE_MODE_PAIRS_TIMED` → 409 `practice_mode_disabled`.
 - **`POST /practice/sessions/{id}/start`** (`twa-api` + `twa-practice-answer`, без тела) → 200 `PracticeSessionResource` с `timed.deadline_at` (серверный, `start + 60 с`), `timed.started: true`. Идемпотентен: повтор — тот же `deadline_at`. Ошибки: 404, 410 `practice_session_closed`, 409 `practice_not_timed`.
 - **`POST …/answer`:** как у пар (`{left_id, right_id}`); ответ до `start` — 409 `practice_not_started`; после `deadline_at + 1,5 с` — 409 `practice_time_over` `details {score}` (сессия закрыта `time_over`); неверный → `penalty_ms: 2000` в теле и `session.timed.deadline_at` на 2 с раньше (счёт не меняется), верный → `penalty_ms: 0`, `session.timed.score + 1`. Повтор `request_id` не штрафует второй раз. `score` / `deadline_at` в теле игнорируются.
@@ -1268,7 +1344,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 | `role` | string | моя сторона: `challenger` (пригласил) · `opponent` (приглашён) |
 | `course` | `{slug, title}` | название на моём языке |
 | `lesson` | `{id, stage, number, title}` \| null | `null` — матч на весь курс; `stage`/`number` — номера модуля и урока, `title` может быть `null` |
-| `opponent` | `{first_name}` | соперник |
+| `opponent` | `{first_name, pro_emoji}` | соперник; `pro_emoji` (с 26.11.2026, docs/31 §5а) — его эмодзи Pro, пока Pro действует, иначе `null` (+1 запрос к виду; то же поле — у `opponent` / `from` списка `GET /battles` одним запросом на список и у `friend` в `GET /battles/options`) |
 | `rounds_total`, `round_seconds`, `countdown_seconds`, `reveal_seconds` | int | 5; время раунда по формату (`collocation` 30 · `pairs` 45 · `sentence` 45 · `dictation` 60 с); 3 с; 4 с |
 | `presence_grace_seconds`, `presence_warn_seconds`, `deadline_grace_ms` | int | 30 с; 10 с; 1500 мс (ниже) |
 | `invite_expires_at`, `room_expires_at`, `starts_at` | ISO \| null | конец приглашения; конец комнаты (`null` до принятия); конец отсчёта (`null` до старта) |
@@ -1590,7 +1666,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 |---|---|---|
 | `POST /game/runs` (201) | `twa-game-start` 10/мин | `{kind: "stop", course, lesson_id, replace_active?}` → забег. `{kind: "daily", replace_active?}` (G2.3) → ежедневный караван на due-словах ученика (курс — активный курс ученика, как у `/today`; `course` и `lesson_id` не нужны и игнорируются). `{kind: "boss", course, stage_id, replace_active?}` (G2.4) → бой с боссом города (12 самых трудных слов ученика в городе, набор фиксируется в снимке; бой без фляг; забег дня / билет стоит так же, как стоянка). `{kind: "class_boss", class_caravan_id, replace_active?}` (G2.9a) → бой с боссом класса на словах, зафиксированных в караване при его старте (`course` и `lesson_id` не нужны); один бой на участника (`class_boss_key`; бой, закрытый без единого ответа, попыткой не считается и ключ отдаёт — G2.13, docs/18 §12.11); забега дня и билета **не стоит**. Ошибки босса класса: 404 `class_caravan_not_found` (чужой, отменённый или истёкший караван), 409 `class_boss_locked` (цель каравана ещё не взята), 409 `class_boss_done` (участник уже бился — бой с хотя бы одним ответом; проигравшая гонку вкладка получает идущий бой победителя, G2.13), 422 `game_not_enough_material {reason: no_words}`; без `class_caravan_id` — 422 валидации. Ошибки босса: 404 `course_not_found` / `stage_not_found`, 422 `stage_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `boss_not_ready {introduced, required, cleared_stops, required_stops}` (тот же расчёт, что `boss.state` на карте; у побеждённого босса готовность не проверяется — повторный бой всегда доступен). Ошибки: 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course` / `game_not_enough_material {reason: no_words}`, 409 `stop_locked` / `game_run_active {run_id, kind, progress}` / `game_daily_done {resets_at}` (караван этого локального дня уже начат — любым исходом: один в день, факт БД `daily_key`; проигравшая гонку вкладка получает тот же 409). У каравана дня лимитов Free нет, билет не тратится; **403 `game_limit_reached {kind: "runs", limit, used, tickets: 0, resets_at}`** (G2.8) — Free сыграл забеги дня и билетов нет: пейвол `game`, лид по `kind`; с билетом забег стартует и стоит билет (`free_slot = ticket` в событии `game.run_started`, `tickets` в `/me` на один меньше). Активный забег той же стоянки (вторая вкладка) возвращается как есть и лимитом не проверяется. Босс города дальше `GAME_FREE_BOSS_STAGES` у Free — 403 `game_pro_required {kind: "boss", stage_number}` (G2.4) |
 | `GET /game/runs/{id}` | `twa-api` | забег |
-| `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`) |
+| `POST /game/runs/{id}/answer` | `twa-game-answer` 120/мин | `{request_id (uuid), element_id, answer, time_spent_ms?}` → `{verdict, points, reveal, flask_lost, combo, event_applied, run}` (для раунда пар добавляются `pair`, `round_done`). Очки за слова v2 (docs/32 §3.6, §8.1): в `live` у словесных задач (`translate_fwd`, `translate_back`, `listen`, `spell`, `gap`) добавляется блок `score` той же формы, что в `POST /training/…/review` (A.3), — он пишется в тело попытки, повтор `request_id` отдаёт тот же блок; при `off` / `shadow` ключа `score` нет (тело прежнее) |
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
 | `POST /game/runs/{id}/booster` | `twa-game-answer` | `{request_id (uuid), item_key, element_id?}` → забег (`GameRunResource`, как `GET`). Бустер из инвентаря ученика: `hint` (подсказка текущего элемента в форме вида; `element_id` необязателен, по умолчанию текущий; результат в `current.element` — убранные варианты / `prefix`), `extra_flask` (+1 фляга, `flasks_max` растёт до `game.run.flasks_max_with_booster`), `second_chance` (первая ошибка забега не стоит фляги). Ошибки: 404 `item_not_found` (нет такого предмета или он не бустер); 409 `booster_not_owned` (`qty = 0`), `booster_limit_reached {limit, used, resets_at, upsell}` (`upsell: true` — у ученика нет `game.boosters_plus`, Pro снял бы лимит: только тогда TWA показывает пейвол; Pro на своём лимите — `false`, G2.13), `booster_already_used` (этот вид уже применён к элементу / в забеге), `booster_not_applicable` (`extra_flask` / `second_chance` в забеге без фляг — босс), `hint_not_available` (у вида или у элемента подсказка уже есть), `element_not_current {current}`, `answer_already_accepted {verdict}`, `request_id_reused`; 410 `game_run_closed` |
 | `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
@@ -1615,7 +1691,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 ```
 
 - `course {slug}` и `lesson_id` (G2.7b): куда вернуться с итога — курс забега (`snapshot.course_slug`; для `daily` это курс записи, активный курс ученика) и урок стоянки (`game_runs.lesson_id`; у `daily` и боссов — `null`). По ним «Ещё раз» и «На карту» собирают адрес без query. `course` — `null`, только если снимок не помнит slug. `stage_id` (G2.13) — город боя **только у `boss`** (отметка «поделился» после перезагрузки или «Продолжить» с «Сегодня»), `class_caravan_id` — **только у `class_boss`** (возврат на экран класса после боя); у остальных видов оба `null`.
-- `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`.
+- `current` — `null`, когда забег закончен; `current.element` — проекция вида (без правильных ответов, `word_id`, `audio_path` и прочих ключей снимка; запретные ключи ловит `GameContractTest`); `audio_url` (маршрут аудио забега) есть у `listen` и `dictation`; `event` — `sandstorm` / `oasis` / `bazaar` / `null`. `phrase: true` **(с 26.11.2026, docs/35 §3.3 e)** — у задания из фразы (`translate_fwd` / `translate_back` / `listen` / `gap`): экран раскладывает фразу, не угадывая по длине текста; только признак, ответа не раскрывает. У слова и у заданий забегов, начатых до признака, ключа нет (= слово). Пишется в снимок задания при сборке (`WordTaskHandler`), операторов не добавляет.
 - `boosters` (G2.5b ч.2): `available[] {key, effect, qty}` — бустеры инвентаря ученика с `qty > 0` (только пока забег идёт; у закончившегося `[]`), `used[] {key, effect, element_id}` — применённые в этом забеге (`element_id` — только у `hint`, иначе `null`; хранятся в `state`, без запроса). `summary` — `null`, пока забег идёт; потом `{stars, score, coins, league_points, srs_pulled, mistakes[] {element_id, kind, label, your_answer, verdict, hinted}, streak_held, new_stars, boss}`. G2.13: `mistakes[].hinted` — строка в списке из-за подсказки (базар или бустер: верный ответ после подсказки — ошибка для SRS, docs/18 §12.4), `verdict` при этом честный (`correct`) — TWA показывает чип «подсказка», не красный; `streak_held` — **это** завершение удержало день серии (финишер поставил `game_held_at`, цель день ещё не держала; `false` у второго забега дня, дня с целью, брошенного и просроченного забега); `new_stars` — звёзд сверх прежнего лучшего результата стоянки (0 у босса, каравана дня и босса класса). `summary.boss` — `null`, кроме забегов `boss` / `class_boss`; у них `{accuracy (0..100, round(100 × correct / total)), won (accuracy ≥ 80 %, `typo` не считается), first (эта победа — первая над боссом города; у `class_boss` всегда false)}`; `stars` босса — 3 за победу, иначе 0.
 - Повтор того же `request_id` (ответ и подсказка) возвращает тот же `verdict` / `hint` и актуальный `run`; другой `request_id` на уже отвеченный элемент — 409 `answer_already_accepted {verdict}`; тот же `request_id` с другим элементом — 409 `request_id_reused`; не текущий элемент — 409 `element_not_current {current}`.
 - Просроченный забег (`expires_at`) закрывается лениво любым обращением (`finished/expired`) и командой `game:close-expired` (каждые 15 минут, `withoutOverlapping`).
@@ -1660,7 +1736,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
     { "rank": 1, "name": "Dilnoza", "points": 3120, "active_days": 16, "is_me": false },
     { "rank": 12, "name": "Aziz", "points": 820, "active_days": 9, "is_me": true }
   ],
-  "me": { "rank": 12, "points": 820, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 } },
+  "me": { "rank": 12, "points": 820, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 }, "not_counted_reason": null },
   "last_month": {
     "starts_on": "2026-10-01", "ends_on": "2026-10-31", "status": "confirmed",
     "winners": [ { "place": 1, "name": "Dilnoza", "points": 4200 }, { "place": 2, "name": null, "points": 3900 } ],
@@ -1668,17 +1744,68 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   }
 }
 ```
-`prizes` — только места с заданным названием (`league_months.prizes` месяца или `LEAGUES_MONTHLY_PRIZE_*`; по умолчанию пусто → `[]`, блок призов в приложении скрыт). `enabled` — `LEAGUES_ENABLED && LEAGUES_MONTHLY_ENABLED`; при `false` остальное пустое (`top: []`, `me: null`, `prizes: []`, `month.status: null`, `last_month: null`). `month.closes_at` — UTC-момент 1-го числа следующего месяца 00:00 по зоне лиг; `days_left` — календарных дней до конца **включая сегодня** (1 в последний день, 0 после); `status` — `open | closing | pending_review | confirmed`; `participants` — на момент последнего пересчёта. `prizes` — на языке интерфейса (uz → ru, если нет), пустой список = блок призов не показывать. `top` — первые `rules.top` участников по `points ↓, active_days ↓, старший аккаунт`: **только** `name` (имя, может быть `null`), `points`, `active_days`, `rank`, `is_me`; никаких id, username, Telegram-данных. `me` — **своя строка пересчитана этим же запросом** (остальные — планировщиком, отставание ≤ 10 мин); `null`, если в месяце не было ни одного занятия; `rank: null` у не-участника (`participant: false` — отключил лиги `leagues_opt_out`, заблокирован, не прошёл онбординг); `eligible` — право на приз, `missing` — сколько активных дней / дней возраста аккаунта не хватает (0 — хватает). `last_month` — предыдущий месяц или `null`: `winners` заполнен **только** у `confirmed` (до подтверждения — «итоги проверяются», `[]`), `me` — моё финальное место, если участвовал (есть у `pending_review` и `confirmed`).
+`prizes` — только места с заданным названием (`league_months.prizes` месяца или `LEAGUES_MONTHLY_PRIZE_*`; по умолчанию пусто → `[]`, блок призов в приложении скрыт). `enabled` — `LEAGUES_ENABLED && LEAGUES_MONTHLY_ENABLED`; при `false` остальное пустое (`top: []`, `me: null`, `prizes: []`, `month.status: null`, `last_month: null`). `month.closes_at` — UTC-момент 1-го числа следующего месяца 00:00 по зоне лиг; `days_left` — календарных дней до конца **включая сегодня** (1 в последний день, 0 после); `status` — `open | closing | pending_review | confirmed`; `participants` — на момент последнего пересчёта. `prizes` — на языке интерфейса (uz → ru, если нет), пустой список = блок призов не показывать. `top` — первые `rules.top` участников по `points ↓, active_days ↓, старший аккаунт`: **только** `name` (имя, может быть `null`), `points`, `active_days`, `rank`, `is_me`; никаких id, username, Telegram-данных. `me` — **своя строка пересчитана этим же запросом** (остальные — планировщиком, отставание ≤ 10 мин); `null`, если в месяце не было ни одного занятия; `rank: null` у не-участника (`participant: false` — отключил лиги `leagues_opt_out` или заблокирован; онбординг в боте с 25.11.2026 не требуется, docs/34 §3); `not_counted_reason` — почему нет места: `opted_out` | `blocked` (блокировка важнее отказа), `null` у участника; `eligible` — право на приз, `missing` — сколько активных дней / дней возраста аккаунта не хватает (0 — хватает). `last_month` — предыдущий месяц или `null`: `winners` заполнен **только** у `confirmed` (до подтверждения — «итоги проверяются», `[]`), `me` — моё финальное место, если участвовал (есть у `pending_review` и `confirmed`).
+
+**Эмодзи Pro (с 26.11.2026, docs/31 §5а):** у строк `top` — `pro_emoji` (символ, пока у ученика действующий Pro, иначе `null`); едет в кэше топа (`league:month:top:*`): промах +1 оператор, из кэша 0; смена эмодзи сбрасывает топ месяца сразу, истёкший Pro виден не дольше TTL (120 с). У победителей прошлого месяца эмодзи нет.
+
+**Месяц на очках v2 (с 26.11.2026, docs/32 §8.3, S12).** `GET /league/month?category=free|pro&after=…`. У месяца с `rules_version = 2` ответ сохраняет все ключи v1 и добавляет (у месяца v1 их **нет**):
+- `rules_version: 2`; `category` — показанная таблица: `?category=` или своя; `my_category` — своя (категория строки месяца, без неё — текущего тарифа: пробный Pro и место в центре — Pro); `read_only` — показана чужая таблица (Free ↔ Pro): места ученика в ней нет, `neighbours: null`;
+- `month.participants`, `prizes` (3 места Free / 3 Pro) и `top` — **показанной** таблицы; в строках `top` + `long_words`, `rank` конкурентный (1, 2, 2, 4);
+- `me` (всегда своя строка) + `category`, `long_words`, `next_gap` (очки до ближайшего строго лучшего места, `null` у лидера, вне таблицы и при показе чужой таблицы);
+- `neighbours: {above: [BoardRow], below: [BoardRow]} | null` — по 2 участника выше и ниже своей строки в своей таблице; `BoardRow = {rank, name, points, long_words, active_days, is_me, pro_emoji}`;
+- `next_cursor` — `after` страницы после топа (`null`, если топ — вся таблица); `last_month` месяца v2: `winners` — победители **показанной** категории, `winners_by_category: {free: [...], pro: [...]}`, `me` + `category`.
+
+`?after=<next_cursor>` отвечает **только страницей** (`LeagueBoardResource`): `{rules_version: 2, category, read_only, rows: [BoardRow], next_cursor}` (до 50 строк, keyset по `points ↓, long_words ↓, active_days ↓, learner_id ↑` — совместные места одинаковы на разных страницах, порядок стабилен). Курсор привязан к таблице (`m{месяц}{f|p}.{base64url}`): битый, другой категории или месяца и любой `after` месяца v1 → **422 `invalid_cursor`**; неверная `category` → 422 валидации.
+
+Стоимость (`LeagueApiV2Test`, `LeagueV2BudgetTest`): из кэша — как v1 (своё место `league:month:rank:v1:*` и соседи с отрывом `league:month:near:v1:*` кэшируются на 60 с по своему кортежу — своё начисление видно сразу); промах — топ 1 + эмодзи 1, место 1, соседи и отрыв 6 + эмодзи 1; страница — доска 3 + эмодзи 1.
+
+**Таблица области (с 27.11.2026, docs/35 §2.4, R6–R7; решение владельца docs/31 §5г — открыть можно любую область).** Только у месяца v2: `?scope=all|region` (по умолчанию `all`) и `&region=<код>` (только вместе с `scope=region`; код из `config/regions.php`, иначе 422 валидации). `scope=region` без `region` — своя область: область, в которой зафиксирован месяц ученика (первое начисление месяца; пустая заполняется первой выбранной областью), без строки месяца — текущая область. Ответ месяца v2 получает:
+- `scope: "all" | "region"`; `region: {code, name, participants, shown, min_participants} | null` — показанная таблица области (`null` при `scope=all`). Таблица видна от `min_participants` (`LEAGUES_REGIONS_MIN_PARTICIPANTS`, 5): при 4 — `shown: false`, `top: []`, `next_cursor: null`, `neighbours: null` (экран: «В вашей области пока 4 участника»), при 5 — видна;
+- в таблице области: `top` и `month.participants` — этой области, `prizes: []` (призов в таблицах области нет), `read_only` — не своя категория или не своя область (тогда `neighbours: null`), соседи — внутри области;
+- `me.region: {code, name, participants, shown, min_participants, rank} | null` — **при любом `scope`**: место в области своего месяца (`rank: null`, пока таблица скрыта или ученик не участник; `null` — у месяца нет области);
+- `?after=` страницы области — курсор `m{месяц}{f|p}~{код}.{…}`; курсор другой области / всей категории / другого месяца → 422 `invalid_cursor`; страница области несёт `scope: "region"`, `region`.
+
+Ошибки: 422 `region_not_set` — `scope=region` без `region` у ученика без области; 422 `region_scope_unavailable` — область у месяца v1 (режим `off`) или при выключенном рейтинге. Чужая область области ученика не раскрывает: регион другого ученика нигде не выводится. Скрытые (`leagues_opt_out`), заблокированные и удалённые не попадают ни в таблицы, ни в соседей (`participant = false`). Стоимость (`AllTimeRatingBudgetTest`): `GET /league/month` с `me.region` — 15 / 4 операторов (холодный / тёплый; +2 к S12 на промахе — число участников и место в области, оба в кэше), `?scope=region` — 14 / 4.
 
 **`GET /api/twa/league/month/me`** — лёгкий запрос экрана итога занятия (после `POST /finish`): пересчитывает только строку ученика и отвечает
 ```json
-{ "enabled": true, "month": { "starts_on": "2026-11-01", "ends_on": "2026-11-30", "days_left": 15 }, "me": { "rank": 12, "points": 855, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 } } }
+{ "enabled": true, "month": { "starts_on": "2026-11-01", "ends_on": "2026-11-30", "days_left": 15 }, "me": { "rank": 12, "points": 855, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 }, "not_counted_reason": null } }
 ```
 (`me` — как выше). Экран итога показывает «+N баллов» из `POST /finish.league_points` (A.3) и этой строкой — «в рейтинге месяца: 855 баллов, 12-е место».
 
 **`POST /training/sessions/{id}/finish`** += `league_points: int` — баллы занятия по той же формуле (`reviewed×1 + correct×1 + new_words×2`, плюс бонус цели дня 10, если `goal_met_at` попал в интервал этой сессии); без дополнительных запросов. В месячную сумму день входит с потолком, поэтому «+N» может быть больше прироста места.
 
 **События** (`product_events`): `league.month_closed {month_id, starts_on, participants, candidates}` · `league.month_confirmed {month_id, starts_on, winners}` (user) · `league.month_candidate_disqualified / _reinstated {month_id, candidate_id, rank}` (user, learner) · `league.month_prize_delivered {month_id, candidate_id, place}` (user, learner). Событие Laravel `App\Domain\Engagement\Events\LeagueMonthConfirmed {monthId, startsOn, winners[{learner_id, place, points}]}` — после commit подтверждения; ЛС победителям вешает бот (слушатель; тексты `leagues.month.*`). Массовой рассылки итогов нет — итоги в `last_month`.
+
+### A.19a «За всё время» (docs/32 §5, §8.3, §12.11, S10; таблицы области — docs/35 §2.4)
+`Scoring\AllTimeRatingService`, `AllTimeRatingResource` (форма `LeagueBoardResource`), лимит `twa-api`. Только чтение. Считается **только из очков v2** (решение владельца В1): сумма месячного зачёта рейтинговых дней по категории месяца — 800 + 600 в месяцах Free и 950 в месяце Pro дают 1 400 в таблице Free, 950 в Pro и личную сумму 2 350.
+
+**`GET /api/twa/league/all-time?category=free|pro&scope=all|region&region=<код>&after=…`**
+```json
+{
+  "enabled": true, "period": "all_time", "rules_version": 2, "counted_since": "2027-02-01",
+  "category": "free", "my_category": "free", "read_only": false, "opted_out": false,
+  "scope": "all", "region": null, "participants": 38623,
+  "top": [ { "rank": 1, "name": "Dilnoza", "points": 7420, "long_words": 210, "active_days": 61, "is_me": false, "pro_emoji": null } ],
+  "next_cursor": "af.eyJwIjo…",
+  "neighbours": { "above": [BoardRow, BoardRow], "below": [BoardRow, BoardRow] },
+  "me": { "category": "free", "rank": 340, "points": 1400, "long_words": 12, "active_days": 31, "participant": true, "not_counted_reason": null,
+          "first_day": "2027-02-03", "last_day": "2027-03-06", "next_gap": 8,
+          "region": { "code": "UZ-TK", "name": "город Ташкент", "participants": 13502, "shown": true, "min_participants": 5, "rank": 112 } },
+  "my_total": { "points": 2350, "free": 1400, "pro": 950 }
+}
+```
+- `enabled: false` (режим очков не `live`: `off`, `shadow`; лиги выключены) — ответ только `{"enabled": false, "period": "all_time"}`; ничего не пишется и не читается.
+- `category` — показанная таблица (`?category=` или своя); `my_category` — своя: категория текущего месяца ученика, без неё — текущего тарифа. `read_only` — у ученика нет места в показанной таблице (нет очков в этой категории, не участник, другая область); тогда `neighbours: null`.
+- `me` — строка ученика **показанной** категории (`null` — очков в ней нет); `rank` — конкурентное место в категории (`null` у не-участника, `not_counted_reason`: `opted_out` | `blocked`); `next_gap` — очки до ближайшего строго лучшего места **показанной таблицы** (`null` у лидера и без места в ней); `region` — место в **текущей** области ученика (`null` без области; `rank: null`, пока таблица скрыта).
+- `my_total` — личная сумма по обеим категориям (видна владельцу и при отказе от лиг); `free` / `pro` — `null`, если в категории очков нет.
+- `scope=region` — таблица области (своя — **текущая** область ученика, «люди области»; `region=<код>` — любая, только чтение): `region: {code, name, participants, shown, min_participants}`, порог 5 как у месяца (при 4 — `top: []`, `next_cursor: null`, `neighbours: null`).
+- `?after=<next_cursor>` — только страница (`LeagueBoardResource` + `period: "all_time"`, `scope`, `region`); курсор `a{f|p}[~{код}].{…}` привязан к категории и области: курсор месяца, другой категории или области, битый → 422 `invalid_cursor`.
+- Ошибки: 422 `region_not_set` (своя область не выбрана), 422 валидации (`category`, `scope`, `region` вне списка, `region` без `scope=region`).
+
+**Свежесть.** Таблица — последний пересчёт `learner_score_totals` (плановый раз в 10 минут + сброс топа; другие отстают ≤ 10 мин и TTL топа 120 с). **Своя строка свежая всегда**: один оператор читает свои строки вместе с моментом последнего изменения своих дней (сегодня и вчера); день новее строки — пересчёт ученика (1 оператор) и повторное чтение. Исправление дня, отказ от лиг, блокировка, удаление и смена области пересчитывают строку сами.
+
+**Стоимость** (`AllTimeRatingBudgetTest`, таблица на 11 и 61 участника — не растёт): `GET /league/all-time` — 13 холодный / 2 тёплый (auth + свои строки), `?scope=region` — 12 / 2, `?after=` — 7. Планы — docs/32 §12.11.
 
 ### A.20 Готовность к уровню и тест недели (docs/13 §8.5; 18.11.2026)
 Блок `active_course.readiness` на «Сегодня» — A.2a. Здесь — полный экран и тест. Включатели: `READINESS_ENABLED` (всё), `READINESS_QUIZ_ENABLED` (только тест); `config/readiness.php`. Доступно всем тарифам. Для личной колоды (`owner_type = learner`) экран не имеет смысла — клиент не показывает вход.
@@ -1763,6 +1890,233 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 **Что НЕ собирается:** имя, username, Telegram id в props, user agent, модель устройства, версия ОС, IP, размер экрана, тексты, адреса
 страниц. Ученик связан с событием только через `learner_id` строки, как у любого продуктового события.
 
+### A.22 «Поделиться» через бота: `POST /api/twa/share/prepare`, `POST /api/twa/share/events` (docs/36 §1в, H3/H4/H7)
+
+Сообщение «через бота» с фото-карточкой и кнопкой «🚀 Начать изучение» → `https://t.me/<bot>?start=ref_<код>` (для `friend_invite` —
+«🤝 Добавить в друзья» → `?start=f_<код>`). Сервер готовит его методом Bot API `savePreparedInlineMessage`, Mini App передаёт `id` в
+`WebApp.shareMessage(id)` (Mini Apps 8.0+; метод `@twa-dev/sdk` 8.x, с 26.11.2026 — без сырого события WebView, docs/36 §1а). Ядро — `ShareMessageBuilder` и `SharePreparer` (`app/Domain/Engagement/Services/`).
+
+**`POST /share/prepare`** (лимитеры `twa-api` + `twa-share`: **20/мин и 100/сутки на learner'а**, ответы из кэша тоже считаются; 429)
+```json
+{ "kind": "achievement", "subject": "streak_7" }
+```
+- `kind` — `achievement` (subject — ключ открытого достижения) · `game_city` (subject — `stage_id` города, босс которого побеждён) ·
+  `invite` и `friend_invite` (subject **запрещён**). `league_week`, `month_place` — позже (docs/36), сейчас 422 как неизвестный вид.
+- Других полей сервер не читает: текст, фото, адрес и Telegram id берутся **только** с сервера. `user_id` в Bot API — `telegram_user_id`
+  ученика из JWT. Подпись — `lang/{ru,uz}/share.php` на языке ученика (`interface_locale`), без имени ученика и без `parse_mode`.
+  Фото — публичный HTTPS-адрес карточки (`/storage/share-cards/…jpg`); без него (диск не публичный, `APP_URL` не https, карточка не
+  нарисовалась) — `InlineQueryResultArticle` с тем же текстом и кнопкой. Сообщение можно отправить в личные чаты, группы и каналы, не ботам.
+
+**200** — `{ "id": "…", "expires_at": "2026-11-25T12:00:00+00:00" }` (срок — `expiration_date` Telegram). Повторное нажатие в пределах
+срока минус 5 минут (но не дольше часа) отвечает тем же `id` без вызова Bot API: кэш `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{версия
+содержимого}` (чистый кэш, docs/19 §2.2; версия — тексты, ссылка, шаблон и настройки карточки, без отрисовки); смена текста, ссылки или
+настройки карточки меняет ключ. Проверки предмета (своё достижение, открытая игра) выполняются на каждое нажатие, в том числе из кэша. Два одновременных нажатия — один вызов Bot API (блокировка на ключ, второй
+ждёт до 3 с). Событие `share.prepared {kind, subject, via: mini_app, cached, photo}`.
+
+| Код | `error.code` | Когда | Что делает клиент |
+|---|---|---|---|
+| 401 | `unauthorized` / `token_expired` / `learner_blocked` … | как у всего TWA (A.6); заблокированный ученик отсекается здесь | как везде (обновить токен / экран блокировки) |
+| 403 | `share_unavailable` | «поделиться» выключено (`SHARE_ENABLED=false`), у бота нет имени, игра закрыта для `game_city` | запасной путь: `shareUrl(link, text)` (нынешний `t.me/share/url`) |
+| 404 | `share_subject_not_found` | достижения / города нет, не открыто / не побеждён, **или чужое** — одним кодом и одним текстом | запасной путь |
+| 422 | ошибки валидации | неизвестный / будущий `kind`, нет / лишний / кривой `subject` | ошибка клиента: запасной путь, в лог |
+| 429 | — | лимит `twa-share` (`Retry-After`) | запасной путь, повторять не нужно |
+| 503 | `share_failed`, `details.retry_after?` | Bot API отказал, не ответил, ответил 429; бот на паузе после 429 (сразу, без вызова; `Retry-After`); параллельный запрос держит блокировку дольше 3 с | запасной путь |
+
+Во всех отказах клиент открывает нынешний `t.me/share/url` с прежними `share_link` / `share_text` (поля ресурсов остаются). Отметка
+«поделился» (`/achievements/{key}/shared`, `/game/cities/{stage}/shared`) — после `shareMessage` → `sent`, в запасном пути — как сейчас.
+
+**`POST /share/events`** (лимитеры `twa-api` + `twa-share-event`: 30/мин на learner'а) — клиентская аналитика, **204** без тела:
+```json
+{ "event": "sent", "kind": "invite" }
+{ "event": "fallback", "kind": "achievement", "reason": "old_client" }
+```
+`event`: `sent` → `share.sent {kind}` (колбэк `shareMessage` вернул `true`); `fallback` → `share.fallback {kind, reason}`, `reason` —
+`old_client` (нет `shareMessage`, Mini Apps < 8.0) или `error` (prepare отказал или `shareMessage` не удался); у `sent` `reason` запрещён.
+`kind` — те же виды. Иное — 422, ничего не пишется. Клиент шлёт без ожидания, ошибки глотает.
+
+### A.23 Кубок друзей в группе (docs/33 §7.2; ядро — K4/K5, маршруты — K7 ✅ 25.11.2026)
+
+Все маршруты — `/api/twa`, за `TwaAuth` и `twa-api`, ответы — Resource-классы (`app/Http/Resources/Twa/Cup/*`), ошибки — конверт
+`ApiErrorResource` `{error: {code, message, details?}}` с кодами `CupException`. Личность — только `learner` из JWT; членство в чате —
+свежий `getChatMember` на сервере (`CupMembershipGate`); код кубка в ссылке, `start_param`, время, очки, вердикт и состав заданий
+клиента — не факты (лишние поля тела игнорируются). Порядок проверок и «двери» — `CupMiniApp`; один запрос находит кубок, его группу и
+своё участие (`CupReader::locate`).
+
+**Выключатель.** `CUP_ACCESS=off` — **все** маршруты ниже отвечают одинаково `403 {"error":{"code":"cup_unavailable","message":"The cup
+is not available in this chat."}}` до чтения БД (middleware `EnsureCupAccess`), есть кубок, попытка, код или нет. `pilot` — маршруты
+открыты, кубок группы без `meta.cup_pilot` отвечает 403 `cup_unavailable` **только тому, кто прошёл дверь членства** (участнику или
+члену чата); чужой получает 403 `cup_not_member`.
+
+**Двери.**
+- **По числовому id** (`/cups/{id}…`) — чтения (`GET /cups/{id}`, `GET …/rounds/today`), **вступление** и действия админа чата — одна
+  дверь `assertCanView(…, opaque: true)` (ревью выпуска 5, docs/33 §11.7 п. 2, §11.8):
+  - **не-участнику** (по базе) и отсутствующему кубку — **один и тот же** 403 `cup_not_member` (тело байт в байт) на **любой** отказ:
+    не член, пауза (бот удалён — Telegram даже не спрашивается), бот не может проверить, Telegram недоступен, проверка занята. Открывает
+    кубок только однозначный ответ Telegram «член чата»; причины (409 / 503 / 429) не-участник видит только по коду ссылки;
+  - **участник** (по базе, любого статуса) получает причины: 409 `cup_paused` / `cup_unverifiable {bot_not_admin}`, 503
+    `cup_unverifiable {telegram_unavailable}`, 429 `cup_check_busy`;
+  - участник `active` проходит без Telegram; участник `left` (вышел или исключён — в открытом или завершённом кубке) — только со свежей
+    проверкой «член чата», иначе тот же 403, что посторонний (таблица с именами и очками не видна исключённому, docs/33 §11.2 п. 7);
+  - участник, **сам вышедший из кубка** (`POST …/leave`, `withdrawn_at`, docs/33 §11.12), — тот же 403 `cup_not_member` **без** вызова
+    Telegram на всех маршрутах кубка (и по коду ссылки), даже если он член чата: вернуться в этот кубок нельзя.
+  Статус кубка (`cup_not_open`, 410) при вступлении видит только прошедший дверь. Ответ двери переиспользуется самим вступлением
+  (троттлинг ядра, 10 с): один `getChatMember` на запрос.
+- **Имя** — только участник `active`, и он должен быть членом чата **сейчас**: свежая проверка (`admitToRename`, как старт раунда, но без
+  24 ч по сбою Telegram); `left` — 403 `cup_not_member` без вызова Telegram; «не член» — 403 и участник становится `left`; причины сбоя
+  — 409 / 503 / 429 (он участник). **Старт раунда** — только участник (`left` проверяется заново в ядре). Не-участник получает 403
+  `cup_not_member` до того, как ядро посмотрит на статус кубка.
+- **По коду ссылки** (`/cups/by-code/{code}`, 22 символа base64url, иное — 404 маршрутизатора) — `opaque: false`: код — подсказка, какой
+  кубок открыть, пропуск — только ответ Telegram об **этом** ученике. Пересланная ссылка чужому — 403 `cup_not_member`, тот же ответ,
+  что у несуществующего кода, без названия группы.
+- **Попытка** — чужая и несуществующая — один 404 `cup_round_not_found` на всех трёх маршрутах попытки.
+
+| Метод и путь | Лимитер (сверх `twa-api`) | Ядро | Ответы |
+|---|---|---|---|
+| `GET /cups` | — | `CupReader::mine()` | 200 `{cups: [CupFields + me]}`: открытые, затем 10 последних завершённых/отменённых; кубков, из которых ученик вышел сам (`…/leave`), в списке нет |
+| `GET /cups/by-code/{code}` | `twa-cup-read` 30/мин | `assertCanView(opaque: false)` | 200 `CupInviteResource`; 403 `cup_not_member` (и «нет кубка»); 409 `cup_paused {reason}` / `cup_unverifiable {reason: bot_not_admin}`; 503 `cup_unverifiable {reason: telegram_unavailable}`; 429 `cup_check_busy`; 403 `cup_unavailable` (пилот). Событие `cup.invite_viewed {cup_id, joined, status}` — раз в час на ученика и кубок |
+| `GET /cups/{id}` | `twa-cup-read` | `assertCanView(opaque: true)` + `CupStandings::table()` + эмодзи Pro + `today()` + дни | 200 `CupResource`; 403 `cup_not_member` / `cup_unavailable` |
+| `GET /cups/{id}/rounds/today` | `twa-cup-read` | `CupRoundService::today()` | 200 `{state: not_started / active / done / not_available, day, attempt_id, points, expires_at, server_now}`; члену чата без участия — `not_available` |
+| `POST /cups/{id}/join {display_name?}` | `twa-cup-join` 10/мин | дверь id + `CupParticipationService::join()` | 201 новый / 200 уже участник (вышедший снова `active`, счёт прежний) `CupParticipantResource`; 403 `cup_not_member` (и любой сбой проверки не-участнику); участнику и прошедшему дверь — 409 `cup_not_open` (черновик), `cup_paused`, `cup_unverifiable {bot_not_admin}`, 503, 429; 410 `cup_closed`; 422 `cup_display_name_invalid {reason}` (имя проверяется до членства) |
+| `PATCH /cups/{id}/me {display_name}` | `twa-cup-join` | `rename()` (свежая проверка членства) | 200 `CupParticipantResource`; 403 `cup_not_member` (не участник, `left`, не член чата сейчас); 409 `cup_rename_limit` (3 смены), `cup_paused`, `cup_unverifiable {bot_not_admin}`; 410; 422 `cup_display_name_invalid {reason}`; 503; 429 |
+| `POST /cups/{id}/leave` (docs/33 §11.12, 27.11.2026) | `twa-cup-join` | дверь по базе без Telegram (`CupReader::locate`) + `CupParticipationService::leave()` | 200 `CupLeaveResource` (и на повтор — двойное нажатие, то же тело); 403 `cup_not_member` (нет кубка, посторонний, член чата без участия — то же тело, что у всех маршрутов кубка); 403 `cup_unavailable` (пилот); 410 `cup_closed` (кубок завершён / отменён). Можно и `left`-участнику (вышел из чата), и организатору. Событие `cup.left {cup_id, participant_id, status, duels_closed}` |
+| `POST /cups/{id}/rounds/today` | `twa-cup-start` 10/мин | `startToday()` | 201 новая / 200 уже открытая попытка `CupRoundResource`; 403 `cup_not_member` (не участник; вышедший из чата → `left`); 409 `cup_round_done {points}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`; 410 `cup_closed`; 503; 429 |
+| `GET /cup-rounds/{attempt}` | — | `find()` | 200 `CupRoundResource` (та же попытка, исходный `expires_at`; просроченная закрывается `expired`); 404 `cup_round_not_found` |
+| `POST /cup-rounds/{attempt}/answer {request_id, element_id, answer}` | `twa-cup-answer` 90/мин | `answer()` | 200 `CupRoundAnswerResource`; повтор `request_id` — то же тело, `replayed: true`; 409 `answer_already_accepted {verdict}`, `element_not_current {current}`, `cup_round_expired {points}`, `cup_round_done {points}`; 410 `cup_closed`; 422 форма (`answer` — только `option_id` / `text` ≤ 200 / `skip`), `invalid_answer_shape`, `unknown_element_id`, `unknown_option_id`; 404 |
+| `GET /cup-rounds/{attempt}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | `find()` + `audioOf()` | клип `listen`-задания своей попытки: текущего или уже отвеченного (следующие слова заранее не выдаются); слово на R2 — 200 `{url}`; локальный файл — поток `audio/mpeg`, `Cache-Control: private, no-store`; иначе 404 `cup_round_not_found`; нет файла — 503 `practice_audio_unavailable` |
+| `GET /cups/setup/{code}` | `twa-cup-admin` 10/мин | `CupAdminCheck::assertChatAdmin()` | 200 `CupSetupResource`; 403 `cup_not_chat_admin` (и «нет кода»); 409 `cup_paused`; 503 |
+| `POST /cups/setup/{code}/publish {level?, locale?}` | `twa-cup-admin` | `publish()` | 200 `CupSetupResource` (повтор — тот же кубок; уже опубликованный показывается только админу чата); 403 `cup_not_chat_admin`; 409 `cup_bot_not_admin`, `cup_paused`; 410 `cup_closed`; 422 `cup_level_invalid`, `cup_material_unavailable`; 503 |
+| `PATCH /cups/{id}/settings {level?, locale?, summaries_enabled?, summary_minute?}` | `twa-cup-admin` | дверь id + `updateSettings()` | 200 `CupSetupResource`; 403 `cup_not_member` / `cup_not_chat_admin`; 409 `cup_already_published` (уровень/язык после публикации); 410; 422 (`summary_minute` 0…1439, `cup_level_invalid`, `cup_material_unavailable`) |
+| `POST /cups/{id}/cancel` | `twa-cup-admin` | дверь id + `cancelByChatAdmin()` | 200 `CupSetupResource` (`status: canceled`, `cancel_reason: chat_admin`; завершённый — как есть); 403 `cup_not_member` / `cup_not_chat_admin` |
+
+**Формы ответов** (точно закреплены `tests/Feature/Cup/CupContractTest.php`; время — ISO 8601 UTC с миллисекундами, `…T19:00:00.000Z`;
+границы дней — полночь `timezone`; наружу — только `participant_id`, никогда `learner_id` / Telegram id / `public_code` / `seed_secret`):
+
+- **`CupFields`** (общая часть): `{id, status, group_title, level, days, counted_days, round_tasks, round_minutes, timezone, starts_at,
+  ends_at, day (текущий день идущего кубка или null), summaries_enabled, summary_time ("20:00"), paused (null | bot_removed | blocked),
+  next_day_at}`. `next_day_at` — когда откроется следующий раунд (ISO 8601 UTC; решает сервер — полночь `timezone` с учётом перевода
+  часов, `CupClock::nextRoundAt`, без запроса): до старта — день 1, пока идёт — следующая полночь, в последний день, в черновике и в
+  закрытом кубке — null.
+- **`rules`**: `{points_per_answer: 2, typo_points: 0, max_day_points, counted_days, days, max_total}`.
+- **`CupInviteResource`**: `CupFields + {participants_count, rules, me: {joined, participant_id, status, display_name (своё имя в кубке
+  или имя для вступления — из Telegram), left}}`.
+- **`CupParticipantResource`**: `{participant_id, cup_id, display_name, status, first_day, renames_left}`.
+- **`CupLeaveResource`** (`POST /cups/{id}/leave`): `{participant_id, cup_id, status: "left", left: true, left_at}` (`left_at` — когда
+  вышел из кубка). Экран после ответа уходит в список кубков.
+- **`GET /cups`**: `{cups: [CupFields + {me: {participant_id, display_name, status, total, days_played, final_rank, today: {state, day}} |
+  null}]}`. `me.today.state` — раунд сегодняшнего дня по правилам `CupRoundService::today()`: `not_started` / `active` / `done` /
+  `not_available` (кубок не идёт, дня нет, участник вступил позже); читается **в том же одном операторе** списка (два скалярных
+  подзапроса: сегодняшний день кубка по unique `(cup_id, day)` и попытка участника по unique `(cup_day_id, participant_id)`).
+- **`CupResource`** (`GET /cups/{id}`): `{cup: CupFields + {rules}, standings: [{participant_id, rank, display_name, pro_emoji (эмодзи
+  Pro, docs/31 §5а, или null), total, round_points, days_played, left, me}], me: null | {participant_id, display_name, status, first_day,
+  renames_left, total, final_rank, today: {state, day, attempt_id, points, expires_at}, days: [{day, points, round_points, duel_points,
+  played, counted, available}] (все дни кубка; `counted` — день в зачёте лучших `counted_days`), duel: Availability | null (можно ли вызвать
+  на дуэль сегодня, A.23d; null — дуэли выключены)}, can_manage, server_now}`. `can_manage` —
+  только подсказка для ссылки «Настройки» (ученик предложил или опубликовал кубок); каждое действие админа спрашивает Telegram заново.
+- **`CupRoundResource`**: `{attempt_id, cup_id, participant_id, day, status (active | finished), finish_reason (null | completed | expired),
+  total, answered, correct, points, max_points, position, started_at, expires_at, server_now, current, answers: [{element_id, verdict,
+  points}], review, next_day_at}` (`next_day_at` — конец дня попытки = открытие раунда следующего дня, null в последний день; из строки
+  дня, без запроса). `current` — проекция задания игры с позицией: `translate_fwd {position, id, kind, prompt, audio, options}`,
+  `translate_back {position, id, kind, prompt, options}`, `listen {position, id, kind, audio, options, audio_url}`, `spell {position, id,
+  kind, prompt, answer_length}`, `gap {position, id, kind, masked, translation}`; `options: [{id, text}]` — в своём порядке у каждого
+  участника. **Ни в `current`, ни где-либо до ответа нет** `correct_option_id`, `expected`, `correct_text`, `full_text`, `word_id`, `word`,
+  `lexeme_id`, `audio_path`, `audio_disk`. `review` — null, пока попытка идёт; после — `[{element_id, kind, verdict, points, answer,
+  reveal}]` (правильные ответы; у `listen` ещё `audio_url`).
+- **`CupRoundAnswerResource`**: `{verdict, points (0 или 2; опечатка — 0), reveal (правильный ответ только что отвеченного задания),
+  finished, total_points, replayed, round: CupRoundResource}`.
+- **`CupSetupResource`**: `CupFields + {locale, summary_minute, cancel_reason, options: {levels, locales}, rules}`.
+- **422 `cup_display_name_invalid`** — `details: {reason}` (`DisplayName::validate()`, docs/33 §11.8 п. 4): `empty` (пусто после
+  очистки невидимых символов), `too_long` (больше 32 графем или 64 кодовых точек), `marks` (больше 2 комбинирующих знаков подряд), `link`
+  (`://`, `www.`, точка между буквой/цифрой и буквой — `site.com`, `t.me/x`, `J.R`), `mention` (`@` в начале слова), `command` (`/` в
+  начале слова), `tag` (`#` в начале слова с буквой, `$` перед латинской буквой). Длина — в графемах (эмодзи-семья — один символ).
+  Имя очищается до проверки: NFC, без управляющих / bidi (U+202A–U+202E, U+2066–U+2069) / невидимых символов, пробелы схлопнуты;
+  ZWJ остаётся только внутри эмодзи.
+
+**Операторы SQL на маршрут** (PostgreSQL и SQLite одинаково; `CupHttpQueryBudgetTest`, ядро — `CupQueryBudgetTest`): HTTP-слой добавляет
+к ядру ученика из JWT (1) и кубок с группой и своим участием (1), таблица — эмодзи Pro (1 холодный, 0 тёплый); события продукта
+пишутся после ответа одним INSERT. `GET /cups/{id}` — 7 холодный / 5 тёплый (не растёт с участниками и эмодзи); `GET /cups/by-code` — 3
+(с событием) / 2; вступление — 6; `PATCH /me` — 6 (+ запись свежей проверки членства); старт раунда — 11 (ядро 9), возобновление — 6; `GET /cup-rounds/{id}` — 2;
+`GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков (с `me.today`); выход из кубка —
+8 с публичным вызовом для правки / 7 без (ученик, дверь, кубок `FOR KEY SHARE`, открытые вызовы одним `UPDATE … RETURNING`, [правка
+outbox], строка участника `FOR UPDATE`, UPDATE, событие), повтор — 2; все обращения — по PK / unique / частичным индексам дуэлей
+(`CupLeaveTest`).
+
+#### A.23d Дуэли кубка (ядро D1 ✅ 26.11.2026, HTTP и бот D2 ✅ 26.11.2026; решения — docs/33 §11.9, §11.10)
+
+Все маршруты — `/api/twa/cups/{id}/duels…`, за `TwaAuth`, `twa-api`, `EnsureCupAccess` и `EnsureCupDuels`; ответы — Resource-классы
+(`CupDuelResource`, `CupDuelListResource`), ошибки — конверт `ApiErrorResource` с кодами `CupException` / `BattleException` /
+`PracticeException`. Тонкий контроллер `Api\Twa\Cup\CupDuelController` → `Cup\Services\CupDuelMiniApp` (дверь) → ядро `CupDuelService` /
+чтения `CupDuelReader`.
+
+**Порядок ответов (одинаковые тела — байт в байт):**
+1. `CUP_ACCESS=off` → 403 `cup_unavailable` (до БД).
+2. Дуэли выключены (`CUP_DUELS=false`, или `PRACTICE_BATTLE=false`, или `PRACTICE_ACCESS=off`) → **409 `cup_duel_disabled`** на всех
+   маршрутах до чтения БД — есть кубок, дуэль, участие или нет.
+3. **Дверь кубка** — один оператор (`CupReader::locate` + скаляры маршрута), **без Telegram**: нет кубка, посторонний (в т. ч. член чата
+   без участия), участник `left` → один 403 `cup_not_member`. Пилот без флага группы → 403 `cup_unavailable` (только прошедшему дверь).
+4. **Дуэль** (маршруты `/{duel}`): нет такой, дуэль другого кубка, адресный вызов другому → один 404 `cup_duel_not_found`.
+5. Ядро: свежая проверка членства того, кто действует (вызов, принятие), и все правила — причины видит участник.
+
+| Метод и путь | Лимитер (сверх `twa-api`) | Ответ | Ошибки (сверх п. 1–4) |
+|---|---|---|---|
+| `GET /cups/{id}/duels` | `twa-cup-read` 30/мин | 200 `CupDuelListResource` | — |
+| `GET /cups/{id}/duels/{duel}` | `twa-cup-duel-poll` 40/мин (`CUP_DUEL_POLLS_PER_MINUTE`) | 200 `CupDuelResource` | 404: дуэль не видна (видна игрокам; публичная и открытая всем — любому участнику) |
+| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, kind?, request_id}` | `twa-cup-duel` 20/мин (`CUP_DUEL_ACTIONS_PER_MINUTE`) | 201 новый / 200 тот же `request_id` — `CupDuelResource` | `kind` (docs/33 §11.12, 27.11.2026): `rated` \| `friendly`; нет поля — как раньше (зачётная, если оба слота свободны, иначе товарищеская). `friendly` — никогда не зачётная (`rated: false` сразу), `rated` при **своей** сыгранной зачётной дуэли сегодня — 409 `cup_duel_rating_changed {rated: false}`, вызов не создаётся (сыгранная адресатом — товарищеское предложение, как раньше). 403 `cup_duel_unavailable` (соперника нельзя вызвать — без причины; и когда вызвавший или адресат вышел из кубка / чата, пока вызов создавался — docs/33 §11.12.2 п. 8), `practice_limit_reached` (товарищеская, Free); 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope: daily \| pair \| public_participant \| public_chat, limit}`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`, форма (`public` обязателен, `request_id` — UUID, `mode` — значение `PracticeMode`, `kind` — `rated` / `friendly`); 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
+| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `twa-cup-duel` | 201 принят сейчас / 200 принят раньше — `CupDuelResource` с `battle_id` | `expect_rated` = `rated_for_me` прочитанной дуэли (не `rated_offered`!). 409 `cup_duel_rating_changed {rated}` (вид изменился после чтения: показать новый статус, принять ещё раз с `rated` из ответа — экран хранит его отдельно от опроса, пока статус дуэли тот же), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}` (мой матч), `cup_duel_opponent_busy`, `cup_paused`, `battle_disabled`, `practice_mode_disabled`; 403 `cup_duel_unavailable`, `cup_not_member` (принимающий вышел из кубка / чата — и после двери, docs/33 §11.12.2 п. 8; вызвавший вышел — 409 `cup_duel_closed {canceled, left}`); 422 `battle_material_unavailable`, форма (`expect_rated` обязателен); 503 / 429 — проверка членства |
+| `POST /cups/{id}/duels/{duel}/decline` | `twa-cup-duel` | 200 `CupDuelResource` (`declined`; повтор — то же) | 403 `cup_duel_not_recipient` (свой вызов или открытый всем); 409 `cup_duel_closed {status, reason}` |
+| `POST /cups/{id}/duels/{duel}/cancel` | `twa-cup-duel` | 200 `CupDuelResource` (`canceled`, `end_reason: challenger`; повтор — то же) | 404 (не мой вызов); 409 `cup_duel_closed` |
+
+**Формы** (точно закреплены `tests/Feature/Cup/CupDuelHttpTest.php`; время — ISO 8601 UTC с миллисекундами; наружу — только
+`participant_id`, никогда `learner_id` / Telegram id / `request_id` / `public_code`):
+
+- **`CupDuelResource`**: `{id, status (open | accepted | declined | expired | canceled | done | void), end_reason (null | declined | expired |
+  cup_over | challenger | cup_closed | left | challenger_limit | material | no_answers | battle_gone | battle_voided), rated_offered (что
+  предложил вызвавший — пишется один раз при вызове, от смотрящего не зависит), rated_for_me (вид дуэли **для смотрящего**: открытый вызов —
+  зачётная, если ни вызвавший, ни тот, кто примет (адресат, а у открытого всем — сам смотрящий), не сыграл зачётную дуэль сегодняшнего дня
+  кубка; это и есть `expect_rated` его принятия; иначе — `rated` / `rated_offered`; с 26.11.2026, docs/33 §11.11; товарищеская по выбору —
+  всегда `false`), rated (вид, решённый окончательно: null — решит принятие; `false` уже у открытого вызова, если вызвавший выбрал
+  `kind = friendly` (docs/33 §11.12); иначе — что решило принятие),
+  public, mode, day, accepted_day, expires_at, battle_id (null до принятия), role (challenger | opponent | null — смотрит тот, кто может
+  принять открытый вызов), challenger: {participant_id, display_name, pro_emoji}, opponent: {participant_id, display_name, pro_emoji} | null
+  (открытый вызов), points: {challenger, opponent} | null (до `done`), winner_participant_id, server_now}`. Имена — имена участников в
+  кубке, эмодзи — из кэша эмодзи таблицы (`CupProEmoji::forCup`).
+- **`CupDuelListResource`** (`GET …/duels`): `{incoming: [CupDuelResource] (открытые вызовы мне), open: [CupDuelResource] (открытые всем, не
+  мои), mine: CupDuelResource | null (мой открытый вызов), today: [CupDuelResource] (мои дуэли сегодняшнего дня кубка, уже не открытые —
+  принятые, сыгранные, сорванные, отклонённые, истёкшие, отменённые; новые сверху), availability: Availability, server_now}`. Вызов, чьё
+  время вышло (уборщик ещё не прошёл), не показывается нигде.
+- **`Availability`** — и в `availability` списка, и в **`GET /cups/{id}` → `me.duel`** (`null`, пока дуэли выключены): `{day (сегодняшний
+  день идущего кубка или null), can_challenge (кубок идёт, не на паузе, я `active`, нет моего открытого вызова, вызовы дня не кончились),
+  rated_available (моя зачётная дуэль сегодня не сыграна), challenges_left (из `cup.duel.daily_challenges` = 20), open_duel_id (мой
+  открытый вызов — показать его вместо нового)}`. Это подсказка экрана: ядро решает заново при вызове.
+- Открытые всем вызовы ученика, заблокировавшего меня или заблокированного мной (`friendships`), в `open` не попадают (тот же один
+  оператор). Матч дуэли (`battle_id`) играется по обычным маршрутам `/practice/battles/{id}…` **без проверки доступа к практике**
+  (`PRACTICE_ACCESS=pilot`, `practice.plan=pro`): его игрокам дверь открывает участие в кубке (docs/33 §11.11 п. 2); остальные
+  проверки баттла (игрок этого матча, блокировка ученика) — как у любого матча. Выключатель практики целиком (`PRACTICE_ACCESS=off`) —
+  по-прежнему 409 `cup_duel_disabled`.
+
+**Переход в баттл (экран ожидания).** Комната матча дуэли живёт `presence_grace_seconds` (30 с) от принятия.
+- Принявший: ответ `accept` (201) уже содержит `battle_id` — экран сразу ведёт в существующий `/battles/{battle_id}` (`BattleView`,
+  `GET /practice/battles/{id}` и опрос `…/poll`), как после принятия обычного вызова на баттл.
+- Вызвавший: после `POST …/duels` экран ожидания опрашивает `GET /cups/{id}/duels/{duel}` раз в 3 с (лимит 40/мин) до `status ≠ open`:
+  `accepted` → сразу `/battles/{battle_id}`; `declined` / `expired` / `canceled` → экран итога вызова. Параллельно ему приходит ЛС «Вызов
+  принят» с кнопкой в матч (`TwaScreen::Battle`) — если экран закрыт.
+- Ссылка из чата `TwaScreen::CupDuel` → `/cups/c/{code}/duels/{duel}`: экран сначала открывает кубок по коду (`GET /cups/by-code/{code}` →
+  `id`), затем `GET /cups/{id}/duels/{duel}`.
+
+**Операторы SQL** (`CupDuelHttpQueryBudgetTest`; PostgreSQL = SQLite; тёплый кэш эмодзи, холодный — +1): HTTP-слой добавляет к ядру
+ученика JWT (1) и дверь (1) — `GET …/duels` 3 при любом числе дуэлей (дверь со скалярами доступности + **один** оператор списка),
+`GET …/duels/{duel}` 3, вызов личный / публичный / повтор — 10 / 11 / 4 (ядро 8 / 9 / 2) при любом `kind` (слоты — в том же операторе
+лимитов), принятие — 22 (ядро 21, два события — один INSERT после ответа; товарищеская по выбору — ядро 19: слоты не читаются и не пишутся), повтор принятия — 6, отказ публичного — 9, отмена личного — 8. `GET /cups/{id}` — те же 5 тёплый / 7 холодный:
+доступность дуэли — скалярные подзапросы в том же операторе двери.
+
+**Бот (B.16).** Публичный вызов — строка outbox `duel:{id}`: новое сообщение в чат (тема `card_thread_id`) с url-кнопкой «⚔️ Принять вызов»
+→ `TwaScreen::CupDuel`; вызов, сорвавшийся до отправки (отклонён, истёк, отменён, void), **не публикуется** (`skipped/fell_through`).
+Исход — строка `duel:{id}:end`: **правка** того же сообщения (`editMessageText`, без кнопок), никогда не новое; «message is not modified» —
+успех; исходная строка ещё `pending` / `sending` → правка ждёт 20 с (`pending`); исходная `skipped` / `unknown` / `failed` → `skipped`. Текст —
+`CupDuelRenderer::message()` по состоянию дуэли на момент отправки. 403 → `skipped`, группа `disabled` (`GroupBotRemoval`); 429 → `pending`
+(пауза только этого чата); таймаут → `unknown`; «message to edit not found» → `skipped`. ЛС — `SendCupDuelDmJob` → `CupDuelMessenger`:
+личный (не публичный) адресный вызов — адресату (кнопка в вызов), принятие — вызвавшему (кнопка в матч, пока он в комнате); правила
+отправителей docs/34 §4в п. 8, маркер `notifications_log` `cup_duel_dm`, ключ `{kind}:{duel}`.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook
@@ -1840,6 +2194,50 @@ public function __invoke(Request $request, string $secret)
 Команда идемпотентна: запускается после `telegram:set-webhook` при первичной настройке и повторяется после деплоя, который меняет
 набор команд или их описания (README «Первичный setup на сервере», docs/VPS_DEPLOY_GUIDE_RU.md §15, docs/DEVOPS_GUIDE.md §12).
 
+**Сообщения «через бота»: `savePreparedInlineMessage` и `answerInlineQuery`** (docs/36 §1в, задача H2; формат сверен с
+core.telegram.org/bots/api 25.11.2026). Методы контракта `TelegramClient`, вызов — сырой `post()` SDK (как `setChatMenuButton`):
+
+- `savePreparedInlineMessage(userId, result, allowUserChats, allowBotChats, allowGroupChats, allowChannelChats): PreparedInlineMessage`
+  — сообщение для `WebApp.shareMessage` (Bot API 8.0). `result` — **один** `InlineQueryResult` (`InlineQueryResultPhoto` с JPEG
+  `photo_url` и `thumbnail_url` до 5 МБ, подпись до 1024 знаков, `reply_markup`; или `InlineQueryResultArticle` с
+  `input_message_content`), уходит JSON-строкой; флаги `allow_*_chats` отправляются только со значением `true` (по умолчанию у
+  Telegram — `false`). Ответ — DTO `PreparedInlineMessage {id, expirationDate}` (Unix-время из `expiration_date`; срок жизни берётся
+  из ответа, не из конфига). Ответ «ok» без `id`/`expiration_date` — `TelegramApiException` как сбой транспорта (`isApiResponse() = false`).
+- `answerInlineQuery(inlineQueryId, results, cacheTime = 300, isPersonal = false)` — ответ на `inline_query`: до 50 результатов
+  (больше — `InvalidArgumentException` до вызова Telegram), пустой список — допустимый ответ «ничего»; `results` — JSON-массив,
+  `is_personal` — только при `true`.
+- Ошибки — как у всех методов (`IrazasyedTelegramClient::call()`): 429 → `TelegramRateLimitedException` (`retry_after`, пауза общего
+  исходящего бюджета), прочие отказы и сбои — `TelegramApiException` без токена. `FakeTelegramClient`: `$preparedMessages`,
+  `$inlineAnswers`, `$preparedExpirationDate`, отказы `$failInline` (+ `$failInlineRetryAfter`, `$failInlineAsTransport`).
+- `inline_query` в `ALLOWED_UPDATES` пока **не** добавлен — это задача H5 (вместе с `InlineQueryHandler` и флагом `share.inline_enabled`).
+
+**Отправка с номером сообщения и правка подписи: `sendPhotoMessage`, `sendTextMessage`, `editMessageCaption`** (docs/35 §1.6,
+задача O1; формат сверен с core.telegram.org/bots/api 25.11.2026 — `sendPhoto`, `editMessageCaption`, `PhotoSize`, «Sending files»).
+Нужны опросам (docs/35 §1.5): номер сообщения — для правки подписи после ответа, `file_id` — чтобы картинка опроса уходила
+повторно без загрузки. Отправляют **сразу**, в очередь не откладывают (как `sendGroupMessage`): слот общего бюджета берёт
+вызывающее задание. Старые `sendPhoto` и `sendMessage` не менялись.
+
+- `sendPhotoMessage(chatId, PhotoSource, caption = null, replyMarkup = null): SentMessage` — подпись простым текстом (без
+  `parse_mode`, у Telegram 0–1024 знака). `PhotoSource::file($path)` — локальный файл, `multipart/form-data` (поле `photo` с именем
+  файла; у Telegram до 10 МБ, сумма сторон ≤ 10 000); нечитаемый файл — `TelegramApiException` до вызова Telegram.
+  `PhotoSource::fileId($id)` — `file_id` этого бота, обычное поле формы, ничего не загружается. `PhotoSource::url($url)` — http(s),
+  Telegram скачивает сам (до 5 МБ). Вызов — сырой `post('sendPhoto', …)`: метод SDK `sendPhoto()` угадывает вид по строке.
+- `sendTextMessage(chatId, text, replyMarkup = null): SentMessage` — простой текст; это тот же вызов, что `sendGroupMessage` без темы
+  (отдельной реализации нет), ответ — `SentMessage` без фото, чтобы отправитель опроса получал один тип результата.
+- `SentMessage {messageId, photoFileId}`: `photoFileId` — `file_id` **наибольшего** `PhotoSize` из `Message.photo` (по площади, при
+  равенстве — по `file_size`; порядок массива не важен), `null` у текста. `file_id` принадлежит только этому боту, у одной картинки
+  их может быть несколько — годится любой. Ответ «ok» без `message_id` — `TelegramApiException` как сбой транспорта
+  (`isApiResponse() = false`: сообщение могло уйти, повторять нельзя).
+- `editMessageCaption(chatId, messageId, caption, replyMarkup = null)` — новая подпись и клавиатура; `null` — клавиатура убирается
+  (`{"inline_keyboard":[]}`, как у `editMessageText`). Отказ «message is not modified» — `TelegramApiException::isMessageNotModified()`;
+  403 при правке — обычный `TelegramApiException` (правка никогда не говорит «ученик недоступен»).
+- Ошибки — по B.7a: 403 и 400 `chat not found` у отправок → `TelegramForbiddenException`; 429 → `TelegramRateLimitedException`
+  (`retryAfter`, пауза бюджета); группа стала супергруппой — отправка один раз повторяется в новом чате (файл загружается заново),
+  правка подписи не повторяется. `FakeTelegramClient`: `$photoMessages` (вид источника, ответный `file_id`: тот же при отправке по
+  `file_id`, иначе `fake-photo-<n>`), `$textMessages`, `$captionEdits`; общий счётчик `$nextMessageId`; отказы отправок —
+  `$failSends` (+ `$failSendsRetryAfter`, `$failSendsForbidden`, `$failSendsAsTransport`), отказы правки — `$failCaptionEdits`
+  («not modified»), `$failCaptionEditsWith` (другой 400).
+
 #### Онбординг и `/settings`: шаги и `callback_data`
 
 Шаги по порядку: `locale` (🇷🇺/🇺🇿, каждый язык своим названием) → `goal` (`general`/`ielts`/`sat`/`school`) → `level` (`A1`/`A2`/`B1`/`B2`/`C1`/`C2`/`unknown`→`A1`) → `timezone` (список из `config('learners.timezone_options')`, по умолчанию Ташкент и соседи; значение — IANA-id, ещё раз проверяется по `DateTimeZone::listIdentifiers`) → `reminder` (`0800`/`1300`/`1900`/`2100`/`off` → `reminder_time` или `NULL`). `learners.onboarding_state` — текущий шаг (`new` → `locale` … `reminder` → `done`). Дефолты тем, кто их не меняет: цель 20 карточек в день (`daily_goal`), напоминание 19:00, `Asia/Tashkent`.
@@ -1857,7 +2255,7 @@ public function __invoke(Request $request, string $secret)
 (кнопка из группы игнорируется), не чаще 10 нажатий в минуту на learner'а (`RateLimiter` `bot-pro:<learner_id>`). Успешная покупка — сообщение «Счёт создан: …» с URL-кнопкой «Оплатить» (`checkout.url`), отказ — текст по `error.code`
 (`lang/{ru,uz}/billing.php`, `billing.pro.errors.*`; незнакомый код — `generic`). Тексты `/pro`, `/paysupport` — `lang/{ru,uz}/billing.php`.
 
-Префикс несёт версию формата (`onb1`, `set1`): при смене раскладки старые кнопки перестают совпадать и молча игнорируются. Подписи нет — `callback_data` считается недоверенным: формат проверяется строгим regex, `<step>` — из списка шагов, `<value>` — по белому списку шага. `OnboardingService::apply` принимает **только ответ на текущий шаг**, под блокировкой строки learner'а: повторное нажатие старой кнопки, двойной тап и параллельные доставки отклоняются без изменений; на любой callback бот сразу отвечает `answerCallbackQuery` без текста — через `CallbackAcknowledger`: отказ Telegram («query is too old», повтор job) логируется (`Log::warning`, без PII) и работу хендлера не прерывает; это же относится к `tstart:`. Кнопки принимаются только из личного чата отправителя (`message.chat.id = from.id`), ответы идут на `from.id`; нажатие из группы, чужого чата или учителем (у него нет learner'а) ничего не создаёт и не отправляет. Исключение из «молчаливого» stale: если шаг устаревшей кнопки `onb1` — ровно предыдущий перед текущим состоянием learner'а (ответ сохранён, а следующий шаг не дошёл до Telegram и job `HandleTelegramUpdate` повторяется, tries = 3), бот **отправляет текущий шаг ещё раз**; двойной тап может дать дубль вопроса — это допустимо. После принятого ответа у сообщения снимается клавиатура (`editMessageReplyMarkup`; ошибка Telegram при этом не мешает потоку) и приходит следующий шаг; после последнего — сообщение с web_app-кнопкой «Начать первую тренировку» → `/twa/?from=onboarding` (с подсказкой «Пригласите друзей — получите Pro бесплатно: /invite»). Прямо перед ним новичку, которому выдан пробный Pro, приходит одно короткое сообщение «🎁 Вам открыт Pro на 7 дней — бесплатно, до дд.мм.гггг. Пригласите 3 друзей — получите ещё 7 дней: /invite» (`TrialWelcomeMessenger`; числа — `billing.trial.days`, `referrals.milestones`, `referrals.milestone_days`): к этому моменту язык уже выбран, вопрос онбординга и его кнопки не разрываются, а кнопка «Начать» остаётся последним сообщением. Одноразово: `ProTrialService::consumeNotice` — кто взял первым, бот или Mini App, тот и сказал (открывший Mini App до конца онбординга в боте этого сообщения не получит; отправка, не дошедшая до Telegram, повтора не имеет). Ученику, завершившему онбординг в Mini App, оно приходит на его первом `/start`. При установке или смене часового пояса и времени напоминания (онбординг и `/settings`) `next_reminder_at` сразу пересчитывается: `LearnerClock::nextOccurrenceUtc(learner, reminder_time, now())` с новыми значениями (Ташкент 19:00 → 14:00 UTC; «без напоминаний» → `NULL`); завершение онбординга тоже выставляет его. Дальше его ведёт планировщик напоминаний (docs/12 §7.5). `OnboardingService::applySetting` сам проверяет, что онбординг завершён. События: `onboarding.started {source_kind}` (вид **принятой** атрибуции learner'а — `ref`/`src`/`course`/`org`/`group`; `direct`, если её нет: payload отвергнут — невалидный, самореферал, неизвестный/заблокированный реферер — или не было), `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via: onboarding|deeplink}`.
+Префикс несёт версию формата (`onb1`, `set1`): при смене раскладки старые кнопки перестают совпадать и молча игнорируются. Подписи нет — `callback_data` считается недоверенным: формат проверяется строгим regex, `<step>` — из списка шагов, `<value>` — по белому списку шага. `OnboardingService::apply` принимает **только ответ на текущий шаг**, под блокировкой строки learner'а: повторное нажатие старой кнопки, двойной тап и параллельные доставки отклоняются без изменений; на любой callback бот сразу отвечает `answerCallbackQuery` без текста — через `CallbackAcknowledger`: отказ Telegram («query is too old», повтор job) логируется (`Log::warning`, без PII) и работу хендлера не прерывает; это же относится к `tstart:`. Кнопки принимаются только из личного чата отправителя (`message.chat.id = from.id`), ответы идут на `from.id`; нажатие из группы, чужого чата или учителем (у него нет learner'а) ничего не создаёт и не отправляет. Исключение из «молчаливого» stale: если шаг устаревшей кнопки `onb1` — ровно предыдущий перед текущим состоянием learner'а (ответ сохранён, а следующий шаг не дошёл до Telegram и job `HandleTelegramUpdate` повторяется, tries = 3), бот **отправляет текущий шаг ещё раз**; двойной тап может дать дубль вопроса — это допустимо. После принятого ответа у сообщения снимается клавиатура (`editMessageReplyMarkup`; ошибка Telegram при этом не мешает потоку) и приходит следующий шаг; после последнего — сообщение с web_app-кнопкой «Начать первую тренировку» → `/twa/?from=onboarding` (с подсказкой «Пригласите друзей — получите Pro бесплатно: /invite»). Прямо перед ним новичку, которому выдан пробный Pro, приходит одно короткое сообщение «🎁 Вам открыт Pro на 14 дней — бесплатно, до дд.мм.гггг. Пригласите 3 друзей — получите ещё 7 дней: /invite» (`TrialWelcomeMessenger`; числа — `billing.trial.days`, `referrals.milestones`, `referrals.milestone_days`): к этому моменту язык уже выбран, вопрос онбординга и его кнопки не разрываются, а кнопка «Начать» остаётся последним сообщением. Одноразово: `ProTrialService::consumeNotice` — кто взял первым, бот или Mini App, тот и сказал (открывший Mini App до конца онбординга в боте этого сообщения не получит; отправка, не дошедшая до Telegram, повтора не имеет). Ученику, завершившему онбординг в Mini App, оно приходит на его первом `/start`. При установке или смене часового пояса и времени напоминания (онбординг и `/settings`) `next_reminder_at` сразу пересчитывается: `LearnerClock::nextOccurrenceUtc(learner, reminder_time, now())` с новыми значениями (Ташкент 19:00 → 14:00 UTC; «без напоминаний» → `NULL`); завершение онбординга тоже выставляет его. Дальше его ведёт планировщик напоминаний (docs/12 §7.5). `OnboardingService::applySetting` сам проверяет, что онбординг завершён. События: `onboarding.started {source_kind}` (вид **принятой** атрибуции learner'а — `ref`/`src`/`course`/`org`/`group`; `direct`, если её нет: payload отвергнут — невалидный, самореферал, неизвестный/заблокированный реферер — или не было), `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via: onboarding|deeplink}`.
 
 **Deep-link параметры** (`StartPayload::parse`, ≤ 64 символов `[A-Za-z0-9_-]`, иное — как «без параметра»): `f_<code>` (`[A-Z0-9]{6,12}` — реферальный код приглашающего в друзья; `acquisition_source = 'friend'`, реферала нет); `ref_<code>` (`[A-Z0-9]{6,12}` — `learners.referral_code` пригласившего; числовой `ref_<id>` Фазы 1 отменён, docs/13 §7.1) → `acquisition_source = 'ref'` + `referrer_learner_id`, а для learner'а, **созданного этим `/start`**, ещё и строка `referrals` (`ReferralService::link`, см. A.12); `src_<канал>` (`[a-z0-9_]{1,32}`) → `src:<канал>`; `c_<slug>` → `course:<slug>`, а курс (если опубликован и не private) становится `active_course_id` по окончании онбординга; `org_<код>` → `org` (инвайт центра; подтверждение вступления — см. `/start` выше). Атрибуция — first-touch: пишется, пока `acquisition_source` пуст (в том числе learner'у, созданному раньше через `/auth`); заполненное не перезаписывается. Курс без `c_`-ссылки — `CourseCatalogService::recommend(goal, level)` (опубликованные публичные курсы с `exam_tag = goal`: сначала нужный уровень, затем featured), если подходящего нет — курс по умолчанию. Если и курс по умолчанию недоступен (не опубликован / private), `active_course_id` остаётся `NULL`, а онбординг заканчивается сообщением без названия курса.
 
@@ -1875,6 +2273,46 @@ $telegram->sendWebAppButton(
 ```
 
 URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамена — `/twa/exam/{id}`).
+
+### B.4b Кнопки под сообщениями бота (docs/36 §3, 25.11.2026)
+
+**Правило.** У каждого сообщения ученику, после которого логично действие, есть **ровно одна главная кнопка**; вторая — только если это выбор (Принять / Отклонить) или отказ от рассылки (docs/34 «Не присылать предложения»). Служебные сообщения (возврат Stars, удаление аккаунта, ошибки, «запрос отправлен») — без кнопки.
+
+**Как строится.** Экран Mini App — только из enum `App\Domain\Telegram\Support\TwaScreen` (`/`, `/courses`, `/courses/{slug}`, `/league`, `/league/month`, `/friends`, `/battles/{id}`, `/training/{id}`, `/exam/{id}`, `/game/class/{id}`, `/referrals`, `/billing`, `/achievements`). Адрес и клавиатуру строит `App\Domain\Telegram\Services\BotButtons`:
+- `twaUrl(TwaScreen, params, query)` — единственное место, где читается `twa.base_url` (кроме `MiniAppLinks`, `telegram:setup-bot`, `BotMenuBuilder`); тест-страж `tests/Unit/TwaBaseUrlGuardTest.php`;
+- `open(text, screen, params, query)` — кнопка `web_app`; `callback(text, data)` — `callback_data` ≤ 64 байт (длиннее — `InvalidArgumentException`); `url(text, url)`;
+- `keyboard(chatId, rows)` / `single(chatId, button)` — `reply_markup`; вне личного чата `web_app` превращается в URL `t.me/<bot>?startapp=<base64 пути>`, без имени бота — в обычный адрес (как `sendWebAppButton`).
+- `from=<вид сообщения>` передаётся в `query` — аналитика видит, какое сообщение привело в приложение.
+
+Тексты кнопок — `lang/{ru,uz}/buttons.php` (одна формулировка — одно место). Старые ключи кнопок (`reminders.open_button`, `leagues.open_button` и др.) переводятся на `buttons.*` постепенно, когда трогается их отправитель.
+
+| Сообщение (ключ lang) | Отправитель | Кнопка | Куда |
+|---|---|---|---|
+| Напоминания `reminders.review / streak_at_risk / inactive / inactive_due / new_words` | `ReminderSender` | `buttons.start_lesson` «▶️ Начать занятие» | `/?from=reminder` |
+| `reminders.never_started` | `ReminderSender` | `buttons.first_lesson` «▶️ Первое занятие» | `/?from=reminder` |
+| `reminders.choose_course` | `ReminderSender` | `buttons.choose_course` «📚 Выбрать курс» | `/courses?from=reminder` |
+| Напоминание следующего дня про очки `reminders.score_due` (docs/31 §5б) | `ReminderSender` | `buttons.review_words` «🔁 Повторить слова» | `/?from=reminder` |
+| Напоминание-вопрос `reminders.quiz.*` | `ReminderQuizMessenger` | cb варианты ответа + «Открыть Muhrla» | `/?from=reminder` (после ответа `reminder_quiz`) |
+| Итог недели `leagues.result.*` | `LeagueResultSender` | `leagues.open_button` | `/league` |
+| Победа в месяце: фото `leagues.month.card.*` + подпись `leagues.month.won / won_plain` | `MonthWinnerSender` | `buttons.month_rating` «🏆 Рейтинг месяца» | `/league/month?from=month_won` |
+| Награда за друзей `referrals.milestone.reached + next` | `ReferralMilestoneSender` | `buttons.invite_more` «👥 Пригласить ещё» | `/referrals?from=milestone` |
+| Запрос в друзья `friends.incoming.text` | `FriendsMessenger` | cb Принять / Отклонить | — |
+| Друг принял запрос `friends.dm.friend_accepted` | `FriendsMessenger` | `buttons.challenge_friend` «⚔️ Бросить вызов» | `/friends?friend=<friendship_id>&from=friend_accepted` |
+| «Вы теперь друзья» `friends.accepted` (ответ на «Принять» / встречный запрос) | `FriendsMessenger` | `buttons.friends` «👥 Друзья» | `/friends?from=friends` |
+| Вызов предложен `friends.dm.challenge_proposed` | `FriendsMessenger` | cb Принять / Отклонить | — |
+| Вызов принят `friends.dm.challenge_accepted` и ответ принявшему `friends.challenge.accepted` | `FriendsMessenger` | `buttons.open_challenge` «🎯 Открыть вызов» | `/friends?challenge=<id>&from=challenge_accepted` |
+| Вызов завершён `friends.dm.challenge_won / draw` | `FriendsMessenger` | `buttons.new_challenge` «🎯 Новый вызов» | `/friends?friend=<friendship_id>&from=challenge_finished` (дружбы больше нет — без кнопки) |
+| Вызов проигран `friends.dm.challenge_lost` | `FriendsMessenger` | `buttons.rematch` «🔁 Реванш» | то же |
+| Приглашение в баттл `battle.dm.invited` | `BattleMessenger` | «Открыть баттл» | `/battles/{id}` |
+| Пробный Pro `billing.trial.welcome` | `TrialWelcomeMessenger` | в онбординге — нет (следом финал с кнопкой); на `/start` — `buttons.start_lesson` | `/?from=trial_welcome` |
+| Продление / конец пробного `billing.renewal.*` | `RenewalReminderSender` | «Продлить» | `/billing?from=renewal` |
+| Личная скидка `billing.offer_dm.*` | `OfferMessenger` | cb покупки | — |
+| Оплата прошла `billing.stars.paid*` | `SuccessfulPaymentHandler` | `buttons.start_lesson` | `/?from=paid` |
+| Возврат Stars `billing.stars.refunded` | `RefundedPaymentHandler` | нет (служебное) | — |
+| Промокод применён `bot.promo.success_*` | `PromoCommandHandler` | `buttons.start_lesson` | `/?from=promo` |
+| Аккаунт восстановлен `bot.account.restored*` | `StartCommandHandler` | `buttons.open_app` «▶️ Открыть приложение» | `/?from=restored` |
+| Онбординг: конец `onboarding.done.*`, `/today`, центр, предложение дружбы по ссылке | `OnboardingMessenger`, `TodayScreen`, `OrganizationMessenger`, `FriendsMessenger::offer` | без изменений | — |
+| Групповые (урок, экзамен, «Караван», итоги, задания) | `GroupSessionAnnouncer`, `ExamLauncher`, `ClassCaravanMessenger`, `PostLeaderboardJob`, `AssignmentService` | url `startapp` | без изменений |
 
 ### B.4a Язык сообщений бота (i18n)
 
@@ -1905,6 +2343,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
   - `left` → `group_members.status = 'left'`, `kicked` → `'removed'` (+ `left_at`, событие `group.member_left`). Learner и его прогресс остаются; новый learner ради выхода не создаётся.
 - **`message` в группе от `left_chat_member`** — служебное сообщение о выходе/исключении; приходит и когда бот **не админ** группы (тогда `chat_member` не приходит). Тот же `ChatMemberHandler`: `from.id` = `left_chat_member.id` → `left`, иначе (убрал другой) → `removed`; по `message.date`; бот и неизвестный learner игнорируются, повтор — no-op.
 - **Callback query** — пока не используется (весь UX через WebApp), но хендлер на будущее.
+- **`message` с `migrate_to_chat_id` / `migrate_from_chat_id`** — группа стала супергруппой и получила новый `chat_id` (docs/33 §4.6; служебные сообщения бот получает всегда, режим приватности не мешает). `ChatMigrationHandler` — первый в списке хендлеров сообщений, работает при любом статусе группы и не отбрасывается входящим лимитом флуда. `GroupChatMigrator::migrate(old, new)`: под одной транзакцией `FOR UPDATE` обеих строк (`chat_id IN (old, new)`, по `id`) → строка группы получает новый `chat_id` (`meta.type = supergroup`, `meta.migrated_from_chat_id`); организация, учителя, участники, сессии и караваны висят на `telegram_group_id` и идут за ней сами. Кто пришёл первым (служебное сообщение в старом или в новом чате, или отказ отправки, B.7a), тот переносит; остальные видят перенос и ничего не делают. Если строка нового чата уже есть (её создал `my_chat_member` супергруппы): пустая (`pending`, без центра, учителей, сессий, караванов, заданий, приглашений) — её участники и события переносятся на старую строку, сама она удаляется; «живая» — ничего не сливается, в лог `telegram.group_migration_conflict` (разбирает админ). Вставка нового `chat_id` между нашей блокировкой и UPDATE (уникальный индекс) → шаг повторяется один раз и видит обе строки.
 
 ### B.5a Персональные напоминания (`reminders:dispatch`)
 
@@ -1917,16 +2356,85 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 - События: `reminder.sent {kind, due_count[, quiz]}`, `reminder.failed {reason, kind}`, `reminder.quiz_sent`, `reminder.quiz_answered`, `reminder.quiz_expired` (см. ниже).
 - **Напоминание-вопрос** (решение владельца 2026-11-17; правила, таблица видов, конфиг `REMINDERS_QUIZ_*` — docs/12 §7.5). Для видов `review` / `streak_at_risk` / `new_words` и `inactive` до `REMINDERS_QUIZ_MAX_IDLE_DAYS` (7) `ReminderSender` вместо `sendWebAppButton` шлёт одно `sendMessage` (plain text, без `parse_mode`) с клавиатурой: 4 строки по одной callback-кнопке (текст = вариант, обрезан до 40 символов; полный текст — в вердикте) + строка web_app «Открыть LexiFlow» → `/twa/?from=reminder`. Текст: подводка по виду (`reminders.quiz.lead.*`) + вопрос (`quiz.question.meaning|reverse`) + футер `/settings`. Любой сбой → прежнее текстовое напоминание.
 - **`callback_data` `rq1:<token>:<i>`** (стиль онбординга): `token` — 10 символов `[A-Za-z0-9]`, `i` — 0..3; строгий regex `~^rq1:([A-Za-z0-9]{10}):([0-3])$~D`, подписи нет — данные недоверенные, верного варианта в них нет (он в Redis `reminders:quiz:v1:<learner_id>`, docs/19 §2.2). Принимается только из личного чата отправителя (`message.chat.type = private`, `chat.id = from.id`); learner — по `from.id` (`DmLearnerResolver`, у сотрудника ничего не происходит, `blocked_at` — молчание), никогда по данным кнопки. Идемпотентность: под `Cache::lock` первый тап пишет ответ и событие, повтор / double tap / retry `HandleTelegramUpdate` получают тот же вердикт без события и снова правят сообщение. «Устарело» (нет состояния, > 26 ч, чужой токен, `InaccessibleMessage`): `answerCallbackQuery` с alert, `editMessageReplyMarkup` → одна web_app-кнопка `/twa/?from=reminder`, событие `reminder.quiz_expired`.
-- **После ответа** бот вызывает `editMessageText` (новый метод контракта `TelegramClient`; plain text): «✅ Верно! слово — перевод.» / «❌ Не совсем. слово — перевод.» + «В приложении ждут N слов — хватит 5 минут.» (N — живой счётчик due, не вчерашний; 0 → «Продолжите в приложении — там новые слова.») + футер `/settings`, клавиатура — одна web_app-кнопка → `/twa/?from=reminder_quiz`. Отказ Telegram («message is not modified», сообщение старше 48 ч) только логируется. Ответ **не** повторение: ничего не пишется в `word_repetitions` / `learner_daily_stats` / `training_*`. `allowed_updates` не меняется (`callback_query` уже есть). `POST /training/sessions`: `source` дополнен значением `reminder_quiz` (`OpenTrainingSessionRequest`).
+- **После ответа** бот вызывает `editMessageText` (новый метод контракта `TelegramClient`; plain text): «✅ Верно! слово — перевод.» / «❌ Не совсем. слово — перевод.» + «В приложении ждут N слов — хватит 5 минут.» (N — живой счётчик due, не вчерашний; 0 → «Продолжите в приложении — там новые слова.») + футер `/settings`, клавиатура — одна web_app-кнопка → `/twa/?from=reminder_quiz`. Отказ Telegram («message is not modified», сообщение старше 48 ч) только логируется. Ответ **не** повторение: ничего не пишется в `word_repetitions` / `learner_daily_stats` / `training_*`. `allowed_updates` не меняется (`callback_query` уже есть). `POST /training/sessions`: `source` дополнен значением `reminder_quiz` (`OpenTrainingSessionRequest`).- **Напоминание после урока** (docs/31 §5б, G1–G3, 25.11.2026). `/finish` сессии `lesson`, в которой были новые слова (`SessionSummary::newWords > 0`; только вызов, закрывший сессию, после коммита) → событие `Learning\Events\LessonWithNewWordsFinished` → синхронный слушатель `QueueLessonNudge` → `LessonNudgeScheduler`: маркер `learners:lesson-nudge:v1:<learner_id>:<локальная дата>` в невытесняемом Redis (`Cache::add`, TTL до конца локального дня + 6 ч) — не больше одной постановки в локальный день; задание `SendLessonNudgeJob` в очередь `REMINDERS_LESSON_NUDGE_QUEUE` (`default`) с задержкой `REMINDERS_LESSON_NUDGE_DELAY_MINUTES` (45). Выключатель — `REMINDERS_LESSON_NUDGE_ENABLED` (в тестах `false`, свои тесты включают). Ничего не ставится, если ученик заблокирован, ЛС закрыта или напоминания выключены.
+  - `LessonNudgeSender` при срабатывании перепроверяет: ученик есть, не `blocked_at`, `dm_blocked_at` и `dm_blocked_reason` пусты, `reminder_time` задан (напоминания не выключены); всё ещё тот же локальный день; не ночь — местный час вне `[quiet_from_hour, quiet_to_hour)` = `[22, 8)` (ночное задание **пропускается**, на утро не переносится); `DayPlanService::forLearner()->offersGame()` (урок с новыми словами сегодня пройден, игра открыта ученику, игры на его словах сегодня не было); общий лимит «одно сообщение о занятиях в сутки» — `StudyMessageLimit` (тот же замок `reminders:send:<id>` и та же проверка `notifications_log`, что у персонального напоминания: любой из типов напоминаний **или** `lesson_nudge` с начала локального дня / за `REMINDERS_MIN_INTERVAL_HOURS`). Значит, после этого сообщения вечернее напоминание в тот же день не придёт, и наоборот.
+  - Текст `reminders.lesson_nudge.text` (`text_untitled` без названия урока): «Урок «:lesson» пройден: :count новых слов. Закрепите их в игре «Пары на время»…» + подвал `/settings`; `:count` — слова урока, встреченные сегодня (`DayPlan::todayWords`). Об очках не говорит: слова, выученные сегодня, в игре в тот же день очков не дают. Одна кнопка `buttons.lesson_game` («🎮 Закрепить в игре») через `BotButtons`: `web_app` на `TwaScreen::PracticeHub` — `/twa/practice/<slug курса>?lesson=<id>&play=pairs_timed&from=lesson_nudge`.
+  - Маркер отправки — строка `notifications_log` `type = lesson_nudge` (`payload: lesson_id, words, date`) до вызова Telegram; ошибки — по docs/34 §4в п. 8: 403 → строка удаляется, `DmReachability::markUnreachable`; иной определённый отказ (и 429) → строка удаляется, исключение пробрасывается (429 — `ThrottleTelegramOutbound` откладывает задание на `retry_after`); таймаут / 5xx → строка остаётся. Событие `lesson_nudge.sent {lesson_id, words}`.
+- **Напоминание следующего дня про очки** (docs/31 §5б, 25.11.2026) — вариант текста персонального напоминания, не отдельное сообщение:
+  - `ReminderDispatcher` на каждую пачку (`chunkById`, `REMINDERS_BATCH_SIZE`) делает **один** запрос `ReviewScoreHint::learnerIds()`: `SELECT DISTINCT learner_id FROM word_repetitions WHERE (learner_id IN (…) AND created_at >= <начало локального вчера> AND created_at < <конец>) OR (…другой пояс…) AND introduced_mode IN ('lesson','group_lesson') AND last_reviewed_at IS NOT NULL AND next_review_at <= now` (ученики пачки сгруппированы по UTC-границам своего вчерашнего дня; ученики, которые не участвуют в рейтинге — `meta.leagues_opt_out` или `blocked_at`, — отбрасываются ещё в PHP по уже загруженной пачке: им «начисляются баллы рейтинга» было бы неправдой). Признак уходит в задание: `SendLearnerReminderJob::$scoreHint` (обычное свойство со значением `false` — задание, поставленное до выката, читается без признака). Пока очки не считаются (`leagues.scoring.mode` не `live` или рейтинговый день ни в неделе, ни в месяце не на v2 — `ReviewScoreHint::enabled()`, только конфиг) запроса нет.
+  - План на PostgreSQL 16 (3 млн строк `word_repetitions`: 2 000 учеников × 1 500 слов, 10 новых в день, два пояса в пачке из 200): BitmapOr из двух Bitmap Index Scan по `word_repetitions_learner_id_created_at_index` (читаются только строки вчерашнего дня — 2 000), Bitmap Heap Scan 49 страниц, 652 буфера, 1,2 мс. Новых индексов нет.
+  - Число запросов рассылки: было 2 + N (выборка без указателя, пачка, N условных `UPDATE`), стало 2 + N + 1 на пачку в режиме очков (тест `ReviewScoreHintReminderTest`: 3 и 30 учеников — разница ровно 1).
+  - `ReminderSender` подменяет текст, если признак есть, очки всё ещё считаются, вид напоминания `review` и ученик сегодня не занимался (`idleDays >= 1`) — без новых запросов. Текст `reminders.score_due` + кнопка `buttons.review_words` «🔁 Повторить слова» → `/?from=reminder`; в напоминании-вопросе — вводная `reminders.quiz.lead.score_due`. `notifications_log.payload.score_hint = true`, `reminder.sent {…, score_hint: true}` (у остальных напоминаний поля нет). Лимит «одно сообщение о занятиях в сутки» (`StudyMessageLimit`) — общий: если сегодня уже было напоминание после урока, ничего не уходит.
+
+### B.5b Опросы в боте: кнопки `pl1` *(docs/35 §1.5; ядро голоса — O4, обработчик — O5 ✅ `PollCallbackHandler`)*
+
+Опрос — фото с подписью (`sendPhotoMessage`) или текст (`sendTextMessage`) без `parse_mode` и inline-кнопки по одной в ряд; одна
+строка `poll_deliveries` на получателя (docs/03 §2.74). Подпись — вопрос; если какой-то вариант длиннее 24 символов — ниже
+нумерованный список вариантов, а кнопки — «1», «2», … Кнопки строятся только через `BotButtons`.
+
+- **`callback_data` `pl1:<token>:<n>`**: `token` — 12 символов `[A-Za-z0-9]` (`poll_deliveries.token`), `n` — позиция варианта
+  `0..9`, `s` — «Отправить» (несколько ответов), `c` — «Изменить ответ». До 19 байт из 64. Строгий regex
+  `~\Apl1:([A-Za-z0-9]{12}):([0-9]|s|c)\z~` (`PollCallback`; перевод строки в конце — не конец); подписи нет — данные недоверенные и
+  ничего не утверждают (как `rq1`).
+- Принимается только из личного чата: `message.chat.id = from.id` и `from.id = poll_deliveries.telegram_user_id` строки, найденной по
+  токену. Пересланное сообщение, чужое нажатие, группа, неизвестный токен, позиция ≥ числа вариантов, `InaccessibleMessage`
+  (`date = 0`) → алерт «Опрос недоступен».
+- Опрос `closed` / `cancelled` или наступил `closes_at` (проверка на сервере при нажатии) → алерт «Опрос завершён», клавиатура
+  убирается. Массово клавиатуры при закрытии не правятся.
+- Один ответ: нажатие варианта записывает голос; повтор того же варианта ничего не пишет и даёт тот же итог. Несколько ответов:
+  нажатие переключает вариант (☐/☑, с учётом `max_choices`), «Отправить» с пустым выбором — тост «Выберите хотя бы один вариант».
+- После ответа подпись (или текст) правится (`editMessageCaption` у фото / `editMessageText` у текста): вопрос (без списка вариантов)
+  + «✅ Спасибо! Ответ принят.» на языке доставки — **без** выбранного ответа и без итогов (docs/31 §5г); ниже «✏️ Изменить ответ»
+  (`pl1:<token>:c`), если смена разрешена, иначе кнопок нет. Отказ правки только логируется (`telegram.poll_edit_failed`, код);
+  «message is not modified» (двойное нажатие) — не ошибка, не логируется.
+- Ответы на нажатие (`answerCallbackQuery`), по итогу `PollVoteService::tap()`:
+
+  | Итог | Ответ на нажатие | Правка сообщения |
+  |---|---|---|
+  | `Voted`, `Repeated` | без текста | «Спасибо» (+ «Изменить ответ»); `Repeated` лечит потерянную правку |
+  | `Locked` (ответ есть, смена запрещена) | тост «Ответ уже принят, изменить его нельзя.» | «Спасибо» |
+  | `Changing` («Изменить ответ») | без текста | вопрос и варианты снова, текущий ответ отмечен (несколько ответов) |
+  | `Toggled` (несколько ответов) | без текста | только клавиатура ☐/☑ (`editMessageReplyMarkup`) |
+  | `LimitReached` | тост «Можно выбрать не больше N.» | нет |
+  | `EmptySubmit` | тост «Выберите хотя бы один вариант.» | нет |
+  | `Closed` | алерт «Опрос завершён.» | клавиатура убирается |
+  | `Unavailable`, а также группа, пересланное сообщение, чужое нажатие, `InaccessibleMessage`, неверный формат данных | алерт «Опрос недоступен.» | нет |
+
+  Язык — язык доставки (`poll_deliveries.locale`); для отказа до того, как доставка найдена, — `from.language_code` (`uz…` → uz, иначе ru).
+- Цена нажатия в БД — только операторы `tap()` (1–5) + `markReachable` диспетчера (1) + событие при ответе (1): подпись и клавиатура
+  берутся из чистого кэша `polls:view:v2:<poll_id>` (`PollViewCache`, 600 с, массив скаляров с `version` — `updated_at` опроса в
+  секундах; промах — 2 чтения, `polls` и `poll_options`; сбрасывает `PollEditor` после записи черновика). Нажатие знает версию опроса
+  из своего же оператора (`PollTapResult::pollVersion`) и запись старше неё читает заново: старый вид, положенный в кэш нажатием,
+  которое прочитало опрос до правки, не показывается. Закреплено тестом `PollCallbackTest`.
+- Ответ не пишет ничего в `learner_daily_stats`, очки и серию; событие продукта — `poll.answered` (`poll_id`, `delivery_id`, `changed`)
+  при `Voted` и не тестовой доставке, без `learner_id` (в итоге нажатия его нет; ученик — по `delivery_id`).
+  `allowed_updates` не меняется (`callback_query` уже есть). Тексты — `lang/{ru,uz}/polls.php`: `submit`, `change`, `thanks`, `closed`,
+  `unavailable`, `empty`, `limit`, `locked`.
 
 ### B.6 Событие `update` от WebApp (опционально)
 
 Если TWA вызывает `Telegram.WebApp.sendData(...)`, то в чат приходит апдейт типа `web_app_data` (только в приватных чатах). В нашем дизайне студент общается с API напрямую, а не через `sendData` — это упрощает масштабирование. Но оставляем возможность добавить лёгкие «отправки» (например, «поделиться результатом экзамена»).
 
 ### B.7 Rate limiting отправки сообщений
-- Не более 20 сообщений в минуту в одну группу.
-- Реализация через Redis-based sliding window в `TelegramGateway::sendMessage()`.
-- Если лимит достигнут — кладём в очередь `default` с задержкой.
+- Не более 20 сообщений в минуту в один чат (группа: лимит Telegram; личный чат: Telegram просит не чаще ~1 в секунду, короткие всплески терпит — core.telegram.org/bots/faq, сверено 25.11.2026).
+- Реализация: скользящее окно в Redis в `TelegramMessageRateLimiter::reserve()`, его вызывает `IrazasyedTelegramClient::sendMessage()`.
+- Если лимит достигнут или чат на паузе после 429 (B.7a) — сообщение уходит заданием `SendTelegramMessageJob` с задержкой.
+- Общий бюджет бота (~30/с у Telegram, у нас `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` = 25/с) и пауза после 429 — docs/13 §9 (2R.3, 2R.3b). Ответы на входящие обновления не ждут, но учитываются в том же счётчике секунды (посредник `CountTelegramReplies` у `HandleTelegramUpdate`).
+- **Массовая рассылка уступает всем** (опросы, docs/35 O3): `TelegramMessageRateLimiter::reserveGlobalBelow($ceiling)` даёт слот, только пока в счётчике текущей секунды (все фоновые отправки + учтённые ответы) меньше `POLLS_SEND_PER_SECOND` (15 из 25; проверка и `INCR` — один Lua), нет паузы после 429 и в последние 2 с никому из обычных отправителей не отказали (`reserveGlobal()` при отказе ставит `telegram:outbound:contended` на 2 с). Итог: рассылка забирает только простаивающую часть бюджета, обычным всегда остаётся не меньше 10/с, а под их нагрузкой рассылка встаёт целиком.
+
+### B.7a Ошибки Bot API: классификация (docs/34 §4в п. 1)
+
+Всё, что SDK бросает, проходит через `IrazasyedTelegramClient::call()`. Наружу выходят только классы ниже, без токена бота в сообщении и без `previous` (docs/DEVOPS_GUIDE §15.1a). Порядок проверки:
+
+| Ответ Telegram | Класс | Доставлено? | `isApiResponse()` | Что делает отправитель |
+|---|---|---|---|---|
+| 429 на **любом** методе (`parameters.retry_after`) | `TelegramRateLimitedException extends TelegramApiException` (`retryAfter`) | нет | true | Удалить маркер, пробросить. Клиент уже поставил паузу (docs/13 §9, 2R.3b): паузу чата всегда, общую паузу бота — только при 429 в личный чат (`chat_id > 0`) или в запросе без чата; 429 в группу (`chat_id < 0`) общую паузу не ставит; `ThrottleTelegramOutbound` откладывает задание на `retryAfter` + 0–3 с, `maxExceptions` не тратится |
+| 400 с `parameters.migrate_to_chat_id` | `TelegramChatMigratedException extends TelegramApiException` (`newChatId`) | нет | true | Для отправок (`sendMessage`, `sendPhoto`, `sendPhotoMessage`, `sendTextMessage`, `sendWebAppButton`, отложенная `SendTelegramMessageJob`) и `getChatMember` клиент сам переносит группу (B.5) и **один раз** повторяет вызов в новом чате — отправитель ничего не видит. Правка сообщения (`editMessageText`, `editMessageReplyMarkup`, `editMessageCaption`) не повторяется (у сообщений нового чата другие id): группа переносится, исключение пробрасывается. Второй ответ «migrated» подряд — тоже пробрасывается |
+| 403; 400 `chat not found` (только отправки) | `TelegramForbiddenException` (`reason`) | нет и не будет | — | Удалить маркер, отметить адресата недоступным, завершить без ошибки |
+| Прочие 4xx | `TelegramApiException` | нет | true | Удалить маркер, пробросить (повтор по `backoff`, после `maxExceptions` — `failed_jobs`) |
+| Таймаут, сеть, 5xx | `TelegramApiException` | неизвестно | false | Маркер оставить, пробросить (повтор увидит маркер — не больше одного раза) |
+
+Старые `catch (TelegramApiException)` ловят оба новых класса: для них это та же «определённая отказом» ошибка, что и раньше. Пауза после 429 ставится до того, как исключение выйдет из клиента; недоступный Redis паузу теряет (`telegram.rate_limit_pause_failed`), но не скрывает 429. Спецификация по каждому отправителю — docs/34 §4в, «Спецификация для отправителей».
 
 ### B.8 Пример хендлера обработки обновлений
 
@@ -2020,7 +2528,7 @@ private function formatLeaderboard(ExamSession $session): string
 ### B.12 Напоминания о продлении (docs/13 §4.4, 2A.6)
 
 `subscriptions:remind-expiring` (ежедневно 06:00 UTC) → `SubscriptionService::remindExpiring()` → событие `SubscriptionRenewalDue` → слушатель `QueueRenewalReminder` ставит `RenewalReminderJob` (очередь `default`, tries 3; n-е задание суток откладывается на `⌊n / learning.reminders.send_rate_per_second⌋` с). Напоминают за 3 и 1 день (`billing.checkout.renewal_reminder_days`) о конце периода Payme/Click и `canceled` Stars; `manual/promo/reward` и Stars `active` (автопродление) — никогда. `RenewalReminderSender`: подписка перепроверяется (конец периода тот же, ещё live, платный провайдер), иначе задание молчит.
-- Learner: ЛС с web_app-кнопкой «Продлить Pro» → `/twa/billing?from=renewal`; `notifications_log.type = renewal_reminder`, `payload.key = "<subscription>:<N>@<конец периода>"`; не пишем при `blocked_at`/`dm_blocked_at`; 403 → `dm_blocked_at` и запись лога удаляется.
+- Learner: ЛС с web_app-кнопкой «Продлить Pro» → `/twa/billing?from=renewal`; `notifications_log.type = renewal_reminder`, `payload.key = "<subscription>:<N>@<конец периода>"`; не пишем при `blocked_at`/`dm_blocked_at`; 403 → `dm_blocked_at` и запись лога удаляется. Порядок с предложениями Pro после пробного (`trial_offer`, docs/34 §2д п. 4): не больше одного сообщения о Pro в локальные сутки, **напоминание о подписке важнее** — оно уходит всегда, а предложение того же дня переносится на следующий (`notifications_log.type = trial_offer_deferred`, +24 ч жизни шага; на следующий день условия предложения проверяются заново).
 - Организация: письмо (`SubscriptionRenewalDueMail`, ru/uz) каждому активному владельцу (`organization_users.role = owner`, `users.is_active`) + ЛС с кнопкой-ссылкой на `/org` тем, у кого есть `users.telegram_user_id` (нет связи — только письмо); язык — `interface_locale` учётки-learner'а владельца, иначе `organizations.locale`, иначе дефолт. Приостановленная организация не получает напоминаний.
 - Не более одного раза на (получатель, подписка, N, конец периода): маркер пишется до отправки (лог для learner'а, ключ кэша для владельца и e-mail); неоднозначная ошибка Bot API — молчим при повторе; сбой почтового транспорта снимает маркер письма и задание повторяется; сбой одного получателя не мешает остальным.
 
@@ -2072,6 +2580,64 @@ Job — по образцу `SendFriendDmJob`: middleware `ThrottleTelegramOutbo
 
 **Путь.** Сообщение уходит сразу, как у `/start_exam` (`GroupSessionAnnouncer`, `sendWebAppButton(immediate: true)`), а не через очередь исходящих: отказ Telegram должен быть виден вызывающему, иначе караван, которого никто не видит, нельзя снять. Транспортный сбой (таймаут, 5xx) — сообщение могло дойти, караван остаётся. Сообщение «отменён» при отказе Telegram только логируется: отмена остаётся в силе.
 **Когда молчим.** `GAME_ACCESS` не `all` — ни ответа, ни запросов к таблицам игры; группа не активна (блокировка группы).
+
+### B.16 Кубок друзей в группе (docs/33 §6; ядро — K4, бот — K6 ✅)
+
+- `callback_data` (`CupCallback`, строгий regex с `\z`): `cup:new`, `cup:pub:{id}`, `cup:cancel:{id}` (id — без ведущих нулей); команда
+  `/cup` (и `/start cup` — то, что Telegram присылает после добавления бота по ссылке `?startgroup=cup`) в группе. Обработчики
+  `CupCallbackHandler`, `CupCommandHandler` возвращают `requiresActiveGroup() = false` (кубок работает в `pending`-группах). Каждое нажатие
+  получает ровно один `answerCallbackQuery`; отказ — короткий тост только нажавшему (не alert), в чат ничего не пишется. Тосты — на языке
+  нажавшего (`from.language_code`), сообщения в чате — на языке кубка (`cups.locale`). Простой текст без HTML.
+- `cup:new` / `/cup` → `CupLifecycleService::propose($group, from.id, message_thread_id темы форума)`; новый черновик — строка outbox
+  `cup_messages card` и `PostCupMessageJob` (картинка рисовальщика v2 + подпись + кнопки «Опубликовать» `cup:pub`, «Настроить» (url
+  `/cups/setup/<code>`), «Отменить» `cup:cancel`); в теме форума — текстом (у отправки фото нет темы). Уже есть кубок: `cup:new` — тост
+  «В этом чате уже есть кубок», `/cup` — одна строка и кнопка «Открыть кубок» (url `/cups/c/<code>`); если это **черновик** — строка
+  «черновик кубка» и кнопка «Настроить» (url `/cups/setup/<code>`): предложение могло не дойти (таймаут первой отправки — `unknown`,
+  повторно не шлётся), а вступить в черновик нельзя. `/cup` — не чаще раза в 10 минут на
+  чат (`RateLimiter` `cup-chat:<chat_id>`), иначе молчание.
+- `cup:pub:{id}` → `publish($cup, from.id)` (админ чата проверяется в ядре свежим `getChatMember`, бот должен быть администратором —
+  решение владельца К1), затем предложение правится в карточку (то же сообщение). `cup:cancel:{id}` → `cancelByChatAdmin($cup, from.id)`,
+  карточка — «Кубок отменён» без кнопок. Кнопка принимается, только если кубок — этого чата и кнопка стоит на его карточке
+  (`message_id = cups.card_message_id`); иначе (чужой чат, старое сообщение, закрытый кубок, неверный формат, ЛС) — один и тот же тост
+  «Эта кнопка больше не действует». Не админ — «Это может сделать только администратор чата.».
+- `CUP_ACCESS=off` (или группа вне пилота): `/cup` не распознаётся (как неизвестная команда), нажатие `cup:*` только подтверждается без
+  текста, в приветствии нет кнопки кубка. Приветствие новой `pending`-группы (`GroupWelcomeMessenger`) при открытом кубке и без кубка в чате
+  — та же строка и кнопка «🏆 Создать кубок друзей» (`cup:new`).
+- Карточка (`CupCardRenderer`): «🏆 Кубок друзей Muhrla · «группа» · A2», статус (старт / «День N из 7» / завершён / отменён), до 10
+  строк таблицы `место. display_name [эмодзи Pro] [(вышел(а))] — очки` (эмодзи — только обычный из набора и только при действующем Pro,
+  `CupProEmoji`, один запрос на кубок), «Участников: N · сводка в 20:00»; имя печатается через `DisplayName::forChat()` — всё, из чего
+  Telegram сделал бы ссылку (`@`, `/`, `#`, `$` в начале слова, точка домена, `://`), заменено похожим символом (＠ ∕ ＃ ＄, U+2024,
+  U+2044), комбинирующих знаков не больше 2 подряд. Лимиты Telegram (подпись 1024, текст 4096) считаются в единицах UTF-16
+  (`TelegramText`): подпись, не влезающая в 1024, теряет строки таблицы с конца целиком («…и ещё N»), обрезка по графемам — крайний
+  случай; кнопки — url «Участвовать» / «Играть сегодня», «Таблица»,
+  «Правила» (после финиша — одна «Итоговая таблица»). Картинка без персональных данных (бренд, «Кубок друзей», уровень, правила) — один
+  файл на уровень, размеры и язык.
+- Outbox `cup_messages` (`CupOutbox`, `PostCupMessageJob`, docs/33 §6.4): условный UPDATE `pending → sending` (два воркера не публикуют
+  одно сообщение дважды); кубок на паузе / выключен флагом / закрыт → `skipped`; нет слота чата (20/мин или пауза этого чата после 429) →
+  обратно `pending`, задание откладывается; 429 → `pending` и проброс (`ThrottleTelegramOutbound` откладывает на `retry_after`; 429 группы
+  ставит паузу только этого чата); 403 / chat not found → `skipped` + группа `disabled` (`GroupBotRemoval`); иной определённый отказ →
+  повтор, после 5 попыток `failed`; таймаут / 5xx → `unknown`, без повтора; переезд в супергруппу клиент проходит сам (повтор в новом чате).
+  Строка `final` ставится в очередь сразу после финиша (`CupScheduler` → `CupOutbox::queue()`), `cups:send-outbox` — страховка. Запрос
+  перепубликации карточки (возврат бота), пока её строка `sending`, — метка `cups.meta.card_repost`; конец этой отправки без публикации
+  (skipped / unknown / failed) возвращает строку в `pending`, после успешной метка просто снимается. `cups.meta.card_kind` пишется
+  одним ключом (`jsonb_set` / `json_set`), не из модели, прочитанной без блокировки.
+- Правка карточки (`CupCards::refresh`): только при изменении текста (`card_text_hash`), «message is not modified» — успех; карточка
+  удалена админом («message to edit not found») — публикуется заново не чаще раза в сутки; чат переехал в супергруппу
+  (`card_chat_id ≠ chat_id` или ответ «migrated») — заново сразу; 403 — группа `disabled`.
+- Уход из чата (`chat_member` left/kicked/restricted-вне-чата, `left_chat_member`) → после `leave()` всегда
+  `CupParticipationService::onLeftChat($learner, $group, $date)`; событие старше последней успешной проверки (`membership_checked_at`
+  — участник уже вернулся) ничего не меняет (повтор / опоздавший вебхук); время события помечается (`cup:member-left:v1:*`, 120 с), и
+  ответ «член», спрошенный до него, не переиспользуется и не делает участника снова `active`. Возврат в чат участника не активирует —
+  это делает следующая свежая проверка.
+  Бот снова добавлен в группу с открытым кубком (`my_chat_member` из left/kicked) → строка `card` снова `pending` (новое сообщение), второго
+  кубка нет, сроки прежние.
+- Расписание (`routes/console.php`, все `withoutOverlapping`): `cups:advance` каждые 5 минут (истечение черновиков, старт / сдвиг старта /
+  отмена без игроков, снимки следующего дня, закрытие брошенных попыток, финиш); `cups:post-summaries` каждые 5 минут (сводка дня в
+  `summary_minute` по поясу кубка — время сводки проверяется в SQL, так что пачка не забивается кубками, чьё время не наступило; только
+если очки таблицы изменились с прошлой сводки и сводки не выключены; в последний день — подвал «Это последний день…» вместо «Раунд нового
+дня откроется в полночь»); `cups:refresh-cards` каждые
+  5 минут (карточки с новостями, не чаще раза в 5 минут каждая); `cups:send-outbox` каждую минуту (`sending` старше 10 минут → `unknown`,
+  забытые `pending` — снова в очередь). Событие `cup.summary_posted {cup_id, day}`.
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 

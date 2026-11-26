@@ -16,6 +16,8 @@ export const OFFER_PLACEMENTS = [
   'paywall_practice',
   'paywall_practice_limit',
   'paywall_game',
+  'paywall_daily_goal',
+  'paywall_trial_ended',
   'billing_view',
   'lapsed_banner',
   'finished_pro_tip',

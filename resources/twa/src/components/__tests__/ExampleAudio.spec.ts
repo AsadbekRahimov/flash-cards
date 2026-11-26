@@ -249,7 +249,9 @@ describe('the speaker of the example', () => {
       await w.get('[data-testid=option-0]').trigger('click')
       await w.setProps({ result: result(EXAMPLE_URL) })
       const btn = w.get('[data-testid=example-speak-btn]')
-      expect(w.get('[data-testid=example]').element.parentElement).toBe(btn.element.parentElement)
+      // docs/design/2026-11-25-redesign Feedback: the sentence and its translation in a column, the speaker beside them.
+      expect(w.get('[data-testid=example]').element.parentElement?.nextElementSibling).toBe(btn.element)
+      expect(btn.classes()).toEqual(expect.arrayContaining(['size-11', 'rounded-full', 'bg-accent-soft']))
 
       const before = players.length
       await btn.trigger('click')

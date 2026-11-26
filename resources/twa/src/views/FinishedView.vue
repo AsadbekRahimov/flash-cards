@@ -33,6 +33,9 @@ import { playSound } from '@/composables/useFeedbackSound'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
+import { modeTitle } from '@/composables/practiceLabels'
+import { dayPlanStepPosition, gameStepExpected } from '@/composables/dayPlan'
+import type { DayPlan } from '@/api/types'
 
 /**
  * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
@@ -50,6 +53,18 @@ import { useI18n } from '@/i18n'
  * for less ("these words will come back - that is the plan"); no "One more round" and no practice. After an ordinary round the server may
  * add an invitation (`hard_round_offer`): one line of text among the actions, before the practice and the reminders. Under the note of the
  * round: one mistake of an earlier session corrected in it (`corrected`), when the server found a trustworthy pair.
+ *
+ * The day plan "lesson -> training -> game" (docs/31 §5б, docs/design/2026-11-25-redesign Finish). The finish of a LESSON says "Lesson done!"
+ * with the lesson and its new words under it, and a block "What next": step 2 - "Start the training" (the review of the words of this lesson,
+ * `lesson_review`, the one main button; only when the lesson gave new words), then a line "Or play: timed pairs" that opens the hub of the
+ * lesson with the game started at once (`?play=pairs_timed`), and the way home as text. Whether the review can open is the plan's word: after the
+ * finish of such a lesson `/today` is read again (best effort, the screen does not wait), and a plan that has no review for this lesson
+ * (`plan.training` null - the review is switched off - or done) takes the card away; without that word (an older server, a failed read) the
+ * card stays, and a refusal (409 `lesson_review_unavailable`) quietly takes it away with a neutral line instead of a red error (any other
+ * failure is told above the buttons). Either way the screen falls back to the ordinary buttons. "Step N of M" is the place of the step among
+ * the steps of the plan (`dayPlanStepPosition`; "recommended now" without a plan at hand). The finish of the REVIEW itself (`summary.lesson_review`) says
+ * "Words reinforced" with its numbers and no points (it brings none, nor goal), and offers step 3 - "Play". Every other session (a daily review,
+ * the round of hard words, a group lesson, an empty or early end) keeps its own actions.
  */
 const props = defineProps<{
   reviewed: number
@@ -85,6 +100,8 @@ const reasonLabel = computed(() => {
   const reason = REASONS.find((r) => r === props.reason)
   // The quota card says the same, and says what to do next.
   if (reason === 'new_quota_exhausted' && showQuotaCard.value) return null
+  // "Lesson done!" says it already.
+  if (reason === 'lesson_complete' && isLessonFinish.value) return null
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
@@ -128,6 +145,8 @@ const title = computed((): string => {
       : t('finished.hard_round.title_none')
   }
   if (isEmpty.value) return t('finished.title_empty')
+  if (isLessonReview.value) return t('finished.lesson_review.title')
+  if (isLessonFinish.value) return t('finished.lesson.title')
   const percent = correctValue.value
   if (percent === null || percent >= 80 || training.bestCombo >= 10) return t('finished.title')
   if (percent >= 60) return t('finished.title_good')
@@ -162,6 +181,80 @@ async function nextRound(): Promise<void> {
   if (sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
 }
 
+/** The review of a lesson studied today (docs/06 §15): by the reason of the last answer, the summary, or the mode this run opened. */
+const isLessonReview = computed(() => !isHardRound.value
+  && (props.reason === 'lesson_review_complete' || summary.value?.lesson_review != null || training.mode === 'lesson_review'))
+const lessonReview = computed(() => summary.value?.lesson_review ?? null)
+/** The review shows the mode by its name, as its header on the training screen does: «Тренировка · Напитки». */
+const reviewSubtitle = computed(() => (lessonTitle.value !== ''
+  ? t('training.lesson_review_header', { lesson: lessonTitle.value })
+  : t('training.lesson_review_header_plain')))
+
+/** The lesson of the session: where the practice entry leads, else what this run opened (a learner without practice has no entry). */
+const lessonId = computed((): number | null => summary.value?.practice_entry?.lesson_id ?? training.restartRequest?.lesson_id ?? null)
+/** The finish of a lesson (not of a daily review, a group lesson, a round of hard words or the review of a lesson). */
+const isLessonFinish = computed(() => summary.value !== null && !isHardRound.value && !isLessonReview.value && lessonId.value !== null
+  && (training.mode === 'lesson' || training.mode === null))
+/** The name of the lesson ("Drinks"), when the session knows it. */
+const lessonTitle = computed(() => (training.lesson?.title ?? '').trim())
+const newWords = computed(() => summary.value?.new_words ?? 0)
+
+/** The header with the green mark (docs/design 2026-11-25 Finish): the lesson and its review, when something was done in them. */
+const planHeader = computed(() => (isLessonFinish.value || isLessonReview.value) && !isEmpty.value)
+const planSubtitle = computed((): string => {
+  if (isLessonReview.value) return reviewSubtitle.value
+  const parts = [lessonTitle.value, newWords.value > 0 ? tn('finished.lesson.new_words', newWords.value) : '']
+  return parts.filter((part) => part !== '').join(' · ')
+})
+
+/** "Start the training" was refused: the card goes, the ordinary buttons come back. */
+const reviewRefused = ref(false)
+/** The neutral line of a 409 `lesson_review_unavailable` (why the review cannot open), in place of the card; '' otherwise. */
+const reviewNotice = ref('')
+/**
+ * `/today.plan` read after this finish: undefined while it is not (the read is on its way, failed, or the server has no plan) - the card
+ * then trusts the summary.
+ */
+const planAfterFinish = ref<DayPlan | undefined>(undefined)
+/** The plan says the review of this lesson can open (it is on and not done yet); true while the plan is not known. */
+const reviewOpenByPlan = computed(() => {
+  const plan = planAfterFinish.value
+  if (plan === undefined) return true
+  const review = plan.training
+  return review !== null && review.lesson_id === lessonId.value && !review.done
+})
+/** Step 2: the lesson gave new words today, this run knows the lesson, and the plan does not say the review is off. */
+const showTraining = computed(() => isLessonFinish.value && !isEmpty.value && newWords.value > 0 && lessonId.value !== null && !reviewRefused.value
+  && reviewOpenByPlan.value)
+async function startLessonReview(): Promise<void> {
+  const id = lessonId.value
+  if (id === null) return
+  const sessionId = await training.openLessonReview(id, 'finish')
+  if (sessionId !== null) {
+    await router.replace({ name: 'training', params: { sessionId } })
+    return
+  }
+  reviewRefused.value = true
+  if (training.openErrorCode === 'lesson_review_unavailable') {
+    // Not an error of the learner's: the review is not there for this lesson today. Said quietly where the card was.
+    reviewNotice.value = training.openError
+    training.clearOpenError()
+  }
+}
+
+/** After the finish of a lesson with new words: the plan of the day read again, so the card of step 2 matches the server. */
+async function readPlanAfterFinish(): Promise<void> {
+  await today.load()
+  const plan = today.status === 'ready' ? today.data?.plan : undefined
+  planAfterFinish.value = plan ?? undefined
+}
+
+/** "Step 2 of 3 · recommended now": the place of the step among those of the plan at hand. */
+function stepEyebrow(key: 'training' | 'game'): string {
+  const position = dayPlanStepPosition(today.data?.plan, gameStepExpected(today.data?.practice), key)
+  return position === null ? t('finished.next.now') : t('finished.next.step', position)
+}
+
 /** "Best run: 12": only a run that the chip showed. */
 const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bestCombo : 0))
 
@@ -172,8 +265,47 @@ const goalPercent = computed(() => {
   return current.target > 0 ? Math.min(100, Math.round((current.done / current.target) * 100)) : 0
 })
 
-/** League points of this session (docs/13 §7.6): shown only when the server counted some. */
-const pointsEarned = computed(() => summary.value?.league_points ?? 0)
+/** The segments of the goal (one per word, as in the mock-up) when there are not too many of them for a phone; else one line. */
+const GOAL_SEGMENTS_MAX = 30
+const goalSegments = computed((): boolean[] | null => {
+  const current = goal.value
+  if (current === null || current.target <= 0 || current.target > GOAL_SEGMENTS_MAX) return null
+  const filled = current.met ? current.target : Math.min(current.done, current.target)
+  return Array.from({ length: current.target }, (_, i) => i < filled)
+})
+const goalLeft = computed(() => (goal.value === null || goal.value.met ? 0 : Math.max(0, goal.value.target - goal.value.done)))
+/** The review of a lesson moves no goal: its finish does not show one. */
+const showGoal = computed(() => goal.value !== null && !isLessonReview.value)
+
+/**
+ * The word points of the session (docs/32 §8.2, `score_session`); null outside the v2 rules (an older server, the rules off): then the
+ * league points of the v1 formula alone, as before.
+ */
+const scoreSession = computed(() => summary.value?.score_session ?? null)
+
+/**
+ * League points of this session (docs/13 §7.6): shown only when the server counted some. On the v2 rules - what the session earned by the
+ * rules (`earned`, before the limits of the day); `league_points` is then the weekly part (`week_added`), said in the split below, not twice.
+ */
+const pointsEarned = computed(() => scoreSession.value?.earned ?? summary.value?.league_points ?? 0)
+
+/** Where the points went: "to the weekly rating +40 · to the month +45" (one part when both are the same). */
+const scoreSplit = computed(() => {
+  const score = scoreSession.value
+  if (score === null) return ''
+  const week = score.week_rating_delta
+  const month = score.month_added
+  if (week === month) return t('finished.score.both', { count: week })
+  return [t('finished.score.week', { count: week }), t('finished.score.month', { count: month })].join(' · ')
+})
+
+/** The rating day after the session: "Today: 60 / 100 points" (the cap is the server's). */
+const scoreTodayLine = computed(() => {
+  const today = scoreSession.value?.today ?? null
+  if (today === null) return ''
+  const count = today.cap === null ? tn('league.score', today.points) : tn('score.today.count', today.cap, { points: today.points })
+  return t('finished.score.today', { count })
+})
 
 /**
  * "In the month's rating: 12th place · 340 points": a light request after the screen is shown (it never blocks it; a failure
@@ -214,6 +346,7 @@ onMounted(() => {
     void monthly.loadMine()
     void achievements.load()
   }
+  if (showTraining.value) void readPlanAfterFinish()
 })
 
 /**
@@ -235,14 +368,30 @@ async function startHardRound(): Promise<void> {
   else await router.replace({ name: 'training', params: { sessionId } })
 }
 
+/**
+ * Step 3: the hub of the lesson that opens the timed pairs on its words at once (`?play=pairs_timed`); only where the server gives an entry to
+ * the practice of a lesson (a short lesson is topped up by the server, the hub tells a refusal).
+ */
+const gameTarget = computed((): RouteLocationRaw | null => {
+  const entry = practiceEntry.value
+  if (entry === null || entry.lesson_id === null) return null
+  return { name: 'practice-hub', params: { slug: entry.course }, query: { lesson: String(entry.lesson_id), play: 'pairs_timed', from: 'finished' } }
+})
+/** "Or play: timed pairs" under the training of a lesson; "Play" as the main button after the review. */
+const showGameLine = computed(() => isLessonFinish.value && !isEmpty.value && gameTarget.value !== null)
+const showPlayHero = computed(() => isLessonReview.value && !isEmpty.value && gameTarget.value !== null)
+/** The block "What next" has something in it; then the way home is a line of text and "Done" is gone. */
+const showWhatNext = computed(() => showTraining.value || showGameLine.value || showPlayHero.value || reviewNotice.value !== '')
+const heroMain = computed(() => showTraining.value || showPlayHero.value)
+
 const practiceTarget = computed((): RouteLocationRaw | null => {
   const entry = practiceEntry.value
   if (entry === null) return null
   const lesson = entry.lesson_id === null ? {} : { lesson: String(entry.lesson_id) }
   return { name: 'practice-hub', params: { slug: entry.course }, query: { ...lesson, from: 'finished' } }
 })
-/** Only after a round that did something: an empty one has nothing to practise. */
-const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.value)
+/** Only after a round that did something: an empty one has nothing to practise. A lesson and its review offer the game instead. */
+const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.value && !isLessonFinish.value && !isLessonReview.value)
 
 /**
  * The end of today's new words (docs/12 §5.4): on Free a calm card says so and offers the two ways on — what Pro gives (the
@@ -367,8 +516,11 @@ const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_du
 /** The streak has something to say: a run of days, or the warning that it is about to break. */
 const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
 /** The card of rows under the numbers (docs/design Finish) has at least one row. */
-const hasRows = computed(() => corrected.value !== null || goal.value !== null || showStreak.value || bestCombo.value > 0
-  || newAchievement.value !== null || pointsEarned.value > 0 || monthLine.value !== null || !isEmpty.value)
+const hasRows = computed(() => corrected.value !== null || showGoal.value || showStreak.value || bestCombo.value > 0
+  || newAchievement.value !== null || (pointsEarned.value > 0 && (!isLessonFinish.value || scoreSession.value !== null))
+  || monthLine.value !== null || showNext.value)
+/** "Next review": the review of a lesson moves no schedule, so it has none. */
+const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
 notificationHaptic('success')
 if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')
@@ -382,16 +534,27 @@ onBeforeUnmount(() => {
 
 <template>
   <!--
-    docs/design Finish: calm, on the grey page — an eyebrow, the title, the three numbers in one card with lines between them, one card of
-    rows (a mistake put right, the goal and the streak, the league, the next review), "Done" and the other actions as text under it.
+    docs/design/2026-11-25-redesign Finish: on the grey page — the title (with the green mark after a lesson and its review, else an eyebrow
+    over it), the numbers in one card with lines between them, one card of rows (a mistake put right, the goal and the streak, the month, the
+    next review), "What next" of the day plan, then the main button and the other actions as text under it.
   -->
-  <div class="page pt-16 short:pt-6" data-testid="finished-view">
-    <header class="flex flex-col gap-2">
+  <div class="page" :class="planHeader ? 'pt-[30px]' : 'pt-16 short:pt-6'" data-testid="finished-view">
+    <header v-if="planHeader" class="flex items-center gap-3.5" data-testid="plan-header">
+      <span class="flex size-14 shrink-0 items-center justify-center rounded-full bg-success text-on-primary" aria-hidden="true">
+        <AppIcon name="check" :size="30" />
+      </span>
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <h1 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px] break-words">{{ title }}</h1>
+        <p v-if="planSubtitle" class="text-[15px] leading-5 text-muted break-words" data-testid="plan-subtitle">{{ planSubtitle }}</p>
+        <p v-if="reasonLabel" class="text-[15px] leading-5 text-muted" data-testid="reason">{{ reasonLabel }}</p>
+      </div>
+    </header>
+    <header v-else class="flex flex-col gap-2">
       <p class="text-[13px] leading-[18px]" :class="isEmpty ? 'text-muted' : 'text-success-ink'" data-testid="eyebrow">
         {{ isHardRound ? t('training.hard_round.chip') : t('finished.eyebrow') }}
       </p>
       <h1
-        class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px] short:text-[26px] short:leading-[30px]"
+        class="text-[30px] leading-9 font-extrabold tracking-[-0.5px] short:text-[26px] short:leading-[30px]"
         :data-testid="isHardRound ? 'hard-round-title' : undefined"
       >
         {{ title }}
@@ -400,21 +563,57 @@ onBeforeUnmount(() => {
       <p v-else-if="reasonLabel" class="text-[15px] leading-5 text-muted" data-testid="reason">{{ reasonLabel }}</p>
     </header>
 
+    <!-- The review of a lesson: the words of its set reinforced, and how many at the first try. No points, no new words: it brings none. -->
     <div
-      v-if="summary && hasNumbers"
-      class="mt-7 grid grid-cols-3 rounded-card border border-hairline bg-surface short:mt-5"
+      v-if="summary && hasNumbers && isLessonReview && lessonReview"
+      class="mt-[18px] grid grid-cols-2 rounded-card border border-hairline bg-surface"
       data-testid="stats"
     >
-      <div class="flex min-w-0 flex-col gap-1 px-3.5 py-4">
-        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-won">{{ t('finished.stats.of', { done: lessonReview.won, total: lessonReview.total }) }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.lesson_review.won') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-first-try">{{ lessonReview.first_try }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.lesson_review.first_try') }}</p>
+      </div>
+    </div>
+    <!-- A lesson (docs/design 2026-11-25 Finish): right answers of all, the new words, and the points of the league when there are some. -->
+    <div
+      v-else-if="summary && hasNumbers && isLessonFinish"
+      class="mt-[18px] grid rounded-card border border-hairline bg-surface"
+      :class="pointsEarned > 0 ? 'grid-cols-3' : 'grid-cols-2'"
+      data-testid="stats"
+    >
+      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-correct">{{ t('finished.stats.of', { done: summary.correct, total: summary.reviewed }) }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct_answers') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-new">{{ summary.new_words > 0 ? `+${summary.new_words}` : summary.new_words }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new_words') }}</p>
+      </div>
+      <div v-if="pointsEarned > 0" class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="points-earned">+{{ pointsEarned }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.league_points') }}</p>
+      </div>
+    </div>
+    <!-- Any other personal session: the cards, the share of right answers and the new words; the points are a row below. -->
+    <div
+      v-else-if="summary && hasNumbers"
+      class="mt-[18px] grid grid-cols-3 rounded-card border border-hairline bg-surface"
+      data-testid="stats"
+    >
+      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
         <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.cards') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3.5 py-4">
-        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
         <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3.5 py-4">
-        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-new">{{ summary.new_words }}</p>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-new">{{ summary.new_words }}</p>
         <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new') }}</p>
       </div>
     </div>
@@ -426,10 +625,11 @@ onBeforeUnmount(() => {
       {{ tn('finished.reviewed', reviewed) }}
     </p>
     <p v-if="stagesLine" class="mt-2 px-1 text-[13px] leading-[18px] text-muted" data-testid="stages">{{ stagesLine }}</p>
+    <p v-if="isLessonReview && summary" class="mt-2 px-1 text-[13px] leading-[18px] text-muted" data-testid="lesson-review-note">{{ t('finished.lesson_review.note') }}</p>
 
     <section
       v-if="hasRows"
-      class="mt-3.5 flex flex-col divide-y divide-divider overflow-hidden rounded-card border border-hairline bg-surface"
+      class="mt-2.5 flex flex-col divide-y divide-divider overflow-hidden rounded-card border border-hairline bg-surface"
       data-testid="rows"
     >
       <div v-if="corrected" class="flex items-start gap-3 px-[18px] py-3.5" data-testid="hard-round-corrected">
@@ -443,14 +643,25 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div v-if="goal" class="px-[18px] py-3.5" data-testid="goal">
-        <div class="flex items-center justify-between gap-3">
-          <p class="text-[15px] leading-5 font-semibold" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
-            {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
+      <div v-if="goal && showGoal" class="flex flex-col gap-2.5 px-4 py-3.5" data-testid="goal">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="text-base leading-5 font-bold" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
+            {{ goal.met ? t('finished.goal_met') : t('finished.goal_line', { done: goal.done, target: goal.target }) }}
           </p>
-          <AppIcon v-if="goal.met" name="check" :size="18" class="shrink-0 text-success" />
+          <AppIcon v-if="goal.met" name="check" :size="18" class="shrink-0 self-center text-success" />
+          <p v-else-if="goalLeft > 0" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="goal-left">{{ t('finished.goal_left', { count: goalLeft }) }}</p>
         </div>
-        <ProgressLine class="mt-2.5" :value="goalPercent" :tone="goal.met ? 'success' : 'accent'" :label="t('today.goal.title')" />
+        <!-- One segment per word of the goal (as in the mock-up); a long goal is one line. -->
+        <div
+          v-if="goalSegments"
+          class="grid gap-[3px]"
+          :style="{ gridTemplateColumns: `repeat(${goalSegments.length}, minmax(0, 1fr))` }"
+          aria-hidden="true"
+          data-testid="goal-segments"
+        >
+          <span v-for="(filled, i) in goalSegments" :key="i" class="h-2 rounded-[3px]" :class="filled ? 'bg-success' : 'bg-track'" />
+        </div>
+        <ProgressLine v-else :value="goalPercent" :tone="goal.met ? 'success' : 'accent'" :label="t('today.goal.title')" />
       </div>
 
       <div v-if="streak && showStreak" class="px-[18px] py-3.5">
@@ -479,7 +690,19 @@ onBeforeUnmount(() => {
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
-      <div v-if="pointsEarned > 0" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
+      <!-- The word points v2 (docs/32 §8.2): the session's points (on a lesson they are the tile above), where they went, what the cap cut off. -->
+      <div v-if="scoreSession && pointsEarned > 0" class="flex flex-col gap-0.5 px-[18px] py-3.5" data-testid="score-session">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
+          <p v-if="!isLessonFinish" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+        </div>
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="score-split">{{ scoreSplit }}</p>
+        <p v-if="scoreSession.capped_off > 0" class="text-[13px] leading-[18px] text-muted" data-testid="score-capped-off">
+          {{ tn('finished.score.capped', scoreSession.capped_off) }}
+        </p>
+        <p v-if="scoreTodayLine" class="text-[13px] leading-[18px] text-muted" data-testid="score-today-line">{{ scoreTodayLine }}</p>
+      </div>
+      <div v-else-if="pointsEarned > 0 && !isLessonFinish" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
         <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
         <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
       </div>
@@ -493,7 +716,7 @@ onBeforeUnmount(() => {
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
-      <div v-if="!isEmpty" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5" data-testid="next">
+      <div v-if="showNext" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5" data-testid="next">
         <p class="text-[15px] leading-5 font-semibold">{{ t('finished.next_label') }}</p>
         <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="next-label">{{ nextLabel }}</p>
       </div>
@@ -511,11 +734,65 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <!-- "Done" is the one main button; every other way on is a line of text under it (docs/design Finish). -->
+    <!-- "What next" of the day plan (docs/31 §5б): step 2 (the training of the lesson) or step 3 (the game) as the big card, the game as a row. -->
+    <section v-if="showWhatNext" class="mt-[22px] flex flex-col gap-2.5" data-testid="what-next">
+      <h2 class="text-xl leading-6 font-extrabold tracking-[-0.3px]">{{ t('finished.next.title') }}</h2>
+
+      <div v-if="showTraining" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="training-card">
+        <div class="flex flex-col gap-1">
+          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="training-step">{{ stepEyebrow('training') }}</p>
+          <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ t('finished.next.training_title') }}</p>
+          <p class="text-sm leading-5">{{ t('finished.next.training_text') }} {{ tn('finished.lesson.new_words', newWords) }}.</p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-primary btn-lg btn-block"
+          :disabled="training.opening"
+          data-testid="lesson-review-btn"
+          @click="startLessonReview"
+        >
+          {{ t('finished.next.training_start') }}
+          <AppIcon name="arrow-right" :size="22" />
+        </button>
+      </div>
+
+      <p v-if="reviewNotice" class="text-[15px] leading-5 text-muted" role="status" data-testid="training-unavailable">{{ reviewNotice }}</p>
+
+      <div v-if="showPlayHero && gameTarget" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="game-card">
+        <div class="flex flex-col gap-1">
+          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="game-step">{{ stepEyebrow('game') }}</p>
+          <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ modeTitle('pairs_timed') }}</p>
+          <p class="text-sm leading-5">{{ t('finished.next.game_text') }}</p>
+        </div>
+        <RouterLink :to="gameTarget" class="btn btn-primary btn-lg btn-block" data-testid="game-play-btn">
+          {{ t('finished.next.play') }}
+          <AppIcon name="arrow-right" :size="22" />
+        </RouterLink>
+      </div>
+
+      <RouterLink
+        v-if="showGameLine && gameTarget"
+        :to="gameTarget"
+        class="flex min-h-12 items-center gap-3 rounded-card border border-hairline bg-surface px-3.5 py-3 active:bg-fill"
+        data-testid="game-line"
+      >
+        <AppIcon name="puzzle-piece" :size="28" class="shrink-0 text-accent" />
+        <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span class="text-base leading-5 font-bold">{{ t('finished.next.game_line') }}</span>
+          <span class="text-[13px] leading-[18px] text-muted">{{ t('finished.next.game_sub') }}</span>
+        </span>
+        <AppIcon name="chevron-right" :size="20" class="shrink-0" />
+      </RouterLink>
+    </section>
+
+    <!-- One main button: the step of "What next", else "Done"; every other way on is a line of text under it (docs/design Finish). -->
     <div class="mt-auto flex flex-col gap-1.5 pt-6">
       <InlineAlert v-if="training.openError" tone="danger" :message="training.openError" data-testid="open-error" />
 
-      <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
+      <RouterLink v-if="heroMain" :to="{ name: 'today' }" class="btn btn-plain btn-block text-base" data-testid="home-btn">
+        {{ t('finished.home') }}
+      </RouterLink>
+      <RouterLink v-else :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
         {{ t('finished.done') }}
       </RouterLink>
       <button

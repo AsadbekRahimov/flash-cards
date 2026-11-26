@@ -785,18 +785,19 @@ supervisorctl status
 
 ### 10.1 Pre-generated word audio (task 1.2c, docs/26)
 
-Words and dictation phrases are voiced once, in the background, by the synthesizer of `TTS_DRIVER` — never on a learner's request (there is no live TTS endpoint any more; a card without a file uses the phone voice). The full owner's guide — Google Cloud, Cloudflare R2, every variable, the switch-on order, the error codes — is **`docs/27_GOOGLE_TTS_SETUP_RU.md`**; this section is the operator's summary.
+Words and dictation phrases are voiced once, in the background, by the synthesizer of `TTS_DRIVER` — never on a learner's request (there is no live TTS endpoint any more; a card without a file uses the phone voice). The owner's guide for the main service, Deepgram (key, variables, voices, error codes, the credit) is **`docs/37_DEEPGRAM_TTS_SETUP_RU.md`**; Google Cloud (the alternative), Cloudflare R2, the disk and address of the files, the switch-on order — **`docs/27_GOOGLE_TTS_SETUP_RU.md`**; this section is the operator's summary.
 
-- Drivers: `google` (Google Cloud Text-to-Speech, the production one: key file `GOOGLE_TTS_CREDENTIALS`, voice `TTS_VOICE` must be a Google voice), `http` (an edge-tts compatible service at `TTS_SERVICE_URL`, local development only — there is no `tts` container in the production compose files), `null` (off). **An empty `TTS_DRIVER` means `http` when `TTS_SERVICE_URL` is set** (it is in `.env.example`), so set `TTS_DRIVER=null` explicitly until Google is configured. A typo in `TTS_DRIVER` breaks only the synthesis: `/health/ready` reports `"tts": "degraded"` (still 200).
+- Drivers: `deepgram` (Deepgram Aura-2, the production one since 25.11.2026, docs/26 §10: key `DEEPGRAM_API_KEY` in `.env`, voice `TTS_VOICE` must be a Deepgram model such as `aura-2-thalia-en` — the default when `TTS_VOICE` is empty; an empty key reports `"tts": "degraded"`), `google` (Google Cloud Text-to-Speech, the alternative: key file `GOOGLE_TTS_CREDENTIALS`, voice `TTS_VOICE` must be a Google voice), `http` (an edge-tts compatible service at `TTS_SERVICE_URL`, local development only — there is no `tts` container in the production compose files), `null` (off). **An empty `TTS_DRIVER` means `http` when `TTS_SERVICE_URL` is set** (it is in `.env.example`), so set `TTS_DRIVER=null` explicitly until Deepgram (or Google) is configured. A typo in `TTS_DRIVER` breaks only the synthesis: `/health/ready` reports `"tts": "degraded"` (still 200).
 - Key file (Docker): the host file `GOOGLE_TTS_KEY_FILE` is bind-mounted read-only at `/run/secrets/google-tts.json` (= `GOOGLE_TTS_CREDENTIALS`) into `app`, `queue-low` and `scheduler` only; unset, `/dev/null` is mounted and the driver answers `tts_credentials_invalid`. The file must be readable by UID/GID 1000 of the image (`install -m 0440 -o root -g 1000 …`).
 - Queue: `PregenerateWordAudioJob`, `PregenerateExampleAudioJob` and `GeneratePracticeAudioJob` run on `tts`, served by the `low` worker after `low` (`--queue=low,tts`, see above). 5 attempts, backoff 30 s / 2 m / 10 m / 30 m; a word whose file the disk refuses after a paid synthesis (`tts_audio_not_stored`) gets 2. The word job and the example job are each unique until they start (a queued word is not queued twice; its example job waits beside it).
-- Spend: `TTS_RATE_PER_MINUTE` (150, all workers together; a job waits up to 30 s) and `TTS_MONTHLY_CHAR_LIMIT` (900 000 per Pacific-time month, counted in the table `tts_usage_months`). A `tts_auth_failed` / `tts_forbidden` sets a 10-minute halt marker in Redis: every job fails at once until it expires or `php artisan audio:sample --clear-halt`.
-- Automatic queueing: a word added in `/admin`, the new and changed words of a lesson import (after the commit), an edit of a word's English text or of its main example, a new dictation version; and the nightly `audio:reconcile` at **02:30 UTC** (`routes/console.php`, the words first, then the examples, at most 2000 jobs a night for both together, printing `Words: W, examples: E`; it prints why it queued nothing — driver off, halt marker, key missing/invalid, voice not Google's, monthly limit). The learners' own decks are never voiced by Google.
+- Spend, `google`: `TTS_RATE_PER_MINUTE` (150, all workers together; a job waits up to 30 s) and `TTS_MONTHLY_CHAR_LIMIT` (900 000 per Pacific-time month, counted in the table `tts_usage_months`). A `tts_auth_failed` / `tts_forbidden` sets a 10-minute halt marker in Redis: every job fails at once until it expires or `php artisan audio:sample --clear-halt`.
+- Spend, `deepgram`: `DEEPGRAM_TTS_RATE_PER_MINUTE` (150, its own limiter) and `DEEPGRAM_TTS_CHAR_LIMIT` (6 000 000 characters **in all**, not per month — the Deepgram credit is one-off; one row `dgtotal` of `tts_usage_months` that never starts over; spent → `tts_credit_limit_reached`, raise the limit after a top-up). 401 / 403 / 402 (`tts_auth_failed` / `tts_forbidden` / `tts_payment_required`) set the 10-minute halt marker `tts:deepgram:v1:halt`; `audio:sample --clear-halt` drops it. A text over `DEEPGRAM_TTS_MAX_CHARS` (2000) is `tts_text_too_long` and never sent.
+- Automatic queueing: a word added in `/admin`, the new and changed words of a lesson import (after the commit), an edit of a word's English text or of its main example, a new dictation version; and the nightly `audio:reconcile` at **02:30 UTC** (`routes/console.php`, the words first, then the examples, at most 2000 jobs a night for both together, printing `Words: W, examples: E`; it prints why it queued nothing — driver off, halt marker, key missing/invalid, voice not the driver's, monthly limit or Deepgram credit limit). The learners' own decks are never voiced by the paid service.
 
 Commands (what each prints — docs/27 C6):
 
 ```bash
-php artisan audio:sample [--voice=en-US-Neural2-F] [--clear-halt]   # voice ~30 control texts now into storage/app/audio-samples/<voice>/
+php artisan audio:sample [--voice=aura-2-thalia-en | --voices=a,b,c] [--clear-halt]   # voice ~30 control texts now into storage/app/audio-samples/<voice>/ (up to 10 voices, a folder each)
 php artisan audio:pregenerate <course-slug> | --all [--only=words|examples] [--force]   # queue jobs for active words / their examples without current audio (default: both)
 php artisan audio:reconcile [--limit=2000]                          # the nightly check, by hand
 php artisan audio:coverage <course-slug> [--verify] [--min=95]      # report; --verify checks the files (HEAD per file on R2)
@@ -820,6 +821,34 @@ php artisan audio:prune [--days=30] [--delete] [--disk=] [--force]  # list (or w
   ```
 
   (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
+### 10.1a Share cards (`/storage/share-cards/`, docs/36 §2б)
+
+The picture of an achievement, of a city of the "Caravan" and of the brand (the invitation) is a 1080×1080 **JPEG** drawn by
+`AchievementCardRenderer` (GD + FreeType + JPEG, Noto Sans) into `storage/app/public/share-cards/<key>-<ru|uz>-<hash>.jpg` (disk
+`public`, `config/achievements.php`). The bot sends it as a photo, and for a message shared "through the bot" (docs/36 §1в) Telegram
+**downloads it by its address** — `AchievementCardRenderer::publicUrl()` = `APP_URL` + `/storage/share-cards/<file>`, given only when
+`APP_URL` is https. The name holds a keyed hash of what the card shows (no learner id, no personal data on the card; changing
+`APP_KEY` only renames future cards).
+
+- **nginx** (`docker/nginx/{prod,coolify,default}.conf`): `location ^~ /storage/share-cards/` aliases the directory, only `GET`/`HEAD`
+  (anything else 403), only names matching `^/storage/share-cards/[a-z0-9_]{1,40}-(ru|uz)-[0-9a-f]{20}\.jpg$` (no `.tmp` of a render
+  in progress, no dotfile, no subdirectory — 404), `Cache-Control: public, max-age=31536000, immutable`, nosniff (+ HSTS in the images).
+  Nothing else of the public disk is served: the old PNG cards (`/storage/achievements/`) answer 404.
+- **Volume**: `app_share_cards`, mounted at `/var/www/html/storage/app/public/share-cards` read-write wherever `app_audio` is (`app`,
+  `app-api`, the queue workers, `scheduler`; in Coolify the `x-app` services) and read-only in `nginx` — as the word audio. The image
+  creates the directory owned by `app`, so a volume Docker creates is writable; nothing to copy (cards are drawn again on demand).
+- **`storage:link`** is **not** needed in the images (nginx aliases the directory). Without nginx (`php artisan serve`, local dev)
+  `php artisan storage:link` makes `public/storage` → `storage/app/public`, which serves the cards too.
+- **GD with JPEG**: `Dockerfile` / `Dockerfile.dev` build GD `--with-freetype --with-jpeg` (`libjpeg-turbo-dev`); the image build
+  fails when GD lacks JPEG or FreeType. A host install needs `php-gd` with JPEG support (`php -r 'var_dump(gd_info());'`).
+- **Cloudflare**: `/storage/share-cards/` must be reachable by Telegram's servers without a challenge (docs/23).
+- **Cleaning**: `achievements:prune-cards [--days=30]`, scheduled weekly (Monday 04:50): removes cards nobody used for 30 days (a card
+  served again moves its time once a day; a removed one is drawn again on demand), the PNG cards of template 1 in
+  `storage/app/public/achievements/` and leftovers of a killed render. Exit code 1 when a file could not be deleted.
+- **Illustrations** (designer's engravings, docs/36 A1): `<family>.png` in `ACHIEVEMENT_CARD_ART_PATH` (default
+  `resources/images/cards/`; `streak`, `words`, `league`, `friend`, `session`, `game`, `invite`, `month`). A missing file is not an
+  error — the card shows the medal; a new file renames the cards of its family, so they are drawn anew.
+
 ### 10.2 Audio of the practice dictations (task 18.5)
 
 The phrases of the practice mode "Listen and write" (docs/16 §10) are voiced by `GeneratePracticeAudioJob` (queue `tts`, 5 attempts, backoff 30 s / 2 m / 10 m / 30 m) into **`storage/app/practice-audio/{sha1}.mp3`** — the disk `practice_audio` of `config/filesystems.php` (a file is written to `.tmp/` first and moved, so a reader never sees half of an mp3). Unlike `storage/app/public/audio` this directory is **private: nginx does NOT serve it** (no `location`, no `storage:link` entry, the disk has no `url`); the files leave the server only through the JWT-guarded endpoints `GET /api/twa/practice/sessions/{id}/audio/{element}` and, for a battle, `GET /api/twa/practice/battles/{id}/audio/{element}` (the five clips of a dictation are loaded when the room is entered; a missing file voids the match — `docs/ADMIN_GUIDE.md`, *Battle 1-on-1*).
@@ -846,6 +875,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
+- `achievements:prune-cards` — weekly, Monday 04:50 (`withoutOverlapping(30)`): share cards unused for 30 days, the PNG cards of template 1, leftovers of a killed render (§10.1a).
 - `learners:purge-deleted` — daily at 03:30 (`withoutOverlapping`): learners soft-deleted more than `LEARNERS_PURGE_AFTER_DAYS` (30) days ago are deleted for good — personal and learning data go by FK cascade, payment records (`payment_orders`, `payments`, `provider_transactions`, `subscriptions`) stay whole with the payer snapshot (`payer_*`), see docs/03 §8 rule 2 and docs/07 §10. At most `LEARNERS_PURGE_MAX_PER_RUN` (500) learners per run, in batches of `LEARNERS_PURGE_BATCH` (50), one transaction per learner under a `Cache::lock`; a repeated or parallel run changes nothing. Prints `Learners purged: N` and logs `learners.purge_finished {purged, skipped, duration_ms}`; every deleted learner leaves an `audit_logs` row `learner.purged` (old id, `deleted_at`, no personal data). The Stars auto-renewal of a live subscription is canceled best-effort first (needs the bot token); a failure is logged (`learners.purge.stars_cancel_failed`) and does not stop the run.
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing.
@@ -860,8 +890,13 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
 - `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
 - `leagues:close-week` — daily at 00:00 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`) with a safety run at 00:05 on the same mutex (`cron 0,5 0 * * *`; on Monday it closes the week that just ended: final standings group by group, promotions, result DMs in `SendLeagueResultsJob` batches through the global send budget — a queue worker must run; the 00:05 run and the other days are a no-op or catch up a failed / missed run; idempotent and resumable by `league_weeks.status` + `league_groups.closed_at`; `withoutOverlapping(30)` + `runInBackground`). The old one-member job `SendLeagueResultJob` is kept as a thin deprecated shim for ONE release: a payload of that class that is still queued while a release rolls out (the Monday mailing in flight) runs as before — one member through a slot of the send budget, at most one DM per member and week by the same `notifications_log` marker the batches use, so it never doubles a DM; nothing dispatches it any more. Remove `app/Jobs/SendLeagueResultJob.php` (and its test in `LeagueResultSenderTest`) in the release after the first one that ships the shim — an old payload dies by its own `retryUntil` (at most `LEAGUES_NOTIFY_TTL_HOURS`, 12 h) after it was queued. So there is no need to wait for the mailing queue to drain before a deploy.
+- `leagues:prune-score-credits` — daily at 04:40 in `LEAGUES_TIMEZONE` (`withoutOverlapping(60)`): deletes the rows of the word-points journal `score_credits` older than `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` (180), only days of closed months, in batches of 5 000 (each its own statement, no long transaction; the BRIN index on `rating_day` serves the range). Idempotent; `-v` shows the progress (§14.4).
 - `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
 - `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
+- `cups:advance` — every 5 minutes (`withoutOverlapping`; the friends' cup, docs/33 §3.2): drafts expire, cups start / wait a day / are canceled without players, tomorrow's snapshots, abandoned attempts close, cups finish (and write their `final` message into the outbox). Runs whatever `CUP_ACCESS` says.
+- `cups:post-summaries` — every 5 minutes (`withoutOverlapping`; docs/33 §6.1, K6): the running cups whose `summary_minute` (20:00 by default, in the cup's timezone) has come today get the summary of the day in the outbox — only when the points of the table changed since the last summary; otherwise the day is marked decided. One statement chooses the cups; idempotent (the day marker is a conditional UPDATE, the row `summary:N` is unique).
+- `cups:refresh-cards` — every 5 minutes (`withoutOverlapping`; docs/33 §6.3): the cards of the cups with news since their last render (participants / points, a new day, a change of the cup) are edited in place (`editMessageCaption` / `editMessageText`), at most once in 5 minutes per card and only when the text changed; «message is not modified» is a success, a card deleted by an administrator is posted anew at most once a day, a chat moved to a supergroup gets the card anew.
+- `cups:send-outbox` — every minute (`withoutOverlapping`; docs/33 §6.4): rows of `cup_messages` left in `sending` for 10 minutes become `unknown` (never sent twice), `pending` rows nobody works on (the final of the finish, a lost or given-up job) are queued again as `PostCupMessageJob` (queue `default` — **needs a queue worker**). Statuses: `sent`, `skipped` (cup paused / switched off / closed; 403 — the group goes `disabled`), `unknown` (timeout: may be in the chat), `failed` (5 definite refusals). A 429 in a group pauses only that chat. With `CUP_ACCESS=off` every message is `skipped`.
 - `backup:run --only-db --isolated` — hourly at :20 (`withoutOverlapping(55)`), database only; see §11.1.
 - `backup:clean` — daily at 01:00 (`withoutOverlapping(55)`).
 - `backup:monitor` — daily at 02:00.
@@ -1078,6 +1113,19 @@ The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a d
 
    Do not repair such rows by hand: run `php artisan practice:battles-sweep` (idempotent) and look at the scheduler. The `meta` keys and the columns are in `docs/03` §2.45–§2.47.
 
+### 14.4 Word points v2: the backfills and the order of the switch-on (docs/32 §12.4)
+
+The word points ship **off** (`LEAGUES_SCORING_MODE=off`): nothing of them is written and the leagues count by the old formula. Before `live`, in this order:
+
+1. Deploy, `php artisan migrate --force`.
+2. `php artisan lexemes:backfill` — the catalog of lexemes and the links of the words of courses, then the unlinking of the words of learners' decks (a deck is outside the catalog and earns no points of the rating, docs/32 §12.12; batches by `words.id`, idempotent; `-v` shows the progress). `--decks` runs only the unlinking.
+3. `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY=false` + `config:cache` (otherwise a `reverse` / `audio` card of an old client earns 0).
+4. `php artisan learner_lexemes:backfill` — every lexeme a learner has already studied (a card out of `new`) becomes confirmed (`confirmed_source = legacy`), so an old word does not pay "new" (+2) again. **After** step 2 (a word without a lexeme is skipped and counted in the report as "studied cards without a lexeme") and **before** step 6. Batches of learners (`--batch=200` by default, one `INSERT … SELECT … ON CONFLICT` a batch, its own transaction — safe beside live traffic, no long lock; one line of progress a batch); `--learner=<id>` for one learner. Idempotent: a repeated run reports `lexemes confirmed: 0`; a run after `live` started is safe too (a real confirmation is never overwritten).
+5. Close the open week and month by the old rules (they close by themselves at their boundary; v2 starts on a Monday and/or the 1st).
+6. `LEAGUES_SCORING_V2_STARTS_ON=<that Monday / 1st>`, `LEAGUES_SCORING_MODE=live`, `config:cache`. `shadow` is the "record only" fallback for a rollback.
+
+The journal `score_credits` grows ~25 rows per active learner a day: `leagues:prune-score-credits` (§11, nightly) keeps `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` (180) days and never touches a day of the current month or of a month not confirmed yet — a month left in `pending_review` holds the clean-up back, confirm it in `/admin`. Watch the table size (`SELECT pg_size_pretty(pg_total_relation_size('score_credits'))`); after a large first prune a `VACUUM (ANALYZE) score_credits` returns the space to reuse.
+
 ---
 
 ## 15. Monitoring and Error Tracking
@@ -1131,7 +1179,7 @@ Without extra care it would land in `storage/logs/laravel.log`, stderr and `fail
 | Where | Mechanism |
 |-------|-----------|
 | `laravel.log` / `stderr` / syslog / errorlog / slack / papertrail | `RedactSecretsInLogs` tap on every channel in `config/logging.php` pushes `RedactingLogProcessor`: masks `message`, `context`, `extra` recursively; a `Throwable` in the context (`exception`) is replaced by its redacted text (message, `previous` chain, trace without call arguments). New channels must get the same `tap`. |
-| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. |
+| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. A 429 is `TelegramRateLimitedException`, a group moved to a supergroup `TelegramChatMigratedException` (both extend `TelegramApiException`; their messages are built from the method name and a number only — no SDK text, no chat ids). |
 | Sentry events / transactions / logs | `SentryScrubber` (15.1). |
 
 Masked: `bot<id>:<token>` in URLs and bare bot tokens, literal values of `TELEGRAM_BOT_TOKEN`,
@@ -1173,12 +1221,27 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 | `GET /health/ready` body `status: degraded` | longer than 10 minutes: the second Redis instance is down or hung and the application computes from the database (slower, more load on PostgreSQL) — `docker compose ps redis-cache` and its log; `cache.failed_over` in the application log says when it started (one line per 15 s window while it lasts), `cache.recovered` when it ended; `deploy.sh` prints a WARNING when the smoke check sees it |
 | Redis `INFO` of both instances (every 1 min) | first instance: `used_memory` above 80 % of `maxmemory` or growing for days, `evicted_keys` > 0; second instance: `evicted_keys` growing fast or hit ratio `keyspace_hits / (hits + misses)` below ~0.8 — raise `REDIS_CACHE_MAXMEMORY` (§0 "Redis") |
 | Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
-| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
+| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` — see "What a row in `failed_jobs` means" below |
 | `backup:monitor` mail | any message (backup is missing or too old) |
 | Certificate expiry | < 14 days |
 | Disk usage on the DB / backup volume | > 80% |
 | `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
 | Battles that did not move (the query of §14.3, step 7: invitations expired for 2 minutes, matches that are on and not updated for 5) | rows for more than 10 minutes — `practice:battles-sweep` does not run (the scheduler is down; `/health/ready` should have failed first) |
+
+#### What a row in `failed_jobs` means (Telegram senders, docs/34 §4в)
+
+A background Telegram send (`ThrottleTelegramOutbound` on the job) lands in `failed_jobs` only for a real, repeated failure — never for flood control:
+
+| Cause | Ends in `failed_jobs`? | What to do |
+|---|---|---|
+| Telegram 429 (flood control) | **No.** The client pauses all background sends (`telegram:outbound:pause_until`, ≤ 60 s) and the job is put back for `retry_after` without spending `maxExceptions` | Nothing; `telegram.rate_limited` (warning: `method`, `retry_after`) in the log. Alert on a steady stream: the per-second budget (`TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND`) is too high for the bot or a chat is spammed |
+| 403 / `chat not found` (blocked bot, deleted account) | No: the sender marks the recipient unreachable and ends the job | Nothing |
+| A group became a supergroup | No: the client moves `telegram_groups.chat_id` and sends again (`telegram.group_migrated`, info). `telegram.group_migration_conflict` (error: `old_group_id`, `new_group_id`) — both rows were "alive": merge them by hand in `/admin` | Only on the conflict line |
+| Another 4xx (our request is wrong: text too long, bad markup) | **Yes**, after `maxExceptions` retries (the marker is removed, so each retry really tries again) | A bug: the exception message names the method and Telegram's description |
+| Timeout / 5xx / network, three times in a row | **Yes** (the marker stays: the message may have been delivered, the retry does not send twice) | Check Telegram status and the server's network; the message is not re-sent automatically |
+| `retryUntil` passed (the job waited too long behind the budget or pauses) | **Yes**, with `MaxAttemptsExceededException` / "has been attempted too many times" | Expected only after a long outage; otherwise the queue is under-provisioned |
+
+`SendLeagueResultsJob` and `AssignmentService` follow the same rules in their own loops (docs/34 §4в п. 2).
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
 `reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated` / `chat_not_found`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.
@@ -1409,7 +1472,8 @@ chmod 600 .env
 | `CACHE_LIMITER_STORE` | recommended | `redis` (the rate limiter never on the evicting store) |
 | `CACHE_PURE_STORE` | recommended | `lru` (the pure cache, `PureCache::store()`) |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
-| `TTS_VOICE` | optional | `en-US-AriaNeural` (voice of pre-generated audio) |
+| `TTS_VOICE` | optional | voice of pre-generated audio; empty: `aura-2-thalia-en` with `TTS_DRIVER=deepgram`, else `en-US-AriaNeural` |
+| `TTS_DRIVER`, `DEEPGRAM_API_KEY` | ✅ for voicing | `deepgram` and the key of Deepgram (docs/37); `DEEPGRAM_TTS_*` — limits, see §10.1 |
 | `TTS_AUDIO_VERSION` | optional | `1` (bump to re-voice the library) |
 | `CACHE_STORE` | ✅ | `redis` |
 | `SESSION_DRIVER` | ✅ | `redis` |
@@ -1470,6 +1534,10 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
+| `LEAGUES_SCORING_MODE` | `off` | Word points v2 (docs/32): `off` / `shadow` (recorded, not shown) / `live`; the order of the switch-on — §14.4 |
+| `LEAGUES_SCORING_V2_STARTS_ON` | empty | First day (Monday and/or the 1st) of the periods counted by rules version 2; empty = not scheduled |
+| `LEAGUES_SCORING_GAME_ENABLED` | `true` | Game answers earn word points too |
+| `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` | `180` | Days the journal `score_credits` is kept (`leagues:prune-score-credits`, only days of closed months) |
 | `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time after the week was closed is dropped. One deadline for the whole mailing: a batch remainder handed to a new job keeps it |
 | `LEAGUES_NOTIFY_BATCH_SIZE` | `100` | Members per result-DM batch job (`SendLeagueResultsJob`) |
 | `LEAGUES_NOTIFY_BATCH_SECONDS` | `30` | Seconds one batch job may spend sending before handing the rest to a fresh job (keep well below the worker `--timeout`) |
@@ -1491,7 +1559,7 @@ The switches are read from `.env`; everything else of `config/practice.php` (siz
 |---|---|---|
 | `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
 | `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`). With `all`, Free learners practise within the daily limits below |
-| `PRACTICE_FREE_SESSIONS_PER_DAY` | `2` | Practice sessions a Free learner may open per local day (docs/18 G1); a retry of the mistakes is free, replacing the unfinished session counts. Pro (feature `practice.unlimited`, sponsored Pro included) has no limit. `0` — only Pro opens sessions; empty — no limit for Free. Refused: 403 `practice_limit_reached` |
+| `PRACTICE_FREE_SESSIONS_PER_DAY` | `3` | Practice sessions a Free learner may open per local day (docs/18 G1); a retry of the mistakes is free, replacing the unfinished session counts. Pro (feature `practice.unlimited`, sponsored Pro included) has no limit. `0` — only Pro opens sessions; empty — no limit for Free. Refused: 403 `practice_limit_reached` |
 | `PRACTICE_FREE_BATTLES_PER_DAY` | `1` | Battle calls a Free learner may send per local day: invitations and rematches they offer that wait for an answer or were played. A call that never started through no fault of the caller (declined, run out, withdrawn, a room that ran out, voided) is given back; accepting a friend's call is always free. `0` / empty as above |
 | `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` / `_PAIRS_TIMED` / `_WORD_FORM` / `_ERROR_HUNT` | `true` | Switches one mode off: no new session of it; sessions already started finish (`_PAIRS_TIMED` — "Pairs against the clock": solo only, a session of it is closed by the clock `time_over`; `practice:close-expired` closes those too) |
 | `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle: `false` refuses new invitations and the acceptance of sent ones (409 `battle_disabled`) and hides the entries (`/me` → `practice.battle`); matches that are on finish. `PRACTICE_ACCESS=off` is stronger: the sweeper voids the matches that are on |

@@ -11,7 +11,9 @@ use Illuminate\Foundation\Events\Dispatchable;
  * confirmation, once per month. The bot's congratulation DMs hang on it (a listener that queues one message per winner;
  * texts `lang/<locale>/leagues.php` `month.won`); everybody else sees the result in the Mini App — no mass mailing.
  *
- * @phpstan-type MonthWinner array{learner_id: int, place: int, points: int}
+ * `category` - the table (free / pro) of a v2 month; absent in a v1 month.
+ *
+ * @phpstan-type MonthWinner array{learner_id: int, place: int, points: int, category?: string}
  */
 final class LeagueMonthConfirmed
 {

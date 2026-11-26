@@ -22,6 +22,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/audio
 /public/twa
 /storage/*.key
 /storage/pail
@@ -33,3 +34,4 @@ Thumbs.db
 
 # Local Redis dump of a dev stand
 dump.rdb
+__pycache__/

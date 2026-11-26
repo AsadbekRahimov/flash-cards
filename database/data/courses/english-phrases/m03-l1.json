@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 3,
+    "title": "Просьбы и предложения",
+    "title_uz": "Iltimos va takliflar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Вежливая просьба",
+    "title_uz": "Xushmuomala iltimos"
+  },
+  "words": [
+    {
+      "word": "Could you help me?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могли бы вы мне помочь?",
+        "uz": "menga yordam bera olasizmi?"
+      },
+      "example": "Could you help me? I can't open this window. — Sure, let me try.",
+      "example_translations": {
+        "ru": "Не могли бы вы мне помочь? Не могу открыть окно. — Конечно, давайте я попробую.",
+        "uz": "Menga yordam bera olasizmi? Derazani ocholmayapman. — Albatta, men urinib ko'ray."
+      },
+      "hooks": {
+        "ru": "Вежливо просят о помощи знакомого или незнакомого человека",
+        "uz": "Tanish yoki notanish odamdan xushmuomala yordam so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "help",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I ask you something?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно вас кое о чём спросить?",
+        "uz": "sizdan bir narsa so'rasam maylimi?"
+      },
+      "example": "Can I ask you something? Where did you buy that bag? — At the market.",
+      "example_translations": {
+        "ru": "Можно вас кое о чём спросить? Где вы купили эту сумку? — На рынке.",
+        "uz": "Sizdan bir narsa so'rasam maylimi? Bu sumkani qayerdan oldingiz? — Bozordan."
+      },
+      "hooks": {
+        "ru": "Вступление перед вопросом, особенно личным",
+        "uz": "Savoldan, ayniqsa shaxsiy savoldan oldin aytiladigan kirish so'z"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ask",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Excuse me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "извините",
+        "uz": "kechirasiz"
+      },
+      "example": "Excuse me, you dropped your glove. — Oh, thank you!",
+      "example_translations": {
+        "ru": "Извините, вы уронили перчатку. — Ой, спасибо!",
+        "uz": "Kechirasiz, qo'lqopingizni tushirib yubordingiz. — Voy, rahmat!"
+      },
+      "hooks": {
+        "ru": "Привлекают внимание незнакомого человека или просят пропустить",
+        "uz": "Notanish odamning e'tiborini tortish yoki yo'l berishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "excuse",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Would you mind?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы не против?",
+        "uz": "qarshi emasmisiz?"
+      },
+      "example": "Would you mind closing the door? It's cold. — Of course not.",
+      "example_translations": {
+        "ru": "Вы не могли бы закрыть дверь? Холодно. — Конечно.",
+        "uz": "Eshikni yopib qo'ysangiz, qarshi emasmisiz? Sovuq. — Yo'q, albatta."
+      },
+      "hooks": {
+        "ru": "Очень вежливая просьба; если согласны, отвечают «No» или «Not at all»",
+        "uz": "Juda xushmuomala iltimos; rozi bo'lsa, «No» yoki «Not at all» deb javob beriladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mind",
+        "literal": {
+          "ru": "вы бы возражали?",
+          "uz": "e'tiroz bildirarmidingiz?"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you do me a favor?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно попросить вас об одолжении?",
+        "uz": "bir iltimosim bor edi"
+      },
+      "example": "Could you do me a favor and feed my cat this weekend? — Of course.",
+      "example_translations": {
+        "ru": "Можно попросить тебя об одолжении — покормить мою кошку в выходные? — Конечно.",
+        "uz": "Bir iltimosim bor edi: dam olish kunlari mushugimga ovqat berib tura olasanmi? — Albatta."
+      },
+      "hooks": {
+        "ru": "Начинают просьбу, которая потребует от собеседника времени или сил",
+        "uz": "Suhbatdoshdan vaqt yoki kuch talab qiladigan iltimosni boshlash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "favor",
+        "literal": {
+          "ru": "не могли бы вы сделать мне одолжение?",
+          "uz": "menga bir yaxshilik qila olasizmi?"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you have a minute?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у вас есть минутка?",
+        "uz": "bir daqiqa vaqtingiz bormi?"
+      },
+      "example": "Do you have a minute? I need to talk to you. — Sure, come in.",
+      "example_translations": {
+        "ru": "У вас есть минутка? Мне нужно с вами поговорить. — Конечно, заходите.",
+        "uz": "Bir daqiqa vaqtingiz bormi? Siz bilan gaplashishim kerak. — Albatta, kiring."
+      },
+      "hooks": {
+        "ru": "Спрашивают, можно ли отвлечь человека на короткий разговор",
+        "uz": "Odamni qisqa suhbatga chalg'itish mumkinmi, deb so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "minute",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I borrow your pen?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно взять вашу ручку?",
+        "uz": "ruchkangizni olib tursam maylimi?"
+      },
+      "example": "Can I borrow your pen? Mine doesn't work. — Sure, here.",
+      "example_translations": {
+        "ru": "Можно взять вашу ручку? Моя не пишет. — Конечно, держите.",
+        "uz": "Ruchkangizni olib tursam maylimi? Meniki yozmayapti. — Albatta, oling."
+      },
+      "hooks": {
+        "ru": "Просят вещь на время и потом возвращают; вместо ручки — любая вещь",
+        "uz": "Narsani vaqtincha so'rab, keyin qaytarib beriladi; ruchka o'rniga istalgan narsa"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "borrow",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Sorry to interrupt",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "простите, что перебиваю",
+        "uz": "gapingizni bo'lganim uchun uzr"
+      },
+      "example": "Sorry to interrupt, but your taxi is here. — Oh, thank you!",
+      "example_translations": {
+        "ru": "Простите, что перебиваю, но ваше такси приехало. — Ой, спасибо!",
+        "uz": "Gapingizni bo'lganim uchun uzr, taksingiz keldi. — Voy, rahmat!"
+      },
+      "hooks": {
+        "ru": "Вежливо вмешиваются в чужой разговор с важной новостью или просьбой",
+        "uz": "Birovning suhbatiga muhim xabar yoki iltimos bilan xushmuomala aralashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "interrupt",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you keep it down?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно потише?",
+        "uz": "biroz jimroq bo'la olasizmi?"
+      },
+      "example": "Could you keep it down? The baby is sleeping. — Oh, sorry!",
+      "example_translations": {
+        "ru": "Можно потише? Ребёнок спит. — Ой, простите!",
+        "uz": "Biroz jimroq bo'la olasizmi? Chaqaloq uxlayapti. — Voy, kechirasiz!"
+      },
+      "hooks": {
+        "ru": "Просят соседей или других людей вести себя тише",
+        "uz": "Qo'shnilar yoki boshqalardan jimroq bo'lishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "down",
+        "literal": {
+          "ru": "не могли бы вы держать это внизу?",
+          "uz": "buni pastroq tuta olasizmi?"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Could you show me how?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не покажете, как это делается?",
+        "uz": "qanday qilishni ko'rsatib bera olasizmi?"
+      },
+      "example": "I don't know how to use this machine. Could you show me how? — Sure.",
+      "example_translations": {
+        "ru": "Я не знаю, как пользоваться этим аппаратом. Не покажете, как это делается? — Конечно.",
+        "uz": "Bu apparatdan qanday foydalanishni bilmayman. Ko'rsatib bera olasizmi? — Albatta."
+      },
+      "hooks": {
+        "ru": "Просят показать, как что-то делается, а не сделать за вас",
+        "uz": "Siz uchun qilib berishni emas, qanday qilishni ko'rsatishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "show",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    }
+  ]
+}

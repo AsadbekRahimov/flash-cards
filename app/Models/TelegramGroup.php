@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Observers\TelegramGroupObserver;
+use Carbon\CarbonInterface;
 use Database\Factories\TelegramGroupFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $chat_id
  * @property string $title
  * @property string $status
+ * @property string|null $bot_status the bot's own status from the last `my_chat_member` (docs/33 §2.1): member / administrator / left / kicked
+ * @property CarbonInterface|null $bot_status_at the `date` of that update; an older one never overwrites it
  * @property int|null $organization_id
  * @property int|null $course_id
  * @property array<string, mixed> $meta
@@ -29,13 +32,14 @@ class TelegramGroup extends Model
     use HasFactory;
 
     /** @var list<string> */
-    protected $fillable = ['chat_id', 'title', 'status', 'organization_id', 'course_id', 'meta'];
+    protected $fillable = ['chat_id', 'title', 'status', 'bot_status', 'bot_status_at', 'organization_id', 'course_id', 'meta'];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
         return [
             'chat_id' => 'integer',
+            'bot_status_at' => 'datetime',
             'meta' => 'array',
         ];
     }

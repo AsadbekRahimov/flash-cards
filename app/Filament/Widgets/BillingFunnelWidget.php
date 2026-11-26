@@ -13,7 +13,7 @@ use Filament\Widgets\Widget;
  * started → payment succeeded → studied within 7 days, by provider and locale, with the numerator and the denominator of every step;
  * the starts and payments outside the chain; the views by placement; the outcomes of the orders. Admin only: platform-wide numbers.
  *
- * The figures are the cached array of {@see BillingFunnelService} (`admin:widget:billing_funnel:v2:all:d30`, fresh 10 minutes, then
+ * The figures are the cached array of {@see BillingFunnelService} (`admin:widget:billing_funnel:v3:all:d30`, fresh 10 minutes, then
  * served stale while it is recomputed): an open dashboard costs no query of the report; lazy, no polling (docs/20 §1.11).
  *
  * @phpstan-import-type FunnelReport from BillingFunnelService

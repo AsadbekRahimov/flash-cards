@@ -94,9 +94,9 @@ it('creates a monthly Stars subscription invoice: payload = token, XTR, one pric
     $invoice = $this->telegram->invoiceLinks[0];
     expect($invoice['payload'])->toBe($order->token)
         ->and($invoice['currency'])->toBe('XTR')
-        ->and($invoice['prices'])->toBe([['label' => 'LexiFlow Pro, 1 oy', 'amount' => $order->amount]])
+        ->and($invoice['prices'])->toBe([['label' => 'Muhrla Pro, 1 oy', 'amount' => $order->amount]])
         ->and($invoice['subscription_period'])->toBe(2_592_000)
-        ->and($invoice['title'])->toBe('LexiFlow Pro — 1 oy')
+        ->and($invoice['title'])->toBe('Muhrla Pro — 1 oy')
         ->and(mb_strlen($invoice['title']))->toBeLessThanOrEqual(32)
         ->and(mb_strlen($invoice['description']))->toBeLessThanOrEqual(255)
         ->and($invoice['description'])->toContain('Har 30 kunda avtomatik uzayadi');
@@ -114,7 +114,7 @@ it('creates a yearly Stars invoice as a one-off payment without subscription_per
 
     $invoice = $this->telegram->invoiceLinks[0];
     expect($invoice['subscription_period'])->toBeNull()
-        ->and($invoice['title'])->toBe('LexiFlow Pro — 1 год')
+        ->and($invoice['title'])->toBe('Muhrla Pro — 1 год')
         ->and($invoice['description'])->toContain('Разовая оплата без автопродления')
         ->and($invoice['prices'][0]['amount'])->toBe($order->amount)
         ->and($order->amount)->toBe((int) config('billing.prices.pro.year.XTR'));

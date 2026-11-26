@@ -166,7 +166,7 @@ it('writes the break message without the due sentence when nothing is due, in bo
     app(ReminderSender::class)->send($uz->id, CarbonImmutable::now()->subMinutes(5));
 
     expect($this->tg->sent[0]['text'])->toBe("Вы 5 дней не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[1]['text'])->toBe("LexiFlow: 21 kundan beri shug'ullanmadingiz. Bugun 5 daqiqa ajratib, avvalgi so'zlarni yana bir bor mashq qiling.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
+        ->and($this->tg->sent[1]['text'])->toBe("Muhrla: 21 kundan beri shug'ullanmadingiz. Bugun 5 daqiqa ajratib, avvalgi so'zlarni yana bir bor mashq qiling.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and(NotificationLog::query()->where('learner_id', $ru->id)->first()?->payload)->toMatchArray(['kind' => 'inactive', 'idle_days' => 5]);
 });
 
@@ -199,7 +199,7 @@ it('sends the "not started yet" text', function (): void {
     $learner = idLearner(1, studied: false);
 
     expect(app(ReminderSender::class)->send($learner->id, CarbonImmutable::now()->subMinutes(5)))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe("Вы ещё не начали заниматься в LexiFlow. Первое занятие займёт всего 5 минут.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['text'])->toBe("Вы ещё не начали заниматься в Muhrla. Первое занятие займёт всего 5 минут.\n\nИзменить время или отключить: /settings")
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->value('type'))->toBe('never_started_reminder');
 });
 
@@ -234,7 +234,7 @@ it('suggests new words to a learner who studied yesterday and has nothing to rep
     $learner = idLearner(1);
 
     expect(app(ReminderSender::class)->send($learner->id, CarbonImmutable::now()->subMinutes(5)))->toBe(ReminderOutcome::Sent)
-        ->and($this->tg->sent[0]['text'])->toBe("Сегодня вас ждут новые слова в LexiFlow. Хватит 5 минут.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['text'])->toBe("Сегодня вас ждут новые слова в Muhrla. Хватит 5 минут.\n\nИзменить время или отключить: /settings")
         ->and(NotificationLog::query()->where('learner_id', $learner->id)->value('type'))->toBe('new_words_reminder');
 });
 
@@ -248,7 +248,7 @@ it('asks a learner without an active course to choose one', function (): void {
         ->and(idKind($gone))->toBe(ReminderKind::ChooseCourse);
 
     app(ReminderSender::class)->send($newbie->id, CarbonImmutable::now()->subMinutes(5));
-    expect($this->tg->sent[0]['text'])->toBe("Выберите курс в LexiFlow, чтобы начать заниматься.\n\nИзменить время или отключить: /settings");
+    expect($this->tg->sent[0]['text'])->toBe("Выберите курс в Muhrla, чтобы начать заниматься.\n\nИзменить время или отключить: /settings");
 });
 
 it('keeps the break message for a former learner without a course', function (): void {

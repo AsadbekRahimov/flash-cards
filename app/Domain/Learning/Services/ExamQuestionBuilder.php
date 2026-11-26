@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Models\Course;
@@ -229,9 +230,10 @@ final class ExamQuestionBuilder
 
         // Last resort: public published courses of the platform, only when the own course cannot supply
         // enough unique candidates in the answer language.
+        $course = $lesson->relationLoaded('stage') && $lesson->stage?->relationLoaded('course') ? $lesson->stage->course : null;
         $foreign = $this->uniqueInLocale(array_merge($sameStage, $sameCourse, $sameLesson), $locale) >= $needed
             ? []
-            : $this->foreignCandidates((int) $courseId, $needed, $locale);
+            : $this->foreignCandidates((int) $courseId, $course === null ? null : Phrase::isPhraseCourse($course->exam_tag), $needed, $locale);
 
         return [$sameStage, $sameCourse, $sameLesson, $foreign];
     }
@@ -257,14 +259,16 @@ final class ExamQuestionBuilder
 
         $foreign = $this->uniqueInLocale(array_merge($otherWords, $ownWords), $locale) >= $needed
             ? []
-            : $this->foreignCandidates($course->id, $needed, $locale);
+            : $this->foreignCandidates($course->id, Phrase::isPhraseCourse($course->exam_tag), $needed, $locale);
 
         return [$otherWords, $ownWords, $foreign];
     }
 
     /**
      * Candidates from the foreign courses a distractor may come from ({@see Course::scopePublicPlatform()}),
-     * `$exceptCourseId` itself excluded.
+     * `$exceptCourseId` itself excluded, of the SAME kind as that course (docs/35 §3.3 c): an exam of words takes words, never a
+     * phrase; an exam of phrases takes phrases, never the translation of a single word. `$phrases` - the kind of the course when the
+     * caller has it; null - read here (one statement, only on this last-resort path).
      *
      * Two steps instead of `ORDER BY random()` over every word of the platform (105 ms at 92k words):
      * `$needed` random lessons of those courses that have an active word (thousands of rows, ~7 ms), then
@@ -273,12 +277,13 @@ final class ExamQuestionBuilder
      *
      * @return list<array{translation:string, part_of_speech:string|null, locale:string}>
      */
-    private function foreignCandidates(int $exceptCourseId, int $needed, string $locale): array
+    private function foreignCandidates(int $exceptCourseId, ?bool $phrases, int $needed, string $locale): array
     {
+        $phrases ??= Phrase::isPhraseCourse(Course::query()->whereKey($exceptCourseId)->value('exam_tag'));
         $lessonIds = Lesson::query()
             ->whereIn('lessons.stage_id', Stage::query()->select('stages.id')->whereIn(
                 'stages.course_id',
-                Course::query()->select('courses.id')->where('courses.id', '!=', $exceptCourseId)->publicPlatform(),
+                Course::query()->select('courses.id')->where('courses.id', '!=', $exceptCourseId)->publicPlatform()->ofCardKind($phrases),
             ))
             ->whereExists(Word::query()
                 ->selectRaw('1')

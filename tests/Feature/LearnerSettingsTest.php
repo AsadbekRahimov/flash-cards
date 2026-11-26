@@ -38,6 +38,10 @@ use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
 
+// The mechanics of the settings with every goal open: the limit of the goal on Free (docs/34 §2б.3) has its own tests
+// (tests/Feature/Learners/DailyGoalLimiterTest.php), here it is switched off (a null limit = no limit, a valid configuration).
+beforeEach(fn () => config()->set('billing.plans.free.limits.daily_goal_max', null));
+
 afterEach(fn () => CarbonImmutable::setTestNow());
 
 /** @return array<string, string> */
@@ -101,6 +105,7 @@ it('GET /me reports the current settings and the choices of each field', functio
         ])
         ->and($settings['options']['reminder_times'])->toBe(['08:00', '13:00', '19:00', '21:00'])
         ->and($settings['options']['daily_goals'])->toBe([10, 20, 40])
+        ->and($settings['options']['daily_goal_max'])->toBeNull()
         // No time zone picker: the zone itself is reported (the Today screen reads it), its choices are not.
         ->and($settings['options'])->not->toHaveKey('timezones');
 });

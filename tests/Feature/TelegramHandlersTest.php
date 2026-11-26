@@ -6,6 +6,10 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
@@ -389,7 +393,7 @@ it('applies chat_member and new_chat_members by their Telegram date, not by arri
 it('responds to /help in private chat', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(500, Mockery::pattern('/LexiFlow/'), null);
+        ->with(500, Mockery::pattern('/Muhrla/'), null);
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -404,7 +408,7 @@ it('responds to /help in an active whitelisted group', function (): void {
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'), 'HTML');
+        ->with(-5001, Mockery::pattern('/^Muhrla в группе\./u'), 'HTML');
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -536,15 +540,37 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
         public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
 
+        public function sendPhotoMessage(int|string $chatId, PhotoSource $photo, ?string $caption = null, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
+        public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
         public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
         public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void {}
 
+        public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void {}
+
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {
             return 'administrator';
+        }
+
+        public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+        {
+            return new ChatMemberInfo('administrator', true);
+        }
+
+        public function sendGroupMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null, ?int $threadId = null, bool $disableNotification = false): int
+        {
+            return 1;
         }
 
         public function setWebhook(string $url, string $secretHeader): bool
@@ -582,6 +608,13 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         {
             return true;
         }
+
+        public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
+        {
+            return new PreparedInlineMessage('prepared', 2_000_000_000);
+        }
+
+        public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void {}
     };
 
     app()->instance(TelegramClient::class, $api);
@@ -596,7 +629,7 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
     expect($api->messages)->toHaveCount(1);
     expect($api->messages[0]['chat_id'])->toBe(54321);
-    expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u')
+    expect($api->messages[0]['text'])->toMatch('/Статистика Muhrla/u')
         ->and($api->messages[0]['text'])->toContain('Повторений карточек: 3')
         ->and($api->messages[0]['text'])->toContain('Активных учеников: 1');
 });

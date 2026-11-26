@@ -53,7 +53,7 @@ it('lists the whole catalog with the exact JSON shape, locked ones with their pr
         ->and($response->json('share_link'))->toStartWith('https://t.me/LexiFlowBot?start=ref_')
         ->and($items['first_session']['title'])->toBe('Первый шаг')
         ->and($items['first_session']['unlocked_at'])->not->toBeNull()
-        ->and($items['first_session']['share_text'])->toBe('Я получил(а) достижение «Первый шаг» в LexiFlow! Учим английский в Telegram.')
+        ->and($items['first_session']['share_text'])->toBe('Я получил(а) достижение «Первый шаг» в Muhrla! Учим английский в Telegram.')
         ->and($items['first_session']['progress'])->toBeNull()
         ->and($items['streak_7']['unlocked_at'])->toBeNull()
         ->and($items['streak_7']['share_text'])->toBeNull()
