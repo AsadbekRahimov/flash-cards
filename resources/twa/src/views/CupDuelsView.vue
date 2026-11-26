@@ -58,6 +58,8 @@ async function load(): Promise<void> {
 
 onMounted(() => {
   duels.clearMessages()
+  // The paywall of another screen (a new challenge, "Back") is not this one's: the list opens without it.
+  duels.dismissPaywall()
   void load()
 })
 

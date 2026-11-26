@@ -360,6 +360,8 @@ describe('CupDuelView: accept', () => {
     const duel = fakeServer({ offered: true, forMe: false, newServer: true })
     const r = await render(duel({ rated_for_me: true }))
     expect(tid(r, 'duel-kind').text()).toBe('Зачётная')
+    // From now on the server reads the duel as it is: friendly for me (a fresh `rated_for_me` is what the screen shows).
+    vi.mocked(api.cups.duels.show).mockImplementation(async () => duel())
 
     await click(r, 'accept-btn')
 

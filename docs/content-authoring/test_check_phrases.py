@@ -6,7 +6,7 @@ breaks one rule - its name is the code the checker must report: `<CODE>.json` re
 pack, `<CODE>.course.json` its course.json, `<CODE>.plan.md` is a plan for --check-plan. The checker must report that code, and no
 other code except the few a broken file cannot avoid (EXTRA below).
 """
-import os, re, shutil, subprocess, sys, tempfile, unittest
+import json, os, re, shutil, subprocess, sys, tempfile, unittest
 
 sys.dont_write_bytecode = True  # importing check_phrases must leave no __pycache__ in the repository
 
@@ -129,6 +129,76 @@ class CheckPhrasesTest(unittest.TestCase):
         self.assertFalse(c.contains_phrase('break the ice', 'He told a joke to start the talk.', 'idiom'))
         self.assertFalse(c.contains_phrase("How's it going?", 'How is it going?', 'formula'))
 
+    def test_only_a_word_that_changes_in_speech_takes_a_form(self):
+        c = checker()
+        # The verb (the first word), the noun after a possessive that changed too.
+        self.assertTrue(c.contains_phrase('tighten your belt', 'We all have to tighten our belts.', 'idiom'))
+        self.assertTrue(c.contains_phrase('be into something', 'She is into jazz.', 'fixed'))
+        self.assertTrue(c.contains_phrase('on the other hand', 'On the other hand, it is close.', 'fixed'))
+        self.assertTrue(c.contains_phrase('Break a leg!', 'Break a leg! You will be great.', 'formula'))
+        # The fixed noun of an idiom, a formula, two words in a form.
+        self.assertFalse(c.contains_phrase('on the other hand', 'On the other hands, it is close.', 'fixed'))
+        self.assertFalse(c.contains_phrase('Break a leg!', 'Breaks a leg!', 'formula'))
+        self.assertFalse(c.contains_phrase('Practice makes perfect.', 'Practices makes perfect.', 'proverb'))
+        self.assertFalse(c.contains_phrase('break the ice', 'He broke the ices.', 'idiom'))
+        self.assertFalse(c.contains_phrase('make up your mind', 'He made up his minds.', 'idiom'))
+        self.assertFalse(c.contains_phrase('a piece of cake', 'It was pieces of cake.', 'idiom'))
+
+    def test_a_forbidden_word_is_found_in_its_forms_and_plain_words_stay_plain(self):
+        c = checker()
+        for word in ('fuck', 'fucked', 'damned', 'bitches', 'asses', 'shitty', 'drunken', 'gambler', 'gambled', 'sexual',
+                     'whiskies', 'hellish', 'sexually', 'beers', 'drugged', 'boozing', 'crappy', 'wines'):
+            with self.subTest(word=word):
+                self.assertTrue(c.is_forbidden(word))
+        # `drink` is not in the list (drink water), so neither are its forms.
+        for word in ('class', 'classes', 'pass', 'passed', 'assess', 'assessed', 'glass', 'hello', 'hellos', 'shell', 'shelled',
+                     'drink', 'drinking', 'win', 'wins', 'winning', 'winner', 'dozen', 'basses', 'dammed', 'casual', 'usually', 'actually', 'sex6', 'as', 'is'):
+            with self.subTest(word=word):
+                self.assertFalse(c.is_forbidden(word))
+
+    def test_the_pack_reports_a_forbidden_word_in_a_form(self):
+        codes = self.run_with_first_entry(lambda w: w.update(example="Hi, Tom! How's it going? — The bitches are fine."))
+        self.assertIn('FORBIDDEN_WORD', codes)
+
+    def test_a_literal_of_spaces_is_no_literal(self):
+        codes = self.run_with_first_entry(lambda w: w['phrase']['literal'].update(ru='   '))
+        self.assertIn('LITERAL_INCOMPLETE', codes)
+        codes = self.run_with_first_entry(lambda w: w['phrase']['literal'].update(ru='   ', uz=' '))
+        self.assertNotIn('LITERAL_INCOMPLETE', codes)
+
+    def test_nan_and_infinity_are_not_json(self):
+        for constant in ('NaN', 'Infinity', '-Infinity'):
+            with self.subTest(constant=constant), tempfile.TemporaryDirectory() as tmp:
+                pack = os.path.join(tmp, 'english-phrases-good')
+                shutil.copytree(GOOD, pack)
+                lesson = os.path.join(pack, 'm01-l1.json')
+                with open(lesson, encoding='utf-8') as fh:
+                    text = fh.read()
+                with open(lesson, 'w', encoding='utf-8') as fh:
+                    fh.write(text.replace('"frequency": 1', '"frequency": ' + constant, 1))
+                manifest = os.path.join(pack, 'course.json')
+                with open(manifest, encoding='utf-8') as fh:
+                    course = json.load(fh)
+                with open(manifest, 'w', encoding='utf-8') as fh:
+                    fh.write(json.dumps(course, ensure_ascii=False)[:-1] + ', "extra": ' + constant + '}')
+                code, out, codes = run('--no-plan', pack)
+                self.assertEqual(code, 1, out)
+                self.assertTrue({'INVALID_JSON', 'MANIFEST'} <= codes, out)
+                self.assertIn(constant + ' is not JSON', out)
+
+    def run_with_first_entry(self, change):
+        """The codes of a copy of the good pack whose first phrase of m01-l1.json went through `change`."""
+        with tempfile.TemporaryDirectory() as tmp:
+            pack = os.path.join(tmp, 'english-phrases-good')
+            shutil.copytree(GOOD, pack)
+            lesson = os.path.join(pack, 'm01-l1.json')
+            with open(lesson, encoding='utf-8') as fh:
+                data = json.load(fh)
+            change(data['words'][0])
+            with open(lesson, 'w', encoding='utf-8') as fh:
+                json.dump(data, fh, ensure_ascii=False, indent=2)
+            return run(pack)[2]
+
     def test_the_gap_and_the_key_follow_the_application(self):
         sys.path.insert(0, HERE)
         try:
@@ -147,6 +217,15 @@ class CheckPhrasesTest(unittest.TestCase):
         self.assertEqual(c.lexeme_key('easy come, easy go!'), 'easy come, easy go')
         self.assertEqual(c.lexeme_key('to be honest'), 'to be honest')
         self.assertEqual(c.lexeme_key('The'), 'the')
+
+
+def checker():
+    sys.path.insert(0, HERE)
+    try:
+        import check_phrases
+    finally:
+        sys.path.pop(0)
+    return check_phrases
 
 
 if __name__ == '__main__':

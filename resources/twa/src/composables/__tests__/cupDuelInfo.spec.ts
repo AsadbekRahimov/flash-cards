@@ -57,6 +57,13 @@ describe('the words of a duel', () => {
     expect(expectedRated(open, null)).toBe(true)
   })
 
+  it('a fresh rated_for_me of the server wins over the kept kind of a 409; the kept kind is only for an answer without it', () => {
+    const kept = { duelId: 7, status: 'open' as const, rated: false }
+    expect(expectedRated(cupDuel({ id: 7, rated: null, rated_offered: false, rated_for_me: true }), kept)).toBe(true)
+    expect(expectedRated(cupDuel({ id: 7, rated: null, rated_offered: true, rated_for_me: false }), { ...kept, rated: true })).toBe(false)
+    expect(expectedRated(cupDuel({ id: 7, rated: null, rated_offered: true, rated_for_me: undefined }), kept)).toBe(false)
+  })
+
   it('a match voided by the system tells "the match broke off"', () => {
     expect(duelOutcomeText(cupDuel({ status: 'void', end_reason: 'battle_voided' }))).toBe(duelOutcomeText(cupDuel({ status: 'void', end_reason: 'battle_gone' })))
   })

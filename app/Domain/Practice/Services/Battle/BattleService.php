@@ -369,16 +369,18 @@ final class BattleService
      * (`meta.left` names the role that left a room). A match that is playing is left by `surrender`.
      *
      * @throws BattleException battle_not_found | battle_closed | battle_not_challenger | battle_wrong_state
+     * @throws PracticeException practice_unavailable | practice_pro_required (not for the match of a cup duel)
      */
     public function cancel(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $this->clock->advance($battle, $now);
 
@@ -634,7 +636,7 @@ final class BattleService
 
         // The disk is asked BEFORE the transaction: on R2 it is a HEAD (or two), which must not run while the row of the match
         // is locked. The snapshot never changes after the invitation, so the clip of the locked row is the one probed here.
-        $probe = $this->probeClip($by, $battleId, $requestId, $elementId);
+        $probe = $this->probeClip($by, $battleId, $requestId, $elementId, $denied);
 
         return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe, $denied): AudioFailureOutcome|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
@@ -793,16 +795,17 @@ final class BattleService
 
     /**
      * The look at the file of a reported clip, without a lock: null when there is nothing to look at (no such match of the
-     * learner, a repeated report, an element without audio - the transaction answers those). An error of the disk (R2 down, a
-     * timeout) counts as "the file is there": the report is then not confirmed and the match goes on, never a 500.
+     * learner, a match the learner is refused the practice for, a repeated report, an element without audio - the transaction
+     * answers those). An error of the disk (R2 down, a timeout) counts as "the file is there": the report is then not confirmed and
+     * the match goes on, never a 500.
      *
      * @return array{disk: string, path: string, missing: bool}|null
      */
-    private function probeClip(Learner $by, int $battleId, string $requestId, string $elementId): ?array
+    private function probeClip(Learner $by, int $battleId, string $requestId, string $elementId, ?PracticeException $denied): ?array
     {
         /** @var Battle|null $battle */
-        $battle = Battle::query()->whereKey($battleId)->first(['id', 'challenger_id', 'opponent_id', 'snapshot', 'meta']);
-        if ($battle === null || ! $battle->involves($by->id)) {
+        $battle = Battle::query()->whereKey($battleId)->first(['id', 'challenger_id', 'opponent_id', 'cup_duel_id', 'snapshot', 'meta']);
+        if ($battle === null || ! $battle->involves($by->id) || $this->refusalOf($battle, $denied) !== null) {
             return null;
         }
         $reports = $battle->meta['audio_reports'] ?? null;

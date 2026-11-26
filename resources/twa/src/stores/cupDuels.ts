@@ -141,8 +141,9 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       try {
         const accepted = await api.cups.duels.accept(cupId, duel.id, this.ratedOf(duel))
         useCupBoardStore().invalidate()
-        // No match to go to (an answer of an older acceptance without it): the list tells where the duel is now.
-        if (accepted.battle_id === null) await this.load(cupId)
+        // No match to go to (an answer of an older acceptance without it): the list tells where the duel is now - unless the learner
+        // went to the duels of another cup meanwhile (their list is not replaced by this one).
+        if (accepted.battle_id === null && this.cupId === cupId) await this.load(cupId)
         return accepted.battle_id
       } catch (err) {
         await this.refuseAction(err, cupId, duel)
@@ -170,7 +171,7 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       try {
         await call(cupId)
         useCupBoardStore().invalidate()
-        await this.load(cupId)
+        if (this.cupId === cupId) await this.load(cupId)
       } catch (err) {
         await this.refuseAction(err, cupId)
       } finally {
@@ -188,6 +189,8 @@ export const useCupDuelsStore = defineStore('cupDuels', {
         if (failure.limitHit !== null) useBillingStore().noteLimitHit(failure.limitHit)
         return
       }
+      // The learner went to the duels of another cup meanwhile: the refusal is not about the list on the screen, nor read again.
+      if (this.cupId !== cupId) return
       if (failure.rated !== null) this.notice = failure.message
       else this.actionError = failure.message
       this.busyBattleId = failure.battleId

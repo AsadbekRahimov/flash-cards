@@ -15,8 +15,11 @@ namespace App\Domain\Cup\Enums;
  *   left              the challenger is no active participant any more (left the chat) at the acceptance
  *   challenger_limit  a friendly duel: the Free challenger has no battle of the day left at the acceptance (owner's К5)
  *   material          the course of the cup has no material for the mode any more
- *   no_answers        the match ended - closed, or finished by a surrender in the countdown - before anybody answered (void: the
- *                     slots are free again, docs/33 §5.7)
+ *   no_answers        the match ended, whatever the end (closed; finished by a surrender in the countdown or in the game, the
+ *                     first round included), before either player gave an answer that is not a timeout (void: the slots are free
+ *                     again, docs/33 §5.7). Accepted risk: a player may see the first task and give up while nobody has answered -
+ *                     the attempt goes back to both, the tasks are new each time, at most 3 challenges to the same pair a day
+ *                     (`duel.pair_daily_challenges`)
  *   battle_gone       the match was deleted (a learner was deleted) before the result (void)
  *   battle_voided     the system called the match off (`battles.end_reason = voided`: a clip missing, the practice switched off),
  *                     answers or not (void)

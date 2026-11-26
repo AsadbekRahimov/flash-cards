@@ -159,6 +159,29 @@ it('lets a participant outside the practice play the match of a duel (pilot, pla
     fixHttp($a, 'GET', '/practice/battles/999999')->assertForbidden()->assertJsonPath('error.code', $code);
 })->with(['pilot', 'pro']);
 
+it('lets a participant outside the practice leave the room of a duel match (pilot, plan pro), and refuses him leaving an ordinary one', function (string $access): void {
+    ['cup' => $cup, 'learners' => [$a, $b, $c], 'participants' => [, $pb]] = CupDuelKit::running(3);
+    $duel = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);
+    // The pair of the duel has its open match already: the ordinary one is with another learner.
+    $plain = Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $c->id, 'status' => BattleStatus::Room]);
+    match ($access) {
+        'pilot' => config(['practice.access' => 'pilot']),
+        'pro' => config(['practice.plan' => 'pro']),
+    };
+    $code = $access === 'pilot' ? 'practice_unavailable' : 'practice_pro_required';
+
+    fixHttp($a, 'POST', "/practice/battles/{$duel->battle_id}/cancel")->assertOk();
+    $battle = BattleKit::fresh((int) $duel->battle_id);
+    expect($battle->status)->toBe(BattleStatus::Closed)
+        ->and($battle->end_reason)->toBe(BattleEndReason::Canceled)
+        ->and($battle->meta[BattleClock::META_LEFT] ?? null)->toBe('challenger');
+
+    // An ordinary match, one that is not his and none: the refusal of the practice, as before - and the room stays.
+    fixHttp($a, 'POST', "/practice/battles/{$plain->id}/cancel")->assertForbidden()->assertJsonPath('error.code', $code);
+    fixHttp($a, 'POST', '/practice/battles/999999/cancel')->assertForbidden()->assertJsonPath('error.code', $code);
+    expect(BattleKit::fresh((int) $plain->id)->status)->toBe(BattleStatus::Room);
+})->with(['pilot', 'pro']);
+
 it('keeps the rest of the door of a duel match: a stranger to it gets 404, the switch of the practice off voids it', function (): void {
     ['cup' => $cup, 'learners' => [$a, $b, $c], 'participants' => [, $pb]] = CupDuelKit::running(3);
     $duel = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);

@@ -34,6 +34,10 @@ use Illuminate\Support\Facades\Schema;
  * `CONCURRENTLY` - which cannot run inside a transaction block, hence `$withinTransaction = false`; the new tables are made in a
  * transaction of their own. Inside a caller's transaction (RefreshDatabase in tests) the plain statements are used, as in
  * 2026_11_25_300003. On SQLite the foreign key of `battles` is added by rebuilding the table; the partial index is made after it.
+ *
+ * Out of a transaction a run can break off half-way (a lock timeout on `battles`), so both directions start again from any state
+ * they leave: `up()` makes a table, a column, a constraint only when it is not there yet (`pg_constraint` is asked for the names,
+ * `VALIDATE` repeats harmlessly, the index is dropped and built again), `down()` drops only what is there.
  */
 return new class extends Migration
 {
@@ -51,6 +55,47 @@ return new class extends Migration
     }
 
     private function createTables(): void
+    {
+        if (! Schema::hasTable('cup_duels')) {
+            $this->createDuels();
+        }
+        if (! Schema::hasTable('cup_duel_slots')) {
+            $this->createSlots();
+        }
+
+        DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS cup_duels_open_challenger_unique ON cup_duels (open_challenger_id) WHERE open_challenger_id IS NOT NULL');
+        DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS cup_duels_battle_unique ON cup_duels (battle_id) WHERE battle_id IS NOT NULL');
+        DB::statement("CREATE INDEX IF NOT EXISTS cup_duels_open_expiry_idx ON cup_duels (expires_at) WHERE status = 'open'");
+        DB::statement("CREATE INDEX IF NOT EXISTS cup_duels_accepted_idx ON cup_duels (accepted_at) WHERE status = 'accepted'");
+
+        if (DB::getDriverName() === 'pgsql') {
+            $this->addConstraint(
+                'cup_duels',
+                'cup_duels_shape_check',
+                "CHECK (status IN ('open','accepted','declined','expired','canceled','done','void')
+                    AND day >= 1
+                    AND (opponent_participant_id IS NULL OR opponent_participant_id <> challenger_participant_id)
+                    AND ((status = 'open') = (open_challenger_id IS NOT NULL))
+                    AND (open_challenger_id IS NULL OR open_challenger_id = challenger_participant_id)
+                    AND ((status IN ('accepted','done','void')) = (accepted_at IS NOT NULL))
+                    AND (accepted_at IS NULL OR (accepted_day >= 1 AND rated IS NOT NULL AND opponent_participant_id IS NOT NULL))
+                    AND ((status IN ('done','void')) = (scored_at IS NOT NULL))
+                    AND ((status IN ('open','accepted')) = (closed_at IS NULL))
+                    AND (challenger_points IS NULL OR challenger_points BETWEEN 0 AND 5)
+                    AND (opponent_points IS NULL OR opponent_points BETWEEN 0 AND 5))",
+            );
+            $this->addConstraint(
+                'cup_duels',
+                'cup_duels_end_reason_check',
+                "CHECK (end_reason IS NULL OR end_reason IN ('declined','expired','cup_over','challenger','cup_closed','left',
+                    'challenger_limit','material','no_answers','battle_gone'))",
+            );
+            $this->addConstraint('cup_duel_slots', 'cup_duel_slots_day_check', 'CHECK (day >= 1)');
+            // No CHECK ties `battles.limit_exempt` to `cup_duel_id`: the link is SET NULL when a cup goes (a cascade), the match stays.
+        }
+    }
+
+    private function createDuels(): void
     {
         Schema::create('cup_duels', function (Blueprint $table): void {
             $table->id();
@@ -81,7 +126,10 @@ return new class extends Migration
             $table->unique(['challenger_participant_id', 'request_id']);
             $table->index('opponent_participant_id');
         });
+    }
 
+    private function createSlots(): void
+    {
         Schema::create('cup_duel_slots', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('cup_id');
@@ -93,54 +141,29 @@ return new class extends Migration
             $table->unique(['participant_id', 'day']);
             $table->index('cup_duel_id');
         });
-
-        DB::statement('CREATE UNIQUE INDEX cup_duels_open_challenger_unique ON cup_duels (open_challenger_id) WHERE open_challenger_id IS NOT NULL');
-        DB::statement('CREATE UNIQUE INDEX cup_duels_battle_unique ON cup_duels (battle_id) WHERE battle_id IS NOT NULL');
-        DB::statement("CREATE INDEX cup_duels_open_expiry_idx ON cup_duels (expires_at) WHERE status = 'open'");
-        DB::statement("CREATE INDEX cup_duels_accepted_idx ON cup_duels (accepted_at) WHERE status = 'accepted'");
-
-        if (DB::getDriverName() === 'pgsql') {
-            DB::statement(
-                "ALTER TABLE cup_duels ADD CONSTRAINT cup_duels_shape_check
-                 CHECK (status IN ('open','accepted','declined','expired','canceled','done','void')
-                    AND day >= 1
-                    AND (opponent_participant_id IS NULL OR opponent_participant_id <> challenger_participant_id)
-                    AND ((status = 'open') = (open_challenger_id IS NOT NULL))
-                    AND (open_challenger_id IS NULL OR open_challenger_id = challenger_participant_id)
-                    AND ((status IN ('accepted','done','void')) = (accepted_at IS NOT NULL))
-                    AND (accepted_at IS NULL OR (accepted_day >= 1 AND rated IS NOT NULL AND opponent_participant_id IS NOT NULL))
-                    AND ((status IN ('done','void')) = (scored_at IS NOT NULL))
-                    AND ((status IN ('open','accepted')) = (closed_at IS NULL))
-                    AND (challenger_points IS NULL OR challenger_points BETWEEN 0 AND 5)
-                    AND (opponent_points IS NULL OR opponent_points BETWEEN 0 AND 5))",
-            );
-            DB::statement(
-                "ALTER TABLE cup_duels ADD CONSTRAINT cup_duels_end_reason_check
-                 CHECK (end_reason IS NULL OR end_reason IN ('declined','expired','cup_over','challenger','cup_closed','left',
-                    'challenger_limit','material','no_answers','battle_gone'))",
-            );
-            DB::statement('ALTER TABLE cup_duel_slots ADD CONSTRAINT cup_duel_slots_day_check CHECK (day >= 1)');
-            // No CHECK ties `battles.limit_exempt` to `cup_duel_id`: the link is SET NULL when a cup goes (a cascade), the match stays.
-        }
     }
 
     /** The link of a match to its duel (see the class): the columns, the foreign key, the partial unique index. */
     private function linkBattles(): void
     {
         if (DB::getDriverName() !== 'pgsql') {
-            Schema::table('battles', function (Blueprint $table): void {
-                $table->unsignedBigInteger('cup_duel_id')->nullable();
-                $table->boolean('limit_exempt')->default(false);
-                $table->foreign('cup_duel_id')->references('id')->on('cup_duels')->nullOnDelete();
-            });
-            DB::statement('CREATE UNIQUE INDEX battles_cup_duel_id_unique ON battles (cup_duel_id) WHERE cup_duel_id IS NOT NULL');
+            // One rebuild of the table makes both columns and the key: they are there together or not at all.
+            if (! Schema::hasColumn('battles', 'cup_duel_id')) {
+                Schema::table('battles', function (Blueprint $table): void {
+                    $table->unsignedBigInteger('cup_duel_id')->nullable();
+                    $table->boolean('limit_exempt')->default(false);
+                    $table->foreign('cup_duel_id')->references('id')->on('cup_duels')->nullOnDelete();
+                });
+            }
+            DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS battles_cup_duel_id_unique ON battles (cup_duel_id) WHERE cup_duel_id IS NOT NULL');
 
             return;
         }
 
         // A NULL column and a constant default: no rewrite of the table (PostgreSQL 11+), a moment of its lock.
-        DB::statement('ALTER TABLE battles ADD COLUMN cup_duel_id bigint NULL, ADD COLUMN limit_exempt boolean NOT NULL DEFAULT false');
-        DB::statement('ALTER TABLE battles ADD CONSTRAINT battles_cup_duel_id_foreign FOREIGN KEY (cup_duel_id) REFERENCES cup_duels (id) ON DELETE SET NULL NOT VALID');
+        DB::statement('ALTER TABLE battles ADD COLUMN IF NOT EXISTS cup_duel_id bigint NULL, ADD COLUMN IF NOT EXISTS limit_exempt boolean NOT NULL DEFAULT false');
+        $this->addConstraint('battles', 'battles_cup_duel_id_foreign', 'FOREIGN KEY (cup_duel_id) REFERENCES cup_duels (id) ON DELETE SET NULL NOT VALID');
+        // Validating a valid constraint again is a no-op: a run that broke off after it repeats it harmlessly.
         DB::statement('ALTER TABLE battles VALIDATE CONSTRAINT battles_cup_duel_id_foreign');
         // An INVALID index of an interrupted run goes first.
         DB::statement('DROP INDEX '.$this->concurrently().'IF EXISTS battles_cup_duel_id_unique');
@@ -152,19 +175,32 @@ return new class extends Migration
         DB::statement('DROP INDEX '.$this->concurrently().'IF EXISTS battles_cup_duel_id_unique');
 
         DB::transaction(function (): void {
-            // The duels go, so the links to them mean nothing: without this the next `up()` would meet ids with no row behind them.
-            DB::table('battles')->whereNotNull('cup_duel_id')->update(['cup_duel_id' => null]);
-
-            Schema::table('battles', function (Blueprint $table): void {
-                $table->dropForeign(['cup_duel_id']);
-            });
-            Schema::table('battles', function (Blueprint $table): void {
-                $table->dropColumn(['cup_duel_id', 'limit_exempt']);
-            });
+            if (DB::getDriverName() === 'pgsql') {
+                DB::statement('ALTER TABLE battles DROP CONSTRAINT IF EXISTS battles_cup_duel_id_foreign');
+                DB::statement('ALTER TABLE battles DROP COLUMN IF EXISTS cup_duel_id, DROP COLUMN IF EXISTS limit_exempt');
+            } elseif (Schema::hasColumn('battles', 'cup_duel_id')) {
+                // SQLite: the key goes first (a rebuild of the table), a column under a key cannot be dropped.
+                Schema::table('battles', function (Blueprint $table): void {
+                    $table->dropForeign(['cup_duel_id']);
+                });
+                Schema::table('battles', function (Blueprint $table): void {
+                    $table->dropColumn(['cup_duel_id', 'limit_exempt']);
+                });
+            }
 
             Schema::dropIfExists('cup_duel_slots');
             Schema::dropIfExists('cup_duels');
         });
+    }
+
+    /** Adds the constraint unless one of that name is on the table already (a run that broke off after it). */
+    private function addConstraint(string $table, string $name, string $definition): void
+    {
+        $exists = DB::selectOne('SELECT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = ?::regclass AND conname = ?) AS present', [$table, $name]);
+        if ($exists !== null && $exists->present) {
+            return;
+        }
+        DB::statement("ALTER TABLE {$table} ADD CONSTRAINT {$name} {$definition}");
     }
 
     private function concurrently(): string

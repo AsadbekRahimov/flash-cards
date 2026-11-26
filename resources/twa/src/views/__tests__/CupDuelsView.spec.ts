@@ -239,6 +239,19 @@ describe('CupDuelsView: the actions', () => {
     expect(tid(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
   })
 
+  it('the paywall of the screen of a new challenge does not come back on the list ("Back"); one of the list still shows', async () => {
+    useCupDuelsStore().limitHit = { kind: 'battles', limit: 1, used: 1, resets_at: '2026-12-02T19:00:00.000Z' }
+    vi.mocked(api.cups.duels.accept).mockRejectedValue(
+      apiError('forbidden', 403, 'practice_limit_reached', { kind: 'battles', limit: 1, used: 1, resets_at: '2026-12-02T19:00:00.000Z' }),
+    )
+    const r = await render()
+    expect(has(r, 'paywall')).toBe(false)
+
+    await click(r, '[data-testid=open-row] [data-testid=accept-btn]')
+
+    expect(has(r, 'paywall')).toBe(true)
+  })
+
   it('"Decline": the list is read again', async () => {
     vi.mocked(api.cups.duels.decline).mockResolvedValue(incoming({ status: 'declined', end_reason: 'declined' }))
     const r = await render()

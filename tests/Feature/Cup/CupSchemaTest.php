@@ -8,6 +8,7 @@ use App\Models\CupDay;
 use App\Models\CupParticipant;
 use App\Models\TelegramGroup;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -53,6 +54,42 @@ it('rolls the tables of the cup back and forth', function (): void {
         expect(DB::selectOne("SELECT convalidated FROM pg_constraint WHERE conname = 'battles_cup_duel_id_foreign'")?->convalidated)->toBeTrue()
             ->and((string) DB::selectOne("SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conname = 'cup_duels_end_reason_check'")?->def)->toContain('battle_voided');
     }
+});
+
+it('runs the migration of the duels again from any state a broken run leaves, both ways', function (): void {
+    $voided = require base_path(CUP_MIGRATIONS[0]);
+    $duels = require base_path(CUP_MIGRATIONS[1]);
+    $voided->down();
+
+    // Everything is there: up() again changes nothing and does not fail.
+    $duels->up();
+    // The tables are made, the link of `battles` is not (a run that broke off after the first step).
+    DB::statement('DROP INDEX IF EXISTS battles_cup_duel_id_unique');
+    Schema::table('battles', fn (Blueprint $table) => $table->dropForeign(['cup_duel_id']));
+    Schema::table('battles', fn (Blueprint $table) => $table->dropColumn(['cup_duel_id', 'limit_exempt']));
+    $duels->up();
+    expect(Schema::hasColumns('battles', ['cup_duel_id', 'limit_exempt']))->toBeTrue()
+        ->and(Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue();
+
+    // On PostgreSQL: the column is there, its key is not.
+    if (DB::getDriverName() === 'pgsql') {
+        DB::statement('ALTER TABLE battles DROP CONSTRAINT battles_cup_duel_id_foreign');
+        $duels->up();
+        expect(DB::selectOne("SELECT convalidated FROM pg_constraint WHERE conname = 'battles_cup_duel_id_foreign'")?->convalidated)->toBeTrue();
+    }
+
+    // down() twice: the second meets nothing to drop.
+    $duels->down();
+    $duels->down();
+    expect(Schema::hasTable('cup_duels'))->toBeFalse()
+        ->and(Schema::hasColumn('battles', 'cup_duel_id'))->toBeFalse();
+
+    $duels->up();
+    $voided->up();
+    expect(Schema::hasTable('cup_duels'))->toBeTrue()
+        ->and(Schema::hasTable('cup_duel_slots'))->toBeTrue()
+        ->and(Schema::hasColumns('battles', ['cup_duel_id', 'limit_exempt']))->toBeTrue()
+        ->and(Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue();
 });
 
 it('keeps one open cup per chat as a fact of the database', function (): void {

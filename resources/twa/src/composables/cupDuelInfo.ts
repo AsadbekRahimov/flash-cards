@@ -133,9 +133,13 @@ export interface DuelRatedExpectation {
   rated: boolean
 }
 
-/** The kind to show and to send: the kept answer of a 409 while the duel is as it was, else {@link duelRated}. */
+/**
+ * The kind to show and to send: {@link duelRated} when the server told it fresh (`rated` of the acceptance, `rated_for_me`); the kept answer
+ * of a 409 only for an older server without `rated_for_me`, while the duel is as it was.
+ */
 export function expectedRated(duel: Pick<CupDuel, 'id' | 'status' | 'rated' | 'rated_offered' | 'rated_for_me'>, kept: DuelRatedExpectation | null | undefined): boolean {
-  if (kept !== null && kept !== undefined && kept.duelId === duel.id && kept.status === duel.status && duel.rated === null) return kept.rated
+  const fresh = duel.rated !== null || (duel.rated_for_me !== undefined && duel.rated_for_me !== null)
+  if (!fresh && kept !== null && kept !== undefined && kept.duelId === duel.id && kept.status === duel.status) return kept.rated
   return duelRated(duel)
 }
 

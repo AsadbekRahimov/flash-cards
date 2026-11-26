@@ -53,6 +53,9 @@ FUNCTION_WORDS = {'a', 'an', 'the', 'i', 'me', 'my', 'you', 'your', 'he', 'him',
 FORBIDDEN = {'fuck', 'fucking', 'shit', 'bitch', 'bastard', 'crap', 'piss', 'pissed', 'damn', 'hell', 'ass', 'arse', 'sex', 'sexy',
              'beer', 'wine', 'vodka', 'whisky', 'whiskey', 'booze', 'drunk', 'hangover', 'cocktail', 'alcohol', 'drug', 'drugs',
              'cocaine', 'heroin', 'marijuana', 'casino', 'gamble', 'gambling', 'pork', 'bacon'}
+# The endings a forbidden word is found under (bitches, fucked, shitty, gambler, whiskies, hellish, drunken, sexual, sexually). The list keeps
+# its meaning: `drink` is not in it, so neither is `drinking`.
+FORBIDDEN_ENDINGS = ('ually', 'ual', 'ies', 'ing', 'ish', 'es', 'ed', 'er', 'en', 'al', 's', 'd', 'y')
 
 APOSTROPHES = ['’', '‘', 'ʼ', '`', '´', '′']
 DASHES = ['‐', '‑', '‒', '–', '—', '−']
@@ -97,6 +100,29 @@ def occurrences(phrase, gap):
 
 def is_whole_phrase(phrase, gap):
     return re.search(LETTER_OR_DIGIT, gap_pattern(gap).sub('', phrase)) is None
+
+
+def is_forbidden(token):
+    """The token is a forbidden word or a form of one: one ending off (-ies gives back -y), then the word as it is, with the final
+    `e` an ending took (gambled -> gamble), or without the consonant it doubled (shitty -> shit). One ending only, and a stem of at
+    least two letters: class, pass, assess, glass, hello, shell, wins stay plain words."""
+    if token in FORBIDDEN:
+        return True
+    for ending in FORBIDDEN_ENDINGS:
+        stem = token[:-len(ending)]
+        if not token.endswith(ending) or len(stem) < 2:
+            continue
+        if ending == 'ies':
+            stems = {stem + 'y'}
+        elif ending in ('s', 'd'):
+            stems = {stem}
+        else:
+            stems = {stem, stem + 'e'}
+            if stem[-1] == stem[-2] and stem[-1] not in 'aeiou':
+                stems.add(stem[:-1])
+        if stems & FORBIDDEN:
+            return True
+    return False
 
 
 def is_str(v):
@@ -167,16 +193,30 @@ for _lemma, _forms in IRREGULAR.items():
         VARIANTS_OF.setdefault(_w, set()).update(_group)
 
 
-def token_matches(p, e):
-    if p == e or e in regular_forms(p) or e in VARIANTS_OF.get(p, ()):
-        return True
-    return any(p in g and e in g for g in GROUPS) or (p == "one's" and e.endswith("'s"))
+POSSESSIVES = GROUPS[0]
+# Sayings said as they are: no word of them takes a form (Break a leg! - not "Breaks a leg!").
+FROZEN_KINDS = {'formula', 'proverb'}
+
+
+def token_match(p, e):
+    """How the word `e` of the text stands for the word `p` of the phrase: 'same', 'form' (a form of the verb or a plural, regular or
+    irregular), 'pronoun' (another pronoun of the same group, `one's` -> a possessive), or None."""
+    if p == e:
+        return 'same'
+    if e in regular_forms(p) or e in VARIANTS_OF.get(p, ()):
+        return 'form'
+    if any(p in g and e in g for g in GROUPS) or (p == "one's" and e.endswith("'s")):
+        return 'pronoun'
+    return None
 
 
 def contains_phrase(phrase, text, kind):
-    """The phrase stands in the text: word by word, a word may take a form of the verb (regular, irregular), a possessive or an
-    object pronoun may change (make up your mind -> made up my mind), `someone` / `something` stand for 1-3 words, and the particle
-    of a phrasal verb may move up to 3 words away (figure out -> figure this map out); the leading article may go."""
+    """The phrase stands in the text: word by word; a possessive or an object pronoun may change (make up your mind -> made up my
+    mind), `someone` / `something` stand for 1-3 words, the particle of a phrasal verb may move up to 3 words away (figure out ->
+    figure this map out), the leading article may go. A form (regular, irregular) is taken by ONE word at most, and only by a word
+    that changes in speech: the first word of the phrase (its verb: break the ice -> broke the ice), or the word right after a
+    possessive that changed too (tighten your belt -> tighten our belts). The fixed noun of an idiom keeps its form (on the other
+    hand, not "hands"); a formula or a proverb takes no form at all (Break a leg!, not "Breaks a leg!")."""
     p, e = tokens(phrase), tokens(text)
     if not p:
         return False
@@ -184,18 +224,23 @@ def contains_phrase(phrase, text, kind):
     if len(p) > 1 and p[0] in ('a', 'an', 'the'):
         starts.append(p[1:])
 
-    def at(pp, i, j, moved):
+    def at(pp, i, j, moved, formed, owner_changed):
         if i == len(pp):
             return True
         if pp[i] in PLACEHOLDERS:
-            return any(at(pp, i + 1, j + k, moved) for k in (1, 2, 3) if j + k <= len(e))
-        if j < len(e) and token_matches(pp[i], e[j]) and at(pp, i + 1, j + 1, moved):
+            return any(at(pp, i + 1, j + k, moved, formed, False) for k in (1, 2, 3) if j + k <= len(e))
+        how = token_match(pp[i], e[j]) if j < len(e) else None
+        if how == 'form':
+            first = len(p) - len(pp) + i == 0
+            if kind in FROZEN_KINDS or formed or not (first or owner_changed):
+                how = None
+        if how is not None and at(pp, i + 1, j + 1, moved, formed or how == 'form', how == 'pronoun' and pp[i] in POSSESSIVES):
             return True
         if kind == 'phrasal_verb' and i == 1 and not moved:
-            return any(at(pp, i, j + k, True) for k in (1, 2, 3) if j + k < len(e))
+            return any(at(pp, i, j + k, True, formed, owner_changed) for k in (1, 2, 3) if j + k < len(e))
         return False
 
-    return any(at(pp, 0, j, False) for pp in starts for j in range(len(e)))
+    return any(at(pp, 0, j, False, False, False) for pp in starts for j in range(len(e)))
 
 
 # --- the plan (PHRASE_PLAN.md tables) ----------------------------------------------------------------------------------------
@@ -279,6 +324,16 @@ class Entry:
         self.where = f'{pack}/{file} #{n} «{self.word}»'
 
 
+def refuse_constant(name):
+    raise ValueError(f'{name} is not JSON (json_decode of the import refuses it)')
+
+
+def load_json(path):
+    """json.load without what Python takes and JSON has not: NaN, Infinity, -Infinity."""
+    with open(path, encoding='utf-8') as fh:
+        return json.load(fh, parse_constant=refuse_constant)
+
+
 def check_manifest(d, pack, import_only):
     path = os.path.join(d, 'course.json')
     where = f'{pack}/course.json'
@@ -286,7 +341,7 @@ def check_manifest(d, pack, import_only):
         err('MANIFEST', where, 'course.json not found')
         return None
     try:
-        data = json.load(open(path, encoding='utf-8'))
+        data = load_json(path)
     except Exception as e:
         err('MANIFEST', where, f'invalid JSON ({e})')
         return None
@@ -324,7 +379,7 @@ def check_lesson_file(path, pack, slug, plan, args, entries):
     name = os.path.basename(path)
     where = f'{pack}/{name}'
     try:
-        data = json.load(open(path, encoding='utf-8'))
+        data = load_json(path)
     except Exception as e:
         err('INVALID_JSON', where, f'not valid JSON ({e})')
         return
@@ -616,7 +671,7 @@ def check_quality_entry(e, plan):
             err('LITERAL_SAME', where, f'phrase.literal.{loc} repeats translations.{loc}: leave literal out when the word-for-word meaning is the equivalent')
         if plain(lt) == plain(word):
             err('LITERAL_SAME', where, f'phrase.literal.{loc} repeats the English phrase')
-    if bool(literal.get('ru')) != bool(literal.get('uz')):
+    if blank(literal.get('ru')) != blank(literal.get('uz')):
         err('LITERAL_INCOMPLETE', where, 'phrase.literal needs both ru and uz, or neither')
 
     for key, t in texts:
@@ -633,7 +688,7 @@ def check_quality_entry(e, plan):
     if block.get('register') == 'rude':
         err('REGISTER_RUDE', where, "register 'rude' is not taken into the course")
     english = ' '.join([word, ex if is_str(ex) else ''] + examples + list(block.get('synonyms') or []))
-    found = sorted({t for t in tokens(english) if t in FORBIDDEN or t.rstrip('s') in FORBIDDEN})
+    found = sorted({t for t in tokens(english) if is_forbidden(t)})
     if found:
         err('FORBIDDEN_WORD', where, 'words the course never uses: ' + ', '.join(found))
 

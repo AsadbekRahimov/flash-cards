@@ -384,8 +384,8 @@ final class CupDuelService
 
                 return [$duel, false];
             }
-            // Nobody answered anything - whatever the end (a surrender in the countdown, both absent, the room expired): void, so that
-            // nobody can burn the rated duel of the day of another by giving up before the first task.
+            // Nobody answered anything - whatever the end (a surrender in the countdown or in the first round, both absent, the room
+            // expired): void, so that nobody can burn the rated duel of the day of another by giving up before the first answer.
             if ($battle['given'] === 0) {
                 $this->void($duel, CupDuelEndReason::NoAnswers, $now);
 
