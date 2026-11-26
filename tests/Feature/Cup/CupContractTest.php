@@ -194,8 +194,6 @@ it('shapes the round: the start, the resume, an answer, the review - and no righ
 });
 
 it('gives a listen task the clip of its attempt and refuses the clip of a task not reached yet', function (): void {
-    Storage::fake('public');
-    Storage::disk('public')->put('audio/cup-test.mp3', 'ID3-fake-mp3');
     ['cup' => $cup, 'learners' => [$a]] = CupKit::running(2);
     $day = CupDay::query()->where('cup_id', $cup->id)->where('day', 1)->firstOrFail();
     app(CupRoundService::class)->ensureDaySnapshot($day, $cup);
@@ -214,6 +212,10 @@ it('gives a listen task the clip of its attempt and refuses the clip of a task n
         ->and(array_keys($round['current']))->toBe(cupTaskKeys('listen'))
         ->and($round['current']['audio_url'])->toBe("/api/twa/cup-rounds/{$attempt->id}/audio/{$listen}")
         ->and(array_intersect(cupContractKeys($round['current']), CUP_FORBIDDEN_KEYS))->toBe([]);
+    // The file is written right before it is asked for: the root of a faked disk (storage/framework/testing/disks/public) is ONE
+    // directory for every non-parallel pest process of a checkout, and the setUp of each test of another process cleans it - a
+    // file written at the start of this test was gone by the clip on a busy machine (a 503 that looked like a cache bug).
+    Storage::disk('public')->put('audio/cup-test.mp3', 'ID3-fake-mp3');
     $clip = cupContract($a, 'GET', $round['current']['audio_url'] === null ? '' : substr($round['current']['audio_url'], strlen('/api/twa')));
     $clip->assertOk()->assertHeader('Content-Type', 'audio/mpeg')->assertHeader('Cache-Control', 'no-store, private');
     expect($clip->streamedContent())->toBe('ID3-fake-mp3');
