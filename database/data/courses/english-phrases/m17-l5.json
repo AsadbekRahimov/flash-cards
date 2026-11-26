@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 17,
+    "title": "Успех и неудача",
+    "title_uz": "Muvaffaqiyat va omadsizlik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Усилия",
+    "title_uz": "Harakat"
+  },
+  "words": [
+    {
+      "word": "go the extra mile",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать больше, чем требуется",
+        "uz": "talab qilinganidan ko'proq harakat qilmoq"
+      },
+      "example": "The hotel staff went the extra mile to make our stay special.",
+      "example_translations": {
+        "ru": "Персонал гостиницы сделал больше, чем требовалось, чтобы наш отдых был особенным.",
+        "uz": "Mehmonxona xodimlari dam olishimiz alohida bo'lishi uchun talab qilinganidan ko'proq harakat qilishdi."
+      },
+      "hooks": {
+        "ru": "Хвалят того, кто старается сверх обязанностей",
+        "uz": "Majburiyatidan ortiq harakat qilgan odamni maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mile",
+        "literal": {
+          "ru": "пройти лишнюю милю",
+          "uz": "qo'shimcha bir mil yurmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "bite off more than you can chew",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взвалить на себя слишком много",
+        "uz": "kuchi yetmaydigan ishga qo'l urmoq"
+      },
+      "example": "With three jobs and a new baby, I think I've bitten off more than I can chew.",
+      "example_translations": {
+        "ru": "С тремя работами и новорождённым, кажется, я взвалил на себя слишком много.",
+        "uz": "Uchta ish va chaqaloq bilan, menimcha, kuchim yetmaydigan ishga qo'l urdim."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто взялся за дело больше своих сил",
+        "uz": "Kuchidan ortiq ishni zimmasiga olgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chew",
+        "literal": {
+          "ru": "откусить больше, чем можешь прожевать",
+          "uz": "chaynay olganingdan ko'proq tishlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the right track",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на верном пути",
+        "uz": "to'g'ri yo'lda"
+      },
+      "example": "Your essay isn't finished yet, but you're on the right track.",
+      "example_translations": {
+        "ru": "Твоё сочинение ещё не закончено, но ты на верном пути.",
+        "uz": "Inshong hali tugamagan, lekin to'g'ri yo'ldasan."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто действует правильно, хотя цель ещё не достигнута",
+        "uz": "Maqsadga hali yetmagan, lekin to'g'ri harakat qilayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "right",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "cut corners",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "халтурить",
+        "uz": "ishni chala-chulpa qilmoq"
+      },
+      "example": "Good builders never cut corners, even when the client is in a hurry.",
+      "example_translations": {
+        "ru": "Хорошие строители никогда не халтурят, даже если клиент торопит.",
+        "uz": "Yaxshi quruvchilar mijoz shoshirsa ham, ishni hech qachon chala-chulpa qilmaydi."
+      },
+      "hooks": {
+        "ru": "Осуждают тех, кто делает работу быстро и дёшево в ущерб качеству",
+        "uz": "Sifat hisobiga ishni tez va arzon bajaradiganlarni qoralab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "corners",
+        "literal": {
+          "ru": "срезать углы",
+          "uz": "burchaklarni kesmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "pull out all the stops",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приложить все усилия",
+        "uz": "bor kuchini sarflamoq"
+      },
+      "example": "The school pulled out all the stops to welcome the guests from Japan.",
+      "example_translations": {
+        "ru": "Школа приложила все усилия, чтобы встретить гостей из Японии.",
+        "uz": "Maktab Yaponiyadan kelgan mehmonlarni kutib olish uchun bor kuchini sarfladi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда делают всё возможное, чтобы событие или дело удалось",
+        "uz": "Tadbir yoki ish muvaffaqiyatli bo'lishi uchun qo'ldan kelgan hamma narsa qilinganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stops",
+        "literal": {
+          "ru": "выдвинуть все регистры органа",
+          "uz": "organning barcha tutqichlarini tortmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "give it your all",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выложиться на полную",
+        "uz": "bor kuchini bermoq"
+      },
+      "example": "It's the final match, so go out there and give it your all!",
+      "example_translations": {
+        "ru": "Это финальный матч, так что выходите и выложитесь на полную!",
+        "uz": "Bu final o'yini, shuning uchun maydonga chiqib, bor kuchingizni bering!"
+      },
+      "hooks": {
+        "ru": "Призывают сделать всё, на что способен: перед матчем, экзаменом, выступлением",
+        "uz": "O'yin, imtihon yoki chiqishdan oldin qo'ldan kelganini qilishga undab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "give",
+        "literal": {
+          "ru": "отдай этому всё своё",
+          "uz": "bunga bor-budingni ber"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "leave no stone unturned",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "перевернуть всё вверх дном",
+        "uz": "qarab chiqmagan joy qoldirmaslik"
+      },
+      "example": "We left no stone unturned looking for my grandmother's ring.",
+      "example_translations": {
+        "ru": "Мы перевернули всё вверх дном в поисках бабушкиного кольца.",
+        "uz": "Buvimning uzugini qidirib, qarab chiqmagan joyimiz qolmadi."
+      },
+      "hooks": {
+        "ru": "Говорят о самом тщательном поиске или расследовании",
+        "uz": "Eng sinchkov qidiruv yoki tekshiruv haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "unturned",
+        "literal": {
+          "ru": "не оставить ни одного неперевёрнутого камня",
+          "uz": "ag'darilmagan tosh qoldirmaslik"
+        },
+        "cefr": "C1",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "learn the hard way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "учиться на горьком опыте",
+        "uz": "achchiq tajribadan o'rganmoq"
+      },
+      "example": "I learned the hard way that you should always save your work.",
+      "example_translations": {
+        "ru": "На горьком опыте я понял, что работу всегда нужно сохранять.",
+        "uz": "Ishni doim saqlab qo'yish kerakligini achchiq tajribadan o'rgandim."
+      },
+      "hooks": {
+        "ru": "Говорят об уроке, который усвоили через собственную неприятность",
+        "uz": "O'z boshidan kechirgan noxushlik orqali olingan saboq haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hard",
+        "literal": {
+          "ru": "учиться трудным путём",
+          "uz": "qiyin yo'l bilan o'rganmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "put your mind to something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по-настоящему взяться за что-то",
+        "uz": "biror ishga astoydil kirishmoq"
+      },
+      "example": "You can learn any language if you put your mind to it.",
+      "example_translations": {
+        "ru": "Ты можешь выучить любой язык, если по-настоящему возьмёшься за это.",
+        "uz": "Astoydil kirishsang, istalgan tilni o'rganishing mumkin."
+      },
+      "hooks": {
+        "ru": "Подбадривают: если сосредоточиться и стараться, всё получится",
+        "uz": "Dalda berib aytiladi: diqqatni jamlab harakat qilsang, hammasi chiqadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mind",
+        "literal": {
+          "ru": "приложить к чему-то свой ум",
+          "uz": "aqlini nimagadir qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "elbow grease",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "усердный труд руками",
+        "uz": "qo'l mehnati"
+      },
+      "example": "These old pans will shine again with a bit of elbow grease.",
+      "example_translations": {
+        "ru": "Эти старые сковородки снова заблестят, если хорошенько потрудиться.",
+        "uz": "Biroz qo'l mehnati bilan bu eski tovalar yana yaltirab qoladi."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о тяжёлой физической работе: чистке, уборке, ремонте",
+        "uz": "Tozalash, yig'ishtirish yoki ta'mirlash kabi og'ir jismoniy ish haqida hazil bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "grease",
+        "literal": {
+          "ru": "смазка для локтей",
+          "uz": "tirsak moyi"
+        },
+        "cefr": "C1",
+        "frequency": 3
+      }
+    }
+  ]
+}

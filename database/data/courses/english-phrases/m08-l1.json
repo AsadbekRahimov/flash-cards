@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 8,
+    "title": "Согласие и несогласие",
+    "title_uz": "Rozilik va norozilik"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Согласие",
+    "title_uz": "Rozilik"
+  },
+  "words": [
+    {
+      "word": "You're right",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы правы",
+        "uz": "siz haqsiz"
+      },
+      "example": "We should leave earlier to avoid the traffic. — You're right.",
+      "example_translations": {
+        "ru": "Нам лучше выехать пораньше, чтобы не попасть в пробку. — Вы правы.",
+        "uz": "Tirbandlikka tushmaslik uchun ertaroq chiqishimiz kerak. — Siz haqsiz."
+      },
+      "hooks": {
+        "ru": "Соглашаются с собеседником и признают его правоту",
+        "uz": "Suhbatdoshga qo'shilib, uning haq ekanini tan olishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "right",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Fair enough",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "справедливо",
+        "uz": "haq gap"
+      },
+      "example": "I can't come tonight, I have to study. — Fair enough.",
+      "example_translations": {
+        "ru": "Я не смогу прийти вечером, мне нужно заниматься. — Справедливо.",
+        "uz": "Bugun kechqurun kela olmayman, dars qilishim kerak. — Haq gap."
+      },
+      "hooks": {
+        "ru": "Принимают довод собеседника, даже если сначала хотели другого",
+        "uz": "Avval boshqacha istagan bo'lsa ham, suhbatdoshning dalilini qabul qilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fair",
+        "literal": {
+          "ru": "достаточно справедливо",
+          "uz": "yetarlicha adolatli"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I couldn't agree more",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "полностью согласен",
+        "uz": "to'liq qo'shilaman"
+      },
+      "example": "This city needs more parks. — I couldn't agree more.",
+      "example_translations": {
+        "ru": "Этому городу нужно больше парков. — Полностью согласен.",
+        "uz": "Bu shaharga ko'proq bog'lar kerak. — To'liq qo'shilaman."
+      },
+      "hooks": {
+        "ru": "Горячо соглашаются; несмотря на couldn't, это полное «да»",
+        "uz": "Qizg'in qo'shilishadi; couldn't bo'lsa ham, bu to'liq «ha»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "agree",
+        "literal": {
+          "ru": "я не мог бы согласиться больше",
+          "uz": "bundan ortiq qo'shila olmasdim"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Same here",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня тоже",
+        "uz": "menda ham shunday"
+      },
+      "example": "I'm so hungry. — Same here. Let's get something to eat.",
+      "example_translations": {
+        "ru": "Я так проголодался. — Я тоже. Давай что-нибудь поедим.",
+        "uz": "Qornim juda ochdi. — Menda ham shunday. Biror narsa yeylik."
+      },
+      "hooks": {
+        "ru": "Коротко говорят другу, что чувствуют или думают так же",
+        "uz": "Do'stga o'zi ham xuddi shunday his qilishi yoki o'ylashini qisqa aytishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "same",
+        "literal": {
+          "ru": "то же здесь",
+          "uz": "bu yerda ham xuddi shunday"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "That's true",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это правда",
+        "uz": "bu to'g'ri"
+      },
+      "example": "Summer in Tashkent is very hot. — That's true.",
+      "example_translations": {
+        "ru": "Лето в Ташкенте очень жаркое. — Это правда.",
+        "uz": "Toshkentda yoz juda issiq bo'ladi. — Bu to'g'ri."
+      },
+      "hooks": {
+        "ru": "Спокойно подтверждают слова собеседника",
+        "uz": "Suhbatdoshning gapini xotirjam tasdiqlashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "true",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "That makes sense",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это логично",
+        "uz": "bu mantiqan to'g'ri"
+      },
+      "example": "Let's go by metro — it's faster at this time. — That makes sense.",
+      "example_translations": {
+        "ru": "Поедем на метро — в это время так быстрее. — Логично.",
+        "uz": "Metroda boraylik — bu paytda tezroq. — Mantiqan to'g'ri."
+      },
+      "hooks": {
+        "ru": "Соглашаются, потому что объяснение понятно и разумно",
+        "uz": "Tushuntirish aniq va o'rinli bo'lgani uchun qo'shilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sense",
+        "literal": {
+          "ru": "это делает смысл",
+          "uz": "bu ma'no yasaydi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Good point",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "верное замечание",
+        "uz": "o'rinli fikr"
+      },
+      "example": "We should check the weather before we go. — Good point.",
+      "example_translations": {
+        "ru": "Надо проверить погоду, прежде чем ехать. — Верно подмечено.",
+        "uz": "Ketishdan oldin ob-havoni tekshirishimiz kerak. — O'rinli fikr."
+      },
+      "hooks": {
+        "ru": "Признают, что собеседник сказал что-то важное, о чём вы не подумали",
+        "uz": "Suhbatdosh siz o'ylamagan muhim narsani aytganini tan olishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "point",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You can say that again",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что правда, то правда",
+        "uz": "aynan shunday!"
+      },
+      "example": "This exam was really difficult. — You can say that again!",
+      "example_translations": {
+        "ru": "Экзамен был очень трудным. — Что правда, то правда!",
+        "uz": "Bu imtihon juda qiyin bo'ldi. — Aynan shunday!"
+      },
+      "hooks": {
+        "ru": "Шутливо и горячо соглашаются с очевидным",
+        "uz": "Aniq narsaga hazil aralash, qizg'in qo'shilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "again",
+        "literal": {
+          "ru": "можешь сказать это ещё раз",
+          "uz": "buni yana aytishing mumkin"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I think so too",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я тоже так думаю",
+        "uz": "men ham shunday deb o'ylayman"
+      },
+      "example": "I think this restaurant is the best in town. — I think so too.",
+      "example_translations": {
+        "ru": "По-моему, это лучший ресторан в городе. — Я тоже так думаю.",
+        "uz": "Menimcha, bu shahardagi eng yaxshi restoran. — Men ham shunday deb o'ylayman."
+      },
+      "hooks": {
+        "ru": "Просто и спокойно соглашаются с мнением собеседника",
+        "uz": "Suhbatdoshning fikriga oddiy va xotirjam qo'shilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "think",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "great minds think alike",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "умные мысли приходят одновременно",
+        "uz": "aqllilarning fikri bir joydan chiqadi"
+      },
+      "example": "I was going to suggest the same thing! — Great minds think alike.",
+      "example_translations": {
+        "ru": "Я как раз хотел предложить то же самое! — Умные мысли приходят одновременно.",
+        "uz": "Men ham xuddi shuni taklif qilmoqchi edim! — Aqllilarning fikri bir joydan chiqadi."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят, когда двоим одновременно пришла одна идея",
+        "uz": "Ikki kishiga bir vaqtda bir xil fikr kelganda hazil qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "minds",
+        "literal": {
+          "ru": "великие умы думают одинаково",
+          "uz": "buyuk aqllar bir xil o'ylaydi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

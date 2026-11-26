@@ -357,7 +357,8 @@ export const useCupRoundStore = defineStore('cupRound', {
       if (attemptId === undefined) return null
       try {
         const round = await api.cups.round(attemptId)
-        return generation === this.generation ? round : null
+        // A reply that comes after the screen was left (the store reset since) or that is not this attempt is dropped.
+        return generation === this.generation && round?.attempt_id === attemptId ? round : null
       } catch (err) {
         if (generation === this.generation) this.handleError(err)
         return null
@@ -388,7 +389,7 @@ export const useCupRoundStore = defineStore('cupRound', {
       this.expiryChecked = round.attempt_id
       const generation = this.generation
       const fresh = await this.reread(generation)
-      if (fresh !== null && this.status === 'playing') this.applyRound(fresh)
+      if (fresh !== null && generation === this.generation && this.status === 'playing') this.applyRound(fresh)
     },
 
     handleError(err: unknown): void {

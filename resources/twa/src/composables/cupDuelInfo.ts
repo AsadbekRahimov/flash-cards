@@ -120,16 +120,20 @@ export function duelRated(duel: Pick<CupDuel, 'rated' | 'rated_offered'>): boole
 }
 
 /**
- * Why "Challenge to a duel" is not offered today (`availability.can_challenge` is false), from the hint of the server and the state of
- * the cup; null when a challenge is possible or my open challenge is shown instead.
+ * Why "Challenge to a duel" is not offered today (`availability.can_challenge` is false), from the hint of the server and, when the screen
+ * has it, the state of the cup (`board`: the table of the cup screen); null when a challenge is possible or my open challenge is shown
+ * instead.
  */
-export function duelBlockReason(availability: CupDuelAvailability, board: Pick<CupBoardResponse, 'cup' | 'me'>): string | null {
+export function duelBlockReason(availability: CupDuelAvailability, board: Pick<CupBoardResponse, 'cup' | 'me'> | null): string | null {
   if (availability.can_challenge || availability.open_duel_id !== null) return null
-  const { cup, me } = board
-  if (me !== null && me.status !== 'active') return t('cup.duel.reason.left')
-  if (cup.paused !== null && (cup.status === 'scheduled' || cup.status === 'running')) return t('cup.duel.reason.paused')
-  if (cup.status === 'scheduled' || cup.status === 'draft') return t('cup.duel.reason.not_started')
-  if (cup.status !== 'running' || availability.day === null) return t('cup.duel.reason.not_running')
+  if (board !== null) {
+    const { cup, me } = board
+    if (me !== null && me.status !== 'active') return t('cup.duel.reason.left')
+    if (cup.paused !== null && (cup.status === 'scheduled' || cup.status === 'running')) return t('cup.duel.reason.paused')
+    if (cup.status === 'scheduled' || cup.status === 'draft') return t('cup.duel.reason.not_started')
+    if (cup.status !== 'running') return t('cup.duel.reason.not_running')
+  }
+  if (availability.day === null) return t('cup.duel.reason.not_running')
   if (availability.challenges_left <= 0) return t('cup.duel.reason.no_challenges')
   return t('cup.duel.reason.other')
 }
@@ -183,3 +187,13 @@ export function clockText(ms: number): string {
   const seconds = Math.max(0, Math.ceil(ms / 1000))
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
+
+/** The beat of the poll of an open duel (docs/04 A.23d: every 3 s, its own limiter of 40 a minute). */
+export const DUEL_POLL_MS = 3000
+/** The slowest beat after failures (a 429, a lost reply): the pause doubles up to it. */
+export const DUEL_POLL_MAX_MS = 30_000
+/**
+ * How long past `expires_at` an open challenge is still asked about: the server closes one whose time is up when it is read or by its
+ * sweeper; past this the screen tells "expired" itself and stops asking.
+ */
+export const DUEL_OVERDUE_MS = 60_000

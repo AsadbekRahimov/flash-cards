@@ -432,18 +432,20 @@ final class LessonReviewService
             $state->record($right);
             $this->save((int) $session->id, $state, $now);
 
-            $revealed = $exercise->hidesChoiceAnswer() ? new RevealedCard(
+            // A phrase on gap_fill / pretest comes back too, for its literal translation (docs/06 §16): no example, no hook.
+            $choice = $exercise->hidesChoiceAnswer();
+            $revealed = $exercise->revealsAfterAnswer(Phrase::isPhraseWord($word)) ? new RevealedCard(
                 word: $word->word,
                 translation: $translation->text,
-                correct: $exercise === ExerciseType::Reverse ? trim($word->word) : trim($translation->text),
-                example: $example,
-                exampleTranslation: $exampleTranslation,
+                correct: RevealedCard::correctOf($exercise, $word->word, $translation->text),
+                example: $choice ? $example : null,
+                exampleTranslation: $choice ? $exampleTranslation : null,
                 transcription: $word->transcription,
                 audioUrl: $this->audio->urlFor($word),
-                hook: $this->ladder->hooksEnabled ? $this->hooks->for($word, $translation->locale) : null,
+                hook: $choice && $this->ladder->hooksEnabled ? $this->hooks->for($word, $translation->locale) : null,
                 note: null,
                 confusedWith: null,
-                exampleAudioUrl: $this->audio->exampleUrlFor($word, $example),
+                exampleAudioUrl: $choice ? $this->audio->exampleUrlFor($word, $example) : null,
                 phrase: Phrase::forCard($word, $translation->locale, true),
             ) : null;
 

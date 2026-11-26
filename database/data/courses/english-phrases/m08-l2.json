@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 8,
+    "title": "Согласие и несогласие",
+    "title_uz": "Rozilik va norozilik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Несогласие",
+    "title_uz": "Norozilik"
+  },
+  "words": [
+    {
+      "word": "I don't think so",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не думаю",
+        "uz": "menimcha, yo'q"
+      },
+      "example": "Is it going to rain today? — I don't think so.",
+      "example_translations": {
+        "ru": "Сегодня будет дождь? — Не думаю.",
+        "uz": "Bugun yomg'ir yog'adimi? — Menimcha, yo'q."
+      },
+      "hooks": {
+        "ru": "Мягко не соглашаются или отвечают «скорее нет»",
+        "uz": "Yumshoq qilib qo'shilmaslik yoki «ehtimol, yo'q» deb javob berish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "think",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm not so sure",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я не очень уверен",
+        "uz": "bunga unchalik ishonchim yo'q"
+      },
+      "example": "This is the fastest way. — I'm not so sure. Let's check the map.",
+      "example_translations": {
+        "ru": "Это самая короткая дорога. — Я не очень уверен. Давай посмотрим карту.",
+        "uz": "Bu eng tez yo'l. — Bunga unchalik ishonchim yo'q. Xaritaga qaraylik."
+      },
+      "hooks": {
+        "ru": "Вежливо выражают сомнение в словах собеседника",
+        "uz": "Suhbatdoshning gapiga xushmuomalalik bilan shubha bildiriladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sure",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Not really",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не особо",
+        "uz": "unchalik emas"
+      },
+      "example": "Did you like the film? — Not really. It was too long.",
+      "example_translations": {
+        "ru": "Тебе понравился фильм? — Не особо. Он слишком длинный.",
+        "uz": "Film senga yoqdimi? — Unchalik emas. Juda uzun ekan."
+      },
+      "hooks": {
+        "ru": "Мягкое «нет», чтобы не звучать резко",
+        "uz": "Keskin eshitilmasligi uchun aytiladigan yumshoq «yo'q»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "really",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "That's not the point",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дело не в этом",
+        "uz": "gap bunda emas"
+      },
+      "example": "But the phone was cheap! — That's not the point. You didn't need it.",
+      "example_translations": {
+        "ru": "Но телефон был дешёвый! — Дело не в этом. Он тебе был не нужен.",
+        "uz": "Lekin telefon arzon edi-ku! — Gap bunda emas. U senga kerak emas edi."
+      },
+      "hooks": {
+        "ru": "Возвращают спор к главному, когда собеседник уходит в сторону",
+        "uz": "Suhbatdosh chalg'iganda bahsni asosiy masalaga qaytarishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "point",
+        "literal": {
+          "ru": "это не та точка",
+          "uz": "bu o'sha nuqta emas"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Of course not",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "конечно нет",
+        "uz": "albatta yo'q"
+      },
+      "example": "Do you mind if I open the window? — Of course not.",
+      "example_translations": {
+        "ru": "Вы не против, если я открою окно? — Конечно нет.",
+        "uz": "Derazani ochsam qarshi emasmisiz? — Albatta yo'q."
+      },
+      "hooks": {
+        "ru": "Уверенное «нет»; в ответ на Do you mind…? означает «пожалуйста»",
+        "uz": "Qat'iy «yo'q»; Do you mind…? savoliga javobda «marhamat» degani"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "course",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Far from it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отнюдь нет",
+        "uz": "aslo unday emas"
+      },
+      "example": "So the test was easy? — Far from it! It was the hardest test this year.",
+      "example_translations": {
+        "ru": "Значит, тест был лёгким? — Отнюдь нет! Это был самый трудный тест в этом году.",
+        "uz": "Demak, test oson bo'lgan ekan-da? — Aslo unday emas! Bu yilgi eng qiyin test edi."
+      },
+      "hooks": {
+        "ru": "Решительно возражают: на самом деле всё наоборот",
+        "uz": "Aslida hammasi teskari ekanini aytib, qat'iy e'tiroz bildirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "far",
+        "literal": {
+          "ru": "далеко от этого",
+          "uz": "bundan uzoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the contrary",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "наоборот",
+        "uz": "aksincha"
+      },
+      "example": "I'm not tired. On the contrary, I feel full of energy.",
+      "example_translations": {
+        "ru": "Я не устал. Наоборот, я полон сил.",
+        "uz": "Men charchamadim. Aksincha, kuch-g'ayratga to'laman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда правда противоположна сказанному",
+        "uz": "Haqiqat aytilganning teskarisi bo'lganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "contrary",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That's out of the question",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "об этом не может быть и речи",
+        "uz": "bu haqda gap ham bo'lishi mumkin emas"
+      },
+      "example": "Can I stay out until two in the morning? — That's out of the question.",
+      "example_translations": {
+        "ru": "Можно я погуляю до двух ночи? — Об этом не может быть и речи.",
+        "uz": "Tungi soat ikkigacha sayr qilsam maylimi? — Bu haqda gap ham bo'lishi mumkin emas."
+      },
+      "hooks": {
+        "ru": "Твёрдо отказывают; обсуждать тут нечего",
+        "uz": "Qat'iy rad etishadi; muhokama qiladigan narsa yo'q"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "question",
+        "literal": {
+          "ru": "это вне вопроса",
+          "uz": "bu savoldan tashqarida"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I beg to differ",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "позвольте с вами не согласиться",
+        "uz": "ijozatingiz bilan, men qo'shilmayman"
+      },
+      "example": "This is the best plan we have. — I beg to differ. It's too expensive.",
+      "example_translations": {
+        "ru": "Это наш лучший план. — Позвольте с вами не согласиться. Он слишком дорогой.",
+        "uz": "Bu bizdagi eng yaxshi reja. — Ijozatingiz bilan, men qo'shilmayman. U juda qimmat."
+      },
+      "hooks": {
+        "ru": "Очень вежливо возражают на собрании или в официальном споре",
+        "uz": "Yig'ilishda yoki rasmiy bahsda juda xushmuomalalik bilan e'tiroz bildirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "differ",
+        "literal": {
+          "ru": "прошу позволения отличаться",
+          "uz": "farq qilishga ruxsat so'rayman"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "You've got it all wrong",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты всё не так понял",
+        "uz": "hammasini noto'g'ri tushunding"
+      },
+      "example": "So you're leaving the team? — No, you've got it all wrong!",
+      "example_translations": {
+        "ru": "Значит, ты уходишь из команды? — Нет, ты всё не так понял!",
+        "uz": "Demak, jamoadan ketyapsanmi? — Yo'q, hammasini noto'g'ri tushunding!"
+      },
+      "hooks": {
+        "ru": "Говорят другу, который неправильно понял ситуацию",
+        "uz": "Vaziyatni noto'g'ri tushungan do'stga aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "wrong",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

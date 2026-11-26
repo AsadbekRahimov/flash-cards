@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 6,
+    "title": "Дом и время",
+    "title_uz": "Uy va vaqt"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Утро и вечер",
+    "title_uz": "Ertalab va kechqurun"
+  },
+  "words": [
+    {
+      "word": "wake up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "просыпаться",
+        "uz": "uyg'onmoq"
+      },
+      "example": "I usually wake up at seven, even on Sundays.",
+      "example_translations": {
+        "ru": "Я обычно просыпаюсь в семь, даже по воскресеньям.",
+        "uz": "Men odatda yakshanba kunlari ham soat yettida uyg'onaman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, во сколько человек просыпается утром",
+        "uz": "Ertalab soat nechada uyg'onish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wake",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вставать (с постели)",
+        "uz": "o'rnidan turmoq"
+      },
+      "example": "What time do you get up on weekdays? — At half past six.",
+      "example_translations": {
+        "ru": "Во сколько ты встаёшь по будням? — В половине седьмого.",
+        "uz": "Ish kunlari soat nechada turasan? — Olti yarimda."
+      },
+      "hooks": {
+        "ru": "Говорят о подъёме с постели: проснуться — wake up, встать — get up",
+        "uz": "To'shakdan turish haqida aytiladi: uyg'onish — wake up, turish — get up"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sleep in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поспать подольше",
+        "uz": "odatdagidan ko'proq uxlamoq"
+      },
+      "example": "It's Saturday, so I'm going to sleep in.",
+      "example_translations": {
+        "ru": "Сегодня суббота, так что я посплю подольше.",
+        "uz": "Bugun shanba, shuning uchun odatdagidan ko'proq uxlayman."
+      },
+      "hooks": {
+        "ru": "Говорят о выходном утре, когда можно не вставать рано",
+        "uz": "Erta turish shart bo'lmagan dam olish kuni ertalabi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "in",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "call it a day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "закончить на сегодня",
+        "uz": "bugungi ishni yakunlamoq"
+      },
+      "example": "We've been working for ten hours. Let's call it a day.",
+      "example_translations": {
+        "ru": "Мы работаем уже десять часов. Давай на сегодня закончим.",
+        "uz": "O'n soatdan beri ishlayapmiz. Bugungi ishni yakunlaylik."
+      },
+      "hooks": {
+        "ru": "Предлагают закончить работу, когда устали или сделали достаточно",
+        "uz": "Charchaganda yoki yetarlicha ish qilinganda ishni tugatishni taklif qilishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "day",
+        "literal": {
+          "ru": "назвать это днём",
+          "uz": "buni kun deb atamoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Sweet dreams",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сладких снов",
+        "uz": "shirin tushlar ko'r"
+      },
+      "example": "Good night, Sara. Sweet dreams! — Good night, Mum.",
+      "example_translations": {
+        "ru": "Спокойной ночи, Сара. Сладких снов! — Спокойной ночи, мама.",
+        "uz": "Xayrli tun, Sara. Shirin tushlar ko'r! — Xayrli tun, oyi."
+      },
+      "hooks": {
+        "ru": "Ласково говорят перед сном детям и близким",
+        "uz": "Uxlashdan oldin bolalarga va yaqinlarga mehr bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "dreams",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go to bed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ложиться спать",
+        "uz": "uxlashga yotmoq"
+      },
+      "example": "I'm really tired. I think I'll go to bed early tonight.",
+      "example_translations": {
+        "ru": "Я очень устал. Наверное, сегодня лягу спать пораньше.",
+        "uz": "Juda charchadim. Bugun ertaroq uxlashga yotsam kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о том, когда человек ложится спать вечером",
+        "uz": "Kechqurun uxlashga yotish vaqti haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bed",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "stay up late",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "засиживаться допоздна",
+        "uz": "kech yotmoq"
+      },
+      "example": "Don't stay up late — you have school tomorrow.",
+      "example_translations": {
+        "ru": "Не засиживайся допоздна — завтра в школу.",
+        "uz": "Kech yotma — ertaga maktabga borasan."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто долго не ложится спать: смотрит фильм, учится, болтает",
+        "uz": "Kino ko'rib, dars qilib yoki gaplashib, uzoq vaqt uxlamay o'tirgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stay",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a morning person",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жаворонок",
+        "uz": "erta turishni yoqtiradigan odam"
+      },
+      "example": "I'm not a morning person. I need a cup of tea before I can talk.",
+      "example_translations": {
+        "ru": "Я не жаворонок. Мне нужна чашка чая, прежде чем я смогу разговаривать.",
+        "uz": "Men erta turishni yoqtiradiganlardan emasman. Gaplashishdan oldin bir piyola choy ichishim kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, которому легко вставать рано; часто с отрицанием: I'm not a morning person",
+        "uz": "Erta turish oson bo'lgan odam haqida aytiladi; ko'pincha inkor bilan: I'm not a morning person"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "morning",
+        "literal": {
+          "ru": "утренний человек",
+          "uz": "ertalabki odam"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Rise and shine!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подъём!",
+        "uz": "tur, tong otdi!"
+      },
+      "example": "Rise and shine! Breakfast is on the table.",
+      "example_translations": {
+        "ru": "Подъём! Завтрак на столе.",
+        "uz": "Tur, tong otdi! Nonushta dasturxonda."
+      },
+      "hooks": {
+        "ru": "Весело будят ребёнка или близкого человека утром",
+        "uz": "Ertalab bolani yoki yaqin odamni quvnoq ohangda uyg'otishda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "shine",
+        "literal": {
+          "ru": "встань и сияй",
+          "uz": "tur va porla"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get ready",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "собираться",
+        "uz": "tayyorlanmoq"
+      },
+      "example": "Hurry up and get ready — the bus leaves in ten minutes.",
+      "example_translations": {
+        "ru": "Скорее собирайся — автобус уходит через десять минут.",
+        "uz": "Tezroq tayyorlan — avtobus o'n daqiqadan keyin jo'naydi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда нужно одеться и собраться перед выходом из дома",
+        "uz": "Uydan chiqishdan oldin kiyinib, tayyor bo'lish kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ready",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

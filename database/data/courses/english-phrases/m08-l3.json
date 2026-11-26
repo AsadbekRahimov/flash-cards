@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 8,
+    "title": "Согласие и несогласие",
+    "title_uz": "Rozilik va norozilik"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Мнение",
+    "title_uz": "Fikr"
+  },
+  "words": [
+    {
+      "word": "in my opinion",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по моему мнению",
+        "uz": "mening fikrimcha"
+      },
+      "example": "In my opinion, the book is better than the film.",
+      "example_translations": {
+        "ru": "По моему мнению, книга лучше фильма.",
+        "uz": "Mening fikrimcha, kitob filmdan yaxshiroq."
+      },
+      "hooks": {
+        "ru": "Начинают высказывать своё мнение; звучит спокойно и немного официально",
+        "uz": "O'z fikrini bildirishni boshlashadi; xotirjam va biroz rasmiy eshitiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "opinion",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "if you ask me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "если хочешь знать моё мнение",
+        "uz": "mendan so'rasang"
+      },
+      "example": "If you ask me, he should apologise first.",
+      "example_translations": {
+        "ru": "Если хочешь знать моё мнение, он должен извиниться первым.",
+        "uz": "Mendan so'rasang, u birinchi bo'lib uzr so'rashi kerak."
+      },
+      "hooks": {
+        "ru": "Высказывают мнение, даже если о нём не спрашивали",
+        "uz": "Hech kim so'ramagan bo'lsa ham, o'z fikrini aytishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ask",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "as far as I know",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "насколько я знаю",
+        "uz": "bilishimcha"
+      },
+      "example": "As far as I know, the shop is open until nine.",
+      "example_translations": {
+        "ru": "Насколько я знаю, магазин работает до девяти.",
+        "uz": "Bilishimcha, do'kon soat to'qqizgacha ochiq."
+      },
+      "hooks": {
+        "ru": "Сообщают сведения, но без полной уверенности",
+        "uz": "Ma'lumot berishadi, lekin to'liq ishonchsiz"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "know",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'd say",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я бы сказал",
+        "uz": "men shunday derdim"
+      },
+      "example": "How old is he? — I'd say about forty.",
+      "example_translations": {
+        "ru": "Сколько ему лет? — Я бы сказал, около сорока.",
+        "uz": "U necha yoshda? — Men qirq yoshlarda derdim."
+      },
+      "hooks": {
+        "ru": "Осторожно дают оценку или примерный ответ",
+        "uz": "Ehtiyotkorlik bilan baho yoki taxminiy javob berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "say",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It seems to me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне кажется",
+        "uz": "nazarimda"
+      },
+      "example": "It seems to me that you need a holiday.",
+      "example_translations": {
+        "ru": "Мне кажется, тебе нужен отпуск.",
+        "uz": "Nazarimda, senga ta'til kerak."
+      },
+      "hooks": {
+        "ru": "Мягко высказывают мнение или впечатление",
+        "uz": "Fikr yoki taassurotni yumshoq qilib aytishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "seems",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What do you think?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как вы думаете?",
+        "uz": "siz nima deb o'ylaysiz?"
+      },
+      "example": "I want to paint the kitchen green. What do you think?",
+      "example_translations": {
+        "ru": "Хочу покрасить кухню в зелёный. Как вы думаете?",
+        "uz": "Oshxonani yashil rangga bo'yamoqchiman. Siz nima deb o'ylaysiz?"
+      },
+      "hooks": {
+        "ru": "Спрашивают мнение собеседника",
+        "uz": "Suhbatdoshning fikrini so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "think",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the way I see it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на мой взгляд",
+        "uz": "menimcha"
+      },
+      "example": "The way I see it, we have two options.",
+      "example_translations": {
+        "ru": "На мой взгляд, у нас два варианта.",
+        "uz": "Menimcha, bizda ikkita yo'l bor."
+      },
+      "hooks": {
+        "ru": "Объясняют, как сами понимают ситуацию",
+        "uz": "Vaziyatni o'zlari qanday tushunishini tushuntirishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "see",
+        "literal": {
+          "ru": "так, как я это вижу",
+          "uz": "men buni qanday ko'rsam"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "speak your mind",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "говорить то, что думаешь",
+        "uz": "fikrini ochiq aytmoq"
+      },
+      "example": "My grandmother always speaks her mind, even to the boss.",
+      "example_translations": {
+        "ru": "Моя бабушка всегда говорит то, что думает, даже начальству.",
+        "uz": "Buvim har doim fikrini ochiq aytadi, hatto boshliqqa ham."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который прямо высказывает своё мнение",
+        "uz": "O'z fikrini to'g'ridan-to'g'ri aytadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "speak",
+        "literal": {
+          "ru": "говорить свой ум",
+          "uz": "aqlini gapirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What's your take on this?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "а ты что об этом думаешь?",
+        "uz": "bu haqda fikring qanday?"
+      },
+      "example": "Everyone wants a new office. What's your take on this?",
+      "example_translations": {
+        "ru": "Все хотят новый офис. А ты что об этом думаешь?",
+        "uz": "Hamma yangi ofis istayapti. Bu haqda fikring qanday?"
+      },
+      "hooks": {
+        "ru": "Неформально спрашивают мнение коллеги или друга",
+        "uz": "Hamkasb yoki do'stning fikrini norasmiy so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "take",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the other hand",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с другой стороны",
+        "uz": "boshqa tomondan"
+      },
+      "example": "The flat is small. On the other hand, it's very close to work.",
+      "example_translations": {
+        "ru": "Квартира маленькая. С другой стороны, она совсем рядом с работой.",
+        "uz": "Kvartira kichkina. Boshqa tomondan, ishga juda yaqin."
+      },
+      "hooks": {
+        "ru": "Приводят довод «за» после довода «против» или наоборот",
+        "uz": "«Qarshi» dalildan keyin «tarafdor» dalil keltirishadi yoki aksincha"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hand",
+        "literal": {
+          "ru": "на другой руке",
+          "uz": "boshqa qo'lda"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

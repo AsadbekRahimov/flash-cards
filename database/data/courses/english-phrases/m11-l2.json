@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 11,
+    "title": "Люди и отношения",
+    "title_uz": "Odamlar va munosabatlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Плохие черты",
+    "title_uz": "Yomon fazilatlar"
+  },
+  "words": [
+    {
+      "word": "a big mouth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "болтун, который всё разболтает",
+        "uz": "og'zi bo'sh odam"
+      },
+      "example": "Don't tell Timur about the surprise. He has a big mouth.",
+      "example_translations": {
+        "ru": "Не говори Тимуру про сюрприз: он всё разболтает.",
+        "uz": "Timurga syurpriz haqida aytma, uning og'zi bo'sh."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который не умеет хранить секреты или говорит лишнее",
+        "uz": "Sir saqlay olmaydigan yoki ortiqcha gapiradigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mouth",
+        "literal": {
+          "ru": "большой рот",
+          "uz": "katta og'iz"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a pain in the neck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сплошная головная боль",
+        "uz": "haqiqiy bosh og'rig'i"
+      },
+      "example": "My little brother can be a real pain in the neck when I'm studying.",
+      "example_translations": {
+        "ru": "Мой младший брат бывает настоящей головной болью, когда я занимаюсь.",
+        "uz": "Men dars qilayotganimda ukam haqiqiy bosh og'rig'iga aylanadi."
+      },
+      "hooks": {
+        "ru": "Говорят с раздражением о человеке или деле, которое постоянно мешает; в лицо может обидеть",
+        "uz": "Doim xalaqit beradigan odam yoki ish haqida g'ijinib aytiladi; yuziga aytilsa, xafa qilishi mumkin"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "neck",
+        "literal": {
+          "ru": "боль в шее",
+          "uz": "bo'yindagi og'riq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a couch potato",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лежебока, который не встаёт с дивана",
+        "uz": "divandan turmaydigan dangasa"
+      },
+      "example": "Get up and go outside! Don't be such a couch potato.",
+      "example_translations": {
+        "ru": "Вставай и иди на улицу! Хватит лежать на диване.",
+        "uz": "Tur, tashqariga chiq! Kun bo'yi divanda yotaverma."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о том, кто целыми днями лежит на диване у телевизора или с телефоном",
+        "uz": "Kun bo'yi divanda televizor yoki telefon bilan yotadigan odam haqida hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "potato",
+        "literal": {
+          "ru": "диванная картошка",
+          "uz": "divandagi kartoshka"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "full of yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "слишком высокого мнения о себе",
+        "uz": "o'ziga bino qo'ygan"
+      },
+      "example": "Since he won the contest, he's been so full of himself.",
+      "example_translations": {
+        "ru": "С тех пор как он выиграл конкурс, он о себе слишком высокого мнения.",
+        "uz": "Tanlovda g'olib bo'lganidan beri u o'ziga juda bino qo'yib yuribdi."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о самодовольном человеке, который думает только о себе",
+        "uz": "Faqat o'zini o'ylaydigan, takabbur odam haqida norozilik bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "full",
+        "literal": {
+          "ru": "полный самим собой",
+          "uz": "o'zi bilan to'la"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a show-off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хвастун",
+        "uz": "maqtanchoq"
+      },
+      "example": "He talks about his new phone all day. — What a show-off!",
+      "example_translations": {
+        "ru": "Он целый день говорит о своём новом телефоне. — Ну и хвастун!",
+        "uz": "U kun bo'yi yangi telefoni haqida gapiradi. — Qanday maqtanchoq-a!"
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто постоянно хвастается, чтобы им восхищались",
+        "uz": "Boshqalar havas qilishi uchun doim maqtanadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "show",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a control freak",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "человек, который хочет всё контролировать",
+        "uz": "hamma narsani nazorat qiladigan odam"
+      },
+      "example": "My boss checks every email I send. — Sounds like a real control freak.",
+      "example_translations": {
+        "ru": "Мой начальник проверяет каждое моё письмо. — Похоже, он помешан на контроле.",
+        "uz": "Rahbarim har bir xatimni tekshiradi. — Hamma narsani nazorat qiladigan odam ekan-da."
+      },
+      "hooks": {
+        "ru": "Неодобрительно говорят о том, кто не доверяет другим и хочет решать всё сам",
+        "uz": "Boshqalarga ishonmaydigan va hamma narsani o'zi hal qilmoqchi bo'lgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "control",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a party pooper",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "зануда, который портит веселье",
+        "uz": "kayfiyatni buzadigan odam"
+      },
+      "example": "Come on, stay a bit longer! Don't be a party pooper.",
+      "example_translations": {
+        "ru": "Ну останься ещё немного! Не будь занудой.",
+        "uz": "Qani, yana ozgina qol! Kayfiyatni buzma."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят тому, кто рано уходит с праздника или не хочет веселиться",
+        "uz": "Bayramdan erta ketayotgan yoki xursandchilikka qo'shilmaydigan odamga hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "pooper",
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "a drama queen",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "человек, который из всего делает драму",
+        "uz": "har narsadan fojia yasaydigan odam"
+      },
+      "example": "It's just a small scratch. Stop being such a drama queen!",
+      "example_translations": {
+        "ru": "Это всего лишь царапина. Хватит устраивать драму!",
+        "uz": "Bu shunchaki kichkina tirnalgan joy. Har narsadan fojia yasayverma!"
+      },
+      "hooks": {
+        "ru": "Шутливо или с упрёком говорят тому, кто слишком бурно реагирует на мелочи",
+        "uz": "Arzimas narsaga haddan tashqari qattiq ta'sirlanadigan odamga hazil yoki tanbeh tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "queen",
+        "literal": {
+          "ru": "королева драмы",
+          "uz": "drama malikasi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a short fuse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть вспыльчивым",
+        "uz": "tez jahli chiqmoq"
+      },
+      "example": "Be careful what you say to him; he has a short fuse.",
+      "example_translations": {
+        "ru": "Осторожнее со словами: он очень вспыльчивый.",
+        "uz": "Unga gapirganda ehtiyot bo'l: uning jahli tez chiqadi."
+      },
+      "hooks": {
+        "ru": "Предупреждают о человеке, который быстро злится из-за мелочей",
+        "uz": "Arzimas narsadan tez jahli chiqadigan odam haqida ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fuse",
+        "literal": {
+          "ru": "иметь короткий фитиль",
+          "uz": "kalta piligi bor bo'lmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "set in your ways",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "закоснеть в своих привычках",
+        "uz": "o'z odatlaridan voz kechmaydigan"
+      },
+      "example": "My grandfather is set in his ways; he won't even try a new phone.",
+      "example_translations": {
+        "ru": "Мой дедушка закоснел в своих привычках: он даже не хочет попробовать новый телефон.",
+        "uz": "Bobom o'z odatlaridan voz kechmaydi: yangi telefonni sinab ko'rishni ham istamaydi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, обычно немолодом, который не хочет ничего менять в своей жизни",
+        "uz": "Hayot tarzida hech narsani o'zgartirishni istamaydigan, odatda yoshi kattaroq odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ways",
+        "literal": {
+          "ru": "застывший на своих путях",
+          "uz": "o'z yo'llarida qotib qolgan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

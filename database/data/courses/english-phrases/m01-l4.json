@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Извинения",
+    "title_uz": "Uzr so'rash"
+  },
+  "words": [
+    {
+      "word": "I'm so sorry",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне очень жаль",
+        "uz": "juda afsusdaman"
+      },
+      "example": "I'm so sorry I'm late. The bus didn't come. — It's OK.",
+      "example_translations": {
+        "ru": "Мне очень жаль, что я опоздал. Автобус не пришёл. — Ничего.",
+        "uz": "Kechikkanim uchun juda afsusdaman. Avtobus kelmadi. — Mayli."
+      },
+      "hooks": {
+        "ru": "Искреннее извинение за ошибку или неудобство; так же выражают сочувствие",
+        "uz": "Xato yoki noqulaylik uchun samimiy uzr; hamdardlik ham shunday bildiriladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sorry",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "My bad",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "виноват",
+        "uz": "mening aybim"
+      },
+      "example": "You took my pen again! — Oops, my bad. Sorry!",
+      "example_translations": {
+        "ru": "Ты опять взял мою ручку! — Ой, виноват. Извини!",
+        "uz": "Yana ruchkamni olibsan! — Voy, mening aybim. Kechir!"
+      },
+      "hooks": {
+        "ru": "Быстро признают мелкую ошибку среди друзей; для серьёзных случаев слишком легко",
+        "uz": "Do'stlar orasida kichik xatoni tez tan olish; jiddiy holatlar uchun juda yengil"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bad",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "No worries",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не переживай",
+        "uz": "xavotir olma"
+      },
+      "example": "Sorry, I forgot to call you back. — No worries!",
+      "example_translations": {
+        "ru": "Прости, я забыл тебе перезвонить. — Не переживай!",
+        "uz": "Kechir, senga qayta qo'ng'iroq qilishni unutibman. — Xavotir olma!"
+      },
+      "hooks": {
+        "ru": "Дружеский ответ на извинение или благодарность: всё в порядке",
+        "uz": "Uzr yoki rahmatga do'stona javob: hammasi joyida"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "worries",
+        "literal": {
+          "ru": "никаких беспокойств",
+          "uz": "hech qanday tashvish yo'q"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Never mind",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "неважно",
+        "uz": "mayli, ahamiyati yo'q"
+      },
+      "example": "What did you say? — Oh, never mind. It's not important.",
+      "example_translations": {
+        "ru": "Что ты сказал? — А, неважно. Это не главное.",
+        "uz": "Nima deding? — E, mayli, ahamiyati yo'q. Bu muhim emas."
+      },
+      "hooks": {
+        "ru": "Снимают вопрос или отвечают на извинение: забудь, это мелочь",
+        "uz": "Savolni bekor qilish yoki uzrga javob: unut, bu arzimas narsa"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mind",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I apologize",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приношу свои извинения",
+        "uz": "uzr so'rayman"
+      },
+      "example": "I apologize for the delay. Your order will arrive tomorrow.",
+      "example_translations": {
+        "ru": "Приношу извинения за задержку. Ваш заказ придёт завтра.",
+        "uz": "Kechikish uchun uzr so'rayman. Buyurtmangiz ertaga yetib keladi."
+      },
+      "hooks": {
+        "ru": "Официальное извинение: в письмах, в магазине, на работе",
+        "uz": "Rasmiy uzr: xatlarda, do'konda, ishda"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "apologize",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's not your fault",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это не ваша вина",
+        "uz": "bu sizning aybingiz emas"
+      },
+      "example": "Sorry, I broke your cup. — It's not your fault. It was already cracked.",
+      "example_translations": {
+        "ru": "Прости, я разбил твою чашку. — Это не твоя вина. Она уже была треснутая.",
+        "uz": "Kechir, piyolangni sindirib qo'ydim. — Bu sening aybing emas. U allaqachon darz ketgan edi."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто извиняется за то, в чём не виноват",
+        "uz": "Aybi bo'lmagan narsa uchun uzr so'rayotgan odamni tinchlantirish uchun aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fault",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It won't happen again",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это больше не повторится",
+        "uz": "bu boshqa takrorlanmaydi"
+      },
+      "example": "You're late again, Sardor. — I'm sorry. It won't happen again.",
+      "example_translations": {
+        "ru": "Сардор, ты снова опоздал. — Простите. Это больше не повторится.",
+        "uz": "Sardor, yana kechikding. — Kechirasiz. Bu boshqa takrorlanmaydi."
+      },
+      "hooks": {
+        "ru": "Обещают исправиться после замечания учителя, начальника, родителей",
+        "uz": "O'qituvchi, rahbar yoki ota-onaning tanbehidan keyin beriladigan va'da"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "happen",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Sorry to bother you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "извините за беспокойство",
+        "uz": "bezovta qilganim uchun uzr"
+      },
+      "example": "Sorry to bother you, but is this your phone? — Oh yes, thank you!",
+      "example_translations": {
+        "ru": "Извините за беспокойство, это не ваш телефон? — Ой, да, спасибо!",
+        "uz": "Bezovta qilganim uchun uzr, bu sizning telefoningizmi? — Ha, rahmat!"
+      },
+      "hooks": {
+        "ru": "Вежливо начинают разговор с занятым или незнакомым человеком",
+        "uz": "Band yoki notanish odamga murojaat qilishdan oldin xushmuomala aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bother",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Apology accepted",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "извинения приняты",
+        "uz": "uzringiz qabul qilindi"
+      },
+      "example": "I'm sorry I shouted at you yesterday. — Apology accepted. Let's forget it.",
+      "example_translations": {
+        "ru": "Прости, что накричал на тебя вчера. — Извинения приняты. Давай забудем.",
+        "uz": "Kecha senga baqirganim uchun kechir. — Uzring qabul. Buni unutaylik."
+      },
+      "hooks": {
+        "ru": "Отвечают на извинение, когда обида была, но её прощают; звучит немного официально",
+        "uz": "Xafa bo'lgan, ammo kechirgan odam aytadi; biroz rasmiyroq eshitiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "accepted",
+        "cefr": "B1",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "No harm done",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ничего страшного",
+        "uz": "hechqisi yo'q"
+      },
+      "example": "Oh no, I stepped on your foot! — It's fine, no harm done.",
+      "example_translations": {
+        "ru": "Ой, я наступил вам на ногу! — Всё в порядке, ничего страшного.",
+        "uz": "Voy, oyog'ingizni bosib oldim! — Hammasi joyida, hechqisi yo'q."
+      },
+      "hooks": {
+        "ru": "Успокаивают извиняющегося: ничего плохого не случилось",
+        "uz": "Uzr so'rayotgan odamni tinchlantirish: hech qanday yomon narsa bo'lmadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "harm",
+        "literal": {
+          "ru": "вреда не нанесено",
+          "uz": "hech qanday zarar yetmadi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

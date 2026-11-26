@@ -108,7 +108,7 @@ final class WordTaskHandler implements TaskHandler
             $data['event'] = $event->value;
         }
 
-        return new SnapshotElement($id, $kind->value, self::withLexeme($data, $word));
+        return new SnapshotElement($id, $kind->value, self::withWordFacts($data, $word));
     }
 
     /** @param list<string> $taken */
@@ -118,7 +118,7 @@ final class WordTaskHandler implements TaskHandler
         $taken[] = $id;
         $expected = self::text($word);
 
-        return new SnapshotElement($id, TaskKind::Spell->value, self::withLexeme([
+        return new SnapshotElement($id, TaskKind::Spell->value, self::withWordFacts([
             'word_id' => $word->id(),
             'word' => $expected,
             'prompt' => self::translations($word, $locales),
@@ -142,7 +142,7 @@ final class WordTaskHandler implements TaskHandler
             }
         }
 
-        return new SnapshotElement($id, TaskKind::Gap->value, self::withLexeme([
+        return new SnapshotElement($id, TaskKind::Gap->value, self::withWordFacts([
             'word_id' => $word->id(),
             'word' => self::text($word),
             'masked' => $gap->masked,
@@ -158,13 +158,19 @@ final class WordTaskHandler implements TaskHandler
      * has one - a run of words outside the catalog (and every run started before the word points) has none and earns nothing. Never
      * projected to the client.
      *
+     * `phrase: true` - the task is made of a phrase (docs/35 §3.3 e): projected as it is, so the screen lays a phrase out without guessing
+     * by the length of the text. Only on a phrase: a word, and every task of a run started before the mark, has no key (= a word).
+     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private static function withLexeme(array $data, RunPoolWord $word): array
+    private static function withWordFacts(array $data, RunPoolWord $word): array
     {
         if ($word->word->lexemeId !== null) {
             $data['lexeme_id'] = $word->word->lexemeId;
+        }
+        if ($word->word->phrase) {
+            $data['phrase'] = true;
         }
 
         return $data;
@@ -198,6 +204,11 @@ final class WordTaskHandler implements TaskHandler
             default:
                 $projection['masked'] = (string) $element->get('masked');
                 $projection['translation'] = $this->localized($element->get('translation'), $locale);
+        }
+
+        // A phrase (docs/35 §3.3 e): the mark alone, nothing of the answer; absent on a word and on a task of an older run.
+        if ($element->get('phrase') === true) {
+            $projection['phrase'] = true;
         }
 
         $hint = $state->hintOf($element->id);

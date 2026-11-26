@@ -300,6 +300,7 @@ it('describes the active course with its progress and the next lesson with new w
         'id' => $lessons[0]->stage?->course_id,
         'slug' => Course::query()->findOrFail($lessons[0]->stage?->course_id)->slug,
         'title' => 'Английский A1',
+        'section' => 'courses',
         'progress' => ['learned' => 0, 'total' => 4],
         'next_lesson' => ['id' => $lessons[0]->id, 'stage' => 1, 'lesson' => 1, 'title' => 'Lesson 1', 'words_left' => 2],
     ]);
@@ -313,6 +314,16 @@ it('describes the active course with its progress and the next lesson with new w
         ->assertJsonPath('active_course.progress', ['learned' => 1, 'total' => 4])
         ->assertJsonPath('active_course.next_lesson.id', $lessons[1]->id)
         ->assertJsonPath('active_course.next_lesson.lesson', 2);
+});
+
+it('puts a phrase course into the section of phrases, as the catalog does, and costs no statement more', function (): void {
+    $lessons = todayCourse(1, 2, ['exam_tag' => 'phrases']);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.section', 'phrases');
+    // Warm: the same answer from the cached row of the course (its `exam_tag` is in it).
+    $warm = QueryLog::during(fn () => todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.section', 'phrases'));
+    expect(QueryLog::matching($warm, '/from ["`]courses["`]/'))->toBe([]);
 });
 
 it('reads the progress and the next lesson of the active course with ONE learner statement once the tree is warm', function (): void {

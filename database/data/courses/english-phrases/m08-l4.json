@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 8,
+    "title": "Согласие и несогласие",
+    "title_uz": "Rozilik va norozilik"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Спор и компромисс",
+    "title_uz": "Bahs va murosa"
+  },
+  "words": [
+    {
+      "word": "meet someone halfway",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти навстречу",
+        "uz": "murosaga kelmoq"
+      },
+      "example": "You want 100 dollars, I offer 60. Let's meet each other halfway — 80?",
+      "example_translations": {
+        "ru": "Вы хотите сто долларов, я предлагаю шестьдесят. Давайте пойдём друг другу навстречу — восемьдесят?",
+        "uz": "Siz yuz dollar so'rayapsiz, men oltmish taklif qilaman. Keling, murosaga kelaylik — sakson?"
+      },
+      "hooks": {
+        "ru": "Предлагают компромисс: каждый уступает немного",
+        "uz": "Murosa taklif qilishadi: har kim biroz yon beradi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "halfway",
+        "literal": {
+          "ru": "встретить кого-то на полпути",
+          "uz": "kimnidir yarim yo'lda kutib olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "agree to disagree",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "остаться каждый при своём мнении",
+        "uz": "har kim o'z fikrida qolmoq"
+      },
+      "example": "We'll never agree about football, so let's agree to disagree.",
+      "example_translations": {
+        "ru": "Мы никогда не согласимся насчёт футбола, так что останемся каждый при своём.",
+        "uz": "Futbol haqida hech qachon kelisha olmaymiz, keling, har kim o'z fikrida qolsin."
+      },
+      "hooks": {
+        "ru": "Мирно заканчивают спор, в котором никто не уступит",
+        "uz": "Hech kim yon bermaydigan bahsni tinch yakunlashadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "disagree",
+        "literal": {
+          "ru": "согласиться не соглашаться",
+          "uz": "kelishmaslikka kelishmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a point",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть в чём-то правым",
+        "uz": "gapida jon bor"
+      },
+      "example": "I don't like his idea, but he has a point.",
+      "example_translations": {
+        "ru": "Мне не нравится его идея, но в чём-то он прав.",
+        "uz": "Uning g'oyasi menga yoqmaydi, lekin gapida jon bor."
+      },
+      "hooks": {
+        "ru": "Признают, что в словах оппонента есть доля правды",
+        "uz": "Raqib gapida ham haqiqat ulushi borligini tan olishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "point",
+        "literal": {
+          "ru": "иметь точку",
+          "uz": "nuqtaga ega bo'lmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let's not argue",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давайте не будем спорить",
+        "uz": "keling, bahslashmaylik"
+      },
+      "example": "Let's not argue about it. We're both tired.",
+      "example_translations": {
+        "ru": "Давай не будем из-за этого спорить. Мы оба устали.",
+        "uz": "Keling, bu haqda bahslashmaylik. Ikkalamiz ham charchadik."
+      },
+      "hooks": {
+        "ru": "Предлагают прекратить спор, пока он не перешёл в ссору",
+        "uz": "Bahs janjalga aylanmasidan oldin uni to'xtatishni taklif qilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "argue",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "find common ground",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "найти общий язык",
+        "uz": "umumiy til topmoq"
+      },
+      "example": "The two teams finally found common ground and signed the agreement.",
+      "example_translations": {
+        "ru": "Две команды наконец нашли общий язык и подписали соглашение.",
+        "uz": "Ikki jamoa nihoyat umumiy til topib, kelishuvni imzoladi."
+      },
+      "hooks": {
+        "ru": "Говорят о поиске того, в чём обе стороны согласны",
+        "uz": "Ikki tomon ham rozi bo'lgan narsani topish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ground",
+        "literal": {
+          "ru": "найти общую землю",
+          "uz": "umumiy zamin topmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's a deal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "договорились",
+        "uz": "kelishdik"
+      },
+      "example": "I'll wash the car if you cook dinner. — It's a deal!",
+      "example_translations": {
+        "ru": "Я помою машину, если ты приготовишь ужин. — Договорились!",
+        "uz": "Agar sen kechki ovqat pishirsang, men mashinani yuvaman. — Kelishdik!"
+      },
+      "hooks": {
+        "ru": "Принимают предложение или условия сделки",
+        "uz": "Taklif yoki kelishuv shartlarini qabul qilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "deal",
+        "literal": {
+          "ru": "это сделка",
+          "uz": "bu bitim"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "give and take",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взаимные уступки",
+        "uz": "o'zaro yon berish"
+      },
+      "example": "Every friendship needs a bit of give and take.",
+      "example_translations": {
+        "ru": "Любая дружба требует взаимных уступок.",
+        "uz": "Har qanday do'stlikda biroz o'zaro yon berish kerak."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что в отношениях обе стороны должны уступать",
+        "uz": "Munosabatlarda ikki tomon ham yon berishi kerakligi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "give",
+        "literal": {
+          "ru": "давать и брать",
+          "uz": "bermoq va olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You win",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ладно, твоя взяла",
+        "uz": "mayli, sen yutding"
+      },
+      "example": "Please, just one more game! — OK, you win.",
+      "example_translations": {
+        "ru": "Ну пожалуйста, ещё одну игру! — Ладно, твоя взяла.",
+        "uz": "Iltimos, yana bitta o'yin! — Mayli, sen yutding."
+      },
+      "hooks": {
+        "ru": "Шутливо уступают в споре, устав возражать",
+        "uz": "E'tiroz bildirishdan charchab, hazil aralash yon berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "win",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "split the difference",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сойтись посередине",
+        "uz": "o'rtasida kelishmoq"
+      },
+      "example": "You say 20 minutes, I say 40. Let's split the difference — 30.",
+      "example_translations": {
+        "ru": "Ты говоришь двадцать минут, я — сорок. Давай сойдёмся посередине — тридцать.",
+        "uz": "Sen yigirma daqiqa deyapsan, men qirq. Keling, o'rtasida kelishamiz — o'ttiz."
+      },
+      "hooks": {
+        "ru": "Предлагают компромисс ровно посередине, особенно о цене или числе",
+        "uz": "Ayniqsa narx yoki son haqida aynan o'rtadagi murosani taklif qilishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "difference",
+        "literal": {
+          "ru": "поделить разницу",
+          "uz": "farqni bo'lishmoq"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "back down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отступить",
+        "uz": "chekinmoq"
+      },
+      "example": "He was wrong, but he refused to back down.",
+      "example_translations": {
+        "ru": "Он был неправ, но отказался отступить.",
+        "uz": "U noto'g'ri edi, lekin chekinishni istamadi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто уступает в споре или отказывается от требований",
+        "uz": "Bahsda yon beradigan yoki talabidan voz kechadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

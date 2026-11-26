@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 18,
+    "title": "Деловое общение",
+    "title_uz": "Ishbilarmonlik muloqoti"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Переговоры",
+    "title_uz": "Muzokaralar"
+  },
+  "words": [
+    {
+      "word": "a win-win situation",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взаимовыгодная ситуация",
+        "uz": "ikki tomon uchun ham foydali vaziyat"
+      },
+      "example": "We get a bigger order and you get a lower price — it's a win-win situation.",
+      "example_translations": {
+        "ru": "Мы получаем больший заказ, а вы — более низкую цену: это взаимовыгодно.",
+        "uz": "Biz kattaroq buyurtma olamiz, siz esa arzonroq narx — bu ikki tomon uchun ham foydali vaziyat."
+      },
+      "hooks": {
+        "ru": "Говорят о сделке или решении, от которых выигрывают обе стороны",
+        "uz": "Har ikki tomon ham yutadigan kelishuv yoki qaror haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "situation",
+        "literal": {
+          "ru": "ситуация «выигрыш-выигрыш»",
+          "uz": "«yutuq-yutuq» vaziyati"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the bottom line",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "суть дела",
+        "uz": "eng asosiysi"
+      },
+      "example": "The bottom line is that we can't pay more than ten thousand dollars.",
+      "example_translations": {
+        "ru": "Суть в том, что мы не можем заплатить больше десяти тысяч долларов.",
+        "uz": "Eng asosiysi, biz o'n ming dollardan ortiq to'lay olmaymiz."
+      },
+      "hooks": {
+        "ru": "Говорят о главном факте или итоге, особенно о деньгах; часто The bottom line is...",
+        "uz": "Asosiy fakt yoki natija, ayniqsa pul haqida aytiladi; ko'pincha The bottom line is..."
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bottom",
+        "literal": {
+          "ru": "нижняя строка",
+          "uz": "pastki qator"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "touch base",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "созвониться и свериться",
+        "uz": "bog'lanib, fikr almashmoq"
+      },
+      "example": "Let's touch base next week to discuss the prices.",
+      "example_translations": {
+        "ru": "Давайте созвонимся на следующей неделе и обсудим цены.",
+        "uz": "Keyingi hafta bog'lanib, narxlarni muhokama qilaylik."
+      },
+      "hooks": {
+        "ru": "Офисное выражение: коротко связаться с коллегой или клиентом, чтобы обменяться новостями",
+        "uz": "Ofis iborasi: yangiliklar almashish uchun hamkasb yoki mijoz bilan qisqa bog'lanish"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "base",
+        "literal": {
+          "ru": "коснуться базы",
+          "uz": "bazaga tegmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "think outside the box",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мыслить нестандартно",
+        "uz": "odatdagidan boshqacha fikrlamoq"
+      },
+      "example": "To win this client, we need to think outside the box.",
+      "example_translations": {
+        "ru": "Чтобы получить этого клиента, нам нужно мыслить нестандартно.",
+        "uz": "Bu mijozni qo'lga kiritish uchun odatdagidan boshqacha fikrlashimiz kerak."
+      },
+      "hooks": {
+        "ru": "Призывают искать новые, необычные решения вместо привычных",
+        "uz": "Odatiy yo'llar o'rniga yangi, g'ayrioddiy yechimlar izlashga undab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "box",
+        "literal": {
+          "ru": "думать за пределами коробки",
+          "uz": "qutidan tashqarida o'ylamoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "close the deal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заключить сделку",
+        "uz": "bitim tuzmoq"
+      },
+      "example": "We finally closed the deal after three months of talks.",
+      "example_translations": {
+        "ru": "После трёх месяцев переговоров мы наконец заключили сделку.",
+        "uz": "Uch oylik muzokaralardan keyin nihoyat bitim tuzdik."
+      },
+      "hooks": {
+        "ru": "Говорят об успешном завершении переговоров или продажи",
+        "uz": "Muzokara yoki savdoning muvaffaqiyatli yakunlanishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "close",
+        "literal": {
+          "ru": "закрыть сделку",
+          "uz": "bitimni yopmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a deal-breaker",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "неприемлемое условие",
+        "uz": "qabul qilib bo'lmaydigan shart"
+      },
+      "example": "A two-year contract is fine, but no holidays would be a deal-breaker for me.",
+      "example_translations": {
+        "ru": "Двухлетний контракт меня устраивает, но работа без отпуска для меня неприемлема.",
+        "uz": "Ikki yillik shartnoma ma'qul, lekin ta'tilsiz ishlash men uchun qabul qilib bo'lmaydigan shart."
+      },
+      "hooks": {
+        "ru": "Говорят об условии, из-за которого сделка или договорённость не состоится",
+        "uz": "Kelishuv amalga oshmasligiga sabab bo'ladigan shart haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "breaker",
+        "literal": {
+          "ru": "ломатель сделки",
+          "uz": "bitim buzar"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "drive a hard bargain",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жёстко торговаться",
+        "uz": "qattiq savdolashmoq"
+      },
+      "example": "You drive a hard bargain, but OK — fifteen percent discount.",
+      "example_translations": {
+        "ru": "Вы жёстко торгуетесь, но ладно — скидка пятнадцать процентов.",
+        "uz": "Qattiq savdolashar ekansiz, mayli — o'n besh foiz chegirma."
+      },
+      "hooks": {
+        "ru": "Говорят о собеседнике, который упорно добивается выгодных для себя условий",
+        "uz": "O'ziga foydali shartlarga qat'iyat bilan erishadigan suhbatdosh haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bargain",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "The ball is in your court",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "теперь ход за вами",
+        "uz": "endi navbat sizda"
+      },
+      "example": "We've sent our final offer, so the ball is in your court now.",
+      "example_translations": {
+        "ru": "Мы отправили окончательное предложение, так что теперь ход за вами.",
+        "uz": "Yakuniy taklifimizni yubordik, endi navbat sizda."
+      },
+      "hooks": {
+        "ru": "Говорят, когда своё сделали и теперь решение или действие за другой стороной",
+        "uz": "O'z ishini qilib bo'lib, endi qaror yoki harakat boshqa tomonga bog'liq bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "court",
+        "literal": {
+          "ru": "мяч на вашей половине корта",
+          "uz": "to'p sizning maydoningizda"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "come to an agreement",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прийти к соглашению",
+        "uz": "kelishuvga erishmoq"
+      },
+      "example": "After a long meeting, both sides came to an agreement.",
+      "example_translations": {
+        "ru": "После долгой встречи обе стороны пришли к соглашению.",
+        "uz": "Uzoq uchrashuvdan keyin ikki tomon kelishuvga erishdi."
+      },
+      "hooks": {
+        "ru": "Говорят об успешном итоге переговоров или спора",
+        "uz": "Muzokara yoki bahsning muvaffaqiyatli yakuni haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "agreement",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "put something on the table",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вынести на обсуждение",
+        "uz": "muhokamaga qo'ymoq"
+      },
+      "example": "The supplier has put a new offer on the table.",
+      "example_translations": {
+        "ru": "Поставщик вынес на обсуждение новое предложение.",
+        "uz": "Yetkazib beruvchi yangi taklifni muhokamaga qo'ydi."
+      },
+      "hooks": {
+        "ru": "Говорят о предложении или идее, которую официально предлагают обсудить",
+        "uz": "Rasman muhokama qilishga taklif etilgan taklif yoki g'oya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "table",
+        "literal": {
+          "ru": "положить что-то на стол",
+          "uz": "nimanidir stolga qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

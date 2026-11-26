@@ -4927,6 +4927,108 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `buttons.cup_duel_open` | ⚔️ Chaqiruvni ochish | ⚔️ Открыть вызов |
 | `buttons.cup_duel_play` | ⚔️ Duelga | ⚔️ К дуэли |
 
+## Выпуск 6 · дуэли кубка: экраны Mini App (docs/33 D2, 26.11.2026) — на проверку носителю
+
+Блок «Дуэли» на экране кубка, список дуэлей, вызов, экран вызова и ожидания. Термины — как у ЛС бота (D2): «duel», «chaqiruv» (вызов), «hisobli duel» / «Hisobli» (зачётная), «o'rtoqlik o'yini» / «O'rtoqlik» (товарищеский матч), «raqib» (соперник), «o'yin» (матч). Числа, лимиты и время — с сервера. Носителю проверить: «{name}ni chaqirasizmi?» (рус. «Вызвать {name}?» — аффикс после имени), «Kun hisobingizga» (рус. «Вам в зачёт дня»), «xonaga o'z vaqtida kirilmadi» (рус. «в комнату не зашли вовремя»), «{time} gacha» (рус. «до {time}»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.duel.title` | Duel | Дуэль |
+| `cup.duel.off_title` | Duellar mavjud emas | Дуэли недоступны |
+| `cup.duel.open_cup` | Kubokni ochish | Открыть кубок |
+| `cup.duel.anybody` | Guruhning istalgan ishtirokchisi | Любой участник группы |
+| `cup.duel.versus` | qarshi | против |
+| `cup.duel.time_left` | Qoldi | Осталось |
+| `cup.duel.waiting_hint` | Raqib chaqiruvni qabul qilishi bilan darhol o'yinga o'tasiz. Bu ekranni yopmang. | Как только соперник примет вызов, вы сразу перейдёте в матч. Не закрывайте этот экран. |
+| `cup.duel.to_match_hint` | Chaqiruv qabul qilindi — o'yinga o'tyapmiz. | Вызов принят — переходим в матч. |
+| `cup.duel.to_match` | O'yinga | В матч |
+| `cup.duel.my_points` | Kun hisobingizga: {points} | Вам в зачёт дня: {points} |
+| `cup.duel.list_title` | Kubok duellari | Дуэли кубка |
+| `cup.duel.accept` | Qabul qilish | Принять |
+| `cup.duel.decline` | Rad etish | Отклонить |
+| `cup.duel.cancel` | Chaqiruvni bekor qilish | Отменить вызов |
+| `cup.duel.challenge` | Duelga chaqirish | Вызвать на дуэль |
+| `cup.duel.open_mine` | Chaqiruvimni ochish | Открыть мой вызов |
+| `cup.duel.until` | {time} gacha | до {time} |
+| `cup.duel.empty` | Hozircha chaqiruvlar yo'q. | Пока вызовов нет. |
+| `cup.duel.group.incoming` | Menga chaqiruvlar | Вызовы мне |
+| `cup.duel.group.open` | Guruhdagi hammaga chaqiruvlar | Вызовы всем в группе |
+| `cup.duel.group.mine` | Mening chaqiruvim | Мой вызов |
+| `cup.duel.group.today` | Bugungi duellarim | Мои дуэли сегодня |
+| `cup.duel.challenges_left.one/other` | Bugun yana {count} ta chaqiruv yuborish mumkin | Сегодня можно отправить ещё {count} вызов / Сегодня можно отправить ещё {count} вызова / Сегодня можно отправить ещё {count} вызовов |
+| `cup.duel.incoming_count.one/other` | Sizga {count} ta chaqiruv | {count} вызов вам / {count} вызова вам / {count} вызовов вам |
+| `cup.duel.block_title` | Duellar | Дуэли |
+| `cup.duel.block_waiting` | Chaqiruvingiz raqibni kutmoqda. | Ваш вызов ждёт соперника. |
+| `cup.duel.block_rated` | Hisobli duel — har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta. | Зачётная дуэль — очко кубка за каждый свой верный ответ. Одна в день. |
+| `cup.duel.block_rated_played` | Bugungi hisobli duel o'ynalgan — o'rtoqlik o'yinini o'ynash mumkin. | Зачётная дуэль сегодня уже сыграна — можно сыграть товарищеский матч. |
+| `cup.duel.kind.rated` | Hisobli | Зачётная |
+| `cup.duel.kind.friendly` | O'rtoqlik | Товарищеская |
+| `cup.duel.kind.rated_hint` | Har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta hisobli duel. | Очко кубка за каждый свой верный ответ. Одна зачётная дуэль в день. |
+| `cup.duel.kind.friendly_hint` | Kubok ballarisiz. Free tarifida chaqirgan kishining kunlik bepul o'yinlaridan birini sarflaydi. | Без очков кубка. На тарифе Free тратит одну из бесплатных игр дня у того, кто вызвал. |
+| `cup.duel.state.open` | Chaqiruv javob kutmoqda | Вызов ждёт ответа |
+| `cup.duel.state.accepted` | Chaqiruv qabul qilindi | Вызов принят |
+| `cup.duel.state.waiting` | Raqibni kutyapmiz | Ждём соперника |
+| `cup.duel.state.open_to_all` | {name} guruhdagi hammani chaqirmoqda | {name} вызывает всех в группе |
+| `cup.duel.state.challenged` | {name} sizni duelga chaqirmoqda | {name} вызывает вас на дуэль |
+| `cup.duel.state.done` | Duel o'ynaldi | Дуэль сыграна |
+| `cup.duel.state.not_played` | Duel bo'lmadi | Дуэль не состоялась |
+| `cup.duel.outcome.done_rated` | To'g'ri javoblar uchun ballar kun hisobiga qo'shildi. | Очки за верные ответы пошли в зачёт дня. |
+| `cup.duel.outcome.done_friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel.outcome.done_cup_closed` | Kubok allaqachon yakunlangan — ballar berilmadi. | Кубок уже завершился — очки не начислены. |
+| `cup.duel.outcome.void` | O'yin bo'lmadi: xonaga o'z vaqtida kirilmadi, javoblar bo'lmadi. Qayta chaqirish mumkin. | Матч не состоялся: в комнату не зашли вовремя, ответов не было. Можно вызвать снова. |
+| `cup.duel.outcome.void_material` | O'yin bo'lmadi: topshiriqlar uchun so'zlar yetmadi. | Матч не состоялся: не хватило слов для заданий. |
+| `cup.duel.outcome.void_battle_gone` | O'yin to'xtab qoldi. Qayta chaqirish mumkin. | Матч прервался. Можно вызвать снова. |
+| `cup.duel.outcome.declined` | Raqib chaqiruvni rad etdi. | Соперник отклонил вызов. |
+| `cup.duel.outcome.declined_by_me` | Siz chaqiruvni rad etdingiz. | Вы отклонили вызов. |
+| `cup.duel.outcome.expired` | Hech kim chaqiruvni o'z vaqtida qabul qilmadi. | Никто не принял вызов вовремя. |
+| `cup.duel.outcome.cup_over` | Kubok kuni tugadi — chaqiruv yopildi. | День кубка закончился — вызов закрыт. |
+| `cup.duel.outcome.canceled` | Chaqiruv bekor qilindi. | Вызов отменён. |
+| `cup.duel.outcome.canceled_by_me` | Siz chaqiruvni bekor qildingiz. | Вы отменили вызов. |
+| `cup.duel.outcome.canceled_left` | Chaqiruv bekor qilindi: o'yinchi guruhdan chiqib ketdi. | Вызов отменён: игрок вышел из группы. |
+| `cup.duel.outcome.canceled_limit` | Chaqiruv bekor qilindi: chaqirgan kishining bugungi bepul o'yinlari tugadi. | Вызов отменён: у того, кто вызвал, закончились бесплатные игры на сегодня. |
+| `cup.duel.outcome.cup_closed` | Kubok yakunlandi — chaqiruv yopildi. | Кубок завершился — вызов закрыт. |
+| `cup.duel.outcome.taken` | Chaqiruv allaqachon qabul qilingan. | Вызов уже принят. |
+| `cup.duel.reason.left` | Siz guruhdan chiqqansiz — duellar mavjud emas. | Вы вышли из группы — дуэли недоступны. |
+| `cup.duel.reason.paused` | Kubok to'xtatilgan — hozir duelga chaqirib bo'lmaydi. | Кубок на паузе — вызывать на дуэль сейчас нельзя. |
+| `cup.duel.reason.not_started` | Duellar kubok bilan birga boshlanadi. | Дуэли начнутся вместе с кубком. |
+| `cup.duel.reason.not_running` | Duellar faqat kubok davom etayotganda. | Дуэли — только пока идёт кубок. |
+| `cup.duel.reason.no_challenges` | Bugungi chaqiruvlar tugadi. | Вызовы на сегодня закончились. |
+| `cup.duel.reason.other` | Bugun duelga chaqirib bo'lmaydi. | Сегодня вызвать на дуэль нельзя. |
+| `cup.duel.failure.disabled` | Kubok duellari hozircha mavjud emas. | Дуэли кубка сейчас недоступны. |
+| `cup.duel.failure.not_found` | Chaqiruv topilmadi. | Вызов не найден. |
+| `cup.duel.failure.unavailable` | Hozir buni qilib bo'lmaydi: ishtirokchi duel uchun mavjud emas. | Сейчас это сделать нельзя: участник недоступен для дуэли. |
+| `cup.duel.failure.not_recipient` | Bu chaqiruv sizga emas. | Этот вызов адресован не вам. |
+| `cup.duel.failure.closed` | Chaqiruv allaqachon yopilgan. | Вызов уже закрыт. |
+| `cup.duel.failure.own` | Bu sizning chaqiruvingiz — uni raqib qabul qiladi. | Это ваш вызов — его примет соперник. |
+| `cup.duel.failure.already_open` | Sizda ochiq chaqiruv allaqachon bor. | У вас уже есть открытый вызов. |
+| `cup.duel.failure.rating_changed` | Chaqiruv shartlari o'zgardi. Tekshiring va yana qabul qiling. | Условия вызова изменились. Проверьте и примите ещё раз. |
+| `cup.duel.failure.rating_changed_rated` | Chaqiruv shartlari o'zgardi: endi bu hisobli duel. Tekshiring va yana qabul qiling. | Условия вызова изменились: теперь это зачётная дуэль. Проверьте и примите ещё раз. |
+| `cup.duel.failure.rating_changed_friendly` | Chaqiruv shartlari o'zgardi: endi bu kubok ballarisiz o'rtoqlik o'yini. Tekshiring va yana qabul qiling. | Условия вызова изменились: теперь это товарищеский матч без очков кубка. Проверьте и примите ещё раз. |
+| `cup.duel.failure.limit` | Bugungi chaqiruvlar chegarasi tugadi. | Лимит вызовов на сегодня исчерпан. |
+| `cup.duel.failure.limit_daily.one/other` | Bugun ko'pi bilan {count} ta chaqiruv yuborish mumkin. | Сегодня можно отправить не больше {count} вызова. / Сегодня можно отправить не больше {count} вызовов. |
+| `cup.duel.failure.limit_pair.one/other` | Bitta ishtirokchiga kuniga ko'pi bilan {count} ta chaqiruv. | Одному участнику — не больше {count} вызова в день. / Одному участнику — не больше {count} вызовов в день. |
+| `cup.duel.failure.limit_public_participant.one/other` | Guruhdagi hammaga chaqiruv — kuniga ko'pi bilan {count} ta. Ishtirokchini shaxsan chaqiring. | Вызовов всем в группе — не больше {count} в день. Вызовите участника лично. |
+| `cup.duel.failure.limit_public_chat.one/other` | Guruhda bugun hammaga {count} ta chaqiruv bo'ldi — boshqa mumkin emas. Ishtirokchini shaxsan chaqiring. | В группе сегодня уже {count} вызов всем — больше нельзя. Вызовите участника лично. / В группе сегодня уже {count} вызова всем — больше нельзя. Вызовите участника лично. / В группе сегодня уже {count} вызовов всем — больше нельзя. Вызовите участника лично. |
+| `cup.duel.failure.opponent_busy` | Raqib hozir boshqa o'yinda. Birozdan keyin urinib ko'ring. | Соперник сейчас в другом матче. Попробуйте чуть позже. |
+| `cup.duel.failure.self` | O'zingizni chaqirib bo'lmaydi. | Нельзя вызвать самого себя. |
+| `cup.duel.failure.mode_invalid` | Bu format duel uchun mos emas. | Этот формат не подходит для дуэли. |
+| `cup.duel.failure.battle_busy` | Sizda allaqachon o'yin bor. Chaqiruvni qabul qilish uchun uni yakunlang. | У вас уже идёт матч. Завершите его, чтобы принять вызов. |
+| `cup.duel.failure.not_participant` | Duellar kubok ishtirokchilari uchun. Guruhdagi havola orqali kubokka qo'shiling. | Дуэли — для участников кубка. Вступите в кубок по ссылке из группы. |
+| `cup.duel.new.title` | Duelga chaqiruv | Вызов на дуэль |
+| `cup.duel.new.whom` | Kimni chaqirish | Кого вызвать |
+| `cup.duel.new.public` | Guruhdagi hammani | Всех в группе |
+| `cup.duel.new.public_hint` | Chaqiruv guruh chatida chiqadi, uni kubokning istalgan ishtirokchisi qabul qilishi mumkin | Вызов появится в чате группы, принять может любой участник кубка |
+| `cup.duel.new.no_candidates` | Kubokda hozircha boshqa ishtirokchilar yo'q — guruhdagi hammani chaqiring. | В кубке пока нет других участников — вызовите всех в группе. |
+| `cup.duel.new.kind` | Duel turi | Вид дуэли |
+| `cup.duel.new.rated_note` | Agar raqib bugun hisobli duelni o'ynagan bo'lsa, bu o'rtoqlik o'yini bo'ladi. | Если соперник уже сыграл зачётную дуэль сегодня, это будет товарищеский матч. |
+| `cup.duel.new.next` | Keyingi | Далее |
+| `cup.duel.new.confirm_public` | Guruhdagi hammani chaqirasizmi? | Вызвать всех в группе? |
+| `cup.duel.new.confirm_personal` | {name}ni chaqirasizmi? | Вызвать {name}? |
+| `cup.duel.new.confirm_public_text` | Bot chaqiruvni guruh chatida e'lon qiladi. Chaqiruv javobni cheklangan vaqt kutadi — ekranda taymer bo'ladi. | Бот опубликует вызов в чате группы. Вызов ждёт ответа ограниченное время — на экране будет таймер. |
+| `cup.duel.new.confirm_personal_text` | Raqib chaqiruvni kubokda ko'radi, bot unga shaxsiy xabar yozadi. Chaqiruv javobni cheklangan vaqt kutadi — ekranda taymer bo'ladi. | Соперник увидит вызов в кубке, бот напишет ему в личные сообщения. Вызов ждёт ответа ограниченное время — на экране будет таймер. |
+| `cup.duel.new.send` | Chaqiruvni yuborish | Отправить вызов |
+| `cup.duel.new.back` | Orqaga | Назад |
+
 ## Выпуск 5 · кубок друзей в группе: экраны Mini App (docs/33 K8, 25.11.2026) — на проверку носителю
 
 Экраны приглашения, кубка, раунда дня, настройки и «Мои кубки», карточка на «Bugun» и строка в профиле. Термины те же, что у бота (K6): «kubok», «Do'stlar kubogi», «raund», «ball», «ishtirokchi», «jadval», «daraja»; «{brand}» — название продукта (Muhrla). Числа, даты и время — с сервера. Носителю проверить: «O'ynayapman: {group}» (рус. «Играю за: …»), «chiqib ketgan» как пометку в таблице (рус. «вышел(а)»), «xato yozilgan javob» (рус. «ответ с опечаткой»), «{total} tadan {correct}» (рус. «Верно: 7 из 10»).

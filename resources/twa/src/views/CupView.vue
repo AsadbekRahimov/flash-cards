@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import CupDuelBlock from '@/components/cup/CupDuelBlock.vue'
 import CupRules from '@/components/cup/CupRules.vue'
 import CupStandings from '@/components/cup/CupStandings.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
@@ -19,6 +20,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { useCupBoardStore } from '@/stores/cupBoard'
+import { useCupDuelsStore } from '@/stores/cupDuels'
 import { useCupsStore } from '@/stores/cups'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
@@ -47,6 +49,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const boards = useCupBoardStore()
 const cups = useCupsStore()
+const duels = useCupDuelsStore()
 const today = useTodayStore()
 const { haptic } = useTelegram()
 const { t, tn, locale } = useI18n()
@@ -65,13 +68,22 @@ async function load(): Promise<void> {
     authError.value = t('error.generic')
     return
   }
-  if (!left) await boards.load(props.id)
+  if (left) return
+  const board = await boards.load(props.id)
+  if (!left && board?.me?.duel && !duels.off) void duels.load(props.id)
 }
 
 const data = computed(() => (board.value !== null && board.value.cup.id === props.id ? board.value : null))
 const cup = computed(() => data.value?.cup ?? null)
 const me = computed(() => data.value?.me ?? null)
 const myRow = computed(() => data.value?.standings.find((row) => row.me) ?? null)
+
+/**
+ * The duels (docs/04 A.23d): while `me.duel` comes and the duels have not answered "off" in this session. The counter of the challenges
+ * to me is the list (read beside the table, best effort; nothing is asked again once the duels said "off").
+ */
+const duelAvailability = computed(() => (duels.off ? null : (me.value?.duel ?? null)))
+const incomingDuels = computed((): number | null => (duels.list !== null && duels.cupId === props.id ? duels.incomingCount : null))
 
 type ViewState = 'loading' | 'ready' | 'unavailable' | 'off' | 'error'
 
@@ -331,6 +343,8 @@ onBeforeUnmount(() => {
           </button>
         </template>
       </section>
+
+      <CupDuelBlock v-if="duelAvailability && data" :cup-id="id" :availability="duelAvailability" :board="data" :incoming="incomingDuels" />
 
       <CupStandings :title="t('cup.table.title')" :rows="data.standings" />
 

@@ -128,7 +128,7 @@ export const useCupDuelStore = defineStore('cupDuel', {
     },
 
     /** Reads the duel (the first time, and after a refused action that made what is shown out of date). */
-    async read(generation: number = this.generation): Promise<void> {
+    async read(generation: number): Promise<void> {
       const cupId = this.cupId
       const duelId = this.duelId
       if (cupId === null || duelId === null) return

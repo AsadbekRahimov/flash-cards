@@ -10,6 +10,7 @@ use App\Domain\Billing\Services\LearnerBillingService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\Scoring\ScoreTodayService;
 use App\Domain\Engagement\Services\StreakFreezeService;
@@ -314,6 +315,8 @@ final class TodayService
             // The readiness comes from the counts of the statement above; the quiz line rode in the statement of scalars.
             readiness: $this->readiness->enabled() ? $this->readiness->fromCounts($course, $today->stages) : null,
             quiz: $quiz,
+            // From the row of the course already read (cached): no statement.
+            section: Phrase::sectionOf($course->exam_tag),
         );
     }
 

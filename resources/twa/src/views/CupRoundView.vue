@@ -132,7 +132,8 @@ const timerLow = computed((): boolean => leftMs.value <= 60_000)
 watch(
   () => status.value === 'playing' && round.value !== null && leftMs.value <= -EXPIRY_GRACE_MS,
   (over) => {
-    if (over) void store.checkExpiry()
+    // Never after the screen is left: the store is reset then, and a late tick must not ask about an attempt nobody looks at.
+    if (over && !left) void store.checkExpiry()
   },
 )
 

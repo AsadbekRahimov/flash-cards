@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 11,
+    "title": "Люди и отношения",
+    "title_uz": "Odamlar va munosabatlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Хорошие черты",
+    "title_uz": "Yaxshi fazilatlar"
+  },
+  "words": [
+    {
+      "word": "a heart of gold",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "золотое сердце",
+        "uz": "ko'ngli oq, mehribon odam"
+      },
+      "example": "My grandmother has a heart of gold; she helps everyone on our street.",
+      "example_translations": {
+        "ru": "У моей бабушки золотое сердце: она помогает всем на нашей улице.",
+        "uz": "Buvimning ko'ngli juda oq: ko'chamizdagi hammaga yordam beradi."
+      },
+      "hooks": {
+        "ru": "Хвалят очень доброго, отзывчивого человека, который всем помогает",
+        "uz": "Hammaga yordam beradigan juda mehribon odamni maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "gold",
+        "literal": {
+          "ru": "сердце из золота",
+          "uz": "oltindan yasalgan yurak"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "down to earth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "простой, без звёздной болезни",
+        "uz": "kamtar va oddiy"
+      },
+      "example": "He's a famous doctor, but he's really down to earth.",
+      "example_translations": {
+        "ru": "Он известный врач, но очень простой в общении.",
+        "uz": "U mashhur shifokor, lekin juda kamtar va oddiy."
+      },
+      "hooks": {
+        "ru": "Говорят об известном или успешном человеке, который ведёт себя просто, без высокомерия",
+        "uz": "Mashhur yoki muvaffaqiyatli bo'lsa ham, o'zini oddiy tutadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "earth",
+        "literal": {
+          "ru": "до самой земли",
+          "uz": "yergacha"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "easy-going",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "покладистый, лёгкий в общении",
+        "uz": "xushfe'l va bosiq"
+      },
+      "example": "My new roommate is very easy-going, so we never argue.",
+      "example_translations": {
+        "ru": "Мой новый сосед по комнате очень покладистый, так что мы никогда не спорим.",
+        "uz": "Yangi xonadoshim juda xushfe'l, shuning uchun hech qachon tortishmaymiz."
+      },
+      "hooks": {
+        "ru": "Говорят о спокойном человеке, с которым легко ладить",
+        "uz": "Xotirjam va til topishish oson bo'lgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "going",
+        "literal": {
+          "ru": "легко идущий",
+          "uz": "oson yuradigan"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a good sport",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "человек, который не обижается на шутки",
+        "uz": "hazilni ko'tara oladigan odam"
+      },
+      "example": "We played a joke on Aziz, and he laughed with us. — He's such a good sport!",
+      "example_translations": {
+        "ru": "Мы подшутили над Азизом, и он смеялся вместе с нами. — Он совсем не обидчивый!",
+        "uz": "Azizga hazil qildik, u ham biz bilan birga kuldi. — U hazilni ko'tara oladigan yigit-da!"
+      },
+      "hooks": {
+        "ru": "Хвалят того, кто спокойно принимает шутки над собой или проигрыш",
+        "uz": "O'zi ustidan qilingan hazilni yoki yutqazishni xotirjam qabul qiladigan odamni maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sport",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a people person",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "общительный человек",
+        "uz": "kirishimli odam"
+      },
+      "example": "Malika is a real people person, so she loves working with customers.",
+      "example_translations": {
+        "ru": "Малика очень общительная, поэтому ей нравится работать с клиентами.",
+        "uz": "Malika juda kirishimli, shuning uchun mijozlar bilan ishlash unga yoqadi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который любит общаться и легко находит общий язык с людьми",
+        "uz": "Odamlar bilan muloqotni yaxshi ko'radigan, tez til topishadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "people",
+        "literal": {
+          "ru": "человек людей",
+          "uz": "odamlar odami"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a born leader",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прирождённый лидер",
+        "uz": "tug'ma yetakchi"
+      },
+      "example": "Even at school, Sardor was a born leader.",
+      "example_translations": {
+        "ru": "Ещё в школе Сардор был прирождённым лидером.",
+        "uz": "Sardor maktabdayoq tug'ma yetakchi edi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, за которым другие идут сами собой",
+        "uz": "Boshqalar o'z-o'zidan ergashadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "born",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a good listener",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "человек, который умеет слушать",
+        "uz": "tinglashni biladigan odam"
+      },
+      "example": "You can tell Anna anything; she's a good listener.",
+      "example_translations": {
+        "ru": "Анне можно рассказать всё что угодно: она умеет слушать.",
+        "uz": "Annaga hamma narsani aytsa bo'ladi: u tinglashni biladi."
+      },
+      "hooks": {
+        "ru": "Хвалят человека, который внимательно слушает и не перебивает",
+        "uz": "Diqqat bilan tinglaydigan, gapni bo'lmaydigan odamni maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "listener",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "keep your word",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдержать слово",
+        "uz": "so'zida turmoq"
+      },
+      "example": "He said he would help us move, and he kept his word.",
+      "example_translations": {
+        "ru": "Он сказал, что поможет нам с переездом, и сдержал слово.",
+        "uz": "U ko'chishimizda yordam berishini aytgan edi va so'zida turdi."
+      },
+      "hooks": {
+        "ru": "Говорят о надёжном человеке, который делает то, что обещал",
+        "uz": "Va'da qilganini bajaradigan ishonchli odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "word",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a breath of fresh air",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "глоток свежего воздуха",
+        "uz": "toza havodek yoqimli yangilik"
+      },
+      "example": "Our new teacher is a breath of fresh air; her lessons are never boring.",
+      "example_translations": {
+        "ru": "Наша новая учительница — как глоток свежего воздуха: её уроки никогда не бывают скучными.",
+        "uz": "Yangi o'qituvchimiz xuddi toza havodek: uning darslari hech qachon zerikarli bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят о новом человеке или идее, которые приятно отличаются от привычного",
+        "uz": "Odatdagidan yoqimli tarzda farq qiladigan yangi odam yoki g'oya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "breath",
+        "literal": {
+          "ru": "вдох свежего воздуха",
+          "uz": "toza havodan bir nafas"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "the life and soul of the party",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "душа компании",
+        "uz": "davraning guli"
+      },
+      "example": "Uncle Rustam is always the life and soul of the party.",
+      "example_translations": {
+        "ru": "Дядя Рустам всегда душа компании.",
+        "uz": "Rustam tog'a doim davraning guli."
+      },
+      "hooks": {
+        "ru": "Говорят о весёлом человеке, с которым всем интересно на празднике",
+        "uz": "Bayram va yig'inlarda hammani xursand qiladigan quvnoq odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "soul",
+        "literal": {
+          "ru": "жизнь и душа вечеринки",
+          "uz": "ziyofatning hayoti va joni"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

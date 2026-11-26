@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 17,
+    "title": "Успех и неудача",
+    "title_uz": "Muvaffaqiyat va omadsizlik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Неудача",
+    "title_uz": "Omadsizlik"
+  },
+  "words": [
+    {
+      "word": "fall through",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сорваться",
+        "uz": "barbod bo'lmoq"
+      },
+      "example": "We wanted to buy the flat, but the deal fell through at the last minute.",
+      "example_translations": {
+        "ru": "Мы хотели купить квартиру, но сделка сорвалась в последний момент.",
+        "uz": "Kvartirani sotib olmoqchi edik, lekin kelishuv so'nggi daqiqada barbod bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о плане, сделке или поездке, которые не состоялись",
+        "uz": "Amalga oshmay qolgan reja, kelishuv yoki sayohat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "through",
+        "literal": {
+          "ru": "провалиться сквозь",
+          "uz": "orasidan tushib ketmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "back to square one",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё с нуля",
+        "uz": "yana boshlang'ich nuqtaga"
+      },
+      "example": "The client rejected our design, so we're back to square one.",
+      "example_translations": {
+        "ru": "Клиент отклонил наш дизайн, так что начинаем всё с нуля.",
+        "uz": "Mijoz dizaynimizni rad etdi, endi yana boshlang'ich nuqtadamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда после неудачи приходится начинать всё сначала",
+        "uz": "Muvaffaqiyatsizlikdan keyin hammasini qaytadan boshlashga to'g'ri kelganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "square",
+        "literal": {
+          "ru": "обратно на первую клетку",
+          "uz": "birinchi katakka qaytish"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a dead end",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тупик",
+        "uz": "boshi berk ko'cha"
+      },
+      "example": "This job is a dead end — there's no chance of promotion.",
+      "example_translations": {
+        "ru": "Эта работа — тупик: никаких шансов на повышение.",
+        "uz": "Bu ish — boshi berk ko'cha: lavozim ko'tarilishiga imkon yo'q."
+      },
+      "hooks": {
+        "ru": "Говорят о работе, плане или поиске, у которых нет продолжения и будущего",
+        "uz": "Davomi va kelajagi yo'q ish, reja yoki izlanish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "dead",
+        "literal": {
+          "ru": "мёртвый конец",
+          "uz": "o'lik uch"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "miss the boat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "упустить шанс",
+        "uz": "fursatni boy bermoq"
+      },
+      "example": "Tickets sold out in an hour — if you didn't book early, you missed the boat.",
+      "example_translations": {
+        "ru": "Билеты раскупили за час — кто не забронировал заранее, упустил шанс.",
+        "uz": "Chiptalar bir soatda sotilib ketdi — oldindan band qilmagan fursatni boy berdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто опоздал и потерял выгодную возможность",
+        "uz": "Kechikib, qulay imkoniyatni qo'ldan chiqargan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "boat",
+        "literal": {
+          "ru": "опоздать на лодку",
+          "uz": "qayiqqa ulgurmay qolmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go down the drain",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти коту под хвост",
+        "uz": "zoye ketmoq"
+      },
+      "example": "Three months of work went down the drain when my laptop broke.",
+      "example_translations": {
+        "ru": "Три месяца работы пошли коту под хвост, когда сломался мой ноутбук.",
+        "uz": "Noutbukim buzilganda uch oylik mehnatim zoye ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят о труде, деньгах или времени, потраченных впустую",
+        "uz": "Behuda ketgan mehnat, pul yoki vaqt haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "drain",
+        "literal": {
+          "ru": "уйти в сток",
+          "uz": "oqova quvuriga oqib ketmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "fall flat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не произвести впечатления",
+        "uz": "kutilgan taassurot qoldirmaslik"
+      },
+      "example": "His joke fell flat — nobody laughed.",
+      "example_translations": {
+        "ru": "Его шутка не удалась — никто не засмеялся.",
+        "uz": "Uning hazili kutilgan taassurot qoldirmadi — hech kim kulmadi."
+      },
+      "hooks": {
+        "ru": "Говорят о шутке, речи или идее, которая не вызвала ожидаемой реакции",
+        "uz": "Kutilgan ta'sirni bermagan hazil, nutq yoki g'oya haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "flat",
+        "literal": {
+          "ru": "упасть плашмя",
+          "uz": "yassi yiqilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "hit a brick wall",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "упереться в стену",
+        "uz": "to'siqqa duch kelmoq"
+      },
+      "example": "Our search for a cheaper supplier hit a brick wall.",
+      "example_translations": {
+        "ru": "Наш поиск более дешёвого поставщика упёрся в стену.",
+        "uz": "Arzonroq yetkazib beruvchini qidirishimiz to'siqqa duch keldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дело встало из-за препятствия, которое не обойти",
+        "uz": "Ish yengib bo'lmaydigan to'siq tufayli to'xtab qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wall",
+        "literal": {
+          "ru": "удариться о кирпичную стену",
+          "uz": "g'isht devorga urilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a lost cause",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "безнадёжное дело",
+        "uz": "umidsiz ish"
+      },
+      "example": "Trying to get my brother to tidy his room is a lost cause.",
+      "example_translations": {
+        "ru": "Пытаться заставить брата убрать в комнате — безнадёжное дело.",
+        "uz": "Ukamni xonasini yig'ishtirishga majburlash — umidsiz ish."
+      },
+      "hooks": {
+        "ru": "Говорят о деле или человеке, где все усилия бесполезны; часто с иронией",
+        "uz": "Har qancha urinish foydasiz bo'lgan ish yoki odam haqida aytiladi; ko'pincha kinoya bilan"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lost",
+        "literal": {
+          "ru": "потерянное дело",
+          "uz": "yo'qotilgan ish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go up in smoke",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти прахом",
+        "uz": "puchga chiqmoq"
+      },
+      "example": "When the company closed, all his plans for promotion went up in smoke.",
+      "example_translations": {
+        "ru": "Когда компания закрылась, все его планы на повышение пошли прахом.",
+        "uz": "Kompaniya yopilgach, lavozim haqidagi barcha rejalari puchga chiqdi."
+      },
+      "hooks": {
+        "ru": "Говорят о планах и надеждах, которые разом исчезли",
+        "uz": "Birdaniga yo'qqa chiqqan rejalar va umidlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "smoke",
+        "literal": {
+          "ru": "подняться дымом",
+          "uz": "tutun bo'lib ko'tarilmoq"
+        },
+        "cefr": "C1",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "a recipe for disaster",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "верный путь к катастрофе",
+        "uz": "falokatga olib boradigan yo'l"
+      },
+      "example": "Cooking a new dish for twenty guests is a recipe for disaster.",
+      "example_translations": {
+        "ru": "Готовить новое блюдо на двадцать гостей — верный путь к катастрофе.",
+        "uz": "Yigirma mehmonga yangi taom pishirish — falokatga olib boradigan yo'l."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что такой план почти наверняка закончится плохо",
+        "uz": "Bunday reja deyarli aniq yomon tugashi haqida ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "recipe",
+        "literal": {
+          "ru": "рецепт катастрофы",
+          "uz": "falokat retsepti"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    }
+  ]
+}

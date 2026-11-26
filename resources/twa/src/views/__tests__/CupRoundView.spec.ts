@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupRoundView from '../CupRoundView.vue'
@@ -8,6 +8,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useCupBoardStore } from '@/stores/cupBoard'
+import { useCupRoundStore } from '@/stores/cupRound'
 import { useCupsStore } from '@/stores/cups'
 import { useTodayStore } from '@/stores/today'
 import { cupBoard, cupRound, cupTask, finishedRound } from '@/api/__tests__/cupFixtures'
@@ -97,6 +98,10 @@ beforeEach(() => {
   setLocale('ru')
   document.body.innerHTML = ''
 })
+
+// Every screen of a test is unmounted after it: a round left on screen would keep its clock (`useNow`) ticking into the next test, and
+// a test that moves the clock would make it read its attempt there.
+enableAutoUnmount(afterEach)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -386,6 +391,53 @@ describe('CupRoundView: the time of the server', () => {
     expect(api.cups.round).toHaveBeenCalledTimes(1)
     expect(status(r)).toBe('summary')
     expect(tid(r, 'summary-title').text()).toBe('Время вышло')
+  })
+})
+
+describe('CupRoundView: leaving before the time is up', () => {
+  it('no read of the attempt after the screen is left, however far the clock moves', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    vi.setSystemTime(new Date('2026-12-02T10:00:00.000Z'))
+    const r = await started()
+
+    r.wrapper.unmount()
+    vi.advanceTimersByTime(15 * 60 * 1000)
+    await flushPromises()
+
+    expect(api.cups.round).not.toHaveBeenCalled()
+  })
+
+  it('the read after the deadline comes back after the screen is left: dropped, nothing thrown', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    vi.setSystemTime(new Date('2026-12-02T10:00:00.000Z'))
+    const r = await started()
+    let reply!: (round: CupRound) => void
+    vi.mocked(api.cups.round).mockReturnValue(new Promise((yes) => (reply = yes)))
+
+    vi.advanceTimersByTime(10 * 60 * 1000 + 2500)
+    await flushPromises()
+    expect(api.cups.round).toHaveBeenCalledTimes(1)
+
+    r.wrapper.unmount()
+    reply(finishedRound({ finish_reason: 'expired' }))
+    await flushPromises()
+
+    const store = useCupRoundStore()
+    expect(store.status).toBe('idle')
+    expect(store.round).toBeNull()
+  })
+
+  it('a reply that is not the attempt on screen is dropped', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    vi.setSystemTime(new Date('2026-12-02T10:00:00.000Z'))
+    const r = await started()
+    vi.mocked(api.cups.round).mockResolvedValue(finishedRound({ attempt_id: 78 }))
+
+    vi.advanceTimersByTime(10 * 60 * 1000 + 2500)
+    await flushPromises()
+
+    expect(api.cups.round).toHaveBeenCalledTimes(1)
+    expect(status(r)).toBe('playing')
   })
 })
 

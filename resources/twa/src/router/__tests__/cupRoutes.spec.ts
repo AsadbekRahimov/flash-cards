@@ -74,6 +74,22 @@ describe('router: the friends cup (docs/33 §7.1)', () => {
     expect(router.resolve('/cups').name).toBe('cups')
   })
 
+  it('the duels: the list, a new challenge, one duel and the link of the chat (docs/04 A.23d)', () => {
+    expect(props('/cups/7/duels')).toEqual({ name: 'cup-duels', tab: 'rating', props: { id: 7 }, lazy: true })
+    expect(props('/cups/7/duel')).toEqual({ name: 'cup-duel-new', tab: 'rating', props: { id: 7 }, lazy: true })
+    expect(props('/cups/7/duels/41')).toEqual({ name: 'cup-duel', tab: 'rating', props: { id: 7, duelId: 41, code: null }, lazy: true })
+    expect(props('/cups/c/AbCdEfGhIjKlMnOpQrSt_-/duels/41')).toEqual({
+      name: 'cup-duel-link',
+      tab: 'rating',
+      props: { id: null, duelId: 41, code: 'AbCdEfGhIjKlMnOpQrSt_-' },
+      lazy: true,
+    })
+    // A duel id of the link that is not a number is a missing duel (the screen says so), never the landing.
+    expect(props('/cups/c/AbCdEfGhIjKlMnOpQrSt_-/duels/abc').props).toEqual({ id: null, duelId: null, code: 'AbCdEfGhIjKlMnOpQrSt_-' })
+    expect(router.resolve('/cups/7/duels/abc').name).not.toBe('cup-duel')
+    expect(resolveStartTarget(router, b64url('/cups/c/AbCdEfGhIjKlMnOpQrSt_-/duels/41'))).toBe('/cups/c/AbCdEfGhIjKlMnOpQrSt_-/duels/41')
+  })
+
   it('a cup id that is not a number is not the cup', () => {
     expect(router.resolve('/cups/abc').name).not.toBe('cup')
   })

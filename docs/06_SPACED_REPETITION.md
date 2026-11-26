@@ -751,7 +751,7 @@ translations json)` (docs/03 §2.21a), импорт — ключ `examples: [{te
 предложения (`WordExamples::pickRow`), никогда не перевод якоря. Нет перевода — `null`. Скрыт вместе с `example`: у
 `meaning`/`reverse`/`audio`/`pretest`/`spelling`/`gap_fill` в карточке `null` (перевод предложения с пропуском или примера у reverse выдал бы
 ответ), а для `meaning`/`reverse`/`audio` приходит в `revealed.example_translation` ответа `/review`. У `spelling`/`gap_fill`/`pretest`
-`revealed` нет и пример после ответа не показывается.
+`revealed` нет и пример после ответа не показывается (исключение — фраза на `gap_fill` / `pretest`: `revealed` с `phrase.literal`, но без примера, §16).
 
 ### 12.5 Путаемые слова (`CardPicker`, `learning.confusables.*`)
 
@@ -1100,7 +1100,7 @@ SELECT w.id, w.word, w.translation, m.exercise, m.answer_text, m.created_at
 
 Очки: фраза платформенного курса — лексема (`LexemeKey`, docs/32 §2.1): «A piece of cake» = «piece of cake», запятая внутри сохраняется,
 финальные `?`/`!` снимаются, `to` в начале остаётся; новое / повтор / попытка дня — как у слова. Игра — docs/18 (задачи `spell` фразе не даются,
-`gap` — та же маска). Карточка `/next` несёт `card.phrase` (docs/04 A.3), ответ — `revealed.phrase`.
+`gap` — та же маска; задание фразы помечено `phrase: true`, docs/04 A.18). Карточка `/next` несёт `card.phrase` (docs/04 A.3), ответ — `revealed.phrase`; у фразы `revealed` приходит и после `gap_fill` / `pretest` (с 26.11.2026: ради «Буквально», без примера и крючка), у слова на них `revealed` нет, как в §12.4.
 
 Тесты: `PhraseExercisesTest` (ступень ввода без `spelling`, маска, проверка, варианты только из фраз, бюджет запросов карточки и ответа),
 `PhraseImportTest`, `PhraseGameTest`, `PhraseWordScoreTest`, `LexemeKeyTest`.

@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 16,
+    "title": "Идиомы: тело",
+    "title_uz": "Iboralar: tana a'zolari"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Глаза, уши, рот",
+    "title_uz": "Ko'z, quloq, og'iz"
+  },
+  "words": [
+    {
+      "word": "keep an eye on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "присматривать за",
+        "uz": "ko'z-quloq bo'lmoq"
+      },
+      "example": "Could you keep an eye on my bag while I buy a ticket?",
+      "example_translations": {
+        "ru": "Присмотришь за моей сумкой, пока я покупаю билет?",
+        "uz": "Men chipta olgunimcha sumkamga ko'z-quloq bo'lib tura olasanmi?"
+      },
+      "hooks": {
+        "ru": "Просят приглядеть за вещью, ребёнком или делом, пока сами заняты",
+        "uz": "O'zi band bo'lganda narsa, bola yoki ishga qarab turishni so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eye",
+        "literal": {
+          "ru": "держать глаз на",
+          "uz": "ko'zni ustida tutmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "all ears",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "весь внимание",
+        "uz": "butun diqqatim sizda"
+      },
+      "example": "I have some news about the trip. — Go on, I'm all ears.",
+      "example_translations": {
+        "ru": "У меня есть новости о поездке. — Давай, я весь внимание.",
+        "uz": "Sayohat haqida yangilik bor. — Qani, aytaqol, butun diqqatim senda."
+      },
+      "hooks": {
+        "ru": "Говорят, что готовы внимательно слушать; обычно I'm all ears",
+        "uz": "Diqqat bilan tinglashga tayyorligini bildirish uchun aytiladi; odatda I'm all ears"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ears",
+        "literal": {
+          "ru": "весь из ушей",
+          "uz": "butunlay quloqdan iborat"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "turn a blind eye",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "закрывать глаза на что-то",
+        "uz": "ko'rib ko'rmaslikka olmoq"
+      },
+      "example": "The manager turns a blind eye when we leave ten minutes early on Fridays.",
+      "example_translations": {
+        "ru": "Менеджер закрывает глаза на то, что по пятницам мы уходим на десять минут раньше.",
+        "uz": "Menejer jumada o'n daqiqa erta ketishimizni ko'rib ko'rmaslikka oladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто знает о нарушении, но нарочно не обращает на него внимания",
+        "uz": "Qoidabuzarlikni bilib turib, ataylab e'tibor bermagan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "blind",
+        "literal": {
+          "ru": "повернуть слепой глаз",
+          "uz": "ko'r ko'zni burmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "My lips are sealed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я никому не скажу",
+        "uz": "hech kimga aytmayman"
+      },
+      "example": "Please don't tell anyone about the surprise party. — Don't worry, my lips are sealed.",
+      "example_translations": {
+        "ru": "Пожалуйста, никому не говори о празднике-сюрпризе. — Не волнуйся, я никому не скажу.",
+        "uz": "Iltimos, kutilmagan bayram haqida hech kimga aytma. — Xavotir olma, hech kimga aytmayman."
+      },
+      "hooks": {
+        "ru": "Обещают сохранить секрет, который только что доверили",
+        "uz": "Hozirgina ishonib aytilgan sirni saqlashga va'da berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sealed",
+        "literal": {
+          "ru": "мои губы запечатаны",
+          "uz": "lablarim muhrlangan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "an eye-opener",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "откровение",
+        "uz": "ko'zni ochgan narsa"
+      },
+      "example": "Working in a hospital for a week was a real eye-opener.",
+      "example_translations": {
+        "ru": "Неделя работы в больнице стала для меня настоящим откровением.",
+        "uz": "Kasalxonada bir hafta ishlash haqiqatan ham ko'zimni ochdi."
+      },
+      "hooks": {
+        "ru": "Говорят о событии или опыте, после которого по-новому увидели что-то важное",
+        "uz": "Muhim narsani yangicha ko'rishga majbur qilgan voqea yoki tajriba haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "opener",
+        "literal": {
+          "ru": "открыватель глаз",
+          "uz": "ko'z ochuvchi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "catch someone's eye",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "бросаться в глаза",
+        "uz": "ko'zga tashlanmoq"
+      },
+      "example": "A small blue teapot in the shop window caught my eye.",
+      "example_translations": {
+        "ru": "Мне бросился в глаза маленький синий чайник в витрине.",
+        "uz": "Vitrinadagi kichkina ko'k choynak ko'zimga tashlandi."
+      },
+      "hooks": {
+        "ru": "Говорят о вещи или человеке, которые сразу привлекли внимание",
+        "uz": "Darhol e'tiborni tortgan narsa yoki odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "catch",
+        "literal": {
+          "ru": "поймать чей-то глаз",
+          "uz": "birovning ko'zini tutmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "music to my ears",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "бальзам на душу",
+        "uz": "quloqqa xush yoqadigan gap"
+      },
+      "example": "You can all go home early today. — That's music to my ears!",
+      "example_translations": {
+        "ru": "Сегодня все могут уйти пораньше. — Вот это бальзам на душу!",
+        "uz": "Bugun hammangiz ertaroq ketishingiz mumkin. — Bu gap qulog'imga xush yoqdi!"
+      },
+      "hooks": {
+        "ru": "Радостно отвечают на приятную новость, которую давно хотели услышать",
+        "uz": "Uzoq kutilgan yoqimli xabarga quvonib javob berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "music",
+        "literal": {
+          "ru": "музыка для моих ушей",
+          "uz": "quloqlarim uchun musiqa"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "fall on deaf ears",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "остаться неуслышанным",
+        "uz": "e'tiborsiz qolmoq"
+      },
+      "example": "I asked the neighbours to turn the music down, but my request fell on deaf ears.",
+      "example_translations": {
+        "ru": "Я просил соседей сделать музыку потише, но моя просьба осталась неуслышанной.",
+        "uz": "Qo'shnilardan musiqani pasaytirishni so'radim, lekin iltimosim e'tiborsiz qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о совете, просьбе или предупреждении, которые проигнорировали",
+        "uz": "E'tiborga olinmagan maslahat, iltimos yoki ogohlantirish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "deaf",
+        "literal": {
+          "ru": "упасть на глухие уши",
+          "uz": "kar quloqlarga tushmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on the tip of my tongue",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вертится на языке",
+        "uz": "tilimning uchida turibdi"
+      },
+      "example": "What's the name of that actor? It's on the tip of my tongue!",
+      "example_translations": {
+        "ru": "Как зовут того актёра? Вертится на языке!",
+        "uz": "Haligi aktyorning ismi nima edi? Tilimning uchida turibdi!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда почти вспомнили слово или имя, но никак не могут его назвать",
+        "uz": "So'z yoki ismni deyarli eslab, lekin ayta olmay turganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tip",
+        "literal": {
+          "ru": "на кончике моего языка",
+          "uz": "tilimning uchida"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "by word of mouth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "из уст в уста",
+        "uz": "og'izdan og'izga"
+      },
+      "example": "The café never advertises — people hear about it by word of mouth.",
+      "example_translations": {
+        "ru": "Кафе никогда не даёт рекламу — люди узнают о нём из уст в уста.",
+        "uz": "Kafe hech qachon reklama qilmaydi — odamlar u haqida og'izdan og'izga eshitishadi."
+      },
+      "hooks": {
+        "ru": "Говорят о новостях или славе, которые передаются в разговорах, а не через рекламу",
+        "uz": "Reklama orqali emas, odamlar suhbati orqali tarqaladigan xabar yoki shuhrat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "word",
+        "literal": {
+          "ru": "словом рта",
+          "uz": "og'iz so'zi bilan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

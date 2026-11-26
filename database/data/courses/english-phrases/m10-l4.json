@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 10,
+    "title": "Учёба",
+    "title_uz": "O'qish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Ошибки и прогресс",
+    "title_uz": "Xatolar va rivojlanish"
+  },
+  "words": [
+    {
+      "word": "make a mistake",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ошибиться",
+        "uz": "xato qilmoq"
+      },
+      "example": "Don't be afraid to make a mistake when you speak.",
+      "example_translations": {
+        "ru": "Не бойтесь ошибиться, когда говорите.",
+        "uz": "Gapirganda xato qilishdan qo'rqmang."
+      },
+      "hooks": {
+        "ru": "Говорят об ошибке; по-английски ошибку «делают» (make), а не «do»",
+        "uz": "Xato haqida aytiladi; inglizchada xato «make» bilan ishlatiladi, «do» bilan emas"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mistake",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "learn from your mistakes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "учиться на своих ошибках",
+        "uz": "o'z xatolaridan saboq olmoq"
+      },
+      "example": "Everyone fails sometimes. The important thing is to learn from your mistakes.",
+      "example_translations": {
+        "ru": "Все иногда ошибаются. Главное — учиться на своих ошибках.",
+        "uz": "Hamma ham ba'zan muvaffaqiyatsizlikka uchraydi. Muhimi — o'z xatolaridan saboq olish."
+      },
+      "hooks": {
+        "ru": "Советуют делать выводы из неудач",
+        "uz": "Muvaffaqiyatsizliklardan xulosa chiqarishni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "learn",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get the hang of it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "наловчиться",
+        "uz": "qo'li o'rganib qolmoq"
+      },
+      "example": "Driving was hard at first, but now I've got the hang of it.",
+      "example_translations": {
+        "ru": "Сначала водить было трудно, но теперь я наловчился.",
+        "uz": "Avvaliga mashina haydash qiyin edi, endi qo'lim o'rganib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда после практики дело начало получаться",
+        "uz": "Mashqdan keyin ish chiqa boshlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hang",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It takes time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на это нужно время",
+        "uz": "buning uchun vaqt kerak"
+      },
+      "example": "My English is still not very good. — Don't worry, it takes time.",
+      "example_translations": {
+        "ru": "Мой английский всё ещё не очень хороший. — Не переживай, на это нужно время.",
+        "uz": "Ingliz tilim hali unchalik yaxshi emas. — Xavotir olma, buning uchun vaqt kerak."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто ждёт быстрых результатов",
+        "uz": "Tez natija kutayotgan odamni tinchlantirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "takes",
+        "literal": {
+          "ru": "это берёт время",
+          "uz": "bu vaqt oladi"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Nobody's perfect",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "никто не идеален",
+        "uz": "hech kim mukammal emas"
+      },
+      "example": "I forgot your birthday. I'm so sorry! — It's OK, nobody's perfect.",
+      "example_translations": {
+        "ru": "Я забыл про твой день рождения. Прости! — Ничего, никто не идеален.",
+        "uz": "Tug'ilgan kuningni unutib qo'yibman. Kechir! — Hechqisi yo'q, hech kim mukammal emas."
+      },
+      "hooks": {
+        "ru": "Утешают того, кто ошибся, или оправдывают свою ошибку",
+        "uz": "Xato qilgan odamga taskin berishadi yoki o'z xatosini oqlashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "perfect",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make progress",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать успехи",
+        "uz": "oldinga siljimoq"
+      },
+      "example": "You're making progress — your pronunciation is much better now.",
+      "example_translations": {
+        "ru": "Вы делаете успехи — ваше произношение стало намного лучше.",
+        "uz": "Oldinga siljiyapsiz — talaffuzingiz ancha yaxshilandi."
+      },
+      "hooks": {
+        "ru": "Хвалят ученика или говорят о движении вперёд в деле",
+        "uz": "O'quvchini maqtashadi yoki ishdagi siljish haqida aytishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "progress",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "trial and error",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "метод проб и ошибок",
+        "uz": "sinov va xato yo'li"
+      },
+      "example": "I learned to cook by trial and error.",
+      "example_translations": {
+        "ru": "Я научился готовить методом проб и ошибок.",
+        "uz": "Ovqat pishirishni sinov va xato yo'li bilan o'rgandim."
+      },
+      "hooks": {
+        "ru": "Говорят о способе учиться, пробуя снова и снова",
+        "uz": "Qayta-qayta urinib ko'rib o'rganish usuli haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "trial",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Better luck next time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в следующий раз повезёт",
+        "uz": "keyingi safar omadingiz kelsin"
+      },
+      "example": "I didn't win the competition. — Better luck next time!",
+      "example_translations": {
+        "ru": "Я не победил в конкурсе. — В следующий раз повезёт!",
+        "uz": "Tanlovda g'olib bo'lolmadim. — Keyingi safar omadingiz kelsin!"
+      },
+      "hooks": {
+        "ru": "Подбадривают того, у кого сейчас не получилось",
+        "uz": "Hozir omadi kelmagan odamga dalda berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "luck",
+        "literal": {
+          "ru": "лучшей удачи в следующий раз",
+          "uz": "keyingi safar yaxshiroq omad"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "by leaps and bounds",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "семимильными шагами",
+        "uz": "jadal sur'atda"
+      },
+      "example": "Her English has improved by leaps and bounds this year.",
+      "example_translations": {
+        "ru": "Её английский в этом году улучшается семимильными шагами.",
+        "uz": "Bu yil uning ingliz tili jadal sur'atda yaxshilandi."
+      },
+      "hooks": {
+        "ru": "Говорят об очень быстром прогрессе в учёбе или деле",
+        "uz": "O'qish yoki ishdagi juda tez rivojlanish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "leaps",
+        "literal": {
+          "ru": "прыжками и скачками",
+          "uz": "sakrash va hatlashlar bilan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "slip up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оплошать",
+        "uz": "xatoga yo'l qo'ymoq"
+      },
+      "example": "Everyone slips up sometimes — don't be so hard on yourself.",
+      "example_translations": {
+        "ru": "Все иногда оплошают — не будь к себе так строг.",
+        "uz": "Hamma ham ba'zan xatoga yo'l qo'yadi — o'zingga bunchalik qattiqqo'l bo'lma."
+      },
+      "hooks": {
+        "ru": "Говорят о небольшой ошибке по невнимательности",
+        "uz": "E'tiborsizlik tufayli qilingan kichik xato haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "slip",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

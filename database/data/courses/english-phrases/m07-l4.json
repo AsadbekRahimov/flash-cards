@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 7,
+    "title": "Эмоции",
+    "title_uz": "His-tuyg'ular"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Раздражение",
+    "title_uz": "Asabiylashish"
+  },
+  "words": [
+    {
+      "word": "I'm fed up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне надоело",
+        "uz": "jonimga tegdi"
+      },
+      "example": "I'm fed up with this rain. I want some sun!",
+      "example_translations": {
+        "ru": "Мне надоел этот дождь. Хочу солнца!",
+        "uz": "Bu yomg'ir jonimga tegdi. Quyosh chiqsa edi!"
+      },
+      "hooks": {
+        "ru": "Говорят о том, что давно раздражает и уже невыносимо",
+        "uz": "Ancha vaqtdan beri asabga tegib, chidab bo'lmay qolgan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fed",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get on my nerves",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "действовать на нервы",
+        "uz": "asabimga tegmoq"
+      },
+      "example": "The noise from the neighbours really gets on my nerves.",
+      "example_translations": {
+        "ru": "Шум от соседей очень действует мне на нервы.",
+        "uz": "Qo'shnilarning shovqini rosa asabimga tegadi."
+      },
+      "hooks": {
+        "ru": "Жалуются на человека или звук, который раздражает",
+        "uz": "Asabga tegadigan odam yoki ovozdan shikoyat qilishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "nerves",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "drive me crazy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сводить с ума",
+        "uz": "aqldan ozdirmoq"
+      },
+      "example": "This slow internet is driving me crazy!",
+      "example_translations": {
+        "ru": "Этот медленный интернет сводит меня с ума!",
+        "uz": "Bu sekin internet meni aqldan ozdiryapti!"
+      },
+      "hooks": {
+        "ru": "С преувеличением говорят о том, что сильно раздражает",
+        "uz": "Qattiq asabga tegadigan narsa haqida mubolag'a bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "crazy",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "lose my temper",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выйти из себя",
+        "uz": "jahli chiqib ketmoq"
+      },
+      "example": "I'm sorry I lost my temper yesterday. I was very tired.",
+      "example_translations": {
+        "ru": "Прости, что я вчера вышел из себя. Я очень устал.",
+        "uz": "Kecha jahlim chiqib ketganidan uzr. Juda charchagan edim."
+      },
+      "hooks": {
+        "ru": "Говорят о вспышке гнева, часто извиняясь за неё",
+        "uz": "Jahl chiqib ketishi haqida, ko'pincha uzr so'rab aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "temper",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Leave me alone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оставь меня в покое",
+        "uz": "meni tinch qo'y"
+      },
+      "example": "Leave me alone, please. I need to finish this.",
+      "example_translations": {
+        "ru": "Оставь меня в покое, пожалуйста. Мне нужно это закончить.",
+        "uz": "Iltimos, meni tinch qo'y. Buni tugatishim kerak."
+      },
+      "hooks": {
+        "ru": "Резко просят не мешать; с незнакомыми звучит грубо",
+        "uz": "Xalaqit bermaslikni keskin so'rashadi; notanish odamga qo'pol eshitiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "alone",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I've had enough",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с меня хватит",
+        "uz": "yetar endi"
+      },
+      "example": "I've had enough of your excuses. Do your homework now.",
+      "example_translations": {
+        "ru": "С меня хватит твоих отговорок. Делай уроки сейчас же.",
+        "uz": "Bahonalaringdan charchadim, yetar endi. Hoziroq uy vazifangni qil."
+      },
+      "hooks": {
+        "ru": "Говорят, когда терпение закончилось",
+        "uz": "Sabr tugaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "enough",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "drive someone up the wall",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "доводить до белого каления",
+        "uz": "toqatini toq qilmoq"
+      },
+      "example": "My little brother's questions drive me up the wall.",
+      "example_translations": {
+        "ru": "Вопросы моего младшего брата доводят меня до белого каления.",
+        "uz": "Ukamning savollari toqatimni toq qiladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что раздражает долго и постоянно",
+        "uz": "Uzoq va doimiy asabga tegadigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "wall",
+        "literal": {
+          "ru": "загнать кого-то на стену",
+          "uz": "kimnidir devorga chiqarmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in a bad mood",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в плохом настроении",
+        "uz": "kayfiyati yomon"
+      },
+      "example": "Don't talk to Dad now — he's in a bad mood.",
+      "example_translations": {
+        "ru": "Не разговаривай сейчас с папой — он в плохом настроении.",
+        "uz": "Hozir dadam bilan gaplashma — kayfiyati yomon."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что человек сердит или раздражён",
+        "uz": "Odamning jahli chiqqan yoki asabiy ekanidan ogohlantirishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bad",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "calm down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "успокоиться",
+        "uz": "tinchlanmoq"
+      },
+      "example": "Calm down, please. Shouting won't help.",
+      "example_translations": {
+        "ru": "Успокойся, пожалуйста. Криком не поможешь.",
+        "uz": "Iltimos, tinchlan. Baqirish yordam bermaydi."
+      },
+      "hooks": {
+        "ru": "Просят рассерженного человека успокоиться; сказано резко, может разозлить ещё больше",
+        "uz": "Jahli chiqqan odamdan tinchlanishni so'rashadi; keskin aytilsa, battar jahlini chiqarishi mumkin"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "calm",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sick and tired",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сыт по горло",
+        "uz": "bezor bo'lgan"
+      },
+      "example": "I'm sick and tired of waiting for this bus.",
+      "example_translations": {
+        "ru": "Я сыт по горло ожиданием этого автобуса.",
+        "uz": "Bu avtobusni kutaverib bezor bo'ldim."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что надоело до предела",
+        "uz": "Haddan tashqari jonga tekkan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "sick",
+        "literal": {
+          "ru": "больной и уставший",
+          "uz": "kasal va charchagan"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

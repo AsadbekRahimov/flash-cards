@@ -133,6 +133,8 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       try {
         const accepted = await api.cups.duels.accept(cupId, duel.id, duelRated(duel))
         useCupBoardStore().invalidate()
+        // No match to go to (an answer of an older acceptance without it): the list tells where the duel is now.
+        if (accepted.battle_id === null) await this.load(cupId)
         return accepted.battle_id
       } catch (err) {
         await this.refuseAction(err, cupId)

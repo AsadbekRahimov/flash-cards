@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\DTO;
 
+use App\Domain\Learning\Enums\ExerciseType;
+
 /**
  * What a meaning / reverse / audio card was sent without (it gives the right option away, docs/06 §12.2) and comes back
- * with the verdict of the answer: the card's screen after the pick.
+ * with the verdict of the answer: the card's screen after the pick. A phrase on gap_fill / pretest comes back too, for its
+ * literal translation in `phrase` (docs/06 §16, {@see ExerciseType::revealsAfterAnswer()}).
  */
 final readonly class RevealedCard
 {
@@ -31,4 +34,13 @@ final readonly class RevealedCard
         public ?string $exampleAudioUrl = null,
         public ?array $phrase = null,
     ) {}
+
+    /**
+     * `correct`: the right option exactly as it stands among the options - reverse: the word; meaning / audio / pretest: the
+     * translation. A gap-fill of a phrase has no options: the whole phrase the gap was cut from.
+     */
+    public static function correctOf(ExerciseType $exercise, string $word, string $translation): string
+    {
+        return $exercise === ExerciseType::Reverse || $exercise === ExerciseType::GapFill ? trim($word) : trim($translation);
+    }
 }

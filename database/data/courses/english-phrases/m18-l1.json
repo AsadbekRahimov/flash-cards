@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 18,
+    "title": "Деловое общение",
+    "title_uz": "Ishbilarmonlik muloqoti"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Деловые письма",
+    "title_uz": "Rasmiy xatlar"
+  },
+  "words": [
+    {
+      "word": "I look forward to hearing from you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с нетерпением жду вашего ответа",
+        "uz": "javobingizni kutib qolaman"
+      },
+      "example": "Thank you for your time. I look forward to hearing from you.",
+      "example_translations": {
+        "ru": "Благодарю за уделённое время. С нетерпением жду вашего ответа.",
+        "uz": "Vaqt ajratganingiz uchun rahmat. Javobingizni kutib qolaman."
+      },
+      "hooks": {
+        "ru": "Вежливая фраза в конце делового письма, когда ждут ответа: заявка, резюме, предложение",
+        "uz": "Javob kutilayotgan rasmiy xat oxirida yoziladi: ariza, rezyume, taklif"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "forward",
+        "literal": {
+          "ru": "я жду вперёд, чтобы услышать от вас",
+          "uz": "sizdan eshitishni oldinga qarab kutaman"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Please find attached",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "направляю во вложении",
+        "uz": "ilovada yuboraman"
+      },
+      "example": "Please find attached the price list for next month.",
+      "example_translations": {
+        "ru": "Направляю во вложении прайс-лист на следующий месяц.",
+        "uz": "Kelgusi oy uchun narxlar ro'yxatini ilovada yuboraman."
+      },
+      "hooks": {
+        "ru": "Пишут в деловом письме, когда к нему приложен файл",
+        "uz": "Rasmiy xatga fayl biriktirilganda yoziladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "attached",
+        "literal": {
+          "ru": "пожалуйста, найдите приложенным",
+          "uz": "iltimos, ilova qilinganini toping"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Kind regards",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с уважением",
+        "uz": "hurmat bilan"
+      },
+      "example": "Thank you for your help with the order. Kind regards, Malika Karimova.",
+      "example_translations": {
+        "ru": "Спасибо за помощь с заказом. С уважением, Малика Каримова.",
+        "uz": "Buyurtma bo'yicha yordamingiz uchun rahmat. Hurmat bilan, Malika Karimova."
+      },
+      "hooks": {
+        "ru": "Стандартная подпись в конце делового письма перед именем; вежливо, но не холодно",
+        "uz": "Rasmiy xat oxirida ism oldidan yoziladigan odatiy jumla; xushmuomala, lekin sovuq emas"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "regards",
+        "literal": {
+          "ru": "добрые приветы",
+          "uz": "samimiy salomlar"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "To whom it may concern",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по месту требования",
+        "uz": "talab qilingan joyga"
+      },
+      "example": "To whom it may concern: Anna Brown has worked in our company since 2019.",
+      "example_translations": {
+        "ru": "По месту требования: Анна Браун работает в нашей компании с 2019 года.",
+        "uz": "Talab qilingan joyga: Anna Braun 2019-yildan beri kompaniyamizda ishlaydi."
+      },
+      "hooks": {
+        "ru": "Начало официального письма или справки, когда получатель неизвестен; в обычной переписке звучит устаревшим",
+        "uz": "Qabul qiluvchi noma'lum bo'lgan rasmiy xat yoki ma'lumotnoma boshida yoziladi; oddiy yozishmada eskicha"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "concern",
+        "literal": {
+          "ru": "тому, кого это может касаться",
+          "uz": "bu kimga tegishli bo'lsa, o'shanga"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I hope this email finds you well",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "надеюсь, у вас всё хорошо",
+        "uz": "umid qilamanki, ishlaringiz yaxshi"
+      },
+      "example": "Dear Mr. Brown, I hope this email finds you well.",
+      "example_translations": {
+        "ru": "Уважаемый мистер Браун, надеюсь, у вас всё хорошо.",
+        "uz": "Hurmatli janob Braun, umid qilamanki, ishlaringiz yaxshi."
+      },
+      "hooks": {
+        "ru": "Вежливое вступление в начале делового письма после обращения",
+        "uz": "Rasmiy xat boshida murojaatdan keyin yoziladigan xushmuomala kirish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "finds",
+        "literal": {
+          "ru": "надеюсь, это письмо застанет вас в добром здравии",
+          "uz": "bu xat sizni yaxshi holatda topadi deb umid qilaman"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Thank you in advance",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заранее спасибо",
+        "uz": "oldindan rahmat"
+      },
+      "example": "Could you send me the timetable for next week? Thank you in advance.",
+      "example_translations": {
+        "ru": "Не могли бы вы прислать мне расписание на следующую неделю? Заранее спасибо.",
+        "uz": "Keyingi haftaning jadvalini yubora olasizmi? Oldindan rahmat."
+      },
+      "hooks": {
+        "ru": "Пишут в конце письма с просьбой, благодаря за помощь, которую ещё не оказали",
+        "uz": "Iltimos yozilgan xat oxirida, hali ko'rsatilmagan yordam uchun minnatdorchilik bildirib yoziladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "advance",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Please don't hesitate to contact me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обращайтесь, если что-то нужно",
+        "uz": "bemalol murojaat qiling"
+      },
+      "example": "If you need more information, please don't hesitate to contact me.",
+      "example_translations": {
+        "ru": "Если вам нужна дополнительная информация, без стеснения обращайтесь ко мне.",
+        "uz": "Qo'shimcha ma'lumot kerak bo'lsa, bemalol murojaat qiling."
+      },
+      "hooks": {
+        "ru": "Вежливо предлагают писать или звонить с вопросами; обычно в конце делового письма",
+        "uz": "Savollar bo'lsa yozish yoki qo'ng'iroq qilishni xushmuomalalik bilan taklif qiladi; odatda xat oxirida"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "hesitate",
+        "literal": {
+          "ru": "пожалуйста, не колеблитесь связаться со мной",
+          "uz": "iltimos, men bilan bog'lanishdan ikkilanmang"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "As discussed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как мы обсуждали",
+        "uz": "muhokama qilganimizdek"
+      },
+      "example": "As discussed, I am sending you the contract for signing.",
+      "example_translations": {
+        "ru": "Как мы обсуждали, направляю вам договор на подпись.",
+        "uz": "Muhokama qilganimizdek, shartnomani imzolash uchun yuboryapman."
+      },
+      "hooks": {
+        "ru": "Начинают письмо после встречи или звонка, напоминая о том, о чём договорились",
+        "uz": "Uchrashuv yoki qo'ng'iroqdan keyin kelishilgan narsani eslatib, xatni boshlaganda yoziladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "formal",
+        "variant": "both",
+        "gap": "discussed",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Apologies for the delay",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прошу прощения за задержку",
+        "uz": "kechikkanim uchun uzr"
+      },
+      "example": "Apologies for the delay — I was away from the office until Monday.",
+      "example_translations": {
+        "ru": "Прошу прощения за задержку — я был не в офисе до понедельника.",
+        "uz": "Kechikkanim uchun uzr — dushanbagacha ofisda yo'q edim."
+      },
+      "hooks": {
+        "ru": "Пишут в начале ответа, если отвечают позже, чем следовало",
+        "uz": "Kerakli vaqtdan kechroq javob berilganda xat boshida yoziladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "delay",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Please let me know if you have any questions",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "если возникнут вопросы, дайте знать",
+        "uz": "savollaringiz bo'lsa, xabar bering"
+      },
+      "example": "I've attached the schedule. Please let me know if you have any questions.",
+      "example_translations": {
+        "ru": "Я приложил расписание. Если возникнут вопросы, дайте знать.",
+        "uz": "Jadvalni ilova qildim. Savollaringiz bo'lsa, xabar bering."
+      },
+      "hooks": {
+        "ru": "Вежливо заканчивают письмо или объяснение, предлагая задать вопросы",
+        "uz": "Xat yoki tushuntirishni savol berishni taklif qilib, xushmuomalalik bilan yakunlaydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "questions",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

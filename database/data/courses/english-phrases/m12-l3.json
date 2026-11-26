@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 12,
+    "title": "Здоровье и отдых",
+    "title_uz": "Salomatlik va dam olish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Спорт",
+    "title_uz": "Sport"
+  },
+  "words": [
+    {
+      "word": "work out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тренироваться",
+        "uz": "mashq qilmoq, shug'ullanmoq"
+      },
+      "example": "I work out three times a week to stay strong.",
+      "example_translations": {
+        "ru": "Я тренируюсь три раза в неделю, чтобы быть сильным.",
+        "uz": "Baquvvat bo'lish uchun haftada uch marta mashq qilaman."
+      },
+      "hooks": {
+        "ru": "Говорят о физических упражнениях: в зале, дома, на улице",
+        "uz": "Sport zalida, uyda yoki ochiq havoda jismoniy mashq qilish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "work",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "warm up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "размяться",
+        "uz": "badan qizdirmoq"
+      },
+      "example": "Always warm up for ten minutes before you run.",
+      "example_translations": {
+        "ru": "Всегда разминайся десять минут перед бегом.",
+        "uz": "Yugurishdan oldin doim o'n daqiqa badan qizdir."
+      },
+      "hooks": {
+        "ru": "Говорят о разминке перед тренировкой или игрой",
+        "uz": "Mashg'ulot yoki o'yindan oldin badan qizdirish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "warm",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep fit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поддерживать форму",
+        "uz": "o'zini baquvvat tutmoq"
+      },
+      "example": "My mum swims every morning to keep fit.",
+      "example_translations": {
+        "ru": "Мама каждое утро плавает, чтобы поддерживать форму.",
+        "uz": "Onam baquvvat bo'lib yurish uchun har kuni ertalab suzadi."
+      },
+      "hooks": {
+        "ru": "Говорят о регулярных упражнениях, чтобы оставаться здоровым и сильным",
+        "uz": "Sog'lom va kuchli bo'lish uchun muntazam mashq qilish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "fit",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "give it a try",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "попробовать",
+        "uz": "sinab ko'rmoq"
+      },
+      "example": "I've never played tennis. — Why not give it a try? It's fun!",
+      "example_translations": {
+        "ru": "Я никогда не играл в теннис. — Почему бы не попробовать? Это весело!",
+        "uz": "Men hech qachon tennis o'ynamaganman. — Nega sinab ko'rmaysan? Juda qiziq!"
+      },
+      "hooks": {
+        "ru": "Советуют попробовать что-то новое: вид спорта, занятие, блюдо",
+        "uz": "Yangi narsani — sport turi, mashg'ulot yoki taomni sinab ko'rishni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "try",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "go for a run",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти на пробежку",
+        "uz": "yugurishga chiqmoq"
+      },
+      "example": "It's a lovely morning. Let's go for a run in the park.",
+      "example_translations": {
+        "ru": "Какое прекрасное утро. Давай сходим на пробежку в парк.",
+        "uz": "Ajoyib tong. Yur, parkka yugurishga chiqamiz."
+      },
+      "hooks": {
+        "ru": "Говорят о пробежке для здоровья, обычно утром или вечером",
+        "uz": "Odatda ertalab yoki kechqurun sog'liq uchun yugurish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "run",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "начать заниматься (спортом, хобби)",
+        "uz": "(sport, xobbi bilan) shug'ullana boshlamoq"
+      },
+      "example": "I took up swimming last year, and now I love it.",
+      "example_translations": {
+        "ru": "В прошлом году я начал заниматься плаванием, и теперь мне очень нравится.",
+        "uz": "O'tgan yili suzish bilan shug'ullana boshladim, hozir uni juda yaxshi ko'raman."
+      },
+      "hooks": {
+        "ru": "Говорят о новом увлечении: спорте, музыке, хобби",
+        "uz": "Yangi qiziqish — sport, musiqa yoki xobbi boshlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hit the gym",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пойти в спортзал",
+        "uz": "sport zaliga bormoq"
+      },
+      "example": "I hit the gym every day after work.",
+      "example_translations": {
+        "ru": "Я каждый день после работы хожу в спортзал.",
+        "uz": "Har kuni ishdan keyin sport zaliga boraman."
+      },
+      "hooks": {
+        "ru": "Разговорно говорят о походе в спортзал на тренировку",
+        "uz": "Mashg'ulot uchun sport zaliga borish haqida so'zlashuvda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "gym",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "out of breath",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "запыхавшись",
+        "uz": "hansirab"
+      },
+      "example": "I ran up the stairs and arrived out of breath.",
+      "example_translations": {
+        "ru": "Я взбежал по лестнице и пришёл запыхавшись.",
+        "uz": "Zinadan yugurib chiqdim va hansirab yetib keldim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда после бега или подъёма трудно дышать",
+        "uz": "Yugurish yoki tepalikka chiqishdan keyin nafas olish qiyinlashganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "breath",
+        "literal": {
+          "ru": "без дыхания",
+          "uz": "nafassiz"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "personal best",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "личный рекорд",
+        "uz": "shaxsiy rekord"
+      },
+      "example": "I finished the race in twenty minutes, a new personal best!",
+      "example_translations": {
+        "ru": "Я пробежал дистанцию за двадцать минут — это мой новый личный рекорд!",
+        "uz": "Masofani yigirma daqiqada bosib o'tdim, bu mening yangi shaxsiy rekordim!"
+      },
+      "hooks": {
+        "ru": "Говорят о своём лучшем результате в спорте или другом деле",
+        "uz": "Sport yoki boshqa ishdagi o'zining eng yaxshi natijasi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "personal",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "The ball is in your court",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "теперь слово за вами",
+        "uz": "endi navbat sizda"
+      },
+      "example": "I've sent them my offer. Now the ball is in their court.",
+      "example_translations": {
+        "ru": "Я отправил им своё предложение. Теперь слово за ними.",
+        "uz": "Ularga taklifimni yubordim. Endi navbat ularda."
+      },
+      "hooks": {
+        "ru": "Говорят, когда своё уже сделали и теперь решение или действие за другим человеком",
+        "uz": "O'z ishingni qilib bo'lgach, endi qaror yoki harakat boshqa odamga bog'liq bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "court",
+        "literal": {
+          "ru": "мяч на вашей половине корта",
+          "uz": "to'p sizning maydoningizda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

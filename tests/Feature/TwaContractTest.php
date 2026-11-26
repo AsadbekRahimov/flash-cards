@@ -245,7 +245,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'goal' => CONTRACT_GOAL,
             'streak' => CONTRACT_STREAK,
             'active_course' => [
-                'id', 'slug', 'title',
+                'id', 'slug', 'title', 'section',
                 'progress' => ['learned', 'total'],
                 'next_lesson' => ['id', 'stage', 'lesson', 'title', 'words_left'],
                 'readiness' => [

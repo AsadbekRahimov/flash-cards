@@ -1,0 +1,285 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 7,
+    "title": "Эмоции",
+    "title_uz": "His-tuyg'ular"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Радость",
+    "title_uz": "Quvonch"
+  },
+  "words": [
+    {
+      "word": "over the moon",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вне себя от радости",
+        "uz": "o'zida yo'q xursand"
+      },
+      "example": "Malika got into university and she's over the moon.",
+      "example_translations": {
+        "ru": "Малика поступила в университет и вне себя от радости.",
+        "uz": "Malika universitetga kirdi, o'zida yo'q xursand."
+      },
+      "hooks": {
+        "ru": "Говорят о большой радости из-за хорошей новости",
+        "uz": "Yaxshi xabardan kelgan katta quvonch haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "moon",
+        "literal": {
+          "ru": "над луной",
+          "uz": "oyning ustida"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on cloud nine",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на седьмом небе",
+        "uz": "boshi osmonga yetgan"
+      },
+      "example": "Since he got the job, Sardor has been on cloud nine.",
+      "example_translations": {
+        "ru": "С тех пор как Сардор получил эту работу, он на седьмом небе.",
+        "uz": "Ishga olinganidan beri Sardorning boshi osmonga yetgan."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который счастлив и ничего вокруг не замечает",
+        "uz": "Juda baxtli bo'lib, atrofdagi hech narsani sezmayotgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cloud",
+        "literal": {
+          "ru": "на девятом облаке",
+          "uz": "to'qqizinchi bulutda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You made my day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты меня очень порадовал",
+        "uz": "kayfiyatimni ko'tarding"
+      },
+      "example": "Thank you for the flowers, Anna. You made my day!",
+      "example_translations": {
+        "ru": "Спасибо за цветы, Анна. Ты меня очень порадовала!",
+        "uz": "Gullar uchun rahmat, Anna. Kayfiyatimni ko'tarding!"
+      },
+      "hooks": {
+        "ru": "Благодарят того, кто приятным словом или подарком поднял настроение",
+        "uz": "Yoqimli so'z yoki sovg'a bilan kayfiyatni ko'targan odamga minnatdorchilik bildiriladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "made",
+        "literal": {
+          "ru": "ты сделал мой день",
+          "uz": "kunimni chiroyli qilding"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm so happy for you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я так рад за вас",
+        "uz": "siz uchun juda xursandman"
+      },
+      "example": "We're getting married in June! — Oh, I'm so happy for you!",
+      "example_translations": {
+        "ru": "Мы женимся в июне! — Ой, я так рад за вас!",
+        "uz": "Iyunda to'yimiz bo'ladi! — Voy, siz uchun juda xursandman!"
+      },
+      "hooks": {
+        "ru": "Искренне радуются чужой хорошей новости",
+        "uz": "Birovning yaxshi xabaridan chin dildan quvonib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "happy",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I can't wait",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могу дождаться",
+        "uz": "sabrsizlik bilan kutyapman"
+      },
+      "example": "We're going to the sea next week. I can't wait!",
+      "example_translations": {
+        "ru": "На следующей неделе мы едем на море. Не могу дождаться!",
+        "uz": "Keyingi hafta dengizga boramiz. Sabrsizlik bilan kutyapman!"
+      },
+      "hooks": {
+        "ru": "Говорят о приятном событии, которого очень ждут",
+        "uz": "Juda kutilayotgan yoqimli voqea haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "wait",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in a good mood",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в хорошем настроении",
+        "uz": "kayfiyati yaxshi"
+      },
+      "example": "The boss is in a good mood today — he's smiling at everyone.",
+      "example_translations": {
+        "ru": "Начальник сегодня в хорошем настроении — всем улыбается.",
+        "uz": "Bugun boshliqning kayfiyati yaxshi — hammaga jilmayyapti."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который весел и доброжелателен",
+        "uz": "Quvnoq va xushfe'l odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mood",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "That's great news!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отличная новость!",
+        "uz": "ajoyib yangilik!"
+      },
+      "example": "I passed my driving test! — That's great news!",
+      "example_translations": {
+        "ru": "Я сдал на права! — Отличная новость!",
+        "uz": "Haydovchilik imtihonidan o'tdim! — Ajoyib yangilik!"
+      },
+      "hooks": {
+        "ru": "Радостно отвечают на чужую хорошую новость",
+        "uz": "Birovning yaxshi xabariga quvonib javob berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "news",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "jump for joy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прыгать от радости",
+        "uz": "quvonchdan sakramoq"
+      },
+      "example": "When the kids saw the new puppy, they jumped for joy.",
+      "example_translations": {
+        "ru": "Когда дети увидели щенка, они запрыгали от радости.",
+        "uz": "Bolalar kuchukchani ko'rib, quvonchdan sakrab ketishdi."
+      },
+      "hooks": {
+        "ru": "Говорят об очень бурной, часто детской радости",
+        "uz": "Juda kuchli, ko'pincha bolalarcha quvonch haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "joy",
+        "cefr": "B1",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "grin from ear to ear",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "улыбаться до ушей",
+        "uz": "og'zi qulog'ida bo'lmoq"
+      },
+      "example": "He came out of the exam grinning from ear to ear.",
+      "example_translations": {
+        "ru": "Он вышел с экзамена, улыбаясь до ушей.",
+        "uz": "U imtihondan og'zi qulog'ida chiqdi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который широко улыбается от счастья",
+        "uz": "Baxtdan keng jilmaygan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "grin",
+        "literal": {
+          "ru": "ухмыляться от уха до уха",
+          "uz": "qulog'idan qulog'igacha jilmaymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on top of the world",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "счастлив как никогда",
+        "uz": "o'zini eng baxtli odamdek his qilmoq"
+      },
+      "example": "After the concert I felt on top of the world.",
+      "example_translations": {
+        "ru": "После концерта я был счастлив как никогда.",
+        "uz": "Konsertdan keyin o'zimni eng baxtli odamdek his qildim."
+      },
+      "hooks": {
+        "ru": "Говорят о чувстве полного счастья и уверенности",
+        "uz": "To'liq baxt va ishonch tuyg'usi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "top",
+        "literal": {
+          "ru": "на вершине мира",
+          "uz": "dunyoning cho'qqisida"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -21,7 +21,7 @@ final class TodayResource extends TwaResource
      *   goal: array{target: int, done: int, met: bool},
      *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
      *   active_course: array{
-     *     id: int, slug: string, title: string,
+     *     id: int, slug: string, title: string, section: string,
      *     progress: array{learned: int, total: int},
      *     next_lesson: array{id: int, stage: int|null, lesson: int, title: string|null, words_left: int}|null,
      *     readiness: array{
@@ -63,6 +63,8 @@ final class TodayResource extends TwaResource
                 'id' => $course->id,
                 'slug' => $course->slug,
                 'title' => $course->title,
+                // The section of the catalog (`phrases` | `courses`): the phrase screens of a phrase course (docs/04 A.2a).
+                'section' => $course->section,
                 'progress' => ['learned' => $course->learned, 'total' => $course->total],
                 'next_lesson' => $lesson === null ? null : [
                     'id' => $lesson->id,

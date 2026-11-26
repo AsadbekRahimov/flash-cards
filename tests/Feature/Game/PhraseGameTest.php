@@ -215,3 +215,45 @@ it('starts a run of phrases with no statement more than a run of words of the sa
         ->and($phraseCount)->toBeLessThanOrEqual(24) // BUDGET_GAME_START of GameQueryBudgetTest
         ->and(GameRun::query()->count())->toBe(2);
 });
+
+it('marks every task of a phrase with `phrase: true` in its projection, and no task of a word or of an older run', function (): void {
+    $handler = app(WordTaskHandler::class);
+    $state = RunState::fromArray([]);
+    $phrases = RunComposer::compose(new RunPool(LocaleSet::of('ru'), pgPhrases(10)), 'phrase-seed-aaaaaaaaaaaaaaaaaaaaaaaaaaaa', RunLimits::for(RunKind::Stop));
+    $words = [];
+    for ($i = 1; $i <= 10; $i++) {
+        $words[] = pgPoolWord(100 + $i, 'wordnum'.strtr((string) $i, '0123456789', 'abcdefghij'), null, phrase: false);
+    }
+    $plain = RunComposer::compose(new RunPool(LocaleSet::of('ru'), $words), 'word-seed-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', RunLimits::for(RunKind::Stop));
+
+    expect($phrases->elements)->not->toBe([])->and($plain->elements)->not->toBe([]);
+    foreach ($phrases->elements as $element) {
+        $projection = $handler->project($element, 'ru', $state);
+        // The mark alone: the answer stays where it was (no word, no expected text, no right option).
+        expect($element->get('phrase'))->toBeTrue()
+            ->and($projection['phrase'] ?? null)->toBeTrue()
+            ->and(array_intersect(array_keys($projection), ['word', 'expected', 'correct_text', 'full_text', 'correct_option_id', 'word_id']))->toBe([]);
+    }
+    foreach ($plain->elements as $element) {
+        expect($element->get('phrase'))->toBeNull()
+            ->and($handler->project($element, 'ru', $state))->not->toHaveKey('phrase');
+    }
+
+    // A task of a phrase of a run started before the mark: no key, read as a word.
+    $old = $phrases->elements[0]->toArray();
+    unset($old['phrase']);
+    expect($handler->project(SnapshotElement::fromArray($old), 'ru', $state))->not->toHaveKey('phrase');
+});
+
+it('sends `phrase: true` with the current task of a run of phrases over HTTP', function (): void {
+    [$course, $lesson, $phrases] = PhraseKit::import();
+    $learner = Learner::factory()->create();
+    foreach ($phrases as $phrase) {
+        PracticeKit::introduce($learner, $phrase, 'review');
+    }
+
+    $started = test()->withHeaders(PracticeKit::headers($learner))
+        ->postJson('/api/twa/game/runs', ['kind' => 'stop', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated();
+
+    expect($started->json('current.element.phrase'))->toBeTrue();
+});

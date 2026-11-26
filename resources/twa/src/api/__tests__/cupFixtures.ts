@@ -1,4 +1,17 @@
-import type { CupBoardResponse, CupFields, CupInvite, CupListResponse, CupRound, CupRules, CupSetup, CupStandingRow, CupTask } from '../types'
+import type {
+  CupBoardResponse,
+  CupDuel,
+  CupDuelAvailability,
+  CupDuelListResponse,
+  CupFields,
+  CupInvite,
+  CupListResponse,
+  CupRound,
+  CupRules,
+  CupSetup,
+  CupStandingRow,
+  CupTask,
+} from '../types'
 
 /** Fixtures of the friends' cup (docs/04 A.23) in the shapes `CupContractTest` holds on the server. */
 
@@ -152,5 +165,48 @@ export const cupSetup = (over: Partial<CupSetup> = {}): CupSetup => ({
 export const cupListItem = (over: Partial<CupListResponse['cups'][number]> = {}): CupListResponse['cups'][number] => ({
   ...cupFields(),
   me: { participant_id: 2, display_name: 'Me', status: 'active', total: 20, days_played: 2, final_rank: null },
+  ...over,
+})
+
+/** May I challenge today (`me.duel` / `availability`, docs/04 A.23d). */
+export const duelAvailability = (over: Partial<CupDuelAvailability> = {}): CupDuelAvailability => ({
+  day: 3,
+  can_challenge: true,
+  rated_available: true,
+  challenges_left: 20,
+  open_duel_id: null,
+  ...over,
+})
+
+/** A duel (`CupDuelResource`): by default my open personal challenge to Aziza (participant 1), rated, 10 minutes to go. */
+export const cupDuel = (over: Partial<CupDuel> = {}): CupDuel => ({
+  id: 41,
+  status: 'open',
+  end_reason: null,
+  rated_offered: true,
+  rated: null,
+  public: false,
+  mode: 'pairs',
+  day: 3,
+  accepted_day: null,
+  expires_at: '2026-12-02T10:10:00.000Z',
+  battle_id: null,
+  role: 'challenger',
+  challenger: { participant_id: 2, display_name: 'Me', pro_emoji: null },
+  opponent: { participant_id: 1, display_name: 'Aziza', pro_emoji: '🦄' },
+  points: null,
+  winner_participant_id: null,
+  server_now: '2026-12-02T10:00:00.000Z',
+  ...over,
+})
+
+/** GET /cups/{id}/duels. */
+export const duelList = (over: Partial<CupDuelListResponse> = {}): CupDuelListResponse => ({
+  incoming: [],
+  open: [],
+  mine: null,
+  today: [],
+  availability: duelAvailability(),
+  server_now: '2026-12-02T10:00:00.000Z',
   ...over,
 })

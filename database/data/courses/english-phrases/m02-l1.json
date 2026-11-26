@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 2,
+    "title": "Разговор и понимание",
+    "title_uz": "Suhbat va tushunish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Переспросить",
+    "title_uz": "Qayta so'rash"
+  },
+  "words": [
+    {
+      "word": "Sorry, what was that?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "простите, что вы сказали?",
+        "uz": "kechirasiz, nima dedingiz?"
+      },
+      "example": "The meeting is at four. — Sorry, what was that? It's very noisy here.",
+      "example_translations": {
+        "ru": "Встреча в четыре. — Простите, что вы сказали? Здесь очень шумно.",
+        "uz": "Uchrashuv soat to'rtda. — Kechirasiz, nima dedingiz? Bu yer juda shovqinli."
+      },
+      "hooks": {
+        "ru": "Переспрашивают, если не расслышали, например из-за шума",
+        "uz": "Eshitmay qolganda, masalan shovqin tufayli qayta so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sorry",
+        "literal": {
+          "ru": "простите, что это было?",
+          "uz": "kechirasiz, u nima edi?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you say that again?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могли бы вы повторить?",
+        "uz": "yana bir bor ayta olasizmi?"
+      },
+      "example": "The address is 12 Navoi Street. — Could you say that again, please?",
+      "example_translations": {
+        "ru": "Адрес — улица Навои, 12. — Не могли бы вы повторить?",
+        "uz": "Manzil — Navoiy ko'chasi, 12-uy. — Yana bir bor ayta olasizmi?"
+      },
+      "hooks": {
+        "ru": "Вежливо просят повторить, когда не успели понять или записать",
+        "uz": "Tushunib yoki yozib ulgurmaganda takrorlashni xushmuomala so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "again",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I beg your pardon?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прошу прощения?",
+        "uz": "afv etasiz?"
+      },
+      "example": "Can I see your ticket? — I beg your pardon? I didn't hear you.",
+      "example_translations": {
+        "ru": "Можно ваш билет? — Прошу прощения? Я вас не расслышал.",
+        "uz": "Chiptangizni ko'rsam bo'ladimi? — Afv etasiz? Sizni eshitmadim."
+      },
+      "hooks": {
+        "ru": "Очень вежливо переспрашивают; резким тоном — возмущение услышанным",
+        "uz": "Juda xushmuomala qayta so'rash; keskin ohangda eshitilgan gapdan norozilik bildiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "pardon",
+        "literal": {
+          "ru": "я прошу вашего прощения",
+          "uz": "kechirishingizni so'rayman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Come again?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что-что?",
+        "uz": "nima deding?"
+      },
+      "example": "I'm moving to Canada next month. — Come again? Are you serious?",
+      "example_translations": {
+        "ru": "В следующем месяце я переезжаю в Канаду. — Что-что? Ты серьёзно?",
+        "uz": "Keyingi oy Kanadaga ko'chib ketyapman. — Nima deding? Rostdanmi?"
+      },
+      "hooks": {
+        "ru": "Переспрашивают друга, если не расслышали или не поверили своим ушам",
+        "uz": "Do'st gapini eshitmaganda yoki quloqlariga ishonmaganda qayta so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "come",
+        "literal": {
+          "ru": "приди снова?",
+          "uz": "yana kel?"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Could you speak up?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могли бы вы говорить громче?",
+        "uz": "balandroq gapira olasizmi?"
+      },
+      "example": "Could you speak up? We can't hear you at the back. — Sure, sorry.",
+      "example_translations": {
+        "ru": "Не могли бы вы говорить громче? Сзади не слышно. — Конечно, извините.",
+        "uz": "Balandroq gapira olasizmi? Orqada eshitilmayapti. — Albatta, kechirasiz."
+      },
+      "hooks": {
+        "ru": "Просят говорить громче на лекции, по телефону, в шумном месте",
+        "uz": "Ma'ruzada, telefonda yoki shovqinli joyda balandroq gapirishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Could you speak more slowly?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно помедленнее?",
+        "uz": "sekinroq gapira olasizmi?"
+      },
+      "example": "Could you speak more slowly, please? My English isn't very good. — Of course.",
+      "example_translations": {
+        "ru": "Можно помедленнее, пожалуйста? Я не очень хорошо знаю английский. — Конечно.",
+        "uz": "Sekinroq gapira olasizmi? Ingliz tilim unchalik yaxshi emas. — Albatta."
+      },
+      "hooks": {
+        "ru": "Нужная фраза для того, кто учит язык: просят говорить медленнее",
+        "uz": "Til o'rganayotgan odam uchun kerakli ibora: sekinroq gapirishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "slowly",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How do you spell that?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как это пишется?",
+        "uz": "bu qanday yoziladi?"
+      },
+      "example": "My surname is Khodjaev. — Sorry, how do you spell that?",
+      "example_translations": {
+        "ru": "Моя фамилия Ходжаев. — Простите, как это пишется?",
+        "uz": "Familiyam Xo'jayev. — Kechirasiz, bu qanday yoziladi?"
+      },
+      "hooks": {
+        "ru": "Просят продиктовать по буквам имя, адрес или e-mail",
+        "uz": "Ism, manzil yoki e-mailni harfma-harf aytib berishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "spell",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What does that mean?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что это значит?",
+        "uz": "bu nima degani?"
+      },
+      "example": "The sign says \"No entry\". What does that mean? — You can't go in.",
+      "example_translations": {
+        "ru": "На табличке написано «No entry». Что это значит? — Туда нельзя входить.",
+        "uz": "Belgida «No entry» deb yozilgan. Bu nima degani? — U yerga kirish mumkin emas."
+      },
+      "hooks": {
+        "ru": "Спрашивают значение незнакомого слова, знака или фразы",
+        "uz": "Notanish so'z, belgi yoki iboraning ma'nosini so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mean",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I didn't catch that",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я не расслышал",
+        "uz": "eshitmay qoldim"
+      },
+      "example": "The train leaves from platform nine. — Sorry, I didn't catch that.",
+      "example_translations": {
+        "ru": "Поезд отходит с девятой платформы. — Простите, я не расслышал.",
+        "uz": "Poyezd to'qqizinchi platformadan jo'naydi. — Kechirasiz, eshitmay qoldim."
+      },
+      "hooks": {
+        "ru": "Признаются, что не расслышали или не уловили сказанное",
+        "uz": "Aytilgan gapni eshitmay yoki ilg'amay qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "catch",
+        "literal": {
+          "ru": "я не поймал это",
+          "uz": "buni ilib ololmadim"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could you write it down?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не могли бы вы записать?",
+        "uz": "yozib bera olasizmi?"
+      },
+      "example": "The password is very long. Could you write it down for me? — Sure.",
+      "example_translations": {
+        "ru": "Пароль очень длинный. Не могли бы вы мне его записать? — Конечно.",
+        "uz": "Parol juda uzun. Menga yozib bera olasizmi? — Albatta."
+      },
+      "hooks": {
+        "ru": "Просят записать номер, адрес или трудное слово",
+        "uz": "Raqam, manzil yoki qiyin so'zni yozib berishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "write",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    }
+  ]
+}

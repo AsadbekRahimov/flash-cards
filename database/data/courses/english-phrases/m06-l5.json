@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 6,
+    "title": "Дом и время",
+    "title_uz": "Uy va vaqt"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Самочувствие",
+    "title_uz": "O'zini his qilish"
+  },
+  "words": [
+    {
+      "word": "I'm fine, thanks",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё хорошо, спасибо",
+        "uz": "yaxshi, rahmat"
+      },
+      "example": "How are you, Malika? — I'm fine, thanks. And you?",
+      "example_translations": {
+        "ru": "Как дела, Малика? — Всё хорошо, спасибо. А у тебя?",
+        "uz": "Qalaysan, Malika? — Yaxshi, rahmat. O'zing-chi?"
+      },
+      "hooks": {
+        "ru": "Обычный ответ на How are you? — даже если день не идеальный",
+        "uz": "How are you? savoliga odatiy javob — kun unchalik yaxshi bo'lmasa ham"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fine",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Get well soon",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поправляйтесь скорее",
+        "uz": "tezroq tuzalib keting"
+      },
+      "example": "I heard you're ill. Get well soon!",
+      "example_translations": {
+        "ru": "Я слышал, вы заболели. Поправляйтесь скорее!",
+        "uz": "Kasal bo'lib qolganingizni eshitdim. Tezroq tuzalib keting!"
+      },
+      "hooks": {
+        "ru": "Желают больному скорее выздороветь — устно, в сообщении, на открытке",
+        "uz": "Kasal odamga og'zaki, xabarda yoki otkritkada tezroq sog'ayishni tilashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "well",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "under the weather",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "неважно себя чувствовать",
+        "uz": "biroz betob bo'lmoq"
+      },
+      "example": "I'm a bit under the weather today, so I'll stay at home.",
+      "example_translations": {
+        "ru": "Мне сегодня что-то нездоровится, так что я останусь дома.",
+        "uz": "Bugun biroz betobman, shuning uchun uyda qolaman."
+      },
+      "hooks": {
+        "ru": "Мягко говорят о лёгком недомогании, без подробностей",
+        "uz": "Yengil betoblik haqida tafsilotlarsiz, yumshoq qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "weather",
+        "literal": {
+          "ru": "под погодой",
+          "uz": "ob-havo ostida"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "feel better",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чувствовать себя лучше",
+        "uz": "o'zini yaxshiroq his qilmoq"
+      },
+      "example": "Did you sleep well? — Yes, thanks, I feel better now.",
+      "example_translations": {
+        "ru": "Ты хорошо поспал? — Да, спасибо, теперь мне лучше.",
+        "uz": "Yaxshi uxladingmi? — Ha, rahmat, endi o'zimni yaxshiroq his qilyapman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда болезнь или усталость проходят",
+        "uz": "Kasallik yoki charchoq o'tayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "better",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm worn out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я совсем выдохся",
+        "uz": "holdan toydim"
+      },
+      "example": "I've been on my feet all day. I'm worn out.",
+      "example_translations": {
+        "ru": "Я весь день на ногах. Совсем выдохся.",
+        "uz": "Kun bo'yi oyoqda bo'ldim. Holdan toydim."
+      },
+      "hooks": {
+        "ru": "Говорят о сильной усталости после долгого дня или тяжёлой работы",
+        "uz": "Uzoq kun yoki og'ir ishdan keyingi qattiq charchoq haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "worn",
+        "literal": {
+          "ru": "я изношен",
+          "uz": "eskirib qoldim"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I don't feel well",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне нехорошо",
+        "uz": "mazam yo'q"
+      },
+      "example": "Mum, I don't feel well. Can I stay home today?",
+      "example_translations": {
+        "ru": "Мама, мне нехорошо. Можно я сегодня останусь дома?",
+        "uz": "Oyi, mazam yo'q. Bugun uyda qolsam maylimi?"
+      },
+      "hooks": {
+        "ru": "Говорят, когда начинают болеть: голова, живот, температура",
+        "uz": "Bosh yoki qorin og'rib, isitma chiqib, betob bo'la boshlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "feel",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You look tired",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у тебя усталый вид",
+        "uz": "charchaganga o'xshaysan"
+      },
+      "example": "You look tired. Why don't you sit down for a bit?",
+      "example_translations": {
+        "ru": "У тебя усталый вид. Может, присядешь ненадолго?",
+        "uz": "Charchaganga o'xshaysan. Biroz o'tirib dam olmaysanmi?"
+      },
+      "hooks": {
+        "ru": "Заботливо замечают усталость друга или близкого; малознакомому это может показаться невежливым",
+        "uz": "Do'st yoki yaqinning charchaganini g'amxo'rlik bilan aytishadi; begonaga qo'pol tuyulishi mumkin"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tired",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Bless you!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "будьте здоровы!",
+        "uz": "sog' bo'ling!"
+      },
+      "example": "Sorry, I can't stop sneezing. — Bless you!",
+      "example_translations": {
+        "ru": "Простите, никак не могу перестать чихать. — Будьте здоровы!",
+        "uz": "Kechirasiz, aksirishni to'xtata olmayapman. — Sog' bo'ling!"
+      },
+      "hooks": {
+        "ru": "Говорят человеку, который чихнул; в ответ благодарят: Thank you",
+        "uz": "Aksirgan odamga aytiladi; u Thank you deb minnatdorchilik bildiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bless",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Get some rest",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отдохни как следует",
+        "uz": "yaxshilab dam ol"
+      },
+      "example": "You've had a long week. Go home and get some rest.",
+      "example_translations": {
+        "ru": "У тебя была тяжёлая неделя. Иди домой и отдохни как следует.",
+        "uz": "Haftang og'ir o'tdi. Uyga borib, yaxshilab dam ol."
+      },
+      "hooks": {
+        "ru": "Советуют уставшему или больному человеку отдохнуть",
+        "uz": "Charchagan yoki betob odamga dam olishni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rest",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I have a headache",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня болит голова",
+        "uz": "boshim og'riyapti"
+      },
+      "example": "Can you turn the music down? I have a headache.",
+      "example_translations": {
+        "ru": "Можешь сделать музыку потише? У меня болит голова.",
+        "uz": "Musiqani pasaytira olasanmi? Boshim og'riyapti."
+      },
+      "hooks": {
+        "ru": "Жалуются на головную боль и просят тишины или таблетку",
+        "uz": "Bosh og'rig'idan shikoyat qilib, jimlik yoki dori so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "headache",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

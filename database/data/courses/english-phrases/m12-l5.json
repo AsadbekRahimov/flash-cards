@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 12,
+    "title": "Здоровье и отдых",
+    "title_uz": "Salomatlik va dam olish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Поддержка",
+    "title_uz": "Qo'llab-quvvatlash"
+  },
+  "words": [
+    {
+      "word": "Go for it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давай, дерзай!",
+        "uz": "qani, harakat qil!"
+      },
+      "example": "I'm thinking of applying to a university abroad. — Go for it!",
+      "example_translations": {
+        "ru": "Думаю поступать в университет за границей. — Дерзай!",
+        "uz": "Chet eldagi universitetga hujjat topshirmoqchiman. — Qani, harakat qil!"
+      },
+      "hooks": {
+        "ru": "Подбадривают того, кто сомневается, стоит ли что-то попробовать",
+        "uz": "Biror narsani sinab ko'rishga ikkilanayotgan odamni ruhlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "go",
+        "literal": {
+          "ru": "иди за этим",
+          "uz": "uning ortidan bor"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Keep it up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "так держать!",
+        "uz": "shunday davom eting!"
+      },
+      "example": "Your English is getting better every week. Keep it up!",
+      "example_translations": {
+        "ru": "Твой английский с каждой неделей всё лучше. Так держать!",
+        "uz": "Ingliz tiling har hafta yaxshilanyapti. Shunday davom et!"
+      },
+      "hooks": {
+        "ru": "Хвалят за хорошую работу или успехи и просят продолжать в том же духе",
+        "uz": "Yaxshi ish yoki yutuq uchun maqtab, shunday davom ettirishni so'rab aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "literal": {
+          "ru": "держи это наверху",
+          "uz": "buni yuqorida tut"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Hang in there",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "держись!",
+        "uz": "bardam bo'l!"
+      },
+      "example": "Exams are so hard this year. — Hang in there; only two weeks left!",
+      "example_translations": {
+        "ru": "Экзамены в этом году такие тяжёлые. — Держись, осталось всего две недели!",
+        "uz": "Bu yil imtihonlar juda qiyin. — Bardam bo'l, ikki hafta qoldi, xolos!"
+      },
+      "hooks": {
+        "ru": "Поддерживают того, кому сейчас трудно, и советуют не сдаваться",
+        "uz": "Hozir qiynalayotgan odamni qo'llab, taslim bo'lmaslikni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hang",
+        "literal": {
+          "ru": "виси там",
+          "uz": "u yerda osilib tur"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't give up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не сдавайтесь",
+        "uz": "taslim bo'lmang"
+      },
+      "example": "I failed my driving test again. — Don't give up! You'll pass next time.",
+      "example_translations": {
+        "ru": "Я снова не сдал экзамен по вождению. — Не сдавайтесь! В следующий раз сдадите.",
+        "uz": "Haydovchilik imtihonidan yana o'ta olmadim. — Taslim bo'lmang! Keyingi safar albatta o'tasiz."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто после неудачи хочет бросить начатое",
+        "uz": "Muvaffaqiyatsizlikdan keyin boshlagan ishini tashlamoqchi bo'lgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "give",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You've got this",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты справишься",
+        "uz": "sen uddalaysan"
+      },
+      "example": "I'm so nervous about my speech. — Relax, you've got this!",
+      "example_translations": {
+        "ru": "Я так волнуюсь перед выступлением. — Расслабься, ты справишься!",
+        "uz": "Nutqimdan oldin juda hayajondaman. — Xotirjam bo'l, sen uddalaysan!"
+      },
+      "hooks": {
+        "ru": "Подбадривают друга перед трудным делом: экзаменом, выступлением, игрой",
+        "uz": "Imtihon, nutq yoki o'yin kabi qiyin ish oldidan do'stni ruhlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "got",
+        "literal": {
+          "ru": "у тебя это есть",
+          "uz": "bu senda bor"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm here for you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я рядом",
+        "uz": "men yoningdaman"
+      },
+      "example": "If you need to talk, call me anytime. I'm here for you.",
+      "example_translations": {
+        "ru": "Если захочешь поговорить, звони в любое время. Я рядом.",
+        "uz": "Gaplashging kelsa, istalgan vaqtda qo'ng'iroq qil. Men yoningdaman."
+      },
+      "hooks": {
+        "ru": "Говорят близкому человеку в трудное время, обещая поддержку",
+        "uz": "Qiyin paytda yaqin odamga qo'llab-quvvatlashni va'da qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "here",
+        "literal": {
+          "ru": "я здесь для тебя",
+          "uz": "men sen uchun shu yerdaman"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I believe in you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я в тебя верю",
+        "uz": "men senga ishonaman"
+      },
+      "example": "I'm not sure I can win this competition. — You can. I believe in you!",
+      "example_translations": {
+        "ru": "Не уверен, что смогу выиграть этот конкурс. — Сможешь. Я в тебя верю!",
+        "uz": "Bu tanlovda g'olib bo'la olishimga ishonchim yo'q. — Bo'la olasan. Men senga ishonaman!"
+      },
+      "hooks": {
+        "ru": "Говорят близкому человеку, который сомневается в своих силах",
+        "uz": "O'z kuchiga shubha qilayotgan yaqin odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "believe",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Way to go!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "молодец!",
+        "uz": "barakalla!"
+      },
+      "example": "I got the highest score in the class! — Way to go!",
+      "example_translations": {
+        "ru": "Я получил самый высокий балл в классе! — Молодец!",
+        "uz": "Sinfda eng yuqori ballni oldim! — Barakalla!"
+      },
+      "hooks": {
+        "ru": "Радостно хвалят за успех или хороший поступок",
+        "uz": "Muvaffaqiyat yoki yaxshi ish uchun quvonib maqtashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "us",
+        "gap": "way",
+        "literal": {
+          "ru": "вот так надо идти",
+          "uz": "mana shunday yurish kerak"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Look on the bright side",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "смотрите на это с хорошей стороны",
+        "uz": "yaxshi tomoniga qarang"
+      },
+      "example": "I missed the bus. — Look on the bright side: now you can walk in the sunshine.",
+      "example_translations": {
+        "ru": "Я опоздал на автобус. — Смотри на это с хорошей стороны: теперь прогуляешься по солнышку.",
+        "uz": "Avtobusdan qolib ketdim. — Yaxshi tomoniga qara: endi quyoshda sayr qilasan."
+      },
+      "hooks": {
+        "ru": "Говорят расстроенному человеку, предлагая увидеть в неудаче что-то хорошее",
+        "uz": "Xafa bo'lgan odamga ko'ngilsizlikdan ham yaxshi narsa topishni taklif qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bright",
+        "literal": {
+          "ru": "смотрите на светлую сторону",
+          "uz": "yorug' tomonga qarang"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "back someone up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поддержать кого-то",
+        "uz": "kimnidir qo'llab-quvvatlamoq"
+      },
+      "example": "If the boss doesn't believe you, I'll back you up.",
+      "example_translations": {
+        "ru": "Если начальник тебе не поверит, я тебя поддержу.",
+        "uz": "Agar rahbar senga ishonmasa, men seni qo'llab-quvvatlayman."
+      },
+      "hooks": {
+        "ru": "Говорят о поддержке в споре или трудной ситуации: подтвердить чьи-то слова, встать на его сторону",
+        "uz": "Bahs yoki qiyin vaziyatda kimningdir so'zini tasdiqlash, uning tarafini olish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 10,
+    "title": "Учёба",
+    "title_uz": "O'qish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "На уроке",
+    "title_uz": "Darsda"
+  },
+  "words": [
+    {
+      "word": "raise your hand",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поднять руку",
+        "uz": "qo'l ko'tarmoq"
+      },
+      "example": "If you know the answer, raise your hand.",
+      "example_translations": {
+        "ru": "Если знаете ответ, поднимите руку.",
+        "uz": "Javobni bilsangiz, qo'lingizni ko'taring."
+      },
+      "hooks": {
+        "ru": "Учитель просит поднять руку, чтобы ответить или задать вопрос",
+        "uz": "O'qituvchi javob berish yoki savol berish uchun qo'l ko'tarishni so'raydi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "raise",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pay attention",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть внимательным",
+        "uz": "diqqat qilmoq"
+      },
+      "example": "Please pay attention — this will be on the test.",
+      "example_translations": {
+        "ru": "Пожалуйста, будьте внимательны — это будет на контрольной.",
+        "uz": "Iltimos, diqqat qiling — bu nazorat ishida tushadi."
+      },
+      "hooks": {
+        "ru": "Просят внимательно слушать или смотреть",
+        "uz": "Diqqat bilan tinglash yoki qarashni so'rashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "attention",
+        "literal": {
+          "ru": "платить вниманием",
+          "uz": "diqqat to'lamoq"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hand in",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдать",
+        "uz": "topshirmoq"
+      },
+      "example": "Please hand in your essays by Friday.",
+      "example_translations": {
+        "ru": "Пожалуйста, сдайте сочинения до пятницы.",
+        "uz": "Iltimos, inshlaringizni jumagacha topshiring."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы отдать учителю готовую работу",
+        "uz": "Tayyor ishni o'qituvchiga berish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "in",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Any questions?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "есть вопросы?",
+        "uz": "savollar bormi?"
+      },
+      "example": "That's all for today. Any questions?",
+      "example_translations": {
+        "ru": "На сегодня всё. Есть вопросы?",
+        "uz": "Bugunga shu. Savollar bormi?"
+      },
+      "hooks": {
+        "ru": "Учитель или докладчик спрашивает в конце объяснения",
+        "uz": "O'qituvchi yoki ma'ruzachi tushuntirish oxirida so'raydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "questions",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take notes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "записывать",
+        "uz": "yozib bormoq"
+      },
+      "example": "Take notes during the lecture — it will help you later.",
+      "example_translations": {
+        "ru": "Записывайте во время лекции — потом это поможет.",
+        "uz": "Ma'ruza paytida yozib boring — keyin foydasi tegadi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы кратко записывать главное на уроке или лекции",
+        "uz": "Dars yoki ma'ruzada asosiy narsalarni qisqa yozib borish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "notes",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What does this word mean?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что значит это слово?",
+        "uz": "bu so'z nimani anglatadi?"
+      },
+      "example": "Excuse me, what does this word mean? — It means very big.",
+      "example_translations": {
+        "ru": "Простите, что значит это слово? — Оно значит «очень большой».",
+        "uz": "Kechirasiz, bu so'z nimani anglatadi? — «Juda katta» degani."
+      },
+      "hooks": {
+        "ru": "Спрашивают учителя или друга о значении незнакомого слова",
+        "uz": "Notanish so'zning ma'nosini o'qituvchi yoki do'stdan so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mean",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Work in pairs",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работайте в парах",
+        "uz": "juftlikda ishlang"
+      },
+      "example": "Work in pairs and ask each other these questions.",
+      "example_translations": {
+        "ru": "Работайте в парах и задайте друг другу эти вопросы.",
+        "uz": "Juftlikda ishlang va bir-biringizga shu savollarni bering."
+      },
+      "hooks": {
+        "ru": "Учитель даёт задание делать упражнение вдвоём",
+        "uz": "O'qituvchi mashqni ikki kishi bo'lib bajarishni topshiradi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pairs",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "May I come in?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно войти?",
+        "uz": "kirsam maylimi?"
+      },
+      "example": "Sorry I'm late. May I come in? — Yes, sit down, please.",
+      "example_translations": {
+        "ru": "Извините за опоздание. Можно войти? — Да, садитесь, пожалуйста.",
+        "uz": "Kechikkanim uchun uzr. Kirsam maylimi? — Ha, o'tiring."
+      },
+      "hooks": {
+        "ru": "Вежливо просят разрешения войти в класс или кабинет",
+        "uz": "Sinf yoki xonaga kirish uchun xushmuomalalik bilan ruxsat so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "come",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Quiet, please",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тише, пожалуйста",
+        "uz": "iltimos, jim bo'ling"
+      },
+      "example": "Quiet, please! Ali is reading his answer.",
+      "example_translations": {
+        "ru": "Тише, пожалуйста! Али читает свой ответ.",
+        "uz": "Iltimos, jim bo'ling! Ali javobini o'qiyapti."
+      },
+      "hooks": {
+        "ru": "Просят класс или группу не шуметь",
+        "uz": "Sinf yoki guruhdan shovqin qilmaslikni so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "quiet",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "skip class",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прогулять урок",
+        "uz": "darsdan qochmoq"
+      },
+      "example": "He skipped class to play football and his parents found out.",
+      "example_translations": {
+        "ru": "Он прогулял урок, чтобы поиграть в футбол, и родители узнали.",
+        "uz": "U futbol o'ynash uchun darsdan qochdi, ota-onasi buni bilib qolishdi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто без причины не пришёл на урок",
+        "uz": "Sababsiz darsga kelmagan o'quvchi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "skip",
+        "literal": {
+          "ru": "перепрыгнуть через урок",
+          "uz": "darsdan sakrab o'tmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

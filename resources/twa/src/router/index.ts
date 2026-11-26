@@ -301,6 +301,37 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CupRoundView.vue'),
     props: (route) => ({ id: Number(route.params.id) }),
   },
+  // The duels of a cup (docs/33 §7.1, docs/04 A.23d): the list, a new challenge, one duel (the waiting screen of the challenger), and the
+  // link of a public challenge in the chat (`TwaScreen::CupDuel`): the code is a hint which cup to open, the duel id one which duel - a
+  // duel id that is not a number is a missing duel (the screen says so), never the landing.
+  {
+    path: '/cups/:id(\\d+)/duels',
+    name: 'cup-duels',
+    component: () => import('@/views/CupDuelsView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    path: '/cups/:id(\\d+)/duel',
+    name: 'cup-duel-new',
+    component: () => import('@/views/CupDuelNewView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    path: '/cups/:id(\\d+)/duels/:duelId(\\d+)',
+    name: 'cup-duel',
+    component: () => import('@/views/CupDuelView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id), duelId: Number(route.params.duelId), code: null }),
+  },
+  {
+    path: '/cups/c/:code/duels/:duel',
+    name: 'cup-duel-link',
+    component: () => import('@/views/CupDuelView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: null, duelId: queryId(route.params.duel), code: String(route.params.code) }),
+  },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

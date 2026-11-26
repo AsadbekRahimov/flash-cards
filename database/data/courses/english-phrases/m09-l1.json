@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 9,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Рабочий день",
+    "title_uz": "Ish kuni"
+  },
+  "words": [
+    {
+      "word": "nine to five",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работа с девяти до шести",
+        "uz": "to'qqizdan oltigacha ish"
+      },
+      "example": "I don't want a nine-to-five job. I want to travel.",
+      "example_translations": {
+        "ru": "Я не хочу работать с девяти до шести. Я хочу путешествовать.",
+        "uz": "Men to'qqizdan oltigacha ishlashni istamayman. Sayohat qilmoqchiman."
+      },
+      "hooks": {
+        "ru": "Говорят об обычном офисном рабочем дне, часто как о скучной рутине",
+        "uz": "Oddiy idora ish kuni haqida, ko'pincha zerikarli tartib sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "five",
+        "literal": {
+          "ru": "с девяти до пяти",
+          "uz": "to'qqizdan beshgacha"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "work overtime",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работать сверхурочно",
+        "uz": "qo'shimcha soat ishlamoq"
+      },
+      "example": "We have a big order, so we're working overtime this week.",
+      "example_translations": {
+        "ru": "У нас большой заказ, поэтому на этой неделе мы работаем сверхурочно.",
+        "uz": "Katta buyurtma bor, shuning uchun bu hafta qo'shimcha soat ishlayapmiz."
+      },
+      "hooks": {
+        "ru": "Говорят о работе сверх обычного рабочего времени",
+        "uz": "Odatdagi ish vaqtidan tashqari ishlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "overtime",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take a break",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать перерыв",
+        "uz": "tanaffus qilmoq"
+      },
+      "example": "We've been working for three hours. Let's take a break.",
+      "example_translations": {
+        "ru": "Мы работаем уже три часа. Давайте сделаем перерыв.",
+        "uz": "Uch soatdan beri ishlayapmiz. Keling, tanaffus qilaylik."
+      },
+      "hooks": {
+        "ru": "Предлагают ненадолго остановиться и отдохнуть",
+        "uz": "Qisqa to'xtab, dam olishni taklif qilishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "break",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get down to business",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "перейти к делу",
+        "uz": "asosiy ishga o'tmoq"
+      },
+      "example": "OK, everyone has coffee. Let's get down to business.",
+      "example_translations": {
+        "ru": "Так, кофе у всех есть. Давайте перейдём к делу.",
+        "uz": "Xo'sh, hammada qahva bor. Keling, asosiy ishga o'taylik."
+      },
+      "hooks": {
+        "ru": "Говорят на встрече после приветствий и разговоров ни о чём",
+        "uz": "Uchrashuvda salomlashish va gap-so'zdan keyin aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "business",
+        "literal": {
+          "ru": "спуститься к делу",
+          "uz": "ishga tushmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "work from home",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работать из дома",
+        "uz": "uydan turib ishlamoq"
+      },
+      "example": "On Fridays I work from home, so I don't have to drive.",
+      "example_translations": {
+        "ru": "По пятницам я работаю из дома, так что мне не нужно ехать на машине.",
+        "uz": "Juma kunlari uydan turib ishlayman, shuning uchun mashina haydashim shart emas."
+      },
+      "hooks": {
+        "ru": "Говорят об удалённой работе из дома",
+        "uz": "Uydan masofadan turib ishlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "home",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a day off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выходной",
+        "uz": "dam olish kuni"
+      },
+      "example": "I'm taking a day off tomorrow to visit my parents.",
+      "example_translations": {
+        "ru": "Завтра я беру выходной, чтобы навестить родителей.",
+        "uz": "Ertaga ota-onamni ko'rgani borish uchun dam olaman."
+      },
+      "hooks": {
+        "ru": "Говорят о свободном от работы дне, часто взятом специально",
+        "uz": "Ishdan bo'sh kun, ko'pincha atayin olingan kun haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "off",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "snowed under",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "завален работой",
+        "uz": "ishi boshidan oshgan"
+      },
+      "example": "Sorry, I can't help today. I'm snowed under.",
+      "example_translations": {
+        "ru": "Извини, сегодня не могу помочь. Я завален работой.",
+        "uz": "Kechir, bugun yordam berolmayman. Ishim boshimdan oshib yotibdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дел так много, что не успеваешь",
+        "uz": "Ish shunchalik ko'pki, ulgurib bo'lmayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "snowed",
+        "literal": {
+          "ru": "засыпан снегом",
+          "uz": "qor ostida qolgan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "lunch break",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обеденный перерыв",
+        "uz": "tushlik tanaffusi"
+      },
+      "example": "I usually go for a walk during my lunch break.",
+      "example_translations": {
+        "ru": "В обеденный перерыв я обычно иду прогуляться.",
+        "uz": "Tushlik tanaffusida odatda sayr qilgani chiqaman."
+      },
+      "hooks": {
+        "ru": "Говорят о перерыве на обед в середине рабочего дня",
+        "uz": "Ish kuni o'rtasidagi tushlik tanaffusi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lunch",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Back to work!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "за работу!",
+        "uz": "ishga qaytamiz!"
+      },
+      "example": "Break's over, everyone. Back to work!",
+      "example_translations": {
+        "ru": "Перерыв окончен, друзья. За работу!",
+        "uz": "Tanaffus tugadi, do'stlar. Ishga qaytamiz!"
+      },
+      "hooks": {
+        "ru": "Бодро зовут вернуться к делам после перерыва",
+        "uz": "Tanaffusdan keyin ishga qaytishga tetik ohangda chaqirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "back",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm running late",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я опаздываю",
+        "uz": "kechikyapman"
+      },
+      "example": "Sorry, I'm running late. I'll be there in fifteen minutes.",
+      "example_translations": {
+        "ru": "Извините, я опаздываю. Буду через пятнадцать минут.",
+        "uz": "Kechirasiz, kechikyapman. O'n besh daqiqada yetib boraman."
+      },
+      "hooks": {
+        "ru": "Предупреждают по телефону или сообщением, что придут позже",
+        "uz": "Telefonda yoki xabarda kechroq kelishini ogohlantirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "running",
+        "literal": {
+          "ru": "я бегу поздно",
+          "uz": "kech yuguryapman"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

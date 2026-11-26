@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 7,
+    "title": "Эмоции",
+    "title_uz": "His-tuyg'ular"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Страх и волнение",
+    "title_uz": "Qo'rquv va hayajon"
+  },
+  "words": [
+    {
+      "word": "butterflies in my stomach",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мандраж",
+        "uz": "yuragim duk-duk uryapti"
+      },
+      "example": "Before every exam I get butterflies in my stomach.",
+      "example_translations": {
+        "ru": "Перед каждым экзаменом у меня мандраж.",
+        "uz": "Har bir imtihon oldidan yuragim duk-duk uradi."
+      },
+      "hooks": {
+        "ru": "Говорят о волнении перед важным событием: экзаменом, выступлением, свиданием",
+        "uz": "Imtihon, chiqish yoki muhim uchrashuv oldidagi hayajon haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "butterflies",
+        "literal": {
+          "ru": "бабочки в животе",
+          "uz": "qornimda kapalaklar"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "freak out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "паниковать",
+        "uz": "vahimaga tushmoq"
+      },
+      "example": "Don't freak out, but I think I've lost your keys.",
+      "example_translations": {
+        "ru": "Только не паникуй, но, кажется, я потерял твои ключи.",
+        "uz": "Vahimaga tushma, lekin kalitlaringni yo'qotib qo'ydim shekilli."
+      },
+      "hooks": {
+        "ru": "Говорят о сильной панике, страхе или злости",
+        "uz": "Kuchli vahima, qo'rquv yoki jahl haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "freak",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "keep calm",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сохранять спокойствие",
+        "uz": "xotirjam bo'lmoq"
+      },
+      "example": "If there is a fire, keep calm and walk to the exit.",
+      "example_translations": {
+        "ru": "При пожаре сохраняйте спокойствие и идите к выходу.",
+        "uz": "Yong'in bo'lsa, xotirjam bo'ling va chiqish tomon yuring."
+      },
+      "hooks": {
+        "ru": "Советуют не волноваться в трудной ситуации",
+        "uz": "Qiyin vaziyatda hayajonlanmaslikni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "calm",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a nervous wreck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "комок нервов",
+        "uz": "asabi butunlay buzilgan odam"
+      },
+      "example": "By the end of the interview I was a nervous wreck.",
+      "example_translations": {
+        "ru": "К концу собеседования я был комком нервов.",
+        "uz": "Suhbat oxiriga kelib asabim butunlay buzilgan edi."
+      },
+      "hooks": {
+        "ru": "С преувеличением говорят о том, кто очень сильно волнуется",
+        "uz": "Juda qattiq hayajonlangan odam haqida mubolag'a bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "wreck",
+        "literal": {
+          "ru": "нервные обломки",
+          "uz": "asab vayronasi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "scared to death",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до смерти напуган",
+        "uz": "o'takasi yorilgan"
+      },
+      "example": "I was scared to death when the lights went out.",
+      "example_translations": {
+        "ru": "Я до смерти испугался, когда погас свет.",
+        "uz": "Chiroq o'chib qolganda o'takam yorilib ketdi."
+      },
+      "hooks": {
+        "ru": "С преувеличением говорят об очень сильном испуге",
+        "uz": "Juda kuchli qo'rquv haqida mubolag'a bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "death",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What a relief!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "какое облегчение!",
+        "uz": "xayriyat!"
+      },
+      "example": "Your bag is here, I found it. — Oh, what a relief!",
+      "example_translations": {
+        "ru": "Твоя сумка здесь, я нашёл её. — Ой, какое облегчение!",
+        "uz": "Sumkang shu yerda, topdim. — Voy, xayriyat!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда тревога закончилась и всё обошлось",
+        "uz": "Xavotir tugab, hammasi yaxshi tugaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "relief",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Don't panic",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без паники",
+        "uz": "vahimaga tushmang"
+      },
+      "example": "Don't panic. We still have twenty minutes to get to the airport.",
+      "example_translations": {
+        "ru": "Без паники. У нас ещё двадцать минут, чтобы доехать до аэропорта.",
+        "uz": "Vahimaga tushmang. Aeroportga yetib borishga hali yigirma daqiqa bor."
+      },
+      "hooks": {
+        "ru": "Успокаивают того, кто начинает волноваться",
+        "uz": "Hayajonlana boshlagan odamni tinchlantirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "panic",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on edge",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на взводе",
+        "uz": "asabi tarang"
+      },
+      "example": "Everyone was on edge while we waited for the results.",
+      "example_translations": {
+        "ru": "Пока мы ждали результатов, все были на взводе.",
+        "uz": "Natijalarni kutayotganimizda hammaning asabi tarang edi."
+      },
+      "hooks": {
+        "ru": "Говорят о нервном, напряжённом состоянии в ожидании чего-то",
+        "uz": "Biror narsani kutayotgandagi asabiy, tarang holat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "edge",
+        "literal": {
+          "ru": "на краю",
+          "uz": "chekkada"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's nothing to worry about",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не о чем беспокоиться",
+        "uz": "tashvishlanishga hojat yo'q"
+      },
+      "example": "The doctor said it's nothing to worry about, just a cold.",
+      "example_translations": {
+        "ru": "Врач сказал, что беспокоиться не о чем, это просто простуда.",
+        "uz": "Shifokor tashvishlanishga hojat yo'q, oddiy shamollash, dedi."
+      },
+      "hooks": {
+        "ru": "Успокаивают: проблема несерьёзная",
+        "uz": "Muammo jiddiy emasligini aytib tinchlantirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "worry",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "stressed out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в сильном стрессе",
+        "uz": "qattiq stressda"
+      },
+      "example": "She's really stressed out about her exams.",
+      "example_translations": {
+        "ru": "Она в сильном стрессе из-за экзаменов.",
+        "uz": "U imtihonlari tufayli qattiq stressda."
+      },
+      "hooks": {
+        "ru": "Говорят о сильном напряжении из-за работы, учёбы, проблем",
+        "uz": "Ish, o'qish yoki muammolar tufayli kuchli asabiy zo'riqish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "stressed",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

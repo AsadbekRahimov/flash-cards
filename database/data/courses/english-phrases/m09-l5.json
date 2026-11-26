@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 9,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Поиск работы",
+    "title_uz": "Ish izlash"
+  },
+  "words": [
+    {
+      "word": "apply for a job",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "откликнуться на вакансию",
+        "uz": "ishga ariza topshirmoq"
+      },
+      "example": "I'm going to apply for a job at the new hotel.",
+      "example_translations": {
+        "ru": "Я собираюсь откликнуться на вакансию в новом отеле.",
+        "uz": "Yangi mehmonxonadagi ishga ariza topshirmoqchiman."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы отправить резюме или заявление на работу",
+        "uz": "Ishga rezyume yoki ariza yuborish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "apply",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "fill in a form",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заполнить анкету",
+        "uz": "anketa to'ldirmoq"
+      },
+      "example": "Please fill in a form at the reception desk.",
+      "example_translations": {
+        "ru": "Пожалуйста, заполните анкету на стойке регистрации.",
+        "uz": "Iltimos, qabulxonada anketa to'ldiring."
+      },
+      "hooks": {
+        "ru": "Говорят о заполнении бланка; в США чаще fill out",
+        "uz": "Blanka to'ldirish haqida aytiladi; AQShda ko'pincha fill out deyiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fill",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Good luck!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "удачи!",
+        "uz": "omad tilayman!"
+      },
+      "example": "I have my interview tomorrow. — Good luck! You'll be great.",
+      "example_translations": {
+        "ru": "У меня завтра собеседование. — Удачи! У тебя всё получится.",
+        "uz": "Ertaga suhbatim bor. — Omad tilayman! Hammasi yaxshi bo'ladi."
+      },
+      "hooks": {
+        "ru": "Желают успеха перед экзаменом, собеседованием, важным делом",
+        "uz": "Imtihon, suhbat yoki muhim ish oldidan omad tilashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "luck",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the right person for the job",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подходящий человек для этой работы",
+        "uz": "bu ishga eng munosib odam"
+      },
+      "example": "With ten years of experience, she's the right person for the job.",
+      "example_translations": {
+        "ru": "С десятилетним опытом она — подходящий человек для этой работы.",
+        "uz": "O'n yillik tajribasi bilan u bu ishga eng munosib odam."
+      },
+      "hooks": {
+        "ru": "Говорят о кандидате, который лучше всех подходит для работы",
+        "uz": "Ishga hammadan ko'ra mos keladigan nomzod haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "right",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a job interview",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "собеседование",
+        "uz": "ishga qabul suhbati"
+      },
+      "example": "What should I wear to a job interview?",
+      "example_translations": {
+        "ru": "Что надеть на собеседование?",
+        "uz": "Ishga qabul suhbatiga nima kiyib borsam ekan?"
+      },
+      "hooks": {
+        "ru": "Говорят о встрече с работодателем, на которой решают, взять ли вас",
+        "uz": "Sizni ishga olish-olmaslik hal qilinadigan ish beruvchi bilan uchrashuv haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "interview",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "work experience",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "опыт работы",
+        "uz": "ish tajribasi"
+      },
+      "example": "Do you have any work experience in sales?",
+      "example_translations": {
+        "ru": "У вас есть опыт работы в продажах?",
+        "uz": "Savdo sohasida ish tajribangiz bormi?"
+      },
+      "hooks": {
+        "ru": "Говорят о том, где и сколько человек уже работал",
+        "uz": "Odam qayerda va qancha ishlagani haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "experience",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "land a job",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "получить работу",
+        "uz": "ishga joylashmoq"
+      },
+      "example": "After six months of searching, he finally landed a job in a bank.",
+      "example_translations": {
+        "ru": "После полугода поисков он наконец получил работу в банке.",
+        "uz": "Olti oylik izlanishdan keyin u nihoyat bankka ishga joylashdi."
+      },
+      "hooks": {
+        "ru": "Говорят об успехе после долгих поисков работы",
+        "uz": "Uzoq ish qidiruvidan keyingi muvaffaqiyat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "land",
+        "literal": {
+          "ru": "приземлить работу",
+          "uz": "ishni qo'lga qo'ndirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "hear back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "получить ответ",
+        "uz": "javob olmoq"
+      },
+      "example": "I sent my CV two weeks ago, but I haven't heard back yet.",
+      "example_translations": {
+        "ru": "Я отправил резюме две недели назад, но ответа пока нет.",
+        "uz": "Ikki hafta oldin rezyumemni yubordim, lekin hali javob olmadim."
+      },
+      "hooks": {
+        "ru": "Говорят об ожидании ответа после письма или собеседования",
+        "uz": "Xat yoki suhbatdan keyin javob kutish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hear",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Tell me about yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "расскажите о себе",
+        "uz": "o'zingiz haqingizda gapirib bering"
+      },
+      "example": "Let's start. Tell me about yourself.",
+      "example_translations": {
+        "ru": "Давайте начнём. Расскажите о себе.",
+        "uz": "Boshlaymiz. O'zingiz haqingizda gapirib bering."
+      },
+      "hooks": {
+        "ru": "Частый первый вопрос на собеседовании; ждут короткий рассказ об опыте",
+        "uz": "Suhbatdagi ko'p uchraydigan birinchi savol; tajriba haqida qisqa hikoya kutiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tell",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "out of work",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без работы",
+        "uz": "ishsiz"
+      },
+      "example": "My uncle has been out of work since the factory closed.",
+      "example_translations": {
+        "ru": "Мой дядя остался без работы с тех пор, как закрылся завод.",
+        "uz": "Zavod yopilganidan beri amakim ishsiz yuribdi."
+      },
+      "hooks": {
+        "ru": "Мягко говорят о человеке, который сейчас не работает",
+        "uz": "Hozir ishlamayotgan odam haqida yumshoq qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "work",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

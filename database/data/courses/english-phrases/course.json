@@ -1,0 +1,17 @@
+{
+  "slug": "english-phrases",
+  "title": {
+    "ru": "Разговорные фразы",
+    "uz": "So'zlashuv iboralari"
+  },
+  "description": {
+    "ru": "1 000 живых английских фраз: приветствия, просьбы, устойчивые выражения, идиомы и пословицы. 100 уроков по 10 фраз, у каждой — эквивалент на русском и узбекском, пример и подсказка, когда так говорят.",
+    "uz": "1 000 ta jonli inglizcha ibora: salomlashish, iltimoslar, turg'un birikmalar, idiomalar va maqollar. Har biri 10 iboradan iborat 100 ta dars; har bir iboraning rus va o'zbek tilidagi muqobili, misoli va qachon aytilishi haqida izohi bor."
+  },
+  "level": "B1",
+  "level_label": "A2–C1",
+  "exam_tag": "phrases",
+  "visibility": "public",
+  "position": 60,
+  "is_featured": false
+}

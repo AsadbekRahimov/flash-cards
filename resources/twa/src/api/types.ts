@@ -913,6 +913,8 @@ export interface TodayCourse {
   id: number
   slug: string
   title: string
+  /** The section of the catalog (`phrases` - a course of phrases, `courses` - every other), as `CourseSection`; absent on an older server. */
+  section?: CourseSection
   progress: { learned: number; total: number }
   /** null once every word of the course has been served. */
   next_lesson: TodayLesson | null
@@ -1174,7 +1176,8 @@ export interface Graded {
 export interface Revealed {
   word: string
   translation: string
-  /** The right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation). */
+  /** The right option exactly as it stands among the options (reverse: the word; meaning / audio / pretest: the translation;
+   *  gap_fill of a phrase: the whole phrase). */
   correct: string
   example: string | null
   example_translation?: string | null
@@ -1185,7 +1188,8 @@ export interface Revealed {
   hook: string | null
   note: string | null
   confused_with: { word: string; translation: string | null } | null
-  /** The phrase labels with the literal translation; null for a word, absent on an older server. */
+  /** The phrase labels with the literal translation; null for a word, absent on an older server. A phrase also comes back here after
+   *  gap_fill and pretest (docs/06 §16): `example*`, `hook`, `confused_with` are null then. */
   phrase?: PhraseInfo | null
 }
 

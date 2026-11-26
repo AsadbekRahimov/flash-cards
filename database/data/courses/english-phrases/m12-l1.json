@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 12,
+    "title": "Здоровье и отдых",
+    "title_uz": "Salomatlik va dam olish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Здоровье",
+    "title_uz": "Salomatlik"
+  },
+  "words": [
+    {
+      "word": "catch a cold",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "простудиться",
+        "uz": "shamollamoq"
+      },
+      "example": "Put on a warm coat, or you'll catch a cold.",
+      "example_translations": {
+        "ru": "Надень тёплое пальто, а то простудишься.",
+        "uz": "Issiq palto kiy, bo'lmasa shamollab qolasan."
+      },
+      "hooks": {
+        "ru": "Говорят о простуде; часто так предупреждают: оденься теплее",
+        "uz": "Shamollash haqida aytiladi; ko'pincha «issiqroq kiyin» deb ogohlantirishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cold",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on the mend",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "идёт на поправку",
+        "uz": "tuzalib kelyapti"
+      },
+      "example": "How's your grandmother? — She was very ill, but she's on the mend now.",
+      "example_translations": {
+        "ru": "Как твоя бабушка? — Она сильно болела, но теперь идёт на поправку.",
+        "uz": "Buving qalay? — Qattiq kasal bo'lgandi, lekin hozir tuzalib kelyapti."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, которому после болезни или травмы становится лучше",
+        "uz": "Kasallik yoki jarohatdan keyin ahvoli yaxshilanayotgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mend",
+        "literal": {
+          "ru": "в починке",
+          "uz": "ta'mirda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as fit as a fiddle",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "здоров как бык",
+        "uz": "temirdek sog'lom"
+      },
+      "example": "My grandfather is eighty, but he's as fit as a fiddle.",
+      "example_translations": {
+        "ru": "Дедушке восемьдесят, но он здоров как бык.",
+        "uz": "Bobom sakson yoshda, lekin temirdek sog'lom."
+      },
+      "hooks": {
+        "ru": "Говорят, часто о пожилом человеке, который полон сил и здоровья",
+        "uz": "Ko'pincha kuch-quvvatga to'la, sog'lom keksa odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fiddle",
+        "literal": {
+          "ru": "в форме, как настроенная скрипка",
+          "uz": "sozlangan skripkadek"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "An apple a day keeps the doctor away",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ешь яблоко в день — и не будешь болеть",
+        "uz": "kuniga bir olma yesang, kasal bo'lmaysan"
+      },
+      "example": "Take an apple with you to school. An apple a day keeps the doctor away!",
+      "example_translations": {
+        "ru": "Возьми в школу яблоко. Ешь яблоко в день — и не будешь болеть!",
+        "uz": "Maktabga bitta olma olib ol. Kuniga bir olma yesang, kasal bo'lmaysan!"
+      },
+      "hooks": {
+        "ru": "Шутливо говорят, советуя есть фрукты и заботиться о здоровье",
+        "uz": "Meva yeyish va sog'liqqa e'tibor berishni maslahat berib, hazil aralash aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "apple",
+        "literal": {
+          "ru": "яблоко в день держит врача вдали",
+          "uz": "kuniga bir olma shifokorni uzoqda tutadi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "have a sore throat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "болит горло",
+        "uz": "tomoq og'rimoq"
+      },
+      "example": "I can't sing today; I have a sore throat.",
+      "example_translations": {
+        "ru": "Я сегодня не могу петь: у меня болит горло.",
+        "uz": "Bugun qo'shiq ayta olmayman: tomog'im og'riyapti."
+      },
+      "hooks": {
+        "ru": "Говорят о боли в горле, чаще при простуде",
+        "uz": "Ko'pincha shamollaganda tomoq og'rishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "throat",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "come down with",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заболеть (простудой, гриппом)",
+        "uz": "kasallikka chalinmoq"
+      },
+      "example": "I think I'm coming down with the flu.",
+      "example_translations": {
+        "ru": "Кажется, я заболеваю гриппом.",
+        "uz": "Menimcha, grippga chalinyapman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда начинается болезнь, обычно не тяжёлая: простуда, грипп",
+        "uz": "Odatda yengil kasallik — shamollash yoki gripp boshlanayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "down",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get over",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "оправиться, переболеть",
+        "uz": "tuzalib ketmoq"
+      },
+      "example": "It took me two weeks to get over that cold.",
+      "example_translations": {
+        "ru": "Мне понадобилось две недели, чтобы оправиться от той простуды.",
+        "uz": "O'sha shamollashdan tuzalib ketishim uchun ikki hafta kerak bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о выздоровлении после болезни, а также о том, чтобы пережить неприятность",
+        "uz": "Kasallikdan tuzalish, shuningdek ko'ngilsizlikni boshdan o'tkazib unutish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "over",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "see a doctor",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сходить к врачу",
+        "uz": "shifokorga ko'rinmoq"
+      },
+      "example": "You've had a headache for three days. You should see a doctor.",
+      "example_translations": {
+        "ru": "У тебя три дня болит голова. Тебе надо сходить к врачу.",
+        "uz": "Uch kundan beri boshing og'riyapti. Shifokorga ko'rinishing kerak."
+      },
+      "hooks": {
+        "ru": "Советуют, когда здоровье беспокоит уже несколько дней",
+        "uz": "Bir necha kundan beri sog'liq bezovta qilayotganda maslahat sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "doctor",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pass out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "потерять сознание",
+        "uz": "hushidan ketmoq"
+      },
+      "example": "It was so hot in the room that one student passed out.",
+      "example_translations": {
+        "ru": "В комнате было так жарко, что один студент потерял сознание.",
+        "uz": "Xonada shunchalik issiq ediki, bir talaba hushidan ketib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о внезапном обмороке от жары, голода или усталости",
+        "uz": "Issiq, ochlik yoki charchoqdan to'satdan hushdan ketish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pass",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "call in sick",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сообщить на работу, что заболел",
+        "uz": "kasalligini aytib, ishga chiqmaslik"
+      },
+      "example": "Bekzod called in sick today, so I'm doing his work.",
+      "example_translations": {
+        "ru": "Бекзод сегодня сообщил, что заболел, так что я делаю его работу.",
+        "uz": "Bekzod bugun kasalligini aytib ishga chiqmadi, shuning uchun uning ishini men qilyapman."
+      },
+      "hooks": {
+        "ru": "Говорят о сотруднике, который сообщил начальнику, что болен и не придёт на работу",
+        "uz": "Rahbariga kasal ekanini va ishga kelmasligini xabar qilgan xodim haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sick",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

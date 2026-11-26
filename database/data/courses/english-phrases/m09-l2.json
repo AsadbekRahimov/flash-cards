@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 9,
+    "title": "Работа",
+    "title_uz": "Ish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Задачи и сроки",
+    "title_uz": "Vazifalar va muddatlar"
+  },
+  "words": [
+    {
+      "word": "on time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вовремя",
+        "uz": "o'z vaqtida"
+      },
+      "example": "The train left on time, at exactly eight o'clock.",
+      "example_translations": {
+        "ru": "Поезд отправился вовремя, ровно в восемь.",
+        "uz": "Poyezd o'z vaqtida, roppa-rosa soat sakkizda jo'nadi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что сделано или пришло точно в назначенное время",
+        "uz": "Aynan belgilangan vaqtda bajarilgan yoki kelgan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "time",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "behind schedule",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "с отставанием от графика",
+        "uz": "rejadan orqada"
+      },
+      "example": "The new bridge is six months behind schedule.",
+      "example_translations": {
+        "ru": "Строительство нового моста отстаёт от графика на полгода.",
+        "uz": "Yangi ko'prik qurilishi rejadan olti oy orqada."
+      },
+      "hooks": {
+        "ru": "Говорят о работе или проекте, который не успевают сделать к сроку",
+        "uz": "Muddatga ulgurmayotgan ish yoki loyiha haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "behind",
+        "literal": {
+          "ru": "позади расписания",
+          "uz": "jadvaldan orqada"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "meet a deadline",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уложиться в срок",
+        "uz": "muddatga ulgurmoq"
+      },
+      "example": "We worked all weekend to meet a deadline for the client.",
+      "example_translations": {
+        "ru": "Мы работали все выходные, чтобы уложиться в срок для клиента.",
+        "uz": "Mijoz uchun muddatga ulgurish maqsadida butun dam olish kunlari ishladik."
+      },
+      "hooks": {
+        "ru": "Говорят о том, чтобы закончить работу к назначенному сроку",
+        "uz": "Ishni belgilangan muddatgacha tugatish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "deadline",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "as soon as possible",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как можно скорее",
+        "uz": "imkon qadar tezroq"
+      },
+      "example": "Please call me back as soon as possible. It's urgent.",
+      "example_translations": {
+        "ru": "Пожалуйста, перезвоните мне как можно скорее. Это срочно.",
+        "uz": "Iltimos, imkon qadar tezroq qayta qo'ng'iroq qiling. Bu shoshilinch."
+      },
+      "hooks": {
+        "ru": "Просят сделать что-то срочно; в письмах часто сокращают ASAP",
+        "uz": "Biror ishni shoshilinch qilishni so'rashadi; xatlarda ko'pincha ASAP deb qisqartiriladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "possible",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "fall behind",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отстать",
+        "uz": "ortda qolmoq"
+      },
+      "example": "I was ill for a week and fell behind with my work.",
+      "example_translations": {
+        "ru": "Я неделю болел и отстал в работе.",
+        "uz": "Bir hafta kasal bo'lib, ishimdan ortda qoldim."
+      },
+      "hooks": {
+        "ru": "Говорят, когда не успевают за планом или за другими",
+        "uz": "Reja yoki boshqalardan ortda qolganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fall",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get it done",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сделать дело",
+        "uz": "ishni bitirmoq"
+      },
+      "example": "It's a lot of work, but we'll get it done by Friday.",
+      "example_translations": {
+        "ru": "Работы много, но к пятнице мы её сделаем.",
+        "uz": "Ish ko'p, lekin jumagacha bitiramiz."
+      },
+      "hooks": {
+        "ru": "Уверенно говорят, что задача будет выполнена",
+        "uz": "Vazifa albatta bajarilishini ishonch bilan aytishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "done",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "at the last minute",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в последний момент",
+        "uz": "so'nggi daqiqada"
+      },
+      "example": "He always does his homework at the last minute.",
+      "example_translations": {
+        "ru": "Он всегда делает домашнее задание в последний момент.",
+        "uz": "U uy vazifasini doim so'nggi daqiqada qiladi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что сделано перед самым сроком",
+        "uz": "Muddat tugashidan sal oldin qilingan ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "last",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a tight deadline",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сжатые сроки",
+        "uz": "qisqa muddat"
+      },
+      "example": "We have a tight deadline, so there's no time for long meetings.",
+      "example_translations": {
+        "ru": "У нас сжатые сроки, так что на долгие совещания нет времени.",
+        "uz": "Muddatimiz qisqa, shuning uchun uzoq yig'ilishlarga vaqt yo'q."
+      },
+      "hooks": {
+        "ru": "Говорят, когда на работу дали очень мало времени",
+        "uz": "Ishga juda kam vaqt berilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tight",
+        "literal": {
+          "ru": "тесный крайний срок",
+          "uz": "tor muddat"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "to-do list",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "список дел",
+        "uz": "qilinadigan ishlar ro'yxati"
+      },
+      "example": "My to-do list for today is very long.",
+      "example_translations": {
+        "ru": "Мой список дел на сегодня очень длинный.",
+        "uz": "Bugungi qilinadigan ishlar ro'yxatim juda uzun."
+      },
+      "hooks": {
+        "ru": "Говорят о списке задач, которые нужно сделать",
+        "uz": "Bajarilishi kerak bo'lgan vazifalar ro'yxati haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "list",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "first thing in the morning",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "первым делом с утра",
+        "uz": "ertalab birinchi navbatda"
+      },
+      "example": "I'll send you the report first thing in the morning.",
+      "example_translations": {
+        "ru": "Я пришлю вам отчёт завтра первым делом с утра.",
+        "uz": "Hisobotni ertaga ertalab birinchi navbatda yuboraman."
+      },
+      "hooks": {
+        "ru": "Обещают сделать что-то утром раньше всех других дел",
+        "uz": "Ertalab boshqa ishlardan oldin biror narsani qilishga va'da berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "first",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

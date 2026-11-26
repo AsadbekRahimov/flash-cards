@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 6,
+    "title": "Дом и время",
+    "title_uz": "Uy va vaqt"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Время",
+    "title_uz": "Vaqt"
+  },
+  "words": [
+    {
+      "word": "in a minute",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "через минуту",
+        "uz": "bir daqiqada"
+      },
+      "example": "Mum, can you help me? — In a minute, I'm on the phone.",
+      "example_translations": {
+        "ru": "Мам, поможешь? — Через минуту, я разговариваю по телефону.",
+        "uz": "Oyi, yordam berasizmi? — Bir daqiqada, telefonda gaplashyapman."
+      },
+      "hooks": {
+        "ru": "Обещают сделать что-то очень скоро, как только освободятся",
+        "uz": "Bo'shashi bilan biror ishni tez orada qilishga va'da berishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "minute",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Just a second",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "секундочку",
+        "uz": "bir soniya"
+      },
+      "example": "Is Aziz at home? — Just a second, I'll get him.",
+      "example_translations": {
+        "ru": "Азиз дома? — Секундочку, сейчас позову.",
+        "uz": "Aziz uydami? — Bir soniya, hozir chaqiraman."
+      },
+      "hooks": {
+        "ru": "Просят собеседника немного подождать",
+        "uz": "Suhbatdoshdan biroz kutib turishni so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "second",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "from time to time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время от времени",
+        "uz": "vaqti-vaqti bilan"
+      },
+      "example": "We don't go to the cinema often, just from time to time.",
+      "example_translations": {
+        "ru": "Мы ходим в кино нечасто, только время от времени.",
+        "uz": "Biz kinoga tez-tez bormaymiz, faqat vaqti-vaqti bilan."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что бывает иногда, нерегулярно",
+        "uz": "Ba'zan, muntazam bo'lmagan holda bo'ladigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "from",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in no time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "моментально",
+        "uz": "ko'z ochib yumguncha"
+      },
+      "example": "Don't worry, the taxi will be here in no time.",
+      "example_translations": {
+        "ru": "Не волнуйся, такси приедет моментально.",
+        "uz": "Xavotir olma, taksi ko'z ochib yumguncha keladi."
+      },
+      "hooks": {
+        "ru": "Обещают, что что-то случится или будет сделано очень быстро",
+        "uz": "Biror narsa juda tez bo'lishi yoki bajarilishini aytishadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "time",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "at the moment",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в данный момент",
+        "uz": "hozirgi paytda"
+      },
+      "example": "I'm sorry, Mr. Brown is busy at the moment.",
+      "example_translations": {
+        "ru": "Извините, мистер Браун сейчас занят.",
+        "uz": "Kechirasiz, janob Braun hozir band."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что происходит прямо сейчас; часто вежливо в офисе",
+        "uz": "Ayni paytda bo'layotgan narsa haqida aytiladi; ko'pincha idorada xushmuomalalik bilan"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "moment",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the day after tomorrow",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "послезавтра",
+        "uz": "indinga"
+      },
+      "example": "The test isn't tomorrow, it's the day after tomorrow.",
+      "example_translations": {
+        "ru": "Контрольная не завтра, а послезавтра.",
+        "uz": "Nazorat ishi ertaga emas, indinga."
+      },
+      "hooks": {
+        "ru": "Говорят о дне, который наступит через два дня",
+        "uz": "Ikki kundan keyin keladigan kun haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "after",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Time's up!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "время вышло!",
+        "uz": "vaqt tugadi!"
+      },
+      "example": "Time's up! Please put your pens down.",
+      "example_translations": {
+        "ru": "Время вышло! Пожалуйста, положите ручки.",
+        "uz": "Vaqt tugadi! Iltimos, ruchkalaringizni qo'ying."
+      },
+      "hooks": {
+        "ru": "Объявляют, что отведённое время закончилось: на экзамене, в игре",
+        "uz": "Ajratilgan vaqt tugaganini e'lon qilishadi: imtihonda, o'yinda"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "up",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "sooner or later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рано или поздно",
+        "uz": "ertami-kechmi"
+      },
+      "example": "Don't worry, sooner or later you'll find a good job.",
+      "example_translations": {
+        "ru": "Не переживай, рано или поздно ты найдёшь хорошую работу.",
+        "uz": "Xavotir olma, ertami-kechmi yaxshi ish topasan."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что обязательно случится, хоть и неизвестно когда",
+        "uz": "Qachonligi noma'lum bo'lsa ham, albatta bo'ladigan narsa haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sooner",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Take your time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не торопитесь",
+        "uz": "shoshilmang"
+      },
+      "example": "Sorry, I'm still choosing. — Take your time.",
+      "example_translations": {
+        "ru": "Извините, я ещё выбираю. — Не торопитесь.",
+        "uz": "Kechirasiz, hali tanlayapman. — Shoshilmang."
+      },
+      "hooks": {
+        "ru": "Вежливо говорят, что можно не спешить",
+        "uz": "Shoshilmasa ham bo'lishini xushmuomalalik bilan aytishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "take",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "for ages",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "целую вечность",
+        "uz": "juda uzoq vaqt"
+      },
+      "example": "Where have you been? I've been waiting for ages!",
+      "example_translations": {
+        "ru": "Где ты был? Я жду тебя целую вечность!",
+        "uz": "Qayerda eding? Seni juda uzoq vaqtdan beri kutyapman!"
+      },
+      "hooks": {
+        "ru": "С преувеличением говорят о долгом ожидании или о том, что давно не виделись",
+        "uz": "Uzoq kutish yoki ancha vaqt ko'rishmaganlik haqida mubolag'a bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "ages",
+        "literal": {
+          "ru": "веками",
+          "uz": "asrlar davomida"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

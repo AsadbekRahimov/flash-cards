@@ -1,0 +1,265 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 6,
+    "title": "Дом и время",
+    "title_uz": "Uy va vaqt"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Дела по дому",
+    "title_uz": "Uy ishlari"
+  },
+  "words": [
+    {
+      "word": "do the dishes",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мыть посуду",
+        "uz": "idish-tovoq yuvmoq"
+      },
+      "example": "You cooked dinner, so I'll do the dishes.",
+      "example_translations": {
+        "ru": "Ты приготовил ужин, так что посуду помою я.",
+        "uz": "Kechki ovqatni sen pishirding, shuning uchun idishlarni men yuvaman."
+      },
+      "hooks": {
+        "ru": "Говорят о мытье посуды после еды — обычное домашнее дело",
+        "uz": "Ovqatdan keyin idish yuvish haqida aytiladi — oddiy uy ishi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "dishes",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "tidy up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "прибраться",
+        "uz": "yig'ishtirmoq"
+      },
+      "example": "Please tidy up your room before the guests arrive.",
+      "example_translations": {
+        "ru": "Пожалуйста, приберись в комнате до прихода гостей.",
+        "uz": "Iltimos, mehmonlar kelguncha xonangni yig'ishtir."
+      },
+      "hooks": {
+        "ru": "Говорят, когда нужно навести порядок и разложить вещи по местам",
+        "uz": "Narsalarni joy-joyiga qo'yib, tartib o'rnatish kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tidy",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take out the trash",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выносить мусор",
+        "uz": "axlatni chiqarib tashlamoq"
+      },
+      "example": "Can you take out the trash? The bin is full.",
+      "example_translations": {
+        "ru": "Можешь вынести мусор? Ведро полное.",
+        "uz": "Axlatni chiqarib tashlay olasanmi? Chelak to'lib qolibdi."
+      },
+      "hooks": {
+        "ru": "Американский вариант просьбы вынести мусор; британцы говорят take the rubbish out",
+        "uz": "Axlatni chiqarishni so'rashning amerikacha varianti; britaniyaliklar take the rubbish out deydi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "us",
+        "gap": "trash",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take turns",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать по очереди",
+        "uz": "navbatma-navbat qilmoq"
+      },
+      "example": "We take turns cooking: I cook on Mondays, my brother on Tuesdays.",
+      "example_translations": {
+        "ru": "Мы готовим по очереди: я — по понедельникам, брат — по вторникам.",
+        "uz": "Biz navbatma-navbat ovqat pishiramiz: men dushanba kunlari, akam seshanba kunlari."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дело делят и выполняют один за другим",
+        "uz": "Ishni bo'lishib, birin-ketin bajarganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "turns",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "do the laundry",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "стирать бельё",
+        "uz": "kir yuvmoq"
+      },
+      "example": "I usually do the laundry on Sunday mornings.",
+      "example_translations": {
+        "ru": "Я обычно стираю по воскресеньям утром.",
+        "uz": "Men odatda yakshanba kuni ertalab kir yuvaman."
+      },
+      "hooks": {
+        "ru": "Говорят о стирке одежды — в машине или руками",
+        "uz": "Kiyimlarni mashinada yoki qo'lda yuvish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "laundry",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "make the bed",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заправить кровать",
+        "uz": "o'rinni yig'ishtirmoq"
+      },
+      "example": "Every morning I make the bed and open the window.",
+      "example_translations": {
+        "ru": "Каждое утро я заправляю кровать и открываю окно.",
+        "uz": "Har kuni ertalab o'rnimni yig'ishtirib, derazani ochaman."
+      },
+      "hooks": {
+        "ru": "Говорят об утреннем деле: поправить одеяло и подушку после сна",
+        "uz": "Uyqudan keyin ko'rpa va yostiqni tartibga keltirish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "bed",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "do the housework",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать работу по дому",
+        "uz": "uy ishlarini qilmoq"
+      },
+      "example": "My grandmother does the housework and still finds time to read.",
+      "example_translations": {
+        "ru": "Моя бабушка делает всю работу по дому и ещё находит время почитать.",
+        "uz": "Buvim uy ishlarini qiladi va kitob o'qishga ham vaqt topadi."
+      },
+      "hooks": {
+        "ru": "Общее название домашних дел: уборка, стирка, глажка",
+        "uz": "Uydagi barcha ishlar — tozalash, kir yuvish, dazmollashning umumiy nomi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "housework",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "put away",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "убрать на место",
+        "uz": "joyiga qo'ymoq"
+      },
+      "example": "Put your toys away, please — dinner is ready.",
+      "example_translations": {
+        "ru": "Убери, пожалуйста, игрушки — ужин готов.",
+        "uz": "Iltimos, o'yinchoqlaringni joyiga qo'y — kechki ovqat tayyor."
+      },
+      "hooks": {
+        "ru": "Говорят, когда вещь нужно убрать туда, где она хранится",
+        "uz": "Narsani saqlanadigan joyiga olib qo'yish kerak bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "away",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "water the plants",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поливать цветы",
+        "uz": "gullarga suv quymoq"
+      },
+      "example": "Could you water the plants while I'm away?",
+      "example_translations": {
+        "ru": "Ты не мог бы поливать цветы, пока меня не будет?",
+        "uz": "Men yo'qligimda gullarga suv quyib tura olasanmi?"
+      },
+      "hooks": {
+        "ru": "Обычная просьба к соседу или родным, когда уезжаете",
+        "uz": "Safarga ketayotganda qo'shni yoki yaqinlarga qilinadigan oddiy iltimos"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "plants",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What a mess!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ну и беспорядок!",
+        "uz": "voy, qanday tartibsizlik!"
+      },
+      "example": "What a mess! Who left all these clothes on the floor?",
+      "example_translations": {
+        "ru": "Ну и беспорядок! Кто оставил всю эту одежду на полу?",
+        "uz": "Voy, qanday tartibsizlik! Bu kiyimlarni polga kim tashlab ketdi?"
+      },
+      "hooks": {
+        "ru": "Восклицают, увидев разбросанные вещи или грязь в комнате",
+        "uz": "Sochilib yotgan narsalar yoki xonadagi iflosni ko'rganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mess",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

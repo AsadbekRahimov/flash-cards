@@ -433,6 +433,9 @@ final class TrainingFlowService
     /**
      * What the answered meaning / reverse / audio card was sent without (docs/06 §12.2). Read after the grade is committed: the
      * hook comes from the cache and the confusable pair from one indexed query, neither belongs under the row locks.
+     *
+     * A phrase on gap_fill / pretest (docs/06 §16) comes back too, for its literal translation (`phrase.literal`): from the row and
+     * the translation the grade already read - no statement; no example (none is shown after these), hook or confusable pair.
      */
     private function revealed(AcceptedReview $accepted): ?RevealedCard
     {
@@ -442,21 +445,21 @@ final class TrainingFlowService
             return null;
         }
 
-        $reverse = $accepted->exercise === ExerciseType::Reverse;
+        $choice = $accepted->exercise->hidesChoiceAnswer();
+        $example = $choice ? $accepted->example : null;
 
         return new RevealedCard(
             word: $word->word,
             translation: $translation->text,
-            // The right option exactly as it stands among the options: reverse — the word; meaning / audio — the translation.
-            correct: $reverse ? trim($word->word) : trim($translation->text),
-            example: $accepted->example,
-            exampleTranslation: $accepted->exampleTranslation,
+            correct: RevealedCard::correctOf($accepted->exercise, $word->word, $translation->text),
+            example: $example,
+            exampleTranslation: $choice ? $accepted->exampleTranslation : null,
             transcription: $word->transcription,
             audioUrl: $this->audio->urlFor($word),
-            hook: $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
+            hook: $choice && $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
             note: $this->ladder->hooksEnabled ? self::text($accepted->repetition->note) : null,
-            confusedWith: $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
-            exampleAudioUrl: $this->audio->exampleUrlFor($word, $accepted->example),
+            confusedWith: $choice && $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
+            exampleAudioUrl: $choice ? $this->audio->exampleUrlFor($word, $example) : null,
             phrase: Phrase::forCard($word, $translation->locale, true),
         );
     }

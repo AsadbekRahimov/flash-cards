@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 16,
+    "title": "Идиомы: тело",
+    "title_uz": "Iboralar: tana a'zolari"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Руки и ноги",
+    "title_uz": "Qo'llar va oyoqlar"
+  },
+  "words": [
+    {
+      "word": "pull someone's leg",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разыгрывать кого-то",
+        "uz": "birov bilan hazillashmoq"
+      },
+      "example": "Our teacher is moving to Antarctica. — Come on, you're pulling my leg!",
+      "example_translations": {
+        "ru": "Наш учитель переезжает в Антарктиду. — Да ладно, ты меня разыгрываешь!",
+        "uz": "O'qituvchimiz Antarktidaga ko'chib ketyapti. — Qo'ysang-chi, hazillashyapsan!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда кто-то в шутку выдаёт неправду за правду; обычно Are you pulling my leg?",
+        "uz": "Kimdir hazil qilib yolg'onni rost qilib aytganda ishlatiladi; ko'pincha Are you pulling my leg?"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "leg",
+        "literal": {
+          "ru": "тянуть кого-то за ногу",
+          "uz": "birovning oyog'idan tortmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get cold feet",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "струсить в последний момент",
+        "uz": "so'nggi daqiqada qo'rqib qolmoq"
+      },
+      "example": "Tom was going to sing at the school concert, but he got cold feet.",
+      "example_translations": {
+        "ru": "Том собирался петь на школьном концерте, но в последний момент струсил.",
+        "uz": "Tom maktab konsertida qo'shiq aytmoqchi edi, lekin so'nggi daqiqada qo'rqib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто был готов к важному шагу, но испугался и передумал",
+        "uz": "Muhim qadamga tayyor turib, oxirida qo'rqib fikridan qaytgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cold",
+        "literal": {
+          "ru": "получить холодные ноги",
+          "uz": "oyoqlari sovqotmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "all thumbs",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "руки-крюки",
+        "uz": "qo'li ishga kelishmaydi"
+      },
+      "example": "I'm all thumbs when it comes to sewing — can you fix this button?",
+      "example_translations": {
+        "ru": "Когда дело доходит до шитья, у меня руки-крюки — пришьёшь эту пуговицу?",
+        "uz": "Tikishga kelganda qo'lim ishga kelishmaydi — shu tugmani tikib bera olasanmi?"
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о себе или другом, кто неловко работает руками",
+        "uz": "Qo'li bilan ishni noshud bajaradigan odam yoki o'zi haqida hazil qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "thumbs",
+        "literal": {
+          "ru": "весь из больших пальцев",
+          "uz": "butunlay bosh barmoqlardan iborat"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "cost an arm and a leg",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "стоить целое состояние",
+        "uz": "juda qimmatga tushmoq"
+      },
+      "example": "The new phone is great, but it costs an arm and a leg.",
+      "example_translations": {
+        "ru": "Новый телефон отличный, но стоит целое состояние.",
+        "uz": "Yangi telefon zo'r, lekin juda qimmatga tushadi."
+      },
+      "hooks": {
+        "ru": "Говорят о вещи или услуге, которая стоит слишком дорого",
+        "uz": "Juda qimmat turadigan narsa yoki xizmat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "arm",
+        "literal": {
+          "ru": "стоить руку и ногу",
+          "uz": "bir qo'l va bir oyoqqa tushmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "have your hands full",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть занятым по горло",
+        "uz": "qo'li qo'liga tegmaslik"
+      },
+      "example": "Sorry, I can't help with the move — I have my hands full with the new baby.",
+      "example_translations": {
+        "ru": "Извини, не смогу помочь с переездом — у меня дел по горло с малышом.",
+        "uz": "Kechir, ko'chishga yordam berolmayman — chaqaloq bilan qo'lim qo'limga tegmayapti."
+      },
+      "hooks": {
+        "ru": "Говорят, когда так заняты, что не могут взяться за что-то ещё",
+        "uz": "Boshqa ishga qo'l urolmaydigan darajada band bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "full",
+        "literal": {
+          "ru": "иметь полные руки",
+          "uz": "qo'llari to'la bo'lmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get out of hand",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выйти из-под контроля",
+        "uz": "nazoratdan chiqib ketmoq"
+      },
+      "example": "The small argument got out of hand, and soon everyone was shouting.",
+      "example_translations": {
+        "ru": "Мелкий спор вышел из-под контроля, и вскоре все кричали.",
+        "uz": "Kichik tortishuv nazoratdan chiqib ketdi va tez orada hamma baqira boshladi."
+      },
+      "hooks": {
+        "ru": "Говорят о ситуации, споре или расходах, которые стали слишком большими и неуправляемыми",
+        "uz": "Haddan oshib, boshqarib bo'lmay qolgan vaziyat, bahs yoki xarajat haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hand",
+        "literal": {
+          "ru": "выйти из руки",
+          "uz": "qo'ldan chiqib ketmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "know something like the back of your hand",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "знать как свои пять пальцев",
+        "uz": "besh qo'lday bilmoq"
+      },
+      "example": "I grew up here, so I know these streets like the back of my hand.",
+      "example_translations": {
+        "ru": "Я здесь вырос, поэтому знаю эти улицы как свои пять пальцев.",
+        "uz": "Shu yerda o'sganman, shuning uchun bu ko'chalarni besh qo'lday bilaman."
+      },
+      "hooks": {
+        "ru": "Говорят о месте или деле, которое знают очень хорошо, до мелочей",
+        "uz": "Juda yaxshi, mayda-chuydasigacha biladigan joy yoki ish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "знать что-то как тыльную сторону своей ладони",
+          "uz": "nimanidir kaftining orqa tomonidek bilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "put your foot down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проявить твёрдость",
+        "uz": "qat'iy turib olmoq"
+      },
+      "example": "When the kids wanted to stay up until midnight, Dad put his foot down.",
+      "example_translations": {
+        "ru": "Когда дети захотели не ложиться до полуночи, папа проявил твёрдость.",
+        "uz": "Bolalar yarim tungacha uxlamay o'tirmoqchi bo'lishganda, dadam qat'iy turib oldi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто твёрдо запретил что-то или настоял на своём; обычно родитель или начальник",
+        "uz": "Biror narsani qat'iy taqiqlagan yoki o'z so'zida turib olgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "down",
+        "literal": {
+          "ru": "поставить ногу вниз",
+          "uz": "oyog'ini yerga qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "find your feet",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "освоиться",
+        "uz": "ko'nikib olmoq"
+      },
+      "example": "It took me a few months to find my feet in the new job.",
+      "example_translations": {
+        "ru": "Мне понадобилось несколько месяцев, чтобы освоиться на новой работе.",
+        "uz": "Yangi ishda ko'nikib olishim uchun bir necha oy kerak bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о новичке на новой работе, в школе или в чужом городе",
+        "uz": "Yangi ish, maktab yoki begona shahardagi yangi odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "feet",
+        "literal": {
+          "ru": "найти свои ноги",
+          "uz": "oyoqlarini topmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "twist someone's arm",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уговорить кого-то",
+        "uz": "birovni ko'ndirmoq"
+      },
+      "example": "I didn't want to go to the party, but Malika twisted my arm.",
+      "example_translations": {
+        "ru": "Я не хотел идти на праздник, но Малика меня уломала.",
+        "uz": "Ziyofatga borgim yo'q edi, lekin Malika meni ko'ndirib qo'ydi."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят, когда кого-то долго уговаривали и он согласился",
+        "uz": "Uzoq qistalgandan keyin rozi bo'lgan odam haqida hazil bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "twist",
+        "literal": {
+          "ru": "выкрутить кому-то руку",
+          "uz": "birovning qo'lini qayirmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

@@ -189,6 +189,77 @@ it('carries the labels of the phrase on the card, hides the literal while it giv
     expect($seen)->toBe(['flash' => true, 'choice' => true]);
 });
 
+it('reveals the phrase with its literal after a gap-fill answer, right or wrong, without the example', function (int $quality): void {
+    [, , $phrases] = PhraseKit::import();
+    [$learner, $h] = phxLearner();
+    phxDue($learner, $phrases);
+
+    $opened = $this->withHeaders($h)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk()->json();
+    $card = $opened['card'];
+    $seen = 0;
+    for ($guard = 0; $card !== null && $guard < 40; $guard++) {
+        $word = Word::query()->findOrFail($card['word_id']);
+        $type = CardAnswers::typeOf($card);
+        $answered = $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$opened['session_id']}/review", CardAnswers::body($card, $quality))->assertOk()->json();
+        if ($type === ExerciseType::GapFill) {
+            expect($card['phrase']['literal'])->toBeNull()
+                ->and($answered['revealed'])->toMatchArray([
+                    'word' => $word->word,
+                    'translation' => app(WordTranslationResolver::class)->resolve($word, 'ru')->text,
+                    // No options on a gap-fill: the whole phrase the key word was cut from.
+                    'correct' => trim($word->word),
+                    'example' => null, 'example_translation' => null, 'example_audio_url' => null, 'hook' => null, 'confused_with' => null,
+                    'phrase' => ['kind' => $word->meta['phrase']['kind'], 'register' => $word->meta['phrase']['register'], 'variant' => $word->meta['phrase']['variant'], 'literal' => $word->meta['phrase']['literal']['ru'] ?? null],
+                ]);
+            $seen += isset($word->meta['phrase']['literal']['ru']) ? 1 : 0;
+        }
+        $card = $answered['card'];
+    }
+
+    expect($seen)->toBeGreaterThan(0);
+})->with(['right' => [4], 'wrong' => [1]]);
+
+it('reveals the phrase with its literal after a pretest pick: the translation is the right option', function (): void {
+    config(['learning.pretest.enabled' => true]);
+    [, $lesson, $phrases] = PhraseKit::import();
+    [, $h] = phxLearner();
+
+    $opened = $this->withHeaders($h)->postJson('/api/twa/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lesson->id])->assertOk()->json();
+    $card = $opened['card'];
+    expect(CardAnswers::typeOf($card))->toBe(ExerciseType::Pretest);
+    $word = Word::query()->findOrFail($card['word_id']);
+    $translation = app(WordTranslationResolver::class)->resolve($word, 'ru')->text;
+
+    $answered = $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$opened['session_id']}/review", CardAnswers::body($card))->assertOk()->json();
+
+    expect($card['phrase']['literal'])->toBeNull()
+        ->and($answered['graded']['correct'])->toBeTrue()
+        ->and($answered['revealed'])->toMatchArray([
+            'word' => $word->word, 'translation' => $translation, 'correct' => trim($translation), 'example' => null, 'hook' => null,
+            'phrase' => ['kind' => $word->meta['phrase']['kind'], 'register' => $word->meta['phrase']['register'], 'variant' => $word->meta['phrase']['variant'], 'literal' => $word->meta['phrase']['literal']['ru'] ?? null],
+        ]);
+});
+
+it('keeps `revealed` null after a gap-fill, spelling or pretest answer of a word', function (): void {
+    config(['learning.pretest.enabled' => true]);
+    expect(ExerciseType::GapFill->revealsAfterAnswer(false))->toBeFalse()
+        ->and(ExerciseType::Pretest->revealsAfterAnswer(false))->toBeFalse()
+        ->and(ExerciseType::Spelling->revealsAfterAnswer(true))->toBeFalse()
+        ->and(ExerciseType::GapFill->revealsAfterAnswer(true))->toBeTrue()
+        ->and(ExerciseType::Pretest->revealsAfterAnswer(true))->toBeTrue()
+        ->and(ExerciseType::Meaning->revealsAfterAnswer(false))->toBeTrue();
+
+    ['lessons' => $lessons] = Fx::course([1 => [1 => 4]]);
+    [, $h] = phxLearner();
+    $opened = $this->withHeaders($h)->postJson('/api/twa/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lessons['1.1']->id])->assertOk()->json();
+    $card = $opened['card'];
+    expect(CardAnswers::typeOf($card))->toBe(ExerciseType::Pretest)
+        ->and($card['phrase'])->toBeNull();
+
+    $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$opened['session_id']}/review", CardAnswers::body($card))
+        ->assertOk()->assertJsonPath('revealed', null);
+});
+
 it('sends no phrase block on the card of a word', function (): void {
     ['lessons' => $lessons] = Fx::course([1 => [1 => 5]]);
     [, $h] = phxLearner();

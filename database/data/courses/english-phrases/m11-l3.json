@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 11,
+    "title": "Люди и отношения",
+    "title_uz": "Odamlar va munosabatlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Внешность",
+    "title_uz": "Tashqi ko'rinish"
+  },
+  "words": [
+    {
+      "word": "look like",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "быть похожим на",
+        "uz": "... ga o'xshamoq"
+      },
+      "example": "You look like your mother. — Everyone says that!",
+      "example_translations": {
+        "ru": "Ты похожа на маму. — Все так говорят!",
+        "uz": "Sen onangga o'xshaysan. — Hamma shunday deydi!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда один человек внешне похож на другого",
+        "uz": "Bir odam tashqi ko'rinishdan boshqasiga o'xshasa aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "like",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "dress up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "нарядиться",
+        "uz": "yasanib olmoq"
+      },
+      "example": "We're going to a wedding, so we need to dress up.",
+      "example_translations": {
+        "ru": "Мы идём на свадьбу, так что нужно нарядиться.",
+        "uz": "To'yga boryapmiz, shuning uchun yasanib olishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда надевают лучшую, нарядную одежду для праздника или особого случая",
+        "uz": "Bayram yoki maxsus tadbir uchun eng chiroyli kiyimlarni kiyganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "dress",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in good shape",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в хорошей форме",
+        "uz": "jismonan baquvvat"
+      },
+      "example": "My dad is sixty, but he's in good shape because he swims every day.",
+      "example_translations": {
+        "ru": "Папе шестьдесят, но он в хорошей форме, потому что каждый день плавает.",
+        "uz": "Dadam oltmish yoshda, lekin har kuni suzgani uchun jismonan baquvvat."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке со здоровым, крепким, подтянутым телом",
+        "uz": "Sog'lom, baquvvat va qaddi-qomati kelishgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "shape",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the spitting image of someone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вылитый кто-то",
+        "uz": "kimningdir xuddi o'zi"
+      },
+      "example": "Look at this old photo! You're the spitting image of your grandfather.",
+      "example_translations": {
+        "ru": "Посмотри на эту старую фотографию! Ты вылитый дедушка.",
+        "uz": "Bu eski suratga qara! Sen bobongning xuddi o'zisan."
+      },
+      "hooks": {
+        "ru": "Говорят, когда кто-то очень сильно похож на родственника",
+        "uz": "Kimdir qarindoshiga juda o'xshab ketsa aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "spitting",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It looks good on you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вам идёт",
+        "uz": "sizga yarashibdi"
+      },
+      "example": "What do you think of this jacket? — It looks good on you!",
+      "example_translations": {
+        "ru": "Как вам эта куртка? — Она вам идёт!",
+        "uz": "Bu kurtka haqida nima deysiz? — Sizga yarashibdi!"
+      },
+      "hooks": {
+        "ru": "Говорят комплимент, когда одежда или причёска человеку к лицу",
+        "uz": "Kiyim yoki soch turmagi odamga yarashsa, maqtov sifatida aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "good",
+        "literal": {
+          "ru": "это хорошо выглядит на вас",
+          "uz": "bu sizning ustingizda yaxshi ko'rinadi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "look your age",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выглядеть на свой возраст",
+        "uz": "yoshiga mos ko'rinmoq"
+      },
+      "example": "My aunt is fifty, but she doesn't look her age at all.",
+      "example_translations": {
+        "ru": "Моей тёте пятьдесят, но она совсем не выглядит на свой возраст.",
+        "uz": "Xolam ellik yoshda, lekin yoshidan ancha yosh ko'rinadi."
+      },
+      "hooks": {
+        "ru": "Чаще говорят с отрицанием, как комплимент: человек выглядит моложе своих лет",
+        "uz": "Ko'pincha inkor shaklida, maqtov sifatida aytiladi: odam yoshidan yoshroq ko'rinadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "age",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put on weight",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поправиться, набрать вес",
+        "uz": "semirib qolmoq"
+      },
+      "example": "I put on weight over the holidays, so I've started running.",
+      "example_translations": {
+        "ru": "За праздники я поправился, поэтому начал бегать.",
+        "uz": "Bayram kunlarida semirib qoldim, shuning uchun yugurishni boshladim."
+      },
+      "hooks": {
+        "ru": "Говорят о себе или близких; о чужом весе вслух лучше не говорить — может обидеть",
+        "uz": "O'zi yoki yaqinlari haqida aytiladi; boshqa odamning vazni haqida ochiq gapirish uni xafa qilishi mumkin"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "weight",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get a haircut",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "подстричься",
+        "uz": "soch oldirmoq"
+      },
+      "example": "Did you get a haircut? It looks great!",
+      "example_translations": {
+        "ru": "Ты подстригся? Отлично выглядит!",
+        "uz": "Soch oldirdingmi? Juda zo'r ko'rinyapti!"
+      },
+      "hooks": {
+        "ru": "Говорят о походе в парикмахерскую; часто так замечают у друга новую стрижку",
+        "uz": "Sartaroshxonaga borish haqida aytiladi; ko'pincha do'stning yangi soch turmagini payqab so'rashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "haircut",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "out of fashion",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вышедший из моды",
+        "uz": "modadan qolgan"
+      },
+      "example": "Nobody wears jeans like these anymore; they're out of fashion.",
+      "example_translations": {
+        "ru": "Такие джинсы больше никто не носит: они вышли из моды.",
+        "uz": "Bunday jinsini endi hech kim kiymaydi: ular modadan qolgan."
+      },
+      "hooks": {
+        "ru": "Говорят об одежде, причёске или вещи, которую сейчас уже не носят",
+        "uz": "Hozir endi kiyilmaydigan kiyim, soch turmagi yoki buyum haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fashion",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bad hair day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "день, когда всё не так",
+        "uz": "hech ishi o'ngidan kelmaydigan kun"
+      },
+      "example": "Sorry I'm so grumpy. I'm having a bad hair day.",
+      "example_translations": {
+        "ru": "Прости, что я такая ворчливая. У меня сегодня всё не так.",
+        "uz": "Kechirasan, kayfiyatim yo'q. Bugun hech ishim o'ngidan kelmayapti."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят, когда с утра не нравится своя внешность и всё идёт не так",
+        "uz": "Ertalabdan tashqi ko'rinishing yoqmasa va hamma ish teskari ketsa, hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hair",
+        "literal": {
+          "ru": "день плохих волос",
+          "uz": "sochlar yomon turgan kun"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

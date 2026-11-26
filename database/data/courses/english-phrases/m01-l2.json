@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Прощание",
+    "title_uz": "Xayrlashish"
+  },
+  "words": [
+    {
+      "word": "See you later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "увидимся",
+        "uz": "ko'rishguncha"
+      },
+      "example": "I'm off to the gym. See you later! — Bye!",
+      "example_translations": {
+        "ru": "Я в спортзал. Увидимся! — Пока!",
+        "uz": "Men sport zaliga ketdim. Ko'rishguncha! — Xayr!"
+      },
+      "hooks": {
+        "ru": "Прощаются с тем, кого скоро снова увидят: сегодня или в ближайшие дни",
+        "uz": "Tez orada yana ko'radigan odam bilan xayrlashganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "later",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Take care",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "береги себя",
+        "uz": "o'zingni ehtiyot qil"
+      },
+      "example": "Goodbye, Grandma! — Goodbye, Aziz. Take care and call me!",
+      "example_translations": {
+        "ru": "До свидания, бабушка! — До свидания, Азиз. Береги себя и звони!",
+        "uz": "Xayr, buvijon! — Xayr, Aziz. O'zingni ehtiyot qil, qo'ng'iroq qilib tur!"
+      },
+      "hooks": {
+        "ru": "Тёплое прощание с близким человеком или хорошим знакомым",
+        "uz": "Yaqin odam yoki yaxshi tanish bilan iliq xayrlashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "care",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Have a nice day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хорошего дня",
+        "uz": "kuningiz yaxshi o'tsin"
+      },
+      "example": "Here's your coffee. Have a nice day! — Thanks, you too!",
+      "example_translations": {
+        "ru": "Вот ваш кофе. Хорошего дня! — Спасибо, и вам!",
+        "uz": "Mana qahvangiz. Kuningiz yaxshi o'tsin! — Rahmat, sizga ham!"
+      },
+      "hooks": {
+        "ru": "Вежливо говорят на прощание продавцы, коллеги, соседи",
+        "uz": "Sotuvchilar, hamkasblar, qo'shnilar xayrlashganda xushmuomala aytadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "day",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Keep in touch",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "будем на связи",
+        "uz": "aloqada bo'laylik"
+      },
+      "example": "It was great working with you. — You too! Let's keep in touch.",
+      "example_translations": {
+        "ru": "Было здорово с вами работать. — С вами тоже! Давайте будем на связи.",
+        "uz": "Siz bilan ishlash juda yoqimli edi. — Siz bilan ham! Aloqada bo'laylik."
+      },
+      "hooks": {
+        "ru": "Говорят, расставаясь надолго: после поездки, учёбы, совместной работы",
+        "uz": "Uzoq muddatga ajralganda aytiladi: safar, o'qish yoki birga ishlashdan keyin"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "touch",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Bye for now",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пока!",
+        "uz": "hozircha xayr!"
+      },
+      "example": "OK, I'll call you tomorrow. Bye for now! — Bye!",
+      "example_translations": {
+        "ru": "Ладно, позвоню тебе завтра. Пока! — Пока!",
+        "uz": "Xo'p, ertaga qo'ng'iroq qilaman. Hozircha xayr! — Xayr!"
+      },
+      "hooks": {
+        "ru": "Лёгкое «пока» в конце звонка или письма: прощаемся ненадолго",
+        "uz": "Qo'ng'iroq yoki xat oxirida yengil xayrlashish: uzoqqa emas"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "now",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I have to go",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне пора",
+        "uz": "ketishim kerak"
+      },
+      "example": "Sorry, I have to go. My bus is coming. — No problem, bye!",
+      "example_translations": {
+        "ru": "Извини, мне пора. Мой автобус подходит. — Ничего, пока!",
+        "uz": "Kechir, ketishim kerak. Avtobusim kelyapti. — Mayli, xayr!"
+      },
+      "hooks": {
+        "ru": "Вежливо заканчивают разговор, когда нужно уходить",
+        "uz": "Ketish kerak bo'lganda suhbatni xushmuomala yakunlash uchun aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "go",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Catch you later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до скорого",
+        "uz": "keyinroq ko'rishamiz"
+      },
+      "example": "I'm off to class. Catch you later! — Sure, see you at lunch.",
+      "example_translations": {
+        "ru": "Я на занятия. До скорого! — Давай, увидимся за обедом.",
+        "uz": "Men darsga ketdim. Keyinroq ko'rishamiz! — Xo'p, tushlikda ko'rishamiz."
+      },
+      "hooks": {
+        "ru": "Лёгкое прощание с друзьями и коллегами, с которыми скоро встретишься",
+        "uz": "Tez orada ko'rishadigan do'st va hamkasblar bilan yengil xayrlashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "catch",
+        "literal": {
+          "ru": "поймаю тебя позже",
+          "uz": "seni keyinroq tutaman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It was nice talking to you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приятно было пообщаться",
+        "uz": "suhbatlashganimizdan xursandman"
+      },
+      "example": "Well, it was nice talking to you. — You too. Bye!",
+      "example_translations": {
+        "ru": "Что ж, приятно было пообщаться. — Мне тоже. До свидания!",
+        "uz": "Xo'sh, suhbatlashganimizdan xursandman. — Men ham. Xayr!"
+      },
+      "hooks": {
+        "ru": "Вежливо завершают разговор с новым знакомым или коллегой",
+        "uz": "Yangi tanish yoki hamkasb bilan suhbatni xushmuomala yakunlashda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "talking",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Give my regards to your family",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "передавайте привет семье",
+        "uz": "oilangizga salom ayting"
+      },
+      "example": "Give my regards to your family. — Thank you, I will.",
+      "example_translations": {
+        "ru": "Передавайте привет вашей семье. — Спасибо, обязательно передам.",
+        "uz": "Oilangizga mendan salom ayting. — Rahmat, albatta."
+      },
+      "hooks": {
+        "ru": "Вежливо просят передать привет близким собеседника при прощании",
+        "uz": "Xayrlashayotganda suhbatdoshning yaqinlariga salom yo'llash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "regards",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Talk to you soon",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до связи",
+        "uz": "tez orada gaplashamiz"
+      },
+      "example": "I'll send you the photos tonight. Talk to you soon! — Great, bye!",
+      "example_translations": {
+        "ru": "Вечером пришлю тебе фотографии. До связи! — Отлично, пока!",
+        "uz": "Kechqurun senga suratlarni yuboraman. Tez orada gaplashamiz! — Zo'r, xayr!"
+      },
+      "hooks": {
+        "ru": "Прощаются по телефону или в переписке, когда скоро снова созвонятся",
+        "uz": "Telefonda yoki yozishmada, tez orada yana gaplashadigan bo'lsa, xayrlashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "soon",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    }
+  ]
+}

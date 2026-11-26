@@ -12,6 +12,7 @@ use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Contracts\AnswerScoreRecorder;
@@ -360,7 +361,7 @@ final class ReviewSubmissionService
                 ], learner: $learner));
             }
 
-            if (! $exercise->hidesChoiceAnswer()) {
+            if (! $exercise->revealsAfterAnswer(Phrase::isPhraseWord($word))) {
                 return new AcceptedReview($repetition, $exercise, $verdict, score: $score);
             }
 

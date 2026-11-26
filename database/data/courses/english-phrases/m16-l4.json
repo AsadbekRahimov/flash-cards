@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 16,
+    "title": "Идиомы: тело",
+    "title_uz": "Iboralar: tana a'zolari"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Сердце",
+    "title_uz": "Yurak"
+  },
+  "words": [
+    {
+      "word": "Have a heart!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сжалься!",
+        "uz": "rahm qil!"
+      },
+      "example": "Ten more pages of homework? Have a heart, Mr. Brown!",
+      "example_translations": {
+        "ru": "Ещё десять страниц домашнего задания? Сжальтесь, мистер Браун!",
+        "uz": "Yana o'n bet uy vazifasimi? Rahm qiling, janob Braun!"
+      },
+      "hooks": {
+        "ru": "Шутливо просят пожалеть, не быть строгим или жестоким",
+        "uz": "Qattiqqo'l bo'lmaslikni, rahm qilishni hazil aralash so'raganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "have",
+        "literal": {
+          "ru": "имей сердце!",
+          "uz": "yuraging bo'lsin!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a change of heart",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "передумать",
+        "uz": "fikridan qaytmoq"
+      },
+      "example": "Aziz said no at first, but then he had a change of heart and joined the team.",
+      "example_translations": {
+        "ru": "Сначала Азиз отказался, но потом передумал и присоединился к команде.",
+        "uz": "Aziz avval rad etdi, keyin fikridan qaytib, jamoaga qo'shildi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто изменил своё решение или отношение, обычно в лучшую сторону",
+        "uz": "Qarori yoki munosabatini, odatda yaxshi tomonga, o'zgartirgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "change",
+        "literal": {
+          "ru": "перемена сердца",
+          "uz": "yurak o'zgarishi"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "with all my heart",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "от всего сердца",
+        "uz": "chin yurakdan"
+      },
+      "example": "I thank you with all my heart for your help.",
+      "example_translations": {
+        "ru": "От всего сердца благодарю вас за помощь.",
+        "uz": "Yordamingiz uchun chin yurakdan rahmat aytaman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда искренне благодарят, желают или любят; звучит тепло и немного торжественно",
+        "uz": "Samimiy minnatdorchilik, tilak yoki muhabbat bildirilganda aytiladi; iliq va biroz tantanali"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "heart",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "my heart sank",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у меня сердце упало",
+        "uz": "yuragim shuv etib ketdi"
+      },
+      "example": "When I saw the exam results on the board, my heart sank.",
+      "example_translations": {
+        "ru": "Когда я увидел результаты экзамена на доске, у меня сердце упало.",
+        "uz": "Doskadagi imtihon natijalarini ko'rganimda, yuragim shuv etib ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят о внезапном разочаровании или тревоге, когда узнали плохую новость",
+        "uz": "Yomon xabarni bilganda birdan tushkunlik yoki xavotirga tushish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sank",
+        "literal": {
+          "ru": "моё сердце утонуло",
+          "uz": "yuragim cho'kdi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take something to heart",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "принимать близко к сердцу",
+        "uz": "ko'ngliga olmoq"
+      },
+      "example": "Don't take his words to heart — he's just tired.",
+      "example_translations": {
+        "ru": "Не принимай его слова близко к сердцу — он просто устал.",
+        "uz": "Uning gaplarini ko'nglingga olma — u shunchaki charchagan."
+      },
+      "hooks": {
+        "ru": "Говорят о критике или словах, которые сильно задели; часто как совет не обижаться",
+        "uz": "Qattiq ta'sir qilgan tanqid yoki gap haqida aytiladi; ko'pincha xafa bo'lmaslik maslahati"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "take",
+        "literal": {
+          "ru": "взять что-то к сердцу",
+          "uz": "nimanidir yurakka olmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "my heart goes out to someone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всей душой сочувствую кому-то",
+        "uz": "kimgadir chin dildan hamdardman"
+      },
+      "example": "My heart goes out to the families who lost their homes in the flood.",
+      "example_translations": {
+        "ru": "Всей душой сочувствую семьям, потерявшим дома при наводнении.",
+        "uz": "Suv toshqinida uyidan ayrilgan oilalarga chin dildan hamdardman."
+      },
+      "hooks": {
+        "ru": "Выражают искреннее сочувствие людям в беде; звучит серьёзно",
+        "uz": "Musibatga uchragan odamlarga samimiy hamdardlik bildirilganda aytiladi; jiddiy ohangda"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "goes",
+        "literal": {
+          "ru": "моё сердце идёт к кому-то",
+          "uz": "yuragim kimgadir boradi"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "wear your heart on your sleeve",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не скрывать своих чувств",
+        "uz": "his-tuyg'ularini yashirmaslik"
+      },
+      "example": "Tom wears his heart on his sleeve — you always know how he feels.",
+      "example_translations": {
+        "ru": "Том не скрывает своих чувств — всегда видно, что он чувствует.",
+        "uz": "Tom his-tuyg'ularini yashirmaydi — uning kayfiyati doim yuzidan bilinib turadi."
+      },
+      "hooks": {
+        "ru": "Говорят об открытом человеке, у которого все эмоции видны",
+        "uz": "Barcha his-tuyg'ulari ko'rinib turadigan ochiq odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sleeve",
+        "literal": {
+          "ru": "носить сердце на рукаве",
+          "uz": "yuragini yengida olib yurmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "your heart is in the right place",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у тебя добрые намерения",
+        "uz": "niyating yaxshi"
+      },
+      "example": "His jokes are sometimes awkward, but his heart is in the right place.",
+      "example_translations": {
+        "ru": "Шутки у него порой неуклюжие, но намерения у него добрые.",
+        "uz": "Hazillari ba'zan noo'rin chiqadi, lekin niyati yaxshi."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который делает не всё удачно, но хочет добра",
+        "uz": "Har doim ham uddasidan chiqmasa-da, yaxshilik istaydigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "place",
+        "literal": {
+          "ru": "твоё сердце на правильном месте",
+          "uz": "yuraging to'g'ri joyda"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "lose heart",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "падать духом",
+        "uz": "ruhi tushmoq"
+      },
+      "example": "Don't lose heart — you failed the driving test once, but you'll pass next time.",
+      "example_translations": {
+        "ru": "Не падай духом — ты один раз не сдал на права, но в следующий раз сдашь.",
+        "uz": "Ruhing tushmasin — haydovchilik imtihonidan bir marta o'tolmading, keyingi safar o'tasan."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто после неудачи готов сдаться; часто Don't lose heart",
+        "uz": "Muvaffaqiyatsizlikdan keyin taslim bo'lishga tayyor odamga aytiladi; ko'pincha Don't lose heart"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lose",
+        "literal": {
+          "ru": "потерять сердце",
+          "uz": "yurakni yo'qotmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "set your heart on something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "загореться мечтой о чём-то",
+        "uz": "nimagadir ko'ngil qo'ymoq"
+      },
+      "example": "Malika has set her heart on studying medicine in Tashkent.",
+      "example_translations": {
+        "ru": "Малика всей душой мечтает учиться на врача в Ташкенте.",
+        "uz": "Malika Toshkentda tibbiyot o'qishga ko'ngil qo'ygan."
+      },
+      "hooks": {
+        "ru": "Говорят о сильном желании получить что-то или достичь цели",
+        "uz": "Biror narsaga ega bo'lish yoki maqsadga erishishni qattiq istash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "set",
+        "literal": {
+          "ru": "поставить сердце на что-то",
+          "uz": "yurakni nimagadir qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

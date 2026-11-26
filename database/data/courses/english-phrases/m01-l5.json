@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Рассказать о себе",
+    "title_uz": "O'zi haqida gapirish"
+  },
+  "words": [
+    {
+      "word": "Where are you from?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "откуда вы?",
+        "uz": "qayerliksiz?"
+      },
+      "example": "Where are you from? — I'm from Samarkand. And you?",
+      "example_translations": {
+        "ru": "Откуда вы? — Я из Самарканда. А вы?",
+        "uz": "Qayerliksiz? — Samarqandlikman. O'zingiz-chi?"
+      },
+      "hooks": {
+        "ru": "Частый вопрос при знакомстве: о стране или городе",
+        "uz": "Tanishuvda tez-tez beriladigan savol: mamlakat yoki shahar haqida"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "from",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What do you do for a living?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кем вы работаете?",
+        "uz": "kim bo'lib ishlaysiz?"
+      },
+      "example": "What do you do for a living? — I'm a nurse at the city hospital.",
+      "example_translations": {
+        "ru": "Кем вы работаете? — Я медсестра в городской больнице.",
+        "uz": "Kim bo'lib ishlaysiz? — Shahar kasalxonasida hamshiraman."
+      },
+      "hooks": {
+        "ru": "Спрашивают о профессии при знакомстве; короче — «What do you do?»",
+        "uz": "Tanishuvda kasb haqida so'raladi; qisqasi — «What do you do?»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "living",
+        "literal": {
+          "ru": "что вы делаете для жизни?",
+          "uz": "tirikchilik uchun nima qilasiz?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let me introduce myself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "позвольте представиться",
+        "uz": "o'zimni tanishtirishga ijozat bering"
+      },
+      "example": "Good morning, everyone. Let me introduce myself. My name is Anvar.",
+      "example_translations": {
+        "ru": "Всем доброе утро. Позвольте представиться. Меня зовут Анвар.",
+        "uz": "Hammaga xayrli tong. O'zimni tanishtirishga ijozat bering. Mening ismim Anvar."
+      },
+      "hooks": {
+        "ru": "Начинают рассказ о себе перед группой, на собрании, на уроке",
+        "uz": "Guruh oldida, yig'ilishda yoki darsda o'zi haqida gapirishni boshlash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "introduce",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Pleased to meet you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рад знакомству",
+        "uz": "tanishganimdan mamnunman"
+      },
+      "example": "Mr. Lee, this is our new manager, Ms. Rakhimova. — Pleased to meet you.",
+      "example_translations": {
+        "ru": "Мистер Ли, это наш новый менеджер, госпожа Рахимова. — Рад знакомству.",
+        "uz": "Janob Li, bu bizning yangi menejerimiz Rahimova xonim. — Tanishganimdan mamnunman."
+      },
+      "hooks": {
+        "ru": "Чуть официальнее, чем «Nice to meet you»: на работе, со старшими",
+        "uz": "«Nice to meet you» dan biroz rasmiyroq: ishda, kattalar bilan"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "formal",
+        "variant": "both",
+        "gap": "pleased",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in my twenties",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне за двадцать",
+        "uz": "yoshim yigirmadan oshgan"
+      },
+      "example": "My sister is in her twenties and works as a teacher.",
+      "example_translations": {
+        "ru": "Моей сестре за двадцать, она работает учительницей.",
+        "uz": "Opamning yoshi yigirmadan oshgan, u o'qituvchi bo'lib ishlaydi."
+      },
+      "hooks": {
+        "ru": "Называют возраст примерно: от двадцати до двадцати девяти лет",
+        "uz": "Yosh taxminan aytiladi: yigirmadan yigirma to'qqizgacha"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "twenties",
+        "literal": {
+          "ru": "в моих двадцатых",
+          "uz": "yigirmalarimda"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "be into something",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "увлекаться чем-то",
+        "uz": "biror narsaga qiziqmoq"
+      },
+      "example": "My brother is into football. He plays every weekend.",
+      "example_translations": {
+        "ru": "Мой брат увлекается футболом. Он играет каждые выходные.",
+        "uz": "Akam futbolga qiziqadi. U har dam olish kuni o'ynaydi."
+      },
+      "hooks": {
+        "ru": "Рассказывают о хобби и интересах — своих или чужих",
+        "uz": "O'zining yoki boshqaning qiziqishlari haqida gapirganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "into",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "in my free time",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в свободное время",
+        "uz": "bo'sh vaqtimda"
+      },
+      "example": "In my free time, I read books and play chess.",
+      "example_translations": {
+        "ru": "В свободное время я читаю книги и играю в шахматы.",
+        "uz": "Bo'sh vaqtimda kitob o'qiyman va shaxmat o'ynayman."
+      },
+      "hooks": {
+        "ru": "Начинают рассказ о своих занятиях вне работы и учёбы",
+        "uz": "Ish va o'qishdan tashqari mashg'ulotlar haqida gapirishni boshlash"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "free",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What are your hobbies?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "какие у вас увлечения?",
+        "uz": "qanday qiziqishlaringiz bor?"
+      },
+      "example": "What are your hobbies? — I like hiking and taking photos.",
+      "example_translations": {
+        "ru": "Какие у вас увлечения? — Я люблю ходить в походы и фотографировать.",
+        "uz": "Qanday qiziqishlaringiz bor? — Piyoda sayr qilish va suratga olishni yaxshi ko'raman."
+      },
+      "hooks": {
+        "ru": "Спрашивают об увлечениях при знакомстве",
+        "uz": "Tanishuvda qiziqishlar haqida so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "hobbies",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "live on your own",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жить одному",
+        "uz": "yolg'iz yashamoq"
+      },
+      "example": "I moved out last year, and now I live on my own.",
+      "example_translations": {
+        "ru": "В прошлом году я переехал и теперь живу один.",
+        "uz": "O'tgan yili ko'chib chiqdim, endi yolg'iz yashayman."
+      },
+      "hooks": {
+        "ru": "Рассказывают, что живут отдельно: без семьи и соседей по квартире",
+        "uz": "Oiladan va sheriklardan alohida yashash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "own",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What about you?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "а вы?",
+        "uz": "o'zingiz-chi?"
+      },
+      "example": "I love cooking. What about you? — I prefer sports.",
+      "example_translations": {
+        "ru": "Я обожаю готовить. А ты? — Я больше люблю спорт.",
+        "uz": "Men ovqat pishirishni yaxshi ko'raman. O'zing-chi? — Men sportni afzal ko'raman."
+      },
+      "hooks": {
+        "ru": "Возвращают вопрос собеседнику, чтобы разговор шёл в обе стороны",
+        "uz": "Suhbat ikki tomonlama bo'lishi uchun savolni suhbatdoshga qaytarish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "about",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    }
+  ]
+}

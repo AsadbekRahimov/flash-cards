@@ -1,0 +1,277 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 8,
+    "title": "Согласие и несогласие",
+    "title_uz": "Rozilik va norozilik"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Убедить",
+    "title_uz": "Ishontirish"
+  },
+  "words": [
+    {
+      "word": "Trust me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поверь мне",
+        "uz": "menga ishon"
+      },
+      "example": "Trust me, this is the best pizza in town.",
+      "example_translations": {
+        "ru": "Поверь мне, это лучшая пицца в городе.",
+        "uz": "Menga ishon, bu shahardagi eng mazali pitsa."
+      },
+      "hooks": {
+        "ru": "Уверяют друга, что говорят правду или знают лучше",
+        "uz": "Do'stni rost gapirayotganiga yoki yaxshiroq bilishiga ishontirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "trust",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Believe it or not",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хотите верьте, хотите нет",
+        "uz": "ishonsangiz-ishonmasangiz"
+      },
+      "example": "Believe it or not, my grandfather still runs every morning.",
+      "example_translations": {
+        "ru": "Хотите верьте, хотите нет, а мой дедушка до сих пор бегает каждое утро.",
+        "uz": "Ishonsangiz-ishonmasangiz, bobom hali ham har kuni ertalab yuguradi."
+      },
+      "hooks": {
+        "ru": "Начинают рассказ о чём-то удивительном, но правдивом",
+        "uz": "Hayratlanarli, lekin rost narsa haqidagi gapni boshlashadi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "believe",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Take my word for it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поверьте мне на слово",
+        "uz": "gapimga ishoning"
+      },
+      "example": "The hotel is excellent. Take my word for it.",
+      "example_translations": {
+        "ru": "Отель отличный. Поверьте мне на слово.",
+        "uz": "Mehmonxona a'lo darajada. Gapimga ishoning."
+      },
+      "hooks": {
+        "ru": "Просят поверить без доказательств, опираясь на ваш опыт",
+        "uz": "Dalilsiz, sizning tajribangizga tayanib ishonishni so'rashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "word",
+        "literal": {
+          "ru": "возьмите моё слово за это",
+          "uz": "so'zimni qabul qiling"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I promise",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обещаю",
+        "uz": "va'da beraman"
+      },
+      "example": "I'll be home by ten, I promise.",
+      "example_translations": {
+        "ru": "Я буду дома к десяти, обещаю.",
+        "uz": "Soat o'ngacha uyda bo'laman, va'da beraman."
+      },
+      "hooks": {
+        "ru": "Твёрдо обещают что-то сделать",
+        "uz": "Biror ishni qilishga qat'iy va'da berishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "promise",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm telling you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "говорю тебе",
+        "uz": "senga aytyapman-ku"
+      },
+      "example": "I'm telling you, he's the best teacher in the school.",
+      "example_translations": {
+        "ru": "Говорю тебе, он лучший учитель в школе.",
+        "uz": "Senga aytyapman-ku, u maktabdagi eng zo'r o'qituvchi."
+      },
+      "hooks": {
+        "ru": "Настойчиво убеждают друга, который сомневается",
+        "uz": "Shubhalanayotgan do'stni qat'iyat bilan ishontirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "telling",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You won't regret it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы не пожалеете",
+        "uz": "afsuslanmaysiz"
+      },
+      "example": "Come with us to the mountains. You won't regret it!",
+      "example_translations": {
+        "ru": "Поехали с нами в горы. Не пожалеешь!",
+        "uz": "Biz bilan tog'ga yur. Afsuslanmaysan!"
+      },
+      "hooks": {
+        "ru": "Уговаривают попробовать что-то, обещая хороший результат",
+        "uz": "Yaxshi natija va'da qilib, biror narsani sinab ko'rishga ko'ndirishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "regret",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "talk someone into",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уговорить",
+        "uz": "ko'ndirmoq"
+      },
+      "example": "My friends talked me into joining the football team.",
+      "example_translations": {
+        "ru": "Друзья уговорили меня записаться в футбольную команду.",
+        "uz": "Do'stlarim meni futbol jamoasiga qo'shilishga ko'ndirishdi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда кого-то убедили сделать то, чего он сначала не хотел",
+        "uz": "Kimnidir avval istamagan ishini qilishga ko'ndirishganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "into",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I mean it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я серьёзно",
+        "uz": "jiddiy aytyapman"
+      },
+      "example": "Thank you for your help. I mean it.",
+      "example_translations": {
+        "ru": "Спасибо за помощь. Я серьёзно.",
+        "uz": "Yordamingiz uchun rahmat. Jiddiy aytyapman."
+      },
+      "hooks": {
+        "ru": "Подчёркивают, что говорят искренне, а не из вежливости или в шутку",
+        "uz": "Xushmuomalalik yoki hazil uchun emas, chin dildan aytayotganini ta'kidlashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mean",
+        "literal": {
+          "ru": "я имею это в виду",
+          "uz": "buni nazarda tutyapman"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Mark my words",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "попомните мои слова",
+        "uz": "gapimni eslab qoling"
+      },
+      "example": "Mark my words, this boy will be a famous doctor one day.",
+      "example_translations": {
+        "ru": "Попомните мои слова: этот мальчик однажды станет известным врачом.",
+        "uz": "Gapimni eslab qoling, bu bola bir kun mashhur shifokor bo'ladi."
+      },
+      "hooks": {
+        "ru": "Уверенно предсказывают будущее",
+        "uz": "Kelajakni ishonch bilan bashorat qilishadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mark",
+        "literal": {
+          "ru": "отметьте мои слова",
+          "uz": "so'zlarimni belgilab qo'ying"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "It's worth a try",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "стоит попробовать",
+        "uz": "sinab ko'rishga arziydi"
+      },
+      "example": "I don't know if the shop is still open, but it's worth a try.",
+      "example_translations": {
+        "ru": "Не знаю, открыт ли ещё магазин, но стоит попробовать.",
+        "uz": "Do'kon hali ochiqmi, bilmayman, lekin sinab ko'rishga arziydi."
+      },
+      "hooks": {
+        "ru": "Убеждают попробовать, даже если успех не гарантирован",
+        "uz": "Muvaffaqiyat kafolatlanmagan bo'lsa ham, sinab ko'rishga undashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "try",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}
