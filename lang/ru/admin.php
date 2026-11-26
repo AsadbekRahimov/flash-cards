@@ -995,6 +995,7 @@ return [
         'participant_status' => [
             'active' => 'В чате',
             'left' => 'Вышел(а) из чата',
+            'withdrawn' => 'Вышел(а) из кубка сам(а)',
         ],
         'attempt_status' => [
             'active' => 'Идёт',

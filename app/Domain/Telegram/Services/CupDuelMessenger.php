@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Services;
 
 use App\Domain\Cup\Enums\CupDuelDmKind;
 use App\Domain\Cup\Enums\CupDuelStatus;
+use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Support\CupAccess;
 use App\Domain\Cup\Support\DisplayName;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -112,6 +113,7 @@ final class CupDuelMessenger
                 'd.status', 'd.is_public', 'd.rated_offered', 'd.expires_at', 'd.battle_id',
                 'cu.public_code', 'cu.timezone as cup_timezone', 'tg.id as tg_id', 'tg.title as group_title', 'tg.meta as tg_meta',
                 'c.display_name as challenger_name', 'o.display_name as opponent_name',
+                'c.status as challenger_status', 'c.withdrawn_at as challenger_withdrawn_at', 'o.status as opponent_status', 'o.withdrawn_at as opponent_withdrawn_at',
                 'l.id as l_id', 'l.telegram_user_id as l_telegram_user_id', 'l.interface_locale as l_interface_locale',
                 'l.language_code as l_language_code', 'l.blocked_at as l_blocked_at', 'l.dm_blocked_at as l_dm_blocked_at',
                 'l.deleted_at as l_deleted_at', 'b.status as battle_status',
@@ -120,7 +122,11 @@ final class CupDuelMessenger
         return $row;
     }
 
-    /** The news is still true: the cup is on for the chat, a challenge still open (and private), a match still waiting in its room. */
+    /**
+     * The news is still true: the cup is on for the chat, a challenge still open (and private) between two players who are both still
+     * ACTIVE participants (docs/33 §11.12: one who left the cup or the chat is never told he is challenged, nor about one who left), a
+     * match still waiting in its room.
+     */
     private function stillHolds(CupDuelDmKind $kind, \stdClass $row, CarbonImmutable $now): bool
     {
         /** @var TelegramGroup $group */
@@ -132,6 +138,8 @@ final class CupDuelMessenger
         return match ($kind) {
             CupDuelDmKind::Challenged => $row->status === CupDuelStatus::Open->value
                 && ! (bool) $row->is_public
+                && $row->challenger_status === CupParticipantStatus::Active->value && $row->challenger_withdrawn_at === null
+                && $row->opponent_status === CupParticipantStatus::Active->value && $row->opponent_withdrawn_at === null
                 && CarbonImmutable::parse((string) $row->expires_at, 'UTC')->gt($now),
             CupDuelDmKind::Accepted => $row->status === CupDuelStatus::Accepted->value
                 && $row->battle_id !== null

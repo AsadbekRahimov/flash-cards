@@ -68,7 +68,9 @@ use Throwable;
  * UPDATE` of the cup (its daily budget of the chat is decided under it); the acceptance locks the duel, inserts the slots (one
  * statement, by participant id), claims the Free limit under the challenger's `learners` row and opens the battle; the scoring locks the
  * duel, then the cup `FOR KEY SHARE` (its status read under it - no transition of the cup passes while it is held), then both
- * participants by id - the cup BEFORE the participants, since the rows it inserts check their foreign key on the cup. The
+ * participants by id - the cup BEFORE the participants, since the rows it inserts check their foreign key on the cup. The challenge
+ * inserts the duel only while both players are active (§11.12): its INSERT locks the cup `FOR KEY SHARE`, then the two participants
+ * `FOR SHARE` ({@see insertOpen()}); a leave locks its participant `FOR NO KEY UPDATE` before it closes his open duels. The
  * transactions of a battle never take a lock of the cup: its end only queues the job after the commit. Telegram is asked before any
  * transaction.
  */
@@ -164,8 +166,7 @@ final class CupDuelService
                     }
                 }
 
-                // forceFill + save: `create()` of a model with `$guarded` asks the schema for its columns first.
-                $duel = (new CupDuel)->forceFill([
+                $duel = $this->insertOpen($cup->id, $me->id, $target?->id, [
                     'cup_id' => $cup->id,
                     'day' => $day,
                     'challenger_participant_id' => $me->id,
@@ -174,15 +175,18 @@ final class CupDuelService
                     'rated_offered' => $ratedOffered,
                     // A friendly duel by choice is decided now and for good; otherwise the acceptance decides it by the slots.
                     'rated' => $friendly ? false : null,
-                    'mode' => $mode,
-                    'status' => CupDuelStatus::Open,
+                    'mode' => $mode->value,
+                    'status' => CupDuelStatus::Open->value,
                     'open_challenger_id' => $me->id,
                     'request_id' => $requestId,
-                    'expires_at' => $now->addMinutes(max(1, (int) config('cup.duel.challenge_minutes', 10))),
-                    'created_at' => $now,
-                    'updated_at' => $now,
+                    'expires_at' => $now->addMinutes(max(1, (int) config('cup.duel.challenge_minutes', 10)))->format('Y-m-d H:i:s'),
+                    'created_at' => $now->format('Y-m-d H:i:s'),
+                    'updated_at' => $now->format('Y-m-d H:i:s'),
                 ]);
-                $duel->save();
+                if ($duel === null) {
+                    // One of the two left the cup (or the chat) since the read above, or the cup closed: no reason told (docs/33 §11.12).
+                    return CupException::duelUnavailable();
+                }
                 if ($public) {
                     $this->outbox->enqueueMany([['cup_id' => $cup->id, 'dedupe_key' => CupOutbox::duelKey($duel->id)]], CupMessageKind::Duel, $now);
                 }
@@ -560,9 +564,9 @@ final class CupDuelService
      * A participant leaves the cup himself (docs/33 §11.12, {@see CupParticipationService::leave()}): his open challenge and the open
      * challenges addressed to him → `canceled/left`, in ONE statement (the partial unique `open_challenger_id` and the index of
      * `opponent_participant_id`), and the public ones get the edit of their message («Вызов не состоялся»). An accepted duel is not
-     * touched: its match plays out and is scored (§11.9.2 п. 5). Runs inside the caller's transaction, after the cup and BEFORE the
-     * participant (the order `cups → cup_duels → … → cup_participants`); an acceptance that holds a row first wins it (the UPDATE
-     * waits and then finds it `accepted`). Returns how many were closed.
+     * touched: its match plays out and is scored (§11.9.2 п. 5). Runs inside the caller's transaction, after the cup and AFTER the
+     * participant's row `FOR NO KEY UPDATE` (§11.12: a challenge that held the row has committed by now and is seen by this statement);
+     * an acceptance that holds a row first wins it (the UPDATE waits and then finds it `accepted`). Returns how many were closed.
      */
     public function closeOpenOfLeaving(int $participantId, CarbonImmutable $now): int
     {
@@ -581,6 +585,50 @@ final class CupDuelService
     // ------------------------------------------------------------------ the pieces
 
     /**
+     * The INSERT of an open challenge, made only while both players are ACTIVE participants and the cup is `running` - read and locked
+     * in the SAME statement (docs/33 §11.12 «нет открытого вызова с вышедшим»): the cup `FOR KEY SHARE`, then the challenger and the
+     * addressee `FOR SHARE` (by id). A leave locks its participant `FOR NO KEY UPDATE` BEFORE it closes his open duels, so the two
+     * serialise on the participant's row:
+     *  - the challenge holds the row first → the leave waits for its commit, and its UPDATE of the open duels (a later statement, a new
+     *    snapshot) finds the new challenge and closes it;
+     *  - the leave holds it first → this statement waits for its commit, re-reads the row (READ COMMITTED re-checks the conditions of a
+     *    locked row on its newest version) and inserts nothing: null, the caller answers `cup_duel_unavailable`.
+     * The cup is locked first (rowmarks are taken in the order of the locking clauses, the cup's first): the finish and the cancel
+     * hold `FOR UPDATE` of the cup and then lock the participants - a challenge holding a participant and waiting for the cup (the
+     * foreign key of the duel) would be a cycle. The foreign keys of the row then ask nothing new of anybody. SQLite: one writer, the
+     * conditions alone.
+     *
+     * @param  array<string, scalar|null>  $values
+     */
+    private function insertOpen(int $cupId, int $challengerId, ?int $targetId, array $values): ?CupDuel
+    {
+        $columns = array_keys($values);
+        $lock = DB::getDriverName() === 'pgsql' ? ' ORDER BY p.id FOR KEY SHARE OF c FOR SHARE OF p' : '';
+        $rows = DB::select(
+            'INSERT INTO cup_duels ('.implode(', ', $columns).')
+             SELECT '.implode(', ', array_fill(0, count($columns), '?')).'
+             WHERE (SELECT COUNT(*) FROM (
+                 SELECT p.id FROM cups c JOIN cup_participants p ON p.cup_id = c.id
+                 WHERE c.id = ? AND c.status = ? AND p.id IN (?, ?) AND p.status = ? AND p.withdrawn_at IS NULL'.$lock.'
+             ) players) = ?
+             RETURNING *',
+            [
+                ...array_values($values),
+                $cupId, CupStatus::Running->value, $challengerId, $targetId ?? $challengerId, CupParticipantStatus::Active->value,
+                $targetId === null ? 1 : 2,
+            ],
+        );
+        if ($rows === []) {
+            return null;
+        }
+
+        /** @var CupDuel $duel */
+        $duel = (new CupDuel)->newFromBuilder((array) $rows[0]);
+
+        return $duel;
+    }
+
+    /**
      * The acceptance under `FOR UPDATE` of the duel (see {@see accept()}). A refusal that must keep a change (the duel closed on the
      * way) is RETURNED and thrown after the commit; one that must undo the slots is thrown here (the transaction rolls back).
      *
@@ -588,11 +636,31 @@ final class CupDuelService
      */
     private function acceptLocked(int $duelId, CupParticipant $me, Learner $challengerLearner, CupBattlePlan $plan, bool $rated, int $day, CarbonImmutable $now): array|CupException
     {
+        // The duel `FOR UPDATE` and, in the same statement, whether each player is still an ACTIVE participant (docs/33 §11.12): the
+        // door may have let me in by a row read before a leave (Telegram out of reach - `stale_ok_hours`), and the challenger's row was
+        // read before the transaction too. A plain read, not a lock: a leave that commits before this statement is seen; one that
+        // commits after it is a leave after the acceptance - the accepted match plays out (§11.9.2 п. 5). A lock of the participants
+        // here would wait for a leave that holds one of them and waits for this very duel (its UPDATE of the open duels).
         /** @var CupDuel|null $duel */
-        $duel = CupDuel::query()->whereKey($duelId)->lockForUpdate()->first();
+        $duel = CupDuel::query()
+            ->select('cup_duels.*')
+            ->selectRaw(
+                'CASE WHEN EXISTS (SELECT 1 FROM cup_participants p WHERE p.id = cup_duels.challenger_participant_id AND p.status = ? AND p.withdrawn_at IS NULL) THEN 1 ELSE 0 END AS x_challenger_active,
+                 CASE WHEN EXISTS (SELECT 1 FROM cup_participants p WHERE p.id = ? AND p.status = ? AND p.withdrawn_at IS NULL) THEN 1 ELSE 0 END AS x_me_active',
+                [CupParticipantStatus::Active->value, $me->id, CupParticipantStatus::Active->value],
+            )
+            ->whereKey($duelId)
+            ->lockForUpdate()
+            ->first();
         if ($duel === null) {
             return CupException::duelNotFound();
         }
+        $challengerActive = (int) $duel->getAttribute('x_challenger_active') === 1;
+        $meActive = (int) $duel->getAttribute('x_me_active') === 1;
+        $attributes = $duel->getAttributes();
+        unset($attributes['x_challenger_active'], $attributes['x_me_active']);
+        $duel->setRawAttributes($attributes, true);
+
         if ($duel->status === CupDuelStatus::Accepted && $duel->opponent_participant_id === $me->id) {
             return [$duel, false];
         }
@@ -603,6 +671,15 @@ final class CupDuelService
             $this->close($duel, CupDuelStatus::Expired, CupDuelEndReason::Expired, $now);
 
             return CupException::duelClosed(CupDuelStatus::Expired->value, CupDuelEndReason::Expired->value);
+        }
+        if (! $meActive) {
+            // I left the cup (or the chat) after the door read my row: nothing accepted, nothing changed.
+            return CupException::notMember();
+        }
+        if (! $challengerActive) {
+            $this->close($duel, CupDuelStatus::Canceled, CupDuelEndReason::Left, $now);
+
+            return CupException::duelClosed(CupDuelStatus::Canceled->value, CupDuelEndReason::Left->value);
         }
 
         if ($rated) {

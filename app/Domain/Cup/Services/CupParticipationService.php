@@ -118,8 +118,12 @@ final class CupParticipationService
      *
      * Locks, in the one order of the cup (§11.2 п. 1, §11.9.2 п. 1): the cup `FOR KEY SHARE` (PostgreSQL; the start, the finish and the
      * cancel take `FOR UPDATE` of it, so the status read under it holds until the commit, and the edits of the outbox it inserts need it
-     * anyway) → the open duels of the participant (one UPDATE) → his row `FOR UPDATE`. A round answer (attempt → participant) and an
-     * acceptance (duel → slots → battle) never take the cup: no cycle.
+     * anyway) → his row `FOR NO KEY UPDATE` → his open duels (one UPDATE). The row before the duels: a challenge reads and locks both
+     * players `FOR SHARE` in its INSERT (cup first, {@see CupDuelService::insertOpen()}), so a challenge and a leave of one of its players
+     * serialise on the row and no open challenge with a withdrawn player survives both commits (§11.12). `NO KEY` - the `FOR KEY SHARE`
+     * of the foreign keys of an acceptance that holds one of his duels (its slots) passes; its UPDATE waits for that duel. A round answer
+     * (attempt → participant `FOR UPDATE`) and an acceptance (duel → slots → battle) never take the cup and never wait for a duel this
+     * holds: no cycle.
      *
      * @throws CupException cup_closed | cup_not_member
      */
@@ -144,13 +148,19 @@ final class CupParticipationService
                 return CupException::closed();
             }
 
-            $closed = $this->duels->closeOpenOfLeaving($participant->id, $now);
-
+            // The row of the participant BEFORE his open duels (docs/33 §11.12): a challenge that involves him reads and locks it
+            // `FOR SHARE` in its INSERT ({@see CupDuelService::insertOpen()}) - one that holds it first is committed before the UPDATE
+            // below runs and is closed by it; one that comes after waits for this commit and finds him gone. `FOR NO KEY UPDATE`, not
+            // `FOR UPDATE`: the `FOR KEY SHARE` of the foreign keys of an acceptance (its slots) holding one of his duels must not
+            // wait for it - this UPDATE waits for that duel, a cycle otherwise.
+            $query = CupParticipant::query()->whereKey($participant->id);
             /** @var CupParticipant $locked */
-            $locked = CupParticipant::query()->whereKey($participant->id)->lockForUpdate()->firstOrFail();
+            $locked = (DB::getDriverName() === 'pgsql' ? $query->lock('for no key update') : $query->lockForUpdate())->firstOrFail();
             if ($locked->withdrawn_at !== null) {
-                return [$locked, false, $closed];
+                return [$locked, false, 0];
             }
+
+            $closed = $this->duels->closeOpenOfLeaving($participant->id, $now);
             $locked->forceFill([
                 'status' => CupParticipantStatus::Left,
                 'left_at' => $locked->left_at ?? $now,

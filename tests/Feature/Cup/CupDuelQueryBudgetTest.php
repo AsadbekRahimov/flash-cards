@@ -60,12 +60,19 @@ it('challenges in 8 statements privately and 9 publicly (the budget of the chat 
         $service->challenge($a, $loaded, null, false, PracticeMode::Pairs, $duel->request_id, $now);
     });
 
-    // participant, request_id, target, friendship, limits + slots + my open challenge (one statement), the check of Telegram written, INSERT, event
+    // participant, request_id, target, friendship, limits + slots + my open challenge (one statement), the check of Telegram written,
+    // INSERT … SELECT (the cup and both players read - and on PostgreSQL locked - in it, docs/33 §11.12), event
     expect($private)->toHaveCount(8, implode("\n", $private))
-        // participant, request_id, limits, check written, FOR NO KEY UPDATE of the cup, the public budget again, INSERT, the outbox row, event
+        // participant, request_id, limits, check written, FOR NO KEY UPDATE of the cup, the public budget again, INSERT … SELECT, the outbox row, event
         ->and($public)->toHaveCount(9, implode("\n", $public))
         ->and(QueryLog::matching($public, '/for no key update|for update/i'))->toHaveCount(DB::getDriverName() === 'pgsql' ? 1 : 0)
         ->and($repeat)->toHaveCount(2, implode("\n", $repeat));
+    foreach ([$private, $public] as $statements) {
+        $insert = QueryLog::matching($statements, '/^insert into cup_duels/i');
+        expect($insert)->toHaveCount(1)
+            ->and($insert[0])->toContain('p.withdrawn_at IS NULL')
+            ->and(str_contains($insert[0], 'FOR KEY SHARE OF c FOR SHARE OF p'))->toBe(DB::getDriverName() === 'pgsql');
+    }
 });
 
 it('accepts a rated duel in 21 statements, 3 of them the material of the snapshot and 7 the transaction', function (): void {

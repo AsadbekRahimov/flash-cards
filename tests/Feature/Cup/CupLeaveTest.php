@@ -255,11 +255,20 @@ it('leaves in 8 statements with a public challenge to edit, 7 without, a repeat 
         return count(QueryLog::during(fn () => test()->withHeaders($headers)->postJson("/api/twa/cups/{$cup->id}/leave")->assertOk()));
     };
 
-    // learner; the cup + group + my row (CupReader::locate); the cup FOR KEY SHARE; the open duels (one UPDATE … RETURNING); the edit of
-    // the public one (one INSERT … ON CONFLICT); my row FOR UPDATE; UPDATE of it; the event cup.left - and nothing for a quiet one but
-    // the edit.
-    expect($count($a))->toBe(8)
-        ->and($count($c))->toBe(7)
-        ->and($count($a))->toBe(2) // a repeat: the learner and the door
+    // learner; the cup + group + my row (CupReader::locate); the cup FOR KEY SHARE; my row FOR NO KEY UPDATE (BEFORE the duels, docs/33
+    // §11.12); the open duels (one UPDATE … RETURNING); the edit of the public one (one INSERT … ON CONFLICT); UPDATE of my row; the
+    // event cup.left - and nothing for a quiet one but the edit.
+    $headersA = PracticeKit::headers($a);
+    test()->withHeaders($headersA)->getJson('/api/twa/me')->assertOk();
+    $statements = QueryLog::during(fn () => test()->withHeaders($headersA)->postJson("/api/twa/cups/{$cup->id}/leave")->assertOk());
+    $lock = array_keys(preg_grep('/^select .*cup_participants.* for no key update$/i', $statements) ?: []);
+    $duels = array_keys(preg_grep('/^update ["`]?cup_duels/i', $statements) ?: []);
+    expect($statements)->toHaveCount(8, implode("\n", $statements))
+        ->and($duels)->toHaveCount(1);
+    if (DB::getDriverName() === 'pgsql') {
+        expect($lock)->toHaveCount(1)->and($lock[0])->toBeLessThan($duels[0]);
+    }
+    expect($count($c))->toBe(7);
+    expect($count($a))->toBe(2) // a repeat: the learner and the door
         ->and(CupKit::telegram()->chatMemberLookups)->toBe([]);
 });

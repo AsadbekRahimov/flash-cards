@@ -193,9 +193,10 @@ final class VocabularyImporter
                 ->groupBy('word_id')
                 ->map(fn (Collection $rows): Collection => $rows->keyBy('locale'));
 
-            // The lexemes of the file's words (docs/32 §2.1), two statements for the whole file: a platform or organisation course
-            // creates the missing ones, a learner's deck only matches. A link of an existing word (one made before the catalog)
-            // is written apart and is not an "update" of the report: the word's content did not change.
+            // The lexemes of the file's words (docs/32 §2.1): a platform or organisation course gets them - the missing ones
+            // created - in two statements for the whole file; a learner's deck is never linked to the catalog (none, no statement).
+            // A link of an existing word (one made before the catalog) is written apart and is not an "update" of the report: the
+            // word's content did not change.
             $lexemes = $this->lexemesOf($course, $words);
             /** @var array<int, int|null> $relinks */
             $relinks = [];

@@ -274,6 +274,20 @@ it('lists the cups within a budget that does not grow with the number of rows', 
     }, ceiling: 10); // two renders of 5: the count, the page, the groups, the courses, the participants of the page (one grouped statement)
 });
 
+it('tells the admin a participant who left the cup himself from one who left the chat, from the row of the page', function (): void {
+    $cup = cupAdminRunning(0);
+    $active = CupParticipant::factory()->create(['cup_id' => $cup->id, 'status' => 'active']);
+    $chat = CupParticipant::factory()->create(['cup_id' => $cup->id, 'status' => 'left', 'left_at' => now()]);
+    $withdrawn = CupParticipant::factory()->create(['cup_id' => $cup->id, 'status' => 'left', 'left_at' => now(), 'withdrawn_at' => now()]);
+
+    livewire(ParticipantsRelationManager::class, ['ownerRecord' => $cup, 'pageClass' => ViewCup::class])
+        ->assertTableColumnStateSet('status', 'active', $active)
+        ->assertTableColumnStateSet('status', 'left', $chat)
+        ->assertTableColumnStateSet('status', 'withdrawn', $withdrawn)
+        ->assertTableColumnFormattedStateSet('status', 'Вышел(а) из чата', $chat)
+        ->assertTableColumnFormattedStateSet('status', 'Вышел(а) из кубка сам(а)', $withdrawn);
+});
+
 it('reads the participants and the attempts of a day within a budget that does not grow with the rows', function (): void {
     $cup = cupAdminRunning(0);
     $day = CupDay::factory()->create(['cup_id' => $cup->id, 'day' => 3, 'starts_at' => CarbonImmutable::parse('2026-12-02 19:00:00'), 'ends_at' => CarbonImmutable::parse('2026-12-03 19:00:00')]);

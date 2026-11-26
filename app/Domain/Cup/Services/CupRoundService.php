@@ -12,6 +12,7 @@ use App\Domain\Cup\DTO\CupRoundStart;
 use App\Domain\Cup\DTO\CupRoundView;
 use App\Domain\Cup\Enums\CupAttemptFinishReason;
 use App\Domain\Cup\Enums\CupAttemptStatus;
+use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Support\CupAccess;
@@ -142,9 +143,13 @@ final class CupRoundService
         /** @var array{0: CupRoundAttempt, 1: bool} $made */
         $made = DB::transaction(function () use ($cup, $day, $participant, $learner, $order, $locale, $now, $expiresAt): array {
             $state = RunState::initial(0)->toArray();
+            // Only for a participant who is still ACTIVE - read in the INSERT itself (docs/33 §11.12): the door may have let him in by
+            // the row read before the transaction (Telegram out of reach - `stale_ok_hours`) while he left the cup or the chat. A leave
+            // that commits after this statement is a leave after the start: the attempt plays out to its own deadline.
             $inserted = DB::selectOne(
                 'INSERT INTO cup_round_attempts (cup_id, cup_day_id, participant_id, learner_id, "order", state, answered, correct, points, status, locale, started_at, expires_at, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?)
+                 SELECT ?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, ?, ?, ?, ?
+                 WHERE EXISTS (SELECT 1 FROM cup_participants p WHERE p.id = ? AND p.status = ? AND p.withdrawn_at IS NULL)
                  ON CONFLICT (cup_day_id, participant_id) DO NOTHING
                  RETURNING id',
                 [
@@ -152,11 +157,15 @@ final class CupRoundService
                     json_encode($order, JSON_THROW_ON_ERROR), json_encode($state, JSON_THROW_ON_ERROR),
                     CupAttemptStatus::Active->value, $locale,
                     $now->format('Y-m-d H:i:s'), $expiresAt->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i:s'),
+                    $participant->id, CupParticipantStatus::Active->value,
                 ],
             );
             if ($inserted === null) {
-                // A second tab / a racing start made it first: the same attempt.
-                return [CupRoundAttempt::query()->where('cup_day_id', $day->id)->where('participant_id', $participant->id)->firstOrFail(), false];
+                // A second tab / a racing start made it first: the same attempt. None - he is not an active participant any more.
+                /** @var CupRoundAttempt|null $existing */
+                $existing = CupRoundAttempt::query()->where('cup_day_id', $day->id)->where('participant_id', $participant->id)->first();
+
+                return $existing === null ? throw CupException::notMember() : [$existing, false];
             }
 
             $this->scores->openDay($cup->id, $participant->id, $day->day, $now);

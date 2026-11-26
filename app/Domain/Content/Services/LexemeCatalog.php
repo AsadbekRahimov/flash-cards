@@ -96,18 +96,7 @@ final class LexemeCatalog
      */
     public function ensureKeys(array $keys, string $language = self::DEFAULT_LANGUAGE): array
     {
-        return $this->resolve($keys, $language, create: true)[0];
-    }
-
-    /**
-     * The existing lexemes of the keys; a key without one is absent from the result.
-     *
-     * @param  list<string>  $keys  normalised keys ({@see LexemeKey::of()})
-     * @return array<string, int> key => lexeme id
-     */
-    public function matchKeys(array $keys, string $language = self::DEFAULT_LANGUAGE): array
-    {
-        return $this->resolve($keys, $language, create: false)[0];
+        return $this->resolve($keys, $language)[0];
     }
 
     /**
@@ -250,7 +239,7 @@ final class LexemeCatalog
 
             $links = [];
             foreach ($byLanguage as $language => $keysByWord) {
-                [$lexemes, $created] = $this->resolve(array_values(array_unique($keysByWord)), $language, create: true);
+                [$lexemes, $created] = $this->resolve(array_values(array_unique($keysByWord)), $language);
                 $report->lexemesCreated += $created;
 
                 foreach ($keysByWord as $wordId => $key) {
@@ -269,10 +258,12 @@ final class LexemeCatalog
     }
 
     /**
+     * The lexemes of the keys, the missing ones created first.
+     *
      * @param  list<string>  $keys
-     * @return array{0: array<string, int>, 1: int} key => lexeme id (only the found ones), lexemes created
+     * @return array{0: array<string, int>, 1: int} key => lexeme id, lexemes created
      */
-    private function resolve(array $keys, string $language, bool $create): array
+    private function resolve(array $keys, string $language): array
     {
         // Sorted: two transactions inserting overlapping keys (two imports of different courses) take the unique entries in one
         // order and wait for each other instead of deadlocking.
@@ -282,13 +273,11 @@ final class LexemeCatalog
         $created = 0;
 
         foreach (array_chunk($keys, self::KEYS_PER_STATEMENT) as $chunk) {
-            if ($create) {
-                $now = now();
-                $created += Lexeme::query()->insertOrIgnore(array_map(
-                    static fn (string $key): array => ['language' => $language, 'key' => $key, 'created_at' => $now],
-                    $chunk,
-                ));
-            }
+            $now = now();
+            $created += Lexeme::query()->insertOrIgnore(array_map(
+                static fn (string $key): array => ['language' => $language, 'key' => $key, 'created_at' => $now],
+                $chunk,
+            ));
 
             foreach (Lexeme::query()->where('language', $language)->whereIn('key', $chunk)->pluck('id', 'key') as $key => $id) {
                 $found[(string) $key] = (int) $id;

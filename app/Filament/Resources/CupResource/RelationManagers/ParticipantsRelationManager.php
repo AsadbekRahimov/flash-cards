@@ -30,6 +30,9 @@ class ParticipantsRelationManager extends RelationManager
 
     protected static string $relationship = 'participants';
 
+    /** The state of the status badge of a participant who left the cup himself (`withdrawn_at`). */
+    private const WITHDRAWN = 'withdrawn';
+
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('admin.cups.participants.title');
@@ -53,16 +56,22 @@ class ParticipantsRelationManager extends RelationManager
             ->heading(__('admin.cups.participants.title'))
             ->emptyStateHeading(__('admin.cups.participants.empty'))
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                ->select(['id', 'cup_id', 'learner_id', 'display_name', 'status', 'joined_at', 'first_day', 'left_at', 'best_total', 'best_round_points', 'days_played', 'final_rank', 'rename_count']))
+                ->select(['id', 'cup_id', 'learner_id', 'display_name', 'status', 'joined_at', 'first_day', 'left_at', 'withdrawn_at', 'best_total', 'best_round_points', 'days_played', 'final_rank', 'rename_count']))
             ->columns([
                 Tables\Columns\TextColumn::make('final_rank')->label(__('admin.cups.participants.columns.final_rank'))->placeholder('—'),
                 Tables\Columns\TextColumn::make('display_name')->label(__('admin.cups.participants.columns.display_name')),
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('admin.cups.participants.columns.status'))
                     ->badge()
-                    ->state(fn (CupParticipant $record): string => $record->status->value)
+                    // Left the cup himself (`withdrawn_at`, docs/33 §11.12 - for good) is not the same as left the chat (may come
+                    // back): its own badge, from the row of the page (no statement).
+                    ->state(fn (CupParticipant $record): string => $record->withdrawn_at !== null ? self::WITHDRAWN : $record->status->value)
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('cups.participant_status', $state))
-                    ->color(fn (string $state): string => $state === CupParticipantStatus::Active->value ? 'success' : 'gray'),
+                    ->color(fn (string $state): string => match ($state) {
+                        CupParticipantStatus::Active->value => 'success',
+                        self::WITHDRAWN => 'warning',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('best_total')->label(__('admin.cups.participants.columns.best_total')),
                 Tables\Columns\TextColumn::make('best_round_points')->label(__('admin.cups.participants.columns.best_round_points')),
                 Tables\Columns\TextColumn::make('days_played')->label(__('admin.cups.participants.columns.days_played')),

@@ -561,6 +561,32 @@ describe('CupView: leaving the cup (docs/33 §11.12)', () => {
     expect(r.router.currentRoute.value.name).toBe('cups')
   })
 
+  it('the sheet does not close while the leave is on its way (backdrop, Escape, no ✕); after a refusal it closes again', async () => {
+    let reject!: (reason: unknown) => void
+    vi.mocked(api.cups.leave).mockReturnValue(new Promise((_, no) => (reject = no)))
+    const r = await render()
+    await tid(r, 'leave-btn').trigger('click')
+    const sheet = () => body().querySelector('[data-testid=leave-sheet]')
+    const backdrop = () => body().querySelector('[data-testid=sheet-backdrop]') as HTMLElement
+
+    ;(body().querySelector('[data-testid=leave-confirm]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(body().querySelector('[data-testid=sheet-x]')).toBeNull()
+    backdrop().click()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    expect(sheet()).not.toBeNull()
+
+    reject(apiError('server', 503, 'server'))
+    await flushPromises()
+    expect(body().querySelector('[data-testid=leave-error]')?.textContent).not.toBe('')
+    expect(body().querySelector('[data-testid=sheet-x]')).not.toBeNull()
+    backdrop().click()
+    await flushPromises()
+    expect(sheet()).toBeNull()
+    expect(r.router.currentRoute.value.name).toBe('cup')
+  })
+
   it('403 cup_not_member: out already - the list of cups; another refusal stays in the sheet with its words', async () => {
     vi.mocked(api.cups.leave).mockRejectedValueOnce(apiError('server', 503, 'server'))
     vi.mocked(api.cups.leave).mockRejectedValueOnce(apiError('forbidden', 403, 'cup_not_member'))

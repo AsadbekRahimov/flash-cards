@@ -140,6 +140,25 @@ function pickKind(value: CupDuelKindChoice): void {
   kindChoice.value = value
 }
 
+// The radio group of the kind (WAI-ARIA radio group): one tab stop - the chosen option (tabindex 0, the others -1); the arrows choose
+// the next / previous ENABLED option, wrapping, and move the focus to it (a rated duel already played is skipped).
+const kindOrder: CupDuelKindChoice[] = ['rated', 'friendly']
+const kindRatedEl = ref<HTMLButtonElement | null>(null)
+const kindFriendlyEl = ref<HTMLButtonElement | null>(null)
+
+function onKindKeydown(event: KeyboardEvent): void {
+  const step = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1 : 0
+  if (step === 0) return
+  event.preventDefault()
+  if (creating.value) return
+  const enabled = kindOrder.filter((value) => value !== 'rated' || ratedAvailable.value)
+  const at = enabled.indexOf(kind.value)
+  const next = enabled[(at + step + enabled.length) % enabled.length]
+  if (next === undefined) return
+  if (next !== kind.value) pickKind(next)
+  ;(next === 'rated' ? kindRatedEl : kindFriendlyEl).value?.focus()
+}
+
 const rowName = (row: CupStandingRow): string => row.display_name || t('league.anonymous')
 
 function pick(value: string): void {
@@ -258,11 +277,13 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <section data-testid="kind-section">
           <h2 id="duel-kind-label" class="section-label mt-0">{{ t('cup.duel.new.kind') }}</h2>
           <InlineAlert v-if="ratedGone" tone="info" :message="t('cup.duel.new.rated_gone')" class="mb-2" data-testid="rated-gone" />
-          <div class="list" role="radiogroup" aria-labelledby="duel-kind-label">
+          <div class="list" role="radiogroup" aria-labelledby="duel-kind-label" @keydown="onKindKeydown">
             <button
+              ref="kindRatedEl"
               type="button"
               role="radio"
               class="list-row disabled:opacity-60"
+              :tabindex="rated ? 0 : -1"
               :aria-checked="rated"
               :aria-disabled="!ratedAvailable ? 'true' : undefined"
               :disabled="!ratedAvailable"
@@ -279,9 +300,11 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               <AppIcon v-if="rated" name="check" :size="20" class="text-accent" />
             </button>
             <button
+              ref="kindFriendlyEl"
               type="button"
               role="radio"
               class="list-row"
+              :tabindex="rated ? -1 : 0"
               :aria-checked="!rated"
               :data-selected="!rated"
               data-testid="kind-friendly"

@@ -485,7 +485,7 @@ onBeforeUnmount(() => {
       </div>
     </BottomSheet>
 
-    <BottomSheet v-if="leaveOpen" :label="t('cup.leave.title')" @close="leaveOpen = false">
+    <BottomSheet v-if="leaveOpen" :label="t('cup.leave.title')" :dismissible="!leaving" @close="leaveOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="leave-sheet">
         <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.leave.title') }}</h2>
         <p class="text-[15px] leading-5 text-muted" data-testid="leave-text">{{ t('cup.leave.text') }}</p>

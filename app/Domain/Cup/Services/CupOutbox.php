@@ -10,6 +10,7 @@ use App\Domain\Cup\DTO\CupCardContent;
 use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Enums\CupMessageKind;
 use App\Domain\Cup\Enums\CupMessageStatus;
+use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Support\CupAccess;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -418,8 +419,16 @@ final class CupOutbox
     private function deliverDuel(CupMessage $message, Cup $cup, TelegramGroup $group, CarbonImmutable $now): int
     {
         $key = self::parseDuelKey($message->dedupe_key);
+        // The duel and whether its players are still active participants (docs/33 §11.12) - the same statement, by primary keys.
         /** @var CupDuel|null $duel */
-        $duel = $key === null ? null : CupDuel::query()->find($key['duel_id']);
+        $duel = $key === null ? null : CupDuel::query()
+            ->select('cup_duels.*')
+            ->selectRaw(
+                '(SELECT COUNT(*) FROM cup_participants p WHERE p.id IN (cup_duels.challenger_participant_id, cup_duels.opponent_participant_id)
+                  AND p.status = ? AND p.withdrawn_at IS NULL) AS x_players_active',
+                [CupParticipantStatus::Active->value],
+            )
+            ->find($key['duel_id']);
         if ($key === null || $duel === null || $duel->cup_id !== $cup->id) {
             $this->finish($message, CupMessageStatus::Skipped, $now, 'no_duel');
 
@@ -429,6 +438,13 @@ final class CupOutbox
         if ($key['edit'] === null) {
             if ($duel->status->fellThrough()) {
                 $this->finish($message, CupMessageStatus::Skipped, $now, 'fell_through');
+
+                return 0;
+            }
+            $players = $duel->opponent_participant_id === null ? 1 : 2;
+            if ($duel->status === CupDuelStatus::Open && (int) $duel->getAttribute('x_players_active') < $players) {
+                // An open challenge whose challenger or addressee is gone (left the cup or the chat): no button into it in the chat.
+                $this->finish($message, CupMessageStatus::Skipped, $now, 'player_gone');
 
                 return 0;
             }

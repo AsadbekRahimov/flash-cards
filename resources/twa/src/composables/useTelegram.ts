@@ -132,6 +132,8 @@ export function useTelegram() {
         const error = (params as ShareMessageFailed | null | undefined)?.error
         finish(() => (error === USER_DECLINED ? resolve(false) : reject(new Error(typeof error === 'string' ? error : 'share_message_failed'))))
       }
+      // The button is freed, but the SDK keeps its `WebAppShareMessageOpened` until the client answers - it has no public reset, so
+      // every later call in this session throws and takes the plain dialog (docs/36 §1в: a soft degradation, the SDK is not patched).
       const timer = setTimeout(() => finish(() => resolve(false)), SHARE_MESSAGE_TIMEOUT_MS)
       app.onEvent('shareMessageSent', onSent)
       app.onEvent('shareMessageFailed', onFailed)

@@ -168,6 +168,51 @@ describe('CupDuelNewView: the kind', () => {
     expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('true')
   })
 
+  it('a roving tab stop: only the chosen option is tabbable; the arrows choose the next one, wrap, and move the focus', async () => {
+    const r = await render()
+    await click(r, 'opponent-1')
+    const rated = tid(r, 'kind-rated')
+    const friendly = tid(r, 'kind-friendly')
+    expect(rated.attributes('tabindex')).toBe('0')
+    expect(friendly.attributes('tabindex')).toBe('-1')
+
+    await rated.trigger('keydown', { key: 'ArrowDown' })
+    expect(friendly.attributes('aria-checked')).toBe('true')
+    expect(friendly.attributes('tabindex')).toBe('0')
+    expect(rated.attributes('tabindex')).toBe('-1')
+    expect(document.activeElement).toBe(friendly.element)
+
+    await friendly.trigger('keydown', { key: 'ArrowRight' }) // wraps to the first
+    expect(rated.attributes('aria-checked')).toBe('true')
+    expect(document.activeElement).toBe(rated.element)
+
+    await rated.trigger('keydown', { key: 'ArrowUp' }) // wraps to the last
+    expect(friendly.attributes('aria-checked')).toBe('true')
+    expect(document.activeElement).toBe(friendly.element)
+
+    await friendly.trigger('keydown', { key: 'ArrowLeft' })
+    expect(rated.attributes('aria-checked')).toBe('true')
+
+    await rated.trigger('keydown', { key: 'Enter' }) // not an arrow: nothing changes
+    expect(rated.attributes('aria-checked')).toBe('true')
+  })
+
+  it('the arrows skip a rated duel already played: the focus stays on friendly, the only enabled option', async () => {
+    const r = await render(withDuel(duelAvailability({ rated_available: false })))
+    await click(r, 'opponent-1')
+    const rated = tid(r, 'kind-rated')
+    const friendly = tid(r, 'kind-friendly')
+    expect(friendly.attributes('tabindex')).toBe('0')
+    expect(rated.attributes('tabindex')).toBe('-1')
+
+    for (const key of ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft']) {
+      await friendly.trigger('keydown', { key })
+      expect(friendly.attributes('aria-checked')).toBe('true')
+      expect(rated.attributes('aria-checked')).toBe('false')
+      expect(document.activeElement).toBe(friendly.element)
+    }
+  })
+
   it('409 cup_duel_rating_changed {rated: false} on sending a rated one: the choice turns friendly with the reason, nothing more is sent', async () => {
     vi.mocked(api.cups.duels.challenge).mockRejectedValueOnce(apiError('conflict', 409, 'cup_duel_rating_changed', { rated: false }))
     vi.mocked(api.cups.duels.challenge).mockResolvedValueOnce(cupDuel({ id: 46 }))
