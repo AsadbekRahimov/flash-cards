@@ -54,3 +54,52 @@
 - m01-l1 #10 Fancy seeing you here! помечена `uk`, частота 2. m01-l4 #2 My bad — B1, разговорная, ближе к сленгу.
 - Доля формул в модулях 1–5 — 70 % при ориентире плана около 60 % для модулей 1–6.
 - Написание американское (favor, apologize, center, math), как в курсах по уровням.
+
+## Модули 16–20 (идиомы про тело, успех и неудача, деловое общение, разговорный английский, пословицы)
+
+Пословицы — самая рискованная часть: узбекская пословица должна быть устоявшейся и совпадать по смыслу.
+
+| Файл #запись | Фраза | Вариант автора | Сомнение |
+|---|---|---|---|
+| m16-l1 #2 | head over heels | uz «qattiq sevib qolgan» | описательно; есть ли устойчивая идиома |
+| m16-l2 #3 | all thumbs | uz «qo'li ishga kelishmaydi» | естественно ли для «неуклюжий» |
+| m16-l2 #7 | know something like the back of your hand | uz «besh qo'lday bilmoq» | точная форма (qo'lday или qo'ldek) |
+| m16-l3 #7 | music to my ears | uz «quloqqa xush yoqadigan gap» | описательно |
+| m16-l4 #4 | my heart sank | uz «yuragim shuv etib ketdi» | подходит к испугу; подходит ли к разочарованию |
+| m16-l5 #9 | a shoulder to cry on | ru «тот, кто выслушает и утешит» | описание, не идиома |
+| m17-l4 #1 | Every cloud has a silver lining | uz «har yomonlikning bir yaxshi tomoni bor» | описательно; возможно, есть пословица |
+| m17-l4 #2 | Where there's a will, there's a way | uz «intilganga tole yor» | совпадает ли смысл |
+| m17-l4 #3 | Rome wasn't built in a day | uz «katta ish bir kunda bitmaydi» | не устоявшаяся пословица |
+| m17-l4 #8 | light at the end of the tunnel | uz «umid uchquni» | автор ушёл от кальки; естественно ли |
+| m18-l1 #4 | To whom it may concern | ru «по месту требования» / uz «talab qilingan joyga» | верно для справок; для писем — меньше |
+| m18-l4 #2 | at short notice | ru «без долгого предупреждения» | не совсем естественный русский |
+| m19-l4 #4 | cheap as chips | uz «suvtekin» | слитно или раздельно |
+| m19-l4 #7 | break the bank | uz «cho'ntakka qattiq urmoq» | проверить идиому |
+| m19-l3 #2 | You bet | uz «bo'lmasa-chi!» | разговорно; `literal` не дан, чтобы не было образа ставок |
+| m20-l1 #1 | Actions speak louder than words | uz «quruq gap bilan osh pishmas» | форма (pishmas или pishmaydi) |
+| m20-l1 #4 | The grass is always greener… | uz «qo'shnining tovug'i g'oz ko'rinadi» | форма |
+| m20-l1 #8 | Don't bite the hand that feeds you | ru «не плюй в колодец…» / uz «tuz ichgan joyingga tupurma» | узбекская форма; уместно ли «плюй / tupurma» для детей |
+| m20-l2 #1 | Time is money | uz «vaqt — oltindan qimmat» | устоявшееся ли |
+| m20-l2 #4 | There's no time like the present | uz «bugungi ishni ertaga qoldirma» | смысл близкий, не тот же |
+| m20-l2 #8 | Patience is a virtue | ru «терпенье — лучшее спасенье» / uz «sabr tagi — sariq oltin» | проверить оба |
+| m20-l2 #9 | Time heals all wounds | uz «vaqt — har dardga davo» | устоявшееся ли |
+| m20-l3 #1 | Two heads are better than one | uz «maslahatli ish buzilmas» | совпадает ли смысл |
+| m20-l3 #2 | Many hands make light work | uz — описательно | возможно, есть пословица |
+| m20-l3 #3 | Birds of a feather flock together | uz «o'xshash odamlar bir-birini topadi» | описательно |
+| m20-l3 #4 | It takes two to tango | ru «в ссоре виноваты оба» / uz «bir qo'ldan qarsak chiqmas» | узбекская форма |
+| m20-l3 #5 | United we stand, divided we fall | uz «birlashgan o'zar, birlashmagan to'zar» | форма |
+| m20-l3 #9 | No man is an island | uz «yolg'iz otning changi chiqmas» | смысл близкий, не тот же |
+| m20-l4 #1 | Look before you leap | uz «suvni ko'rmay etik yechma» | форма |
+| m20-l4 #2 | Don't count your chickens… | uz «jo'jani kuzda sanaydilar» | возможно, калька с русского |
+| m20-l4 #3 | Haste makes waste | uz «shoshilgan ish puxta bo'lmaydi» | описательно |
+| m20-l4 #4 | Slow and steady wins the race | uz «sekin yurgan manzilga yetadi» | устоявшаяся ли пословица |
+| m20-l4 #6 | Once bitten, twice shy | uz «og'zi kuygan qatiqni ham puflab ichar» | форма |
+| m20-l5 #2 | No pain, no gain | uz «mehnatning tagi — rohat» | устоявшееся ли |
+| m20-l5 #4 | Every dog has its day | uz «har kimning ham kuni keladi» | `literal` упоминает собаку (it) — слегка отрицательный образ |
+| m20-l5 #9 | When one door closes, another opens | ru «не было бы счастья, да несчастье помогло» | смысл близкий, не тот же |
+
+Не узбекский:
+- m20-l4 #8 If it ain't broke, don't fix it: «ain't» — нестандартная, но каноническая форма; в подсказке это сказано.
+- Break a leg! передано как «ни пуха ни пера» (традиционный ответ — «к чёрту»): решить, уместно ли.
+- Помечены `uk`: at short notice, take something on board, cheap as chips, splash out, A problem shared is a problem halved. Помечены `us`: I'm down, hit me up, You bet, I'm beat, Enough already!
+- Сленг в курсе — 2 записи (обе в модуле 19): I'm down, hit me up.
