@@ -49,6 +49,7 @@ final class CupDuelController
                 $request->isPublic(),
                 $request->mode(),
                 $request->requestId(),
+                kind: $request->kind(),
             );
 
             return (new CupDuelResource($view))->response()->setStatusCode($created ? 201 : 200);

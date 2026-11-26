@@ -106,7 +106,7 @@ it('walks a new learner through the five steps (goal enabled) with six callbacks
 
     onbTap(7001, 'onb1:locale:uz', 1);
     expect(onbLearner(7001)->onboarding_state)->toBe('region')
-        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu hududingiz reytingi uchun kerak.")
+        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu viloyatingiz reytingi uchun kerak.")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:region:uz', 'onb1:region:other', 'onb1:region:none']);
 
     // "Uzbekistan" opens the list of the regions in the same message (an edit, not a new message, not an answer).
@@ -114,7 +114,7 @@ it('walks a new learner through the five steps (goal enabled) with six callbacks
     onbTap(7001, 'onb1:region:uz', 2);
     expect(onbLearner(7001)->onboarding_state)->toBe('region')
         ->and($this->tg->sent)->toHaveCount($sentBefore)
-        ->and($this->tg->lastTextEdit()['text'] ?? null)->toBe("5 qadamdan 2-qadam\nHududingizni tanlang")
+        ->and($this->tg->lastTextEdit()['text'] ?? null)->toBe("5 qadamdan 2-qadam\nViloyatingizni tanlang")
         ->and($this->tg->lastTextEdit()['message_id'] ?? null)->toBe(2);
 
     onbTap(7001, 'onb1:region:UZ-SA', 2);
@@ -375,7 +375,7 @@ it('keeps answering the callback when Telegram refuses the acknowledgement', fun
 
     expect(onbLearner(7018)->onboarding_state)->toBe('region')
         ->and(onbLearner(7018)->interface_locale)->toBe('uz')
-        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu hududingiz reytingi uchun kerak.");
+        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu viloyatingiz reytingi uchun kerak.");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {

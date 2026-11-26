@@ -1,45 +1,33 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SHARE_MESSAGE_TIMEOUT_MS, useTelegram } from '../useTelegram'
 
-/** The SDK object: 7.10 has `isVersionAtLeast` and no `shareMessage` (a test adds one to play a newer SDK). */
-const sdk = vi.hoisted(() => ({
-  version: '8.0',
-  isVersionAtLeast: vi.fn(),
-  shareMessage: undefined as undefined | ((id: string, callback?: (sent: boolean) => void) => void),
-}))
+type Callback = (sent: boolean) => void
 
-vi.mock('@twa-dev/sdk', () => ({ default: sdk }))
-
-type Handler = (eventType: string, eventData: unknown) => void
-
-/** `Telegram.WebView` of the SDK copy: posted events are recorded, Telegram's answers are played with `receive`. */
-function fakeWebView() {
-  const handlers = new Map<string, Handler[]>()
-  const posted: { type: string; data: unknown }[] = []
-  let postError: unknown = undefined
-  return {
-    posted,
-    failPosting(error: unknown) {
-      postError = error
-    },
-    handlerCount: (type: string) => handlers.get(type)?.length ?? 0,
-    receive(type: string, data?: unknown) {
-      for (const handler of [...(handlers.get(type) ?? [])]) handler(type, data)
-    },
-    postEvent: vi.fn((type: string, callback: ((error?: unknown) => void) | false, data?: unknown) => {
-      posted.push({ type, data })
-      if (callback) callback(postError)
-    }),
-    onEvent: vi.fn((type: string, handler: Handler) => {
+/**
+ * The SDK 8.x object, played the way its `telegram-web-apps.js` behaves: `shareMessage(id, callback)` posts
+ * `web_app_send_prepared_message`; Telegram's answer calls the callback first (`true` / `false`) and then raises `shareMessageSent` or
+ * `shareMessageFailed {error}` to the `onEvent` handlers, in the same turn (`answer`). A second call while a picker is open throws
+ * `WebAppShareMessageOpened`, a client below 8.0 throws `WebAppMethodUnsupported`.
+ */
+const sdk = vi.hoisted(() => {
+  const handlers = new Map<string, ((params?: unknown) => void)[]>()
+  const state = {
+    version: '8.0',
+    open: null as null | { callback?: (sent: boolean) => void },
+    handlers,
+    isVersionAtLeast: vi.fn(),
+    shareMessage: undefined as undefined | ((id: string, callback?: (sent: boolean) => void) => void),
+    onEvent: vi.fn((type: string, handler: (params?: unknown) => void) => {
       handlers.set(type, [...(handlers.get(type) ?? []), handler])
     }),
-    offEvent: vi.fn((type: string, handler: Handler) => {
+    offEvent: vi.fn((type: string, handler: (params?: unknown) => void) => {
       handlers.set(type, (handlers.get(type) ?? []).filter((h) => h !== handler))
     }),
   }
-}
+  return state
+})
 
-let webView: ReturnType<typeof fakeWebView>
+vi.mock('@twa-dev/sdk', () => ({ default: sdk }))
 
 function versionAtLeast(version: string): boolean {
   const [a = 0, b = 0] = sdk.version.split('.').map(Number)
@@ -47,13 +35,34 @@ function versionAtLeast(version: string): boolean {
   return a > c || (a === c && b >= d)
 }
 
+/** The method of the SDK 8.x copy of `telegram-web-apps.js`. */
+const sdkShareMessage = vi.fn((_id: string, callback?: Callback) => {
+  if (!versionAtLeast('8.0')) throw new Error('WebAppMethodUnsupported')
+  if (sdk.open) throw new Error('WebAppShareMessageOpened')
+  sdk.open = { callback }
+})
+
+/** Telegram answers: `prepared_message_sent` or `prepared_message_failed {error}`, as the SDK hands them on. */
+function answer(error?: string): void {
+  const request = sdk.open
+  if (!request) return
+  sdk.open = null
+  request.callback?.(error === undefined)
+  const type = error === undefined ? 'shareMessageSent' : 'shareMessageFailed'
+  for (const handler of [...(sdk.handlers.get(type) ?? [])]) handler(error === undefined ? undefined : { error })
+}
+
+const handlerCount = (type: string): number => sdk.handlers.get(type)?.length ?? 0
+
 describe('useTelegram().shareMessage', () => {
   beforeEach(() => {
     sdk.version = '8.0'
-    sdk.shareMessage = undefined
+    sdk.open = null
+    sdk.handlers.clear()
+    sdk.shareMessage = sdkShareMessage
+    sdkShareMessage.mockClear()
     sdk.isVersionAtLeast.mockImplementation(versionAtLeast)
-    webView = fakeWebView()
-    ;(window as unknown as { Telegram: unknown }).Telegram = { WebApp: sdk, WebView: webView }
+    ;(window as unknown as { Telegram: unknown }).Telegram = { WebApp: sdk }
   })
 
   afterEach(() => {
@@ -61,17 +70,17 @@ describe('useTelegram().shareMessage', () => {
     delete (window as unknown as { Telegram?: unknown }).Telegram
   })
 
-  it('can share on 8.0+ through the WebView event the SDK 7.10 has no method for', () => {
+  it('can share on 8.0+ through WebApp.shareMessage of the SDK', () => {
     expect(useTelegram().canShareMessage()).toBe(true)
   })
 
-  it.each(['7.10', '6.9'])('cannot share on %s', async (version) => {
+  it.each(['7.10', '6.9'])('cannot share on %s, and does not call the SDK', async (version) => {
     sdk.version = version
     const tg = useTelegram()
 
     expect(tg.canShareMessage()).toBe(false)
     await expect(tg.shareMessage('prep-1')).resolves.toBe(false)
-    expect(webView.postEvent).not.toHaveBeenCalled()
+    expect(sdkShareMessage).not.toHaveBeenCalled()
   })
 
   it('cannot share outside Telegram', () => {
@@ -80,43 +89,59 @@ describe('useTelegram().shareMessage', () => {
     expect(useTelegram().canShareMessage()).toBe(false)
   })
 
-  it('cannot share without a WebView to post to', () => {
-    ;(window as unknown as { Telegram: unknown }).Telegram = { WebApp: sdk }
+  it('cannot share without the method (a script that has none)', () => {
+    sdk.shareMessage = undefined
 
     expect(useTelegram().canShareMessage()).toBe(false)
   })
 
-  it('posts web_app_send_prepared_message and resolves true on prepared_message_sent', async () => {
+  it('cannot share when the version check itself throws', () => {
+    sdk.isVersionAtLeast.mockImplementation(() => {
+      throw new Error('broken')
+    })
+
+    expect(useTelegram().canShareMessage()).toBe(false)
+  })
+
+  it('calls WebApp.shareMessage once and resolves true when it is sent', async () => {
     const result = useTelegram().shareMessage('prep-1')
 
-    expect(webView.posted).toEqual([{ type: 'web_app_send_prepared_message', data: { id: 'prep-1' } }])
-    webView.receive('prepared_message_sent')
+    expect(sdkShareMessage).toHaveBeenCalledTimes(1)
+    expect(sdkShareMessage).toHaveBeenCalledWith('prep-1', expect.any(Function))
+    answer()
 
     await expect(result).resolves.toBe(true)
-    expect(webView.handlerCount('prepared_message_sent')).toBe(0)
-    expect(webView.handlerCount('prepared_message_failed')).toBe(0)
+    expect(handlerCount('shareMessageSent')).toBe(0)
+    expect(handlerCount('shareMessageFailed')).toBe(0)
   })
 
   it('resolves false when the learner closes the picker (USER_DECLINED)', async () => {
     const result = useTelegram().shareMessage('prep-1')
-    webView.receive('prepared_message_failed', { error: 'USER_DECLINED' })
+    answer('USER_DECLINED')
 
     await expect(result).resolves.toBe(false)
   })
 
-  it.each(['MESSAGE_EXPIRED', 'MESSAGE_SEND_FAILED', 'UNKNOWN_ERROR'])('rejects on %s', async (code) => {
+  it.each(['MESSAGE_EXPIRED', 'MESSAGE_SEND_FAILED', 'UNKNOWN_ERROR', 'UNSUPPORTED'])('rejects on %s', async (code) => {
     const result = useTelegram().shareMessage('prep-1')
-    webView.receive('prepared_message_failed', { error: code })
+    answer(code)
 
     await expect(result).rejects.toThrow(code)
-    expect(webView.handlerCount('prepared_message_failed')).toBe(0)
+    expect(handlerCount('shareMessageFailed')).toBe(0)
   })
 
-  it('rejects when the event cannot be posted', async () => {
-    webView.failPosting({ notAvailable: true })
+  it('counts a "not sent" without an event as a closed picker', async () => {
+    sdk.shareMessage = vi.fn((_id: string, callback?: Callback) => callback?.(false))
 
-    await expect(useTelegram().shareMessage('prep-1')).rejects.toThrow('share_message_unavailable')
-    expect(webView.handlerCount('prepared_message_sent')).toBe(0)
+    await expect(useTelegram().shareMessage('prep-1')).resolves.toBe(false)
+    expect(handlerCount('shareMessageFailed')).toBe(0)
+  })
+
+  it('rejects when the SDK refuses the call (a picker still open), so the plain dialog can take over', async () => {
+    sdk.open = {}
+
+    await expect(useTelegram().shareMessage('prep-1')).rejects.toThrow('WebAppShareMessageOpened')
+    expect(handlerCount('shareMessageSent')).toBe(0)
   })
 
   it('gives the button back when Telegram never answers', async () => {
@@ -126,18 +151,15 @@ describe('useTelegram().shareMessage', () => {
     vi.advanceTimersByTime(SHARE_MESSAGE_TIMEOUT_MS)
 
     await expect(result).resolves.toBe(false)
-    expect(webView.handlerCount('prepared_message_sent')).toBe(0)
+    expect(handlerCount('shareMessageSent')).toBe(0)
   })
 
-  it('uses the method of a newer SDK when there is one', async () => {
-    sdk.shareMessage = vi.fn((_id: string, callback?: (sent: boolean) => void) => callback?.(true))
-    const tg = useTelegram()
+  it('settles once: a late answer after the timeout changes nothing', async () => {
+    vi.useFakeTimers()
+    const result = useTelegram().shareMessage('prep-1')
+    vi.advanceTimersByTime(SHARE_MESSAGE_TIMEOUT_MS)
+    answer('MESSAGE_SEND_FAILED')
 
-    await expect(tg.shareMessage('prep-1')).resolves.toBe(true)
-    expect(sdk.shareMessage).toHaveBeenCalledWith('prep-1', expect.any(Function))
-    expect(webView.postEvent).not.toHaveBeenCalled()
-
-    sdk.shareMessage = vi.fn((_id: string, callback?: (sent: boolean) => void) => callback?.(false))
-    await expect(tg.shareMessage('prep-2')).resolves.toBe(false)
+    await expect(result).resolves.toBe(false)
   })
 })

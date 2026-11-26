@@ -132,7 +132,7 @@ describe('MonthlyRatingView', () => {
   it('has the three segments and leads to the other panes', async () => {
     const { wrapper, router } = await render()
 
-    expect(['seg-league', 'seg-month', 'seg-friends'].map((id) => text(wrapper, id))).toEqual(['Лига', 'Месяц', 'Друзья'])
+    expect(['seg-league', 'seg-month', 'seg-friends'].map((id) => text(wrapper, id))).toEqual(['Неделя', 'Месяц', 'Друзья'])
     await wrapper.get('[data-testid=seg-league]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('league')
@@ -669,7 +669,7 @@ describe('MonthlyRatingView', () => {
         vi.mocked(api.league.month).mockResolvedValueOnce(own()).mockResolvedValueOnce(tashkent())
         const wrapper = await mountMonth()
 
-        expect(text(wrapper, 'region-rank')).toBe('Регион «город Ташкент»: 4 место')
+        expect(text(wrapper, 'region-rank')).toBe('В рейтинге «город Ташкент» — 4 место')
         await wrapper.get('[data-testid=area-mine]').trigger('click')
         await flushPromises()
 
@@ -703,7 +703,7 @@ describe('MonthlyRatingView', () => {
         await flushPromises()
 
         expect(vi.mocked(api.league.month).mock.calls.at(-1)).toEqual([{ scope: 'region', region: 'UZ-BU' }])
-        expect(text(wrapper, 'read-only-region')).toBe('Это таблица региона «Бухарская область». Вы соревнуетесь в регионе «город Ташкент».')
+        expect(text(wrapper, 'read-only-region')).toBe('Это таблица «Бухарская область». Вы соревнуетесь в таблице «город Ташкент».')
         // the same category: no line about the tables Free / Pro
         expect(has(wrapper, 'read-only')).toBe(false)
         expect(has(wrapper, 'next-gap')).toBe(false)
@@ -741,7 +741,7 @@ describe('MonthlyRatingView', () => {
         await wrapper.get('[data-testid=area-mine]').trigger('click')
         await flushPromises()
 
-        expect(text(wrapper, 'region-below-title')).toBe('В регионе «город Ташкент» пока 4 из 5 участников')
+        expect(text(wrapper, 'region-below-title')).toBe('В таблице «город Ташкент» пока 4 из 5 участников')
         expect(has(wrapper, 'top')).toBe(false)
         expect(has(wrapper, 'empty')).toBe(false)
         wrapper.unmount()

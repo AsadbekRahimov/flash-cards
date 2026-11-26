@@ -35,7 +35,7 @@
 
 - `IrazasyedTelegramClient::ALLOWED_UPDATES` = `message, my_chat_member, chat_member, callback_query, pre_checkout_query` — **`inline_query` бот не получает**, inline-режим не используется.
 - Переход по `?start=ref_<код>` засчитывает реферала в `StartCommandHandler` (`StartPayload::referralCode()` → `ReferralService`). Mini App `start_param` для учёта рефералов **не читает** (только для перехода на экран — `router/startParam.ts`). Значит кнопка должна вести на `?start=ref_…`, а не на `?startapp=…`.
-- Mini App подключает `@twa-dev/sdk` **7.10.1**. Его собственная копия `telegram-web-apps.js` (версия 7.10) при импорте **перезаписывает** `window.Telegram.WebApp`, загруженный из `telegram.org/js/telegram-web-app.js` в `index.html`. Метода `shareMessage` (Mini Apps 8.0) в этой копии нет — его нужно добавить (см. §1б, H6).
+- ~~Mini App подключает `@twa-dev/sdk` **7.10.1**~~ — **обновлён до 8.0.2 (26.11.2026, разрешение владельца).** Собственная копия `telegram-web-apps.js` SDK по-прежнему при импорте **перезаписывает** `window.Telegram.WebApp`, загруженный из `telegram.org/js/telegram-web-app.js` в `index.html`, но теперь это копия Mini Apps 8.0 — с `WebApp.shareMessage`. `useTelegram().shareMessage` вызывает этот метод (было: сырое событие `web_app_send_prepared_message` через `Telegram.WebView`, пока в 7.10 метода не было); сырое событие убрано — метод SDK шлёт то же самое событие и есть всегда, когда есть SDK, так что запасной путь через WebView ничего не покрывал бы. Сохранено: проверка `isVersionAtLeast('8.0')` до вызова (ниже 8.0 — сразу `t.me/share/url`, `fallback {old_client}`), разбор отказа — колбэк SDK говорит только «отправлено / нет», причину даёт событие `shareMessageFailed {error}` в том же такте: `USER_DECLINED` — ученик закрыл выбор чата (ничего не отмечаем), остальное — ошибка → запасной путь `t.me/share/url` один раз; исключение SDK (`WebAppMethodUnsupported`, `WebAppShareMessageOpened` — прежний выбор чата не ответил) — тоже запасной путь; тайм-аут 120 с без ответа — кнопка освобождается; повторное нажатие, пока идёт отправка, игнорируется (`useShare.pending`). Другие новые возможности SDK 8 (полный экран, эмодзи-статус, `downloadFile`, датчики) не используются. Побочный эффект копии 8.0: при загрузке она запрашивает safe area и пишет CSS-переменные `--tg-safe-area-inset-*` / `--tg-content-safe-area-inset-*` (приложение их не читает).
 - Карточки лежат на диске `public` (`storage/app/public/achievements/…png`), но в `docker/nginx/prod.conf` наружу открыт только `location ^~ /storage/audio/` (`storage:link` не делается). Для inline-сообщения с фото Telegram должен **скачать картинку по HTTPS** — нужен публичный адрес.
 
 ### 1б. Ограничения Telegram
@@ -148,7 +148,7 @@ docs/04 A.22, лимиты в docs/07 §6, настройки `config/share.php`
 ### 1е. Риски
 
 - **Картинка не скачивается Telegram** (Cloudflare, nginx, не JPEG) — сообщение уйдёт без фото или не уйдёт совсем. Защита: `Article` как запасной вариант в H3 и проверка H1.
-- **Старый SDK перетирает `window.Telegram.WebApp`.** Без H6 `shareMessage` не будет никогда, даже в новых клиентах.
+- **Старый SDK перетирает `window.Telegram.WebApp`.** Без H6 `shareMessage` не будет никогда, даже в новых клиентах. *(Снято 26.11.2026: SDK 8.0.2.)*
 - **Спам от имени бота.** Закрыт тем, что текст только серверный, предмет только свой, лимиты на prepare и inline.
 - **Срок подготовленного сообщения.** Если он короткий (минуты), кэш H3 должен его учитывать — TTL берём из ответа, а не из конфига.
 
@@ -512,7 +512,7 @@ Pro nima beradi:
 ## 7. Риски для ревью (сводно)
 
 - **Telegram:** всё из §1б сверить на живом боте (H1) до H3. Если `shareMessage` окажется недоступен у большой доли учеников, запасной путь (нынешняя ссылка) должен работать без регрессий — тесты H6 это проверяют.
-- **SDK Mini App** 7.10 перетирает `window.Telegram.WebApp`: обновление до 8.x — смена версии существующей зависимости, нужна отметка координатора.
+- **SDK Mini App** 7.10 перетирает `window.Telegram.WebApp`: обновление до 8.x — смена версии существующей зависимости, нужна отметка координатора. *(Сделано 26.11.2026: `@twa-dev/sdk` 8.0.2 по разрешению владельца, см. §1а.)*
 - **Новые файлы шрифтов** (Source Serif 4 TTF, OFL) — согласовать; без них карточка рисуется Noto Sans, макет не совпадёт.
 - **Публичный каталог карточек** и Cloudflare: Telegram должен скачать JPEG без проверки «вы человек?».
 - **Безопасность share:** `user_id` только из JWT / `from.id`, предмет только свой, текст только серверный, лимиты на prepare и inline-запросы.

@@ -65,13 +65,13 @@ describe('RegionPromptCard', () => {
   it('shows the card while the server asks for it, in the learner language', async () => {
     const w = render(settings())
 
-    expect(w.get('[data-testid=region-prompt]').text()).toContain('Укажите регион')
-    expect(w.text()).toContain('Появится рейтинг вашего региона.')
+    expect(w.get('[data-testid=region-prompt]').text()).toContain('Укажите область')
+    expect(w.text()).toContain('Появится рейтинг вашей области.')
     expect(w.get('[data-testid=region-prompt-later]').text()).toBe('Не сейчас')
 
     setLocale('uz')
     await flushPromises()
-    expect(w.get('[data-testid=region-prompt]').text()).toContain("Hududingizni ko'rsating")
+    expect(w.get('[data-testid=region-prompt]').text()).toContain("Viloyatingizni ko'rsating")
     expect(w.get('[data-testid=region-prompt-later]').text()).toBe('Hozir emas')
     w.unmount()
   })

@@ -8,6 +8,7 @@ use App\Domain\Cup\DTO\CupContext;
 use App\Domain\Cup\DTO\CupDuelBoard;
 use App\Domain\Cup\DTO\CupDuelView;
 use App\Domain\Cup\Enums\CupDuelDmKind;
+use App\Domain\Cup\Enums\CupDuelKind;
 use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Support\CupAccess;
@@ -75,13 +76,13 @@ final class CupDuelMiniApp
      * @throws CupException see {@see CupDuelService::challenge()}
      * @throws PracticeException practice_mode_disabled | practice_limit_reached
      */
-    public function challenge(int $cupId, Learner $learner, ?int $opponentParticipantId, bool $public, PracticeMode $mode, string $requestId, ?CarbonImmutable $now = null): array
+    public function challenge(int $cupId, Learner $learner, ?int $opponentParticipantId, bool $public, PracticeMode $mode, string $requestId, ?CarbonImmutable $now = null, ?CupDuelKind $kind = null): array
     {
         $now = ($now ?? CarbonImmutable::now())->startOfSecond();
         $context = $this->door($cupId, $learner, $opponentParticipantId === null ? [] : $this->duels->targetScalars($opponentParticipantId));
         $me = $this->participant($context);
 
-        $outcome = $this->core->challenge($learner, $context->cup, $opponentParticipantId, $public, $mode, $requestId, $now);
+        $outcome = $this->core->challenge($learner, $context->cup, $opponentParticipantId, $public, $mode, $requestId, $now, $kind);
         $duel = $outcome->duel;
         if ($outcome->created && ! $duel->is_public && $duel->opponent_participant_id !== null) {
             SendCupDuelDmJob::send(CupDuelDmKind::Challenged, $duel->id);

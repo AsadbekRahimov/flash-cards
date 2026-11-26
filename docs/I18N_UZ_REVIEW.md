@@ -1,5 +1,40 @@
 # Узбекские строки интерфейса — на проверку носителю
 
+## «Область / Viloyat» и сегмент «Неделя / Hafta» (26 ноября 2026 года) — не проверено носителем
+
+Решение владельца: место ученика для рейтинга называется **областью** (uz «viloyat»), а не регионом («hudud»); первый сегмент вкладки рейтинга (таблица недели) — «Неделя» / «Hafta» вместо «Лига» / «Liga» (новый ключ `league.tab`; `league.title` «Liga» остаётся там, где речь о самой лиге). Ключи, `region_code` и `scope=region` не менялись. В списке есть «Toshkent shahri», «Qoraqalpog'iston Respublikasi» и «Boshqa davlat», поэтому фразы с названием не ставят перед ним слово «viloyat»: ««{name}» jadvali», «Saqlandi: :region.». «Xavfli hudud» (`settings.group.danger`, «опасная зона») — не про область, не менялось. Носителю проверить: аффиксы «viloyatingiz», «viloyatingizni», «viloyatim»; ««{name}» reytingida — {rank}-o'rin»; «Hafta» как подпись сегмента.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `onboarding.steps.region` | Qayerda yashaysiz? Bu viloyatingiz reytingi uchun kerak. | Где вы живёте? Это нужно для рейтинга вашей области. |
+| `onboarding.steps.region_list` | Viloyatingizni tanlang | Выберите вашу область |
+| `onboarding.settings.region_saved` | Saqlandi: :region. | Сохранено: :region. |
+| `onboarding.settings.region_none` | viloyat ko'rsatilmagan | область не указана |
+| `onboarding.settings.region_too_soon` | Viloyatni 30 kunda bir marta o'zgartirish mumkin. Viloyatni :date dan boshlab o'zgartirishingiz mumkin. | Область можно менять раз в 30 дней. Сменить область можно с :date. |
+| `onboarding.settings.region_reverted` | Avvalgi viloyat tiklandi. | Прежняя область возвращена. |
+| `onboarding.settings.region_revert_unavailable` | Viloyat o'zgarishini endi bekor qilib bo'lmaydi: … | Отменить смену области уже нельзя: … |
+| `onboarding.settings.buttons.region` | Viloyat | Область |
+| `league.tab` | Hafta | Неделя (первый сегмент вкладки рейтинга) |
+| `board.area.mine` | Mening viloyatim | Моя область |
+| `board.area.other` | Boshqa viloyat… | Другая область… |
+| `board.region_rank` | «{name}» reytingida — {rank}-o'rin | В рейтинге «{name}» — {rank} место |
+| `board.read_only_region` | Bu «{name}» jadvali. Siz «{mine}» jadvalida bellashyapsiz. | Это таблица «{name}». Вы соревнуетесь в таблице «{mine}». |
+| `board.read_only_region_none` | Bu «{name}» jadvali. Siz viloyatingizni ko'rsatmagansiz. | Это таблица «{name}». Вы не указали свою область. |
+| `board.region_card.title` | Qatnashish uchun viloyatingizni ko'rsating | Укажите область, чтобы участвовать |
+| `board.below.title.one/other` | «{name}» jadvalida hozircha {count} tadan {participants} ishtirokchi bor | В таблице «{name}» пока {participants} из {count} участников |
+| `region.sheet.view_title` | Qaysi viloyat jadvali? | Таблица какой области? |
+| `region.sheet.view_pick` | Viloyatni tanlang | Выберите область |
+| `settings.region` | Viloyat | Область |
+| `settings.region.hint` | Viloyatingiz reytingi uchun kerak. Viloyatni 30 kunda bir marta o'zgartirish mumkin. | Нужна для рейтинга вашей области. Сменить область можно раз в 30 дней. |
+| `settings.region.next_change` | Viloyatni {date} dan boshlab o'zgartirish mumkin. | Сменить область можно с {date}. |
+| `region.sheet.lead` | Bu viloyatingiz reytingi uchun kerak. | Это нужно для рейтинга вашей области. |
+| `region.sheet.pick` | Viloyatingizni tanlang | Выберите вашу область |
+| `region.prompt.title` | Viloyatingizni ko'rsating | Укажите область |
+| `region.prompt.text` | Viloyatingiz reytingi paydo bo'ladi. | Появится рейтинг вашей области. |
+| `region.prompt.choose` | Viloyatni tanlash | Выбрать область |
+| `error.code.region_change_too_soon` | Viloyatni 30 kunda bir marta o'zgartirish mumkin. | Область можно менять раз в 30 дней. |
+| `error.code.region_revert_unavailable` | Viloyat o'zgarishini endi bekor qilib bo'lmaydi: … | Отменить смену области уже нельзя: … |
+
 ## Переименование LexiFlow → Muhrla (25 ноября 2026 года)
 
 Решение владельца (docs/31 §5г, docs/36 §5): продукт и тариф называются «Muhrla» и «Muhrla Pro». Слово заменено прямой заменой во всех строках `lang/uz/*.php` и `resources/twa/src/i18n/uz.ts` (и в таблицах ниже). Тест-страж (`tests/Feature/BrandTest.php`, `resources/twa/src/__tests__/brand.spec.ts`) не пускает старое название обратно.
@@ -4426,7 +4461,7 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 
 ## Выпуск 1 · регион ученика и эмодзи Pro (docs/35 R1–R5, docs/31 §5а) — на проверку носителю
 
-Регион — «hudud» в тексте и «viloyat» в названиях областей. Носителю проверить: «Hududni :date dan boshlab» (дата `25.12.2026` перед «dan»), «Ko'rsatmaslik» как кнопка отказа указать регион.
+Регион — «hudud» в тексте и «viloyat» в названиях областей. **С 26.11.2026 в тексте тоже «viloyat»** — актуальные строки в разделе «Область / Viloyat» в начале документа; таблица ниже — снимок до замены. Носителю проверить: «Hududni :date dan boshlab» (дата `25.12.2026` перед «dan»), «Ko'rsatmaslik» как кнопка отказа указать регион.
 
 ### Бот (`lang/uz/regions.php`, `lang/uz/onboarding.php`)
 
@@ -4811,7 +4846,7 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 
 ## Выпуск 3 · «За всё время» и рейтинг региона в Mini App (docs/35 R8, docs/32 S13b, 25.11.2026) — на проверку носителю
 
-Термины прежние: «ball» (балл), «hudud» (регион), «jadval» (таблица), «bellashyapsiz». Числа (баллы, места, участники, порог региона) — с сервера; названия регионов приходят с сервера на языке интерфейса. «Free» и «Pro» не переводятся. Носителю проверить: естественно ли «Barcha vaqt» как название вкладки (рус. «За всё время»), «{date} dan beri hisoblanadi» и «{count} tadan {participants} ishtirokchi bor» (рус. «пока 3 из 5 участников»).
+Термины прежние: «ball» (балл), «hudud» (регион; с 26.11.2026 — «viloyat», см. начало документа), «jadval» (таблица), «bellashyapsiz». Числа (баллы, места, участники, порог региона) — с сервера; названия регионов приходят с сервера на языке интерфейса. «Free» и «Pro» не переводятся. Носителю проверить: естественно ли «Barcha vaqt» как название вкладки (рус. «За всё время»), «{date} dan beri hisoblanadi» и «{count} tadan {participants} ishtirokchi bor» (рус. «пока 3 из 5 участников»).
 
 | Ключ | uz | ru |
 |---|---|---|

@@ -302,19 +302,20 @@ final class VocabularyImporter
     }
 
     /**
-     * key => lexeme id of the file's words: created for a platform or organisation course, matched for a learner's deck.
+     * key => lexeme id of the file's words: created for a platform or organisation course; none for a learner's deck (outside the
+     * catalog, docs/32 §2.1 - its words get NULL, and a link they had is cleared below).
      *
      * @param  list<array{word:string}>  $words
      * @return array<string, int>
      */
     private function lexemesOf(Course $course, array $words): array
     {
+        if (! $this->lexemes->createsLexemes($course->owner_type)) {
+            return [];
+        }
         $keys = array_values(array_filter(array_map(static fn (array $w): ?string => LexemeKey::of($w['word']), $words)));
-        $language = LexemeCatalog::language($course->target_language);
 
-        return $this->lexemes->createsLexemes($course->owner_type)
-            ? $this->lexemes->ensureKeys($keys, $language)
-            : $this->lexemes->matchKeys($keys, $language);
+        return $this->lexemes->ensureKeys($keys, LexemeCatalog::language($course->target_language));
     }
 
     /** What is wrong with a file `json_decode` refused: the few mistakes a person can fix; anything else is `other`. */

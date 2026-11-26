@@ -35,20 +35,30 @@ use Illuminate\Support\Facades\Log;
  * the day window; {@see send()} (the job) re-reads everything and sends at most one message.
  *
  * Rules of {@see send()}, in this order:
- *  1. the subscription is still the trial that ended at `$endsAt` (not bought, promoted or extended since), the step is not stale;
+ *  1. the subscription is still the trial that ended at `$endsAt` (not bought, promoted or extended since), the step is not stale
+ *     (`max_age_hours` after it became due; {@see DEFERRAL_HOURS} more for a step put off by a renewal reminder, rule 5);
  *  2. the learner is there, not blocked, the DM is open, the learner did not opt out (`meta.billing_offers_opt_out`), and the
  *     learner's clock is still in the day window (a job held back by the queue or a 429 does not go at night);
  *  3. the plan resolved WITHOUT the cache is Free (a purchase, a promo, a seat of a center, a reward of friends stop the chain);
  *  4. nothing for sale: step 0 goes without prices ("Pro is coming" + the way through friends), steps 3 and 10 do not go;
- *  5. under the lock {@see proDmLock()} (taken by RenewalReminderSender too): no other message about Pro (`trial_offer`,
- *     `renewal_reminder`) in the learner's local day - otherwise nothing, the next run tries again; then the marker of the step
- *     (`notifications_log`, `type = trial_offer`, `payload.key`) is written BEFORE the send, and an existing one ends it;
+ *  5. under the lock {@see proDmLock()} (taken by RenewalReminderSender too): the marker of the step (`notifications_log`,
+ *     `type = trial_offer`, `payload.key`) ends it; no other message about Pro (`trial_offer`, `renewal_reminder`) in the learner's
+ *     local day - otherwise nothing, the next run tries again. The reminder has the priority (owner's decision 26.11.2026): a step
+ *     stopped by a `renewal_reminder` of the day is put off to the next day - the row `type = trial_offer_deferred` (same key) gives
+ *     it {@see DEFERRAL_HOURS} more of life, so the hourly selection and this rule 1 still take it then (rules 1-4 are checked again:
+ *     bought Pro since - nothing). Then the marker is written BEFORE the send;
  *  6. a 403 removes the marker and marks the DM unreachable; any other definite refusal (a 429 included) removes it and is rethrown;
  *     a timeout / 5xx keeps it (docs/34 §4в п. 8: better missed than sent twice).
  */
 final class TrialOfferSender
 {
     public const NOTIFICATION_TYPE = 'trial_offer';
+
+    /** `notifications_log.type` of "this step was put off by a renewal reminder of its day" - not a message, see rule 5. */
+    public const DEFERRED_TYPE = 'trial_offer_deferred';
+
+    /** The life a step put off by a renewal reminder gets on top of `max_age_hours`: the window of the next local day. */
+    public const DEFERRAL_HOURS = 24;
 
     /** `learners.meta` key of "Do not send offers" (`bill1:offers_off`). */
     public const OPT_OUT_META = 'billing_offers_opt_out';
@@ -105,9 +115,10 @@ final class TrialOfferSender
 
     /**
      * Queues {@see SendTrialOfferJob} for every trial whose step is due now: `T` (the end of the trial) in
-     * (now − k days − max_age, now − k days − (k = 0 ? min_delay : 0)], the step not sent yet (no marker of it after `T`), the learner
-     * reachable and not opted out (the sender checks it all again), and the learner's clock in [window_from_hour, window_to_hour).
-     * Queuing twice is harmless: the marker decides.
+     * (now − k days − max_age, now − k days − (k = 0 ? min_delay : 0)] - or up to {@see DEFERRAL_HOURS} older when the step was put
+     * off by a renewal reminder (its `trial_offer_deferred` row after `T`, in the same statement) - the step not sent yet (no marker of
+     * it after `T`), the learner reachable and not opted out (the sender checks it all again), and the learner's clock in
+     * [window_from_hour, window_to_hour). Queuing twice is harmless: the marker decides.
      *
      * @return int jobs queued
      */
@@ -130,8 +141,18 @@ final class TrialOfferSender
                 ->whereIn('status', self::STATUSES_AFTER_END)
                 ->where('provider', SubscriptionProvider::Trial->value)
                 ->where('subscriber_type', 'learner')
-                ->where('current_period_ends_at', '>', $lower)
+                ->where('current_period_ends_at', '>', $lower->subHours(self::DEFERRAL_HOURS))
                 ->where('current_period_ends_at', '<=', $upper)
+                // Older than max_age: only a step put off by a renewal reminder of its day (rule 5 of send()), one day more.
+                ->where(static fn (Builder $q) => $q
+                    ->where('current_period_ends_at', '>', $lower)
+                    ->orWhereExists(static fn (QueryBuilder $d) => $d
+                        ->selectRaw('1')
+                        ->from('notifications_log')
+                        ->whereColumn('notifications_log.learner_id', 'subscriptions.subscriber_id')
+                        ->where('notifications_log.type', self::DEFERRED_TYPE)
+                        ->whereColumn('notifications_log.sent_at', '>=', 'subscriptions.current_period_ends_at')
+                        ->whereJsonContains('notifications_log.payload->step', $step)))
                 // A step already sent for this end (its marker, written at the send, after the end) is not queued every hour again.
                 // The marker is matched by the learner (one welcome trial each), the step and a time after this end; the sender
                 // still decides by the exact key.
@@ -186,7 +207,9 @@ final class TrialOfferSender
         /** @var Subscription|null $subscription */
         $subscription = Subscription::query()->find($subscriptionId);
 
-        if ($subscription === null || ! $this->stillDue($subscription, $step, $endsAt, $now)) {
+        $key = $subscription === null ? '' : $subscription->id.':'.$step.'@'.$endsAt->utc()->toIso8601String();
+
+        if ($subscription === null || ! $this->stillDue($subscription, $step, $endsAt, $key, $now)) {
             return false;
         }
 
@@ -219,22 +242,7 @@ final class TrialOfferSender
         $locale = $this->locales->forLearner($learner);
         $text = $this->text($learner, $subscription, $step, $endsAt, $locale, $selling ? $this->pitch->prices($catalog, $locale) : null);
         $markup = $this->pitch->keyboard($learner, $locale, $selling, optOut: true, from: self::FROM);
-        $key = $subscription->id.':'.$step.'@'.$endsAt->utc()->toIso8601String();
-
         $sent = Cache::lock(self::proDmLock($learner->id), 60)->block(10, function () use ($learner, $subscription, $step, $key, $text, $markup, $now): bool {
-            $day = $this->clock->dayBoundsUtc($learner, $now);
-
-            $alreadyToday = NotificationLog::query()
-                ->where('learner_id', $learner->id)
-                ->whereIn('type', [self::NOTIFICATION_TYPE, RenewalReminderSender::NOTIFICATION_TYPE])
-                ->where('sent_at', '>=', $day->startUtc)
-                ->where('sent_at', '<', $day->endUtc)
-                ->exists();
-
-            if ($alreadyToday) {
-                return false;
-            }
-
             $exists = NotificationLog::query()
                 ->where('learner_id', $learner->id)
                 ->where('type', self::NOTIFICATION_TYPE)
@@ -242,6 +250,25 @@ final class TrialOfferSender
                 ->exists();
 
             if ($exists) {
+                return false;
+            }
+
+            $day = $this->clock->dayBoundsUtc($learner, $now);
+
+            $today = NotificationLog::query()
+                ->where('learner_id', $learner->id)
+                ->whereIn('type', [self::NOTIFICATION_TYPE, RenewalReminderSender::NOTIFICATION_TYPE])
+                ->where('sent_at', '>=', $day->startUtc)
+                ->where('sent_at', '<', $day->endUtc)
+                ->distinct()
+                ->pluck('type');
+
+            if ($today->isNotEmpty()) {
+                // The renewal reminder has the priority: the step waits for the next day instead of going stale today.
+                if ($today->contains(RenewalReminderSender::NOTIFICATION_TYPE)) {
+                    $this->defer($learner, $subscription, $step, $key, $now);
+                }
+
                 return false;
             }
 
@@ -321,17 +348,46 @@ final class TrialOfferSender
         return ($learner->meta[self::OPT_OUT_META] ?? null) === true;
     }
 
-    private function stillDue(Subscription $subscription, int $step, CarbonImmutable $endsAt, CarbonImmutable $now): bool
+    private function stillDue(Subscription $subscription, int $step, CarbonImmutable $endsAt, string $key, CarbonImmutable $now): bool
     {
         $period = $subscription->current_period_ends_at;
         $maxAge = max(1, (int) config('billing.trial_offers.max_age_hours', 24));
+        $staleAt = $endsAt->addDays($step)->addHours($maxAge);
 
-        return $subscription->provider === SubscriptionProvider::Trial->value
-            && $subscription->subscriber_type === 'learner'
-            && $period !== null
-            && CarbonImmutable::instance($period)->equalTo($endsAt)
-            && $now->isBefore($endsAt->addDays($step)->addHours($maxAge))
-            && ! $now->isBefore($endsAt->addDays($step));
+        if ($subscription->provider !== SubscriptionProvider::Trial->value
+            || $subscription->subscriber_type !== 'learner'
+            || $period === null
+            || ! CarbonImmutable::instance($period)->equalTo($endsAt)
+            || $now->isBefore($endsAt->addDays($step))
+            || ! $now->isBefore($staleAt->addHours(self::DEFERRAL_HOURS))) {
+            return false;
+        }
+
+        // Past max_age: only a step put off by a renewal reminder (rule 5) - one statement, and only then.
+        return $now->isBefore($staleAt) || NotificationLog::query()
+            ->where('learner_id', $subscription->subscriber_id)
+            ->where('type', self::DEFERRED_TYPE)
+            ->where('payload->key', $key)
+            ->exists();
+    }
+
+    /** Rule 5: the step met a renewal reminder of the learner's day - one `trial_offer_deferred` row per key (under the lock). */
+    private function defer(Learner $learner, Subscription $subscription, int $step, string $key, CarbonImmutable $now): void
+    {
+        $exists = NotificationLog::query()
+            ->where('learner_id', $learner->id)
+            ->where('type', self::DEFERRED_TYPE)
+            ->where('payload->key', $key)
+            ->exists();
+
+        if (! $exists) {
+            NotificationLog::query()->create([
+                'learner_id' => $learner->id,
+                'type' => self::DEFERRED_TYPE,
+                'payload' => ['key' => $key, 'subscription_id' => $subscription->id, 'step' => $step],
+                'sent_at' => $now,
+            ]);
+        }
     }
 
     private function inWindow(Learner $learner, CarbonImmutable $now): bool

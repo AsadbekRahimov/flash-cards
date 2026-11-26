@@ -195,7 +195,7 @@ describe('AllTimeRatingView', () => {
     expect(text(wrapper, 'my-place')).toBe('Вы на 340 месте · 1400 баллов')
     // the nearest better row on screen is the neighbour on the 339th place
     expect(text(wrapper, 'next-gap')).toBe('До 339-го места — 8 баллов')
-    expect(text(wrapper, 'region-rank')).toBe('Регион «город Ташкент»: 112 место')
+    expect(text(wrapper, 'region-rank')).toBe('В рейтинге «город Ташкент» — 112 место')
     expect(text(wrapper, 'my-total')).toBe('Мои баллы за всё время: 2350 баллов (Free 1400 + Pro 950)')
     expect(text(wrapper, 'participants')).toBe('38623 участника')
     expect(wrapper.get('[data-testid=top] h2').text()).toBe('Лучшие за всё время')
@@ -290,7 +290,7 @@ describe('AllTimeRatingView', () => {
       expect(vi.mocked(api.league.allTime).mock.calls.at(-1)).toEqual([{ scope: 'region' }])
       expect(wrapper.get('[data-testid=area-mine]').attributes('aria-checked')).toBe('true')
       expect(text(wrapper, 'my-place')).toBe('Вы на 340 месте · 1400 баллов')
-      expect(text(wrapper, 'region-rank')).toBe('Регион «город Ташкент»: 112 место')
+      expect(text(wrapper, 'region-rank')).toBe('В рейтинге «город Ташкент» — 112 место')
       expect(text(wrapper, 'next-gap')).toBe('До 111-го места — 3 балла')
       expect(wrapper.get('[data-testid=row-near-me] [data-testid=rank]').text()).toBe('112')
       expect(text(wrapper, 'participants')).toBe('13502 участника')
@@ -315,7 +315,7 @@ describe('AllTimeRatingView', () => {
 
       await wrapper.get('[data-testid=area-other]').trigger('click')
       await flushPromises()
-      expect(document.querySelector('[data-testid=region-title]')?.textContent).toBe('Таблица какого региона?')
+      expect(document.querySelector('[data-testid=region-title]')?.textContent).toBe('Таблица какой области?')
       // only a choice: no "Rather not say"
       expect(document.querySelector('[data-testid=region-none]')).toBeNull()
       await click('[data-testid=region-uzbekistan]')
@@ -326,7 +326,7 @@ describe('AllTimeRatingView', () => {
       expect(document.querySelector('[data-testid=region-sheet]')).toBeNull()
       expect(text(wrapper, 'area-other')).toBe('Бухарская область')
       expect(wrapper.get('[data-testid=area-other]').attributes('aria-checked')).toBe('true')
-      expect(text(wrapper, 'read-only-region')).toBe('Это таблица региона «Бухарская область». Вы соревнуетесь в регионе «город Ташкент».')
+      expect(text(wrapper, 'read-only-region')).toBe('Это таблица «Бухарская область». Вы соревнуетесь в таблице «город Ташкент».')
       expect(has(wrapper, 'neighbours')).toBe(false)
       expect(has(wrapper, 'next-gap')).toBe(false)
       expect(has(wrapper, 'row-pinned')).toBe(false)
@@ -343,7 +343,7 @@ describe('AllTimeRatingView', () => {
       await click('[data-testid=region-uzbekistan]')
       await click('[data-testid=region-UZ-BU]')
 
-      expect(text(wrapper, 'read-only-region')).toBe('Это таблица региона «Бухарская область». Вы не указали свой регион.')
+      expect(text(wrapper, 'read-only-region')).toBe('Это таблица «Бухарская область». Вы не указали свою область.')
       expect(has(wrapper, 'region-rank')).toBe(false)
     })
 
@@ -359,8 +359,8 @@ describe('AllTimeRatingView', () => {
       await wrapper.get('[data-testid=area-mine]').trigger('click')
       await flushPromises()
 
-      expect(wrapper.get('[data-testid=region-not-set] h2').text()).toBe('Укажите регион, чтобы участвовать')
-      expect(text(wrapper, 'region-not-set')).toContain('Сменить регион можно раз в 30 дней')
+      expect(wrapper.get('[data-testid=region-not-set] h2').text()).toBe('Укажите область, чтобы участвовать')
+      expect(text(wrapper, 'region-not-set')).toContain('Сменить область можно раз в 30 дней')
       expect(has(wrapper, 'top')).toBe(false)
       expect(has(wrapper, 'region-next-change')).toBe(false)
       expect(has(wrapper, 'reload-error')).toBe(false)
@@ -387,7 +387,7 @@ describe('AllTimeRatingView', () => {
       await wrapper.get('[data-testid=area-mine]').trigger('click')
       await flushPromises()
 
-      expect(text(wrapper, 'region-next-change')).toContain('Сменить регион можно с 24 дек')
+      expect(text(wrapper, 'region-next-change')).toContain('Сменить область можно с 24 дек')
     })
 
     it('a region below the threshold: no rows, "N of M participants", the way to the invitations', async () => {
@@ -404,7 +404,7 @@ describe('AllTimeRatingView', () => {
       await wrapper.get('[data-testid=area-mine]').trigger('click')
       await flushPromises()
 
-      expect(text(wrapper, 'region-below-title')).toBe('В регионе «город Ташкент» пока 3 из 5 участников')
+      expect(text(wrapper, 'region-below-title')).toBe('В таблице «город Ташкент» пока 3 из 5 участников')
       expect(text(wrapper, 'region-below')).toContain('Таблица появится, когда участников будет 5. Пригласите друзей')
       expect(has(wrapper, 'top')).toBe(false)
       expect(has(wrapper, 'empty')).toBe(false)
@@ -557,15 +557,15 @@ describe('AllTimeRatingView', () => {
     expect(wrapper.get('h1').text()).toBe('Barcha vaqt reytingi')
     expect(text(wrapper, 'seg-all-time')).toBe('Barcha vaqt')
     expect(text(wrapper, 'my-total')).toBe('Barcha vaqtdagi ballarim: 2350 ball (Free 1400 + Pro 950)')
-    expect(text(wrapper, 'region-rank')).toBe("«город Ташкент» hududi: 112-o'rin")
+    expect(text(wrapper, 'region-rank')).toBe("«город Ташкент» reytingida — 112-o'rin")
     expect(text(wrapper, 'area-all')).toBe('Hammasi')
-    expect(text(wrapper, 'area-mine')).toBe('Mening hududim')
-    expect(text(wrapper, 'area-other')).toBe('Boshqa hudud…')
+    expect(text(wrapper, 'area-mine')).toBe('Mening viloyatim')
+    expect(text(wrapper, 'area-other')).toBe('Boshqa viloyat…')
 
     await wrapper.get('[data-testid=area-other]').trigger('click')
     await flushPromises()
     await click('[data-testid=region-uzbekistan]')
     await click('[data-testid=region-UZ-BU]')
-    expect(text(wrapper, 'read-only-region')).toBe('Bu «Бухарская область» hududi jadvali. Siz «город Ташкент» hududida bellashyapsiz.')
+    expect(text(wrapper, 'read-only-region')).toBe('Bu «Бухарская область» jadvali. Siz «город Ташкент» jadvalida bellashyapsiz.')
   })
 })

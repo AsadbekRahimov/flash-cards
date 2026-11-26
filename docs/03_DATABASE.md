@@ -444,7 +444,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 |---------|-----|
 | id | bigint PK |
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
-| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
+| type | string(50) | вид записи. Напоминания о занятиях (docs/06 §6, docs/12 §7.5): `review_reminder`, `streak_reminder`, `inactive_reminder` (перерыв 3+ дня), `never_started_reminder`, `new_words_reminder`, `choose_course_reminder`. Остальные ЛС: `renewal_reminder`, `trial_offer` (предложение Pro после пробного, docs/34 §2д), `trial_offer_deferred` (не сообщение: шаг предложения перенесён на следующий день из-за напоминания о подписке, тот же `payload.key`), `achievement`, `league_result`, `friend_dm`, `battle_dm`, `game_card`, `referral_milestone` (ключ `payload.key = milestone:<N>` — одно сообщение «вам +7 дней Pro» на (ученик, веха), docs/13 §7.1 «2C.9»), `league_month_won` (ключ `payload.key = month:<id>`, `payload.place` — одно поздравление победителю месячного рейтинга на (ученик, месяц), docs/13 §7.6) |
 | payload | jsonb | — что отправили: `{kind, due_count, streak, scheduled_for}` |
 | sent_at | timestamp |
 
@@ -1459,7 +1459,7 @@ CHECK не создаются — инвариант дублируют серв
 | key | string(100) | нормализованное написание `LexemeKey::of`: trim, нижний регистр, схлопнутые пробелы, ASCII-апострофы и дефисы, без финальной `.,!?;:` и артикля `a/an/the` в начале (если что-то остаётся); `to ` не снимается |
 | created_at | timestamp nullable | |
 
-**Индексы:** unique `(language, key)`. **Правила:** пишет только `LexemeCatalog` — `insertOrIgnore` + select (гонка двух импортов одного слова безопасна); строки не меняются и не удаляются. Связывание старых слов — `php artisan lexemes:backfill` (пачками по `words.id`, идемпотентно; `--decks` — только колоды).
+**Индексы:** unique `(language, key)`. **Правила:** пишет только `LexemeCatalog` — `insertOrIgnore` + select (гонка двух импортов одного слова безопасна); строки не меняются и не удаляются. Связывание старых слов — `php artisan lexemes:backfill` (пачками по `words.id`, идемпотентно; `--decks` — только отвязка слов колод). **Слова колод учеников (`owner_type = learner`) с каталогом не связываются никогда** (`words.lexeme_id = NULL`, решение владельца 27.11.2026, docs/32 §12.12; миграция `2026_12_01_100001` отвязала прежние связи).
 
 ### 2.67 `learner_lexemes` — ученик × лексема *(S2, docs/32 §2.2)*
 | Колонка | Тип | Описание |
@@ -1662,6 +1662,10 @@ IS NOT NULL)`; `(status='canceled') = (cancel_reason IS NOT NULL)` и причи
 ученика). Индекса по `(cup_id, best_total, best_round_points)` из docs/33 **нет**: таблица кубка (десятки строк) сортируется в памяти,
 а очки меняются с каждым верным ответом — с индексом обновление не было бы HOT. **CHECK:** статус active/left, `first_day ≥ 1`,
 `0 ≤ best_round_points ≤ best_total`.
+`withdrawn_at` timestamp null (миграция `2026_12_01_100002`, docs/33 §11.12): участник **сам вышел из кубка** («Выйти из кубка») —
+статус `left` навсегда: ни вступление, ни свежий «член чата» не делают его `active`, кубок ему не виден и не входит в «мои кубки».
+Без индекса (читается в строке участника, которую и так читают по unique). **CHECK** `cup_participants_withdrawn_check`:
+`withdrawn_at IS NULL OR status = 'left'` (PostgreSQL, `NOT VALID` + `VALIDATE`).
 
 ### 2.78 `cup_days` — день кубка *(K4/K5, docs/33 §2.4)*
 `snapshot` jsonb — задания дня на всех языках (только сервер), `built_at` — снимок построен **или** день закрыт без снимка (отмена /
@@ -1849,6 +1853,8 @@ unique `open_challenger_id WHERE NOT NULL` («один открытый вызо
 99. `2026_11_28_100002_create_cup_rounds_tables` — `cup_round_attempts`, `cup_round_answers` *(§2.81–§2.82)*
 100. `2026_11_29_100001_create_cup_duels_tables` — `cup_duels`, `cup_duel_slots`, `battles.cup_duel_id` / `limit_exempt`, частичные индексы, CHECK (PostgreSQL); `down()` сначала обнуляет `battles.cup_duel_id` *(§2.83–§2.84)*. Вне транзакции мигратора (`$withinTransaction = false`): таблицы — в своей транзакции; на `battles` (PostgreSQL) колонки без перезаписи, FK `NOT VALID` + отдельный `VALIDATE CONSTRAINT`, частичный unique `CONCURRENTLY`; SQLite — как раньше
 101. `2026_11_30_100001_add_battle_voided_to_cup_duel_end_reasons` — CHECK причин `cup_duels` с `battle_voided` (PostgreSQL; `NOT VALID` + `VALIDATE`); `down()` переводит `battle_voided` в `battle_gone` *(§2.83)*
+102. `2026_12_01_100001_unlink_deck_words_from_lexemes` — только данные: `words.lexeme_id = NULL` у слов колод учеников (docs/32 §12.12), пачками по 1 000 `words.id`, вне транзакции мигратора, перезапускаемая; `down()` связывает их обратно с существующими лексемами по написанию *(§2.66)*
+103. `2026_12_01_100002_add_withdrawn_at_to_cup_participants` — `cup_participants.withdrawn_at` (без перезаписи таблицы) и CHECK `withdrawn_at IS NULL OR status = 'left'` (PostgreSQL, `NOT VALID` + отдельный `VALIDATE`; вне транзакции мигратора, `IF NOT EXISTS` — перезапускаемая); `down()` снимает CHECK и колонку *(§2.77)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

@@ -397,6 +397,126 @@ it('sends no second message about Pro in the same local day, a renewal reminder 
     expect(toSend($trial, 0))->toBeTrue();
 })->with(['renewal_reminder', 'trial_offer']);
 
+// --- the renewal reminder first (owner's decision 26.11.2026) --------------------------------------------------------
+
+/** A renewal reminder of the learner's subscription went out at `$at` (UTC). */
+function toReminded(Learner $learner, string $at): NotificationLog
+{
+    return NotificationLog::query()->create(['learner_id' => $learner->id, 'type' => 'renewal_reminder', 'payload' => ['key' => 'r:'.$learner->id], 'sent_at' => CarbonImmutable::parse($at, 'UTC')]);
+}
+
+/** @return list<array<string, mixed>> */
+function toDeferrals(Learner $learner): array
+{
+    return NotificationLog::query()->where('learner_id', $learner->id)->where('type', TrialOfferSender::DEFERRED_TYPE)->get()->map(fn (NotificationLog $l): array => $l->payload)->all();
+}
+
+it('puts the offer of the day of a renewal reminder off to the next day, past max_age, once; an offer without a reminder goes as before', function (): void {
+    $trial = toTrial();
+    $learner = toLearner($trial);
+    $control = toTrial();
+    // 12:30 in Tashkent: the reminder about the subscription went out first.
+    toReminded($learner, '2026-11-20 07:30:00');
+
+    // 14:00 in Tashkent: step 0 is due for both - the control gets it, the reminded learner does not; twice, one deferral.
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 2');
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 1');
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['chat_id'])->toBe(toLearner($control)->telegram_user_id)
+        ->and(toMarkers($learner))->toBe([])
+        ->and(toDeferrals($learner))->toHaveCount(1)
+        ->and(toDeferrals($learner)[0]['step'])->toBe(0);
+
+    // 13:30 the next day, T + 25.5 h: past max_age, still sent - only for the deferred one, and only once.
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 08:30:00', 'UTC'));
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 1');
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 0');
+    SendTrialOfferJob::dispatchSync($trial->id, 0, CarbonImmutable::instance($trial->current_period_ends_at)->toIso8601String());
+
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($this->tg->sent[1]['chat_id'])->toBe($learner->telegram_user_id)
+        ->and(array_column(toMarkers($learner), 'step'))->toBe([0])
+        ->and(array_column(toMarkers(toLearner($control)), 'step'))->toBe([0]);
+});
+
+it('does not send a step past max_age without a deferral, nor a deferred one past the extra day', function (): void {
+    Queue::fake();
+    $trial = toTrial();
+    $deferred = toTrial();
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    toReminded(toLearner($deferred), '2026-11-20 07:30:00');
+    expect(toSend($deferred, 0))->toBeFalse();
+
+    // T + 25 h: the one without a reminder is stale, as before.
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 08:00:00', 'UTC'));
+    expect(toSend($trial, 0))->toBeFalse();
+
+    // T + 48 h: the extra day is over as well.
+    $this->travelTo(CarbonImmutable::parse('2026-11-22 07:00:00', 'UTC'));
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 0');
+
+    expect(toSend($deferred, 0))->toBeFalse()
+        ->and($this->tg->sent)->toBe([]);
+});
+
+it('does not send the deferred offer when the learner has Pro the next day or the trial was extended', function (string $how): void {
+    $trial = toTrial();
+    $learner = toLearner($trial);
+    $endsAt = CarbonImmutable::instance($trial->current_period_ends_at);
+    toReminded($learner, '2026-11-20 07:30:00');
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    expect(toSend($trial, 0))->toBeFalse();
+
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 08:30:00', 'UTC'));
+    match ($how) {
+        'bought' => Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'payme']),
+        'extended' => $trial->update(['status' => 'active', 'current_period_ends_at' => $endsAt->addDays(7)]),
+    };
+
+    $this->artisan('billing:trial-offers')->assertSuccessful();
+
+    expect(app(TrialOfferSender::class)->send($trial->id, 0, $endsAt))->toBeFalse()
+        ->and($this->tg->sent)->toBe([])
+        ->and(toMarkers($learner))->toBe([]);
+})->with(['bought', 'extended']);
+
+it('does not defer for an offer of the same day: only a renewal reminder puts a step off', function (): void {
+    $trial = toTrial();
+    $learner = toLearner($trial);
+    NotificationLog::query()->create(['learner_id' => $learner->id, 'type' => 'trial_offer', 'payload' => ['key' => 'other'], 'sent_at' => CarbonImmutable::parse('2026-11-20 07:30:00', 'UTC')]);
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+
+    expect(toSend($trial, 0))->toBeFalse()
+        ->and(toDeferrals($learner))->toBe([]);
+});
+
+it('selects the deferred steps in the same statement: the run does not grow with their number', function (): void {
+    Queue::fake();
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    $defer = function (): void {
+        $trial = toTrial();
+        toReminded(toLearner($trial), '2026-11-20 07:30:00');
+        expect(toSend($trial, 0))->toBeFalse();
+    };
+
+    $defer();
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 08:30:00', 'UTC'));
+    $few = QueryLog::during(fn () => expect(app(TrialOfferSender::class)->queueDue())->toBe(1));
+
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    foreach (range(1, 4) as $i) {
+        $defer();
+    }
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 08:30:00', 'UTC'));
+    $many = QueryLog::during(fn () => expect(app(TrialOfferSender::class)->queueDue())->toBe(5));
+
+    // One statement a step, plus the timezones of the one chunk that has rows: as for steps that are not deferred.
+    expect(count($few))->toBe(count(TrialOfferSender::steps()) + 1)
+        ->and(count($many))->toBe(count($few));
+});
+
 it('does not count a learning reminder as a message about Pro', function (): void {
     $trial = toTrial();
     NotificationLog::query()->create(['learner_id' => $trial->subscriber_id, 'type' => 'review_reminder', 'payload' => [], 'sent_at' => CarbonImmutable::parse('2026-11-20 08:00:00', 'UTC')]);

@@ -29,6 +29,7 @@ import type {
   CupInvite,
   CupListResponse,
   CupParticipantView,
+  CupLeaveResponse,
   CupRound,
   CupSettingsPatch,
   CupSetup,
@@ -433,6 +434,8 @@ export const api = {
       client().post<CupParticipantView>(`/cups/${id}/join`, displayName !== undefined ? { display_name: displayName } : {}),
     /** The name in the tournament, at most 3 changes: 409 `cup_rename_limit`. */
     rename: (id: number, displayName: string) => client().patch<CupParticipantView>(`/cups/${id}/me`, { display_name: displayName }),
+    /** Leaves the cup for good (docs/33 §11.12): 200, a repeat too; 403 `cup_not_member`; 410 `cup_closed`. */
+    leave: (id: number) => client().post<CupLeaveResponse>(`/cups/${id}/leave`, undefined, ACT),
     today: (id: number) => client().get<CupTodayResponse>(`/cups/${id}/rounds/today`),
     /** Starts the round of today (201) or returns the open one (200). 409 `cup_round_done {points}` / `cup_not_started` / `cup_paused`. */
     startRound: (id: number) => client().post<CupRound>(`/cups/${id}/rounds/today`, undefined, ACT),

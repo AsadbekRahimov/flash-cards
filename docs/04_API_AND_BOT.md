@@ -251,7 +251,7 @@
 
 **Регион и эмодзи в ответе (`GET /me` и все ответы его формы).** `settings` += `region_code`, `region_change_available_at` (ISO-8601 UTC, когда можно выбрать другой регион; `null` — сейчас), `region_undo_available_until` (до какого момента можно отменить последнюю смену; `null` — нельзя), `region_prompt` (bool: показывать карточку «Укажите регион» — региона нет и «Не сейчас» не нажимали 30 дней), `pro_emoji_choice` (сохранённый код, есть ли Pro или нет — Free видит выбор как плюс Pro); `settings.options` += `regions` (`[{code, name}]`: 14 регионов Узбекистана в порядке языка — сначала город Ташкент, — затем `other`), `pro_emojis` (`[{code, emoji}]`), `pro_emoji_locked` (bool: выбор закрыт до Pro). `learner` += `pro_emoji` — **сам символ** выбранного эмодзи, только пока у ученика действующий Pro, иначе `null`.
 
-**Отмена смены региона — `POST /api/twa/me/settings/region/revert`** (без тела). В течение 10 минут после принятой смены (и после сброса) возвращает прежний регион и прежний `region_changed_at`; ответ — как у `GET /me`. Позже, без смены или повторно — `422 region_revert_unavailable`. Бот: под «Регион: …. Сохранено.» в `/settings` — кнопка «↩️ Отменить» (`set1:rgundo`).
+**Отмена смены региона — `POST /api/twa/me/settings/region/revert`** (без тела). В течение 10 минут после принятой смены (и после сброса) возвращает прежний регион и прежний `region_changed_at`; ответ — как у `GET /me`. Позже, без смены или повторно — `422 region_revert_unavailable`. Бот: под «Сохранено: ….» (до 26.11.2026 — «Регион: …. Сохранено.»; область, решение владельца) в `/settings` — кнопка «↩️ Отменить» (`set1:rgundo`).
 
 **«Не сейчас» карточки региона — `POST /api/twa/me/region-prompt/dismiss`** (без тела): `204`, идемпотентно; карточка скрыта 30 дней (`learners.meta.region_prompt_dismissed_at`).
 **Часовой пояс (механика осталась в `LearnerSettingsService`, но клиента, который её вызывает, больше нет — 2026-11-16):** смена не чаще раза в 24 ч (docs/12 §5.3): новое значение, отличное от текущего, раньше срока → `TimezoneChangeTooSoonException` (в прежнем HTTP-виде — `422` в общем конверте ошибок
@@ -566,7 +566,8 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 правилам): контракт старых клиентов не меняется. Ответ `lesson_review` (docs/06 §15) — всегда `null`. Иначе:
 `{kind: new|review|long|null, reason, base, week, month, today, today_month}` — `reason` из `credited`, `capped` (начисление записано,
 лимиты дали 0), `already_today`, `closed`, `early`, `same_cycle`, `not_due`, `introductory` (первое знакомство `flash`, попытка дня
-открыта), `no_catalog`; `base` — очки вида по правилам (2 / 3 / 5, 0 без начисления); `week` / `month` — сколько реально добавлено в
+открыта), `no_catalog` (у слова нет лексемы: **слово своей колоды ученика** — колода вне каталога, docs/32 §12.12, 27.11.2026 —
+`{kind: null, reason: no_catalog, base: 0, week: 0, month: 0, today: null, today_month: null}`, никаких «+N»); `base` — очки вида по правилам (2 / 3 / 5, 0 без начисления); `week` / `month` — сколько реально добавлено в
 недельный и месячный зачёт (с лимитами и остатком до потолка); `today` — недельный зачёт рейтингового дня после ответа
 `{points, cap, category: free|pro, new: [used, limit], review: [used, limit]}` (`null`, если начисления не было); `today_month` — то же
 для месяца, только когда он отличается от недели (другая категория или сумма), иначе `null`. Mini App пока поле не показывает (S13).
@@ -1893,7 +1894,7 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 
 Сообщение «через бота» с фото-карточкой и кнопкой «🚀 Начать изучение» → `https://t.me/<bot>?start=ref_<код>` (для `friend_invite` —
 «🤝 Добавить в друзья» → `?start=f_<код>`). Сервер готовит его методом Bot API `savePreparedInlineMessage`, Mini App передаёт `id` в
-`WebApp.shareMessage(id)` (Mini Apps 8.0+). Ядро — `ShareMessageBuilder` и `SharePreparer` (`app/Domain/Engagement/Services/`).
+`WebApp.shareMessage(id)` (Mini Apps 8.0+; метод `@twa-dev/sdk` 8.x, с 26.11.2026 — без сырого события WebView, docs/36 §1а). Ядро — `ShareMessageBuilder` и `SharePreparer` (`app/Domain/Engagement/Services/`).
 
 **`POST /share/prepare`** (лимитеры `twa-api` + `twa-share`: **20/мин и 100/сутки на learner'а**, ответы из кэша тоже считаются; 429)
 ```json
@@ -1955,7 +1956,9 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
   - **участник** (по базе, любого статуса) получает причины: 409 `cup_paused` / `cup_unverifiable {bot_not_admin}`, 503
     `cup_unverifiable {telegram_unavailable}`, 429 `cup_check_busy`;
   - участник `active` проходит без Telegram; участник `left` (вышел или исключён — в открытом или завершённом кубке) — только со свежей
-    проверкой «член чата», иначе тот же 403, что посторонний (таблица с именами и очками не видна исключённому, docs/33 §11.2 п. 7).
+    проверкой «член чата», иначе тот же 403, что посторонний (таблица с именами и очками не видна исключённому, docs/33 §11.2 п. 7);
+  - участник, **сам вышедший из кубка** (`POST …/leave`, `withdrawn_at`, docs/33 §11.12), — тот же 403 `cup_not_member` **без** вызова
+    Telegram на всех маршрутах кубка (и по коду ссылки), даже если он член чата: вернуться в этот кубок нельзя.
   Статус кубка (`cup_not_open`, 410) при вступлении видит только прошедший дверь. Ответ двери переиспользуется самим вступлением
   (троттлинг ядра, 10 с): один `getChatMember` на запрос.
 - **Имя** — только участник `active`, и он должен быть членом чата **сейчас**: свежая проверка (`admitToRename`, как старт раунда, но без
@@ -1969,12 +1972,13 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 
 | Метод и путь | Лимитер (сверх `twa-api`) | Ядро | Ответы |
 |---|---|---|---|
-| `GET /cups` | — | `CupReader::mine()` | 200 `{cups: [CupFields + me]}`: открытые, затем 10 последних завершённых/отменённых |
+| `GET /cups` | — | `CupReader::mine()` | 200 `{cups: [CupFields + me]}`: открытые, затем 10 последних завершённых/отменённых; кубков, из которых ученик вышел сам (`…/leave`), в списке нет |
 | `GET /cups/by-code/{code}` | `twa-cup-read` 30/мин | `assertCanView(opaque: false)` | 200 `CupInviteResource`; 403 `cup_not_member` (и «нет кубка»); 409 `cup_paused {reason}` / `cup_unverifiable {reason: bot_not_admin}`; 503 `cup_unverifiable {reason: telegram_unavailable}`; 429 `cup_check_busy`; 403 `cup_unavailable` (пилот). Событие `cup.invite_viewed {cup_id, joined, status}` — раз в час на ученика и кубок |
 | `GET /cups/{id}` | `twa-cup-read` | `assertCanView(opaque: true)` + `CupStandings::table()` + эмодзи Pro + `today()` + дни | 200 `CupResource`; 403 `cup_not_member` / `cup_unavailable` |
 | `GET /cups/{id}/rounds/today` | `twa-cup-read` | `CupRoundService::today()` | 200 `{state: not_started / active / done / not_available, day, attempt_id, points, expires_at, server_now}`; члену чата без участия — `not_available` |
 | `POST /cups/{id}/join {display_name?}` | `twa-cup-join` 10/мин | дверь id + `CupParticipationService::join()` | 201 новый / 200 уже участник (вышедший снова `active`, счёт прежний) `CupParticipantResource`; 403 `cup_not_member` (и любой сбой проверки не-участнику); участнику и прошедшему дверь — 409 `cup_not_open` (черновик), `cup_paused`, `cup_unverifiable {bot_not_admin}`, 503, 429; 410 `cup_closed`; 422 `cup_display_name_invalid {reason}` (имя проверяется до членства) |
 | `PATCH /cups/{id}/me {display_name}` | `twa-cup-join` | `rename()` (свежая проверка членства) | 200 `CupParticipantResource`; 403 `cup_not_member` (не участник, `left`, не член чата сейчас); 409 `cup_rename_limit` (3 смены), `cup_paused`, `cup_unverifiable {bot_not_admin}`; 410; 422 `cup_display_name_invalid {reason}`; 503; 429 |
+| `POST /cups/{id}/leave` (docs/33 §11.12, 27.11.2026) | `twa-cup-join` | дверь по базе без Telegram (`CupReader::locate`) + `CupParticipationService::leave()` | 200 `CupLeaveResource` (и на повтор — двойное нажатие, то же тело); 403 `cup_not_member` (нет кубка, посторонний, член чата без участия — то же тело, что у всех маршрутов кубка); 403 `cup_unavailable` (пилот); 410 `cup_closed` (кубок завершён / отменён). Можно и `left`-участнику (вышел из чата), и организатору. Событие `cup.left {cup_id, participant_id, status, duels_closed}` |
 | `POST /cups/{id}/rounds/today` | `twa-cup-start` 10/мин | `startToday()` | 201 новая / 200 уже открытая попытка `CupRoundResource`; 403 `cup_not_member` (не участник; вышедший из чата → `left`); 409 `cup_round_done {points}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`; 410 `cup_closed`; 503; 429 |
 | `GET /cup-rounds/{attempt}` | — | `find()` | 200 `CupRoundResource` (та же попытка, исходный `expires_at`; просроченная закрывается `expired`); 404 `cup_round_not_found` |
 | `POST /cup-rounds/{attempt}/answer {request_id, element_id, answer}` | `twa-cup-answer` 90/мин | `answer()` | 200 `CupRoundAnswerResource`; повтор `request_id` — то же тело, `replayed: true`; 409 `answer_already_accepted {verdict}`, `element_not_current {current}`, `cup_round_expired {points}`, `cup_round_done {points}`; 410 `cup_closed`; 422 форма (`answer` — только `option_id` / `text` ≤ 200 / `skip`), `invalid_answer_shape`, `unknown_element_id`, `unknown_option_id`; 404 |
@@ -1996,6 +2000,8 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 - **`CupInviteResource`**: `CupFields + {participants_count, rules, me: {joined, participant_id, status, display_name (своё имя в кубке
   или имя для вступления — из Telegram), left}}`.
 - **`CupParticipantResource`**: `{participant_id, cup_id, display_name, status, first_day, renames_left}`.
+- **`CupLeaveResource`** (`POST /cups/{id}/leave`): `{participant_id, cup_id, status: "left", left: true, left_at}` (`left_at` — когда
+  вышел из кубка). Экран после ответа уходит в список кубков.
 - **`GET /cups`**: `{cups: [CupFields + {me: {participant_id, display_name, status, total, days_played, final_rank, today: {state, day}} |
   null}]}`. `me.today.state` — раунд сегодняшнего дня по правилам `CupRoundService::today()`: `not_started` / `active` / `done` /
   `not_available` (кубок не идёт, дня нет, участник вступил позже); читается **в том же одном операторе** списка (два скалярных
@@ -2029,7 +2035,10 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 к ядру ученика из JWT (1) и кубок с группой и своим участием (1), таблица — эмодзи Pro (1 холодный, 0 тёплый); события продукта
 пишутся после ответа одним INSERT. `GET /cups/{id}` — 7 холодный / 5 тёплый (не растёт с участниками и эмодзи); `GET /cups/by-code` — 3
 (с событием) / 2; вступление — 6; `PATCH /me` — 6 (+ запись свежей проверки членства); старт раунда — 11 (ядро 9), возобновление — 6; `GET /cup-rounds/{id}` — 2;
-`GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков (с `me.today`).
+`GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков (с `me.today`); выход из кубка —
+8 с публичным вызовом для правки / 7 без (ученик, дверь, кубок `FOR KEY SHARE`, открытые вызовы одним `UPDATE … RETURNING`, [правка
+outbox], строка участника `FOR UPDATE`, UPDATE, событие), повтор — 2; все обращения — по PK / unique / частичным индексам дуэлей
+(`CupLeaveTest`).
 
 #### A.23d Дуэли кубка (ядро D1 ✅ 26.11.2026, HTTP и бот D2 ✅ 26.11.2026; решения — docs/33 §11.9, §11.10)
 
@@ -2051,7 +2060,7 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 |---|---|---|---|
 | `GET /cups/{id}/duels` | `twa-cup-read` 30/мин | 200 `CupDuelListResource` | — |
 | `GET /cups/{id}/duels/{duel}` | `twa-cup-duel-poll` 40/мин (`CUP_DUEL_POLLS_PER_MINUTE`) | 200 `CupDuelResource` | 404: дуэль не видна (видна игрокам; публичная и открытая всем — любому участнику) |
-| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, request_id}` | `twa-cup-duel` 20/мин (`CUP_DUEL_ACTIONS_PER_MINUTE`) | 201 новый / 200 тот же `request_id` — `CupDuelResource` | 403 `cup_duel_unavailable` (соперника нельзя вызвать — без причины), `practice_limit_reached` (товарищеская, Free); 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope: daily \| pair \| public_participant \| public_chat, limit}`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`, форма (`public` обязателен, `request_id` — UUID, `mode` — значение `PracticeMode`); 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
+| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, kind?, request_id}` | `twa-cup-duel` 20/мин (`CUP_DUEL_ACTIONS_PER_MINUTE`) | 201 новый / 200 тот же `request_id` — `CupDuelResource` | `kind` (docs/33 §11.12, 27.11.2026): `rated` \| `friendly`; нет поля — как раньше (зачётная, если оба слота свободны, иначе товарищеская). `friendly` — никогда не зачётная (`rated: false` сразу), `rated` при **своей** сыгранной зачётной дуэли сегодня — 409 `cup_duel_rating_changed {rated: false}`, вызов не создаётся (сыгранная адресатом — товарищеское предложение, как раньше). 403 `cup_duel_unavailable` (соперника нельзя вызвать — без причины), `practice_limit_reached` (товарищеская, Free); 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope: daily \| pair \| public_participant \| public_chat, limit}`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`, форма (`public` обязателен, `request_id` — UUID, `mode` — значение `PracticeMode`, `kind` — `rated` / `friendly`); 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
 | `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `twa-cup-duel` | 201 принят сейчас / 200 принят раньше — `CupDuelResource` с `battle_id` | `expect_rated` = `rated_for_me` прочитанной дуэли (не `rated_offered`!). 409 `cup_duel_rating_changed {rated}` (вид изменился после чтения: показать новый статус, принять ещё раз с `rated` из ответа — экран хранит его отдельно от опроса, пока статус дуэли тот же), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}` (мой матч), `cup_duel_opponent_busy`, `cup_paused`, `battle_disabled`, `practice_mode_disabled`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`, форма (`expect_rated` обязателен); 503 / 429 — проверка членства |
 | `POST /cups/{id}/duels/{duel}/decline` | `twa-cup-duel` | 200 `CupDuelResource` (`declined`; повтор — то же) | 403 `cup_duel_not_recipient` (свой вызов или открытый всем); 409 `cup_duel_closed {status, reason}` |
 | `POST /cups/{id}/duels/{duel}/cancel` | `twa-cup-duel` | 200 `CupDuelResource` (`canceled`, `end_reason: challenger`; повтор — то же) | 404 (не мой вызов); 409 `cup_duel_closed` |
@@ -2063,7 +2072,9 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
   cup_over | challenger | cup_closed | left | challenger_limit | material | no_answers | battle_gone | battle_voided), rated_offered (что
   предложил вызвавший — пишется один раз при вызове, от смотрящего не зависит), rated_for_me (вид дуэли **для смотрящего**: открытый вызов —
   зачётная, если ни вызвавший, ни тот, кто примет (адресат, а у открытого всем — сам смотрящий), не сыграл зачётную дуэль сегодняшнего дня
-  кубка; это и есть `expect_rated` его принятия; иначе — `rated` / `rated_offered`; с 26.11.2026, docs/33 §11.11), rated (null пока открыт),
+  кубка; это и есть `expect_rated` его принятия; иначе — `rated` / `rated_offered`; с 26.11.2026, docs/33 §11.11; товарищеская по выбору —
+  всегда `false`), rated (вид, решённый окончательно: null — решит принятие; `false` уже у открытого вызова, если вызвавший выбрал
+  `kind = friendly` (docs/33 §11.12); иначе — что решило принятие),
   public, mode, day, accepted_day, expires_at, battle_id (null до принятия), role (challenger | opponent | null — смотрит тот, кто может
   принять открытый вызов), challenger: {participant_id, display_name, pro_emoji}, opponent: {participant_id, display_name, pro_emoji} | null
   (открытый вызов), points: {challenger, opponent} | null (до `done`), winner_participant_id, server_now}`. Имена — имена участников в
@@ -2093,8 +2104,8 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 
 **Операторы SQL** (`CupDuelHttpQueryBudgetTest`; PostgreSQL = SQLite; тёплый кэш эмодзи, холодный — +1): HTTP-слой добавляет к ядру
 ученика JWT (1) и дверь (1) — `GET …/duels` 3 при любом числе дуэлей (дверь со скалярами доступности + **один** оператор списка),
-`GET …/duels/{duel}` 3, вызов личный / публичный / повтор — 10 / 11 / 4 (ядро 8 / 9 / 2), принятие — 22 (ядро 21, два события —
-один INSERT после ответа), повтор принятия — 6, отказ публичного — 9, отмена личного — 8. `GET /cups/{id}` — те же 5 тёплый / 7 холодный:
+`GET …/duels/{duel}` 3, вызов личный / публичный / повтор — 10 / 11 / 4 (ядро 8 / 9 / 2) при любом `kind` (слоты — в том же операторе
+лимитов), принятие — 22 (ядро 21, два события — один INSERT после ответа; товарищеская по выбору — ядро 19: слоты не читаются и не пишутся), повтор принятия — 6, отказ публичного — 9, отмена личного — 8. `GET /cups/{id}` — те же 5 тёплый / 7 холодный:
 доступность дуэли — скалярные подзапросы в том же операторе двери.
 
 **Бот (B.16).** Публичный вызов — строка outbox `duel:{id}`: новое сообщение в чат (тема `card_thread_id`) с url-кнопкой «⚔️ Принять вызов»
@@ -2517,7 +2528,7 @@ private function formatLeaderboard(ExamSession $session): string
 ### B.12 Напоминания о продлении (docs/13 §4.4, 2A.6)
 
 `subscriptions:remind-expiring` (ежедневно 06:00 UTC) → `SubscriptionService::remindExpiring()` → событие `SubscriptionRenewalDue` → слушатель `QueueRenewalReminder` ставит `RenewalReminderJob` (очередь `default`, tries 3; n-е задание суток откладывается на `⌊n / learning.reminders.send_rate_per_second⌋` с). Напоминают за 3 и 1 день (`billing.checkout.renewal_reminder_days`) о конце периода Payme/Click и `canceled` Stars; `manual/promo/reward` и Stars `active` (автопродление) — никогда. `RenewalReminderSender`: подписка перепроверяется (конец периода тот же, ещё live, платный провайдер), иначе задание молчит.
-- Learner: ЛС с web_app-кнопкой «Продлить Pro» → `/twa/billing?from=renewal`; `notifications_log.type = renewal_reminder`, `payload.key = "<subscription>:<N>@<конец периода>"`; не пишем при `blocked_at`/`dm_blocked_at`; 403 → `dm_blocked_at` и запись лога удаляется.
+- Learner: ЛС с web_app-кнопкой «Продлить Pro» → `/twa/billing?from=renewal`; `notifications_log.type = renewal_reminder`, `payload.key = "<subscription>:<N>@<конец периода>"`; не пишем при `blocked_at`/`dm_blocked_at`; 403 → `dm_blocked_at` и запись лога удаляется. Порядок с предложениями Pro после пробного (`trial_offer`, docs/34 §2д п. 4): не больше одного сообщения о Pro в локальные сутки, **напоминание о подписке важнее** — оно уходит всегда, а предложение того же дня переносится на следующий (`notifications_log.type = trial_offer_deferred`, +24 ч жизни шага; на следующий день условия предложения проверяются заново).
 - Организация: письмо (`SubscriptionRenewalDueMail`, ru/uz) каждому активному владельцу (`organization_users.role = owner`, `users.is_active`) + ЛС с кнопкой-ссылкой на `/org` тем, у кого есть `users.telegram_user_id` (нет связи — только письмо); язык — `interface_locale` учётки-learner'а владельца, иначе `organizations.locale`, иначе дефолт. Приостановленная организация не получает напоминаний.
 - Не более одного раза на (получатель, подписка, N, конец периода): маркер пишется до отправки (лог для learner'а, ключ кэша для владельца и e-mail); неоднозначная ошибка Bot API — молчим при повторе; сбой почтового транспорта снимает маркер письма и задание повторяется; сбой одного получателя не мешает остальным.
 

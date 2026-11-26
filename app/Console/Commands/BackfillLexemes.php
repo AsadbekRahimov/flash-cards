@@ -8,21 +8,20 @@ use App\Domain\Content\Services\LexemeCatalog;
 use Illuminate\Console\Command;
 
 /**
- * `lexemes:backfill` (docs/32 §2.1, task S1): links every word without a lexeme - the words of platform and organisation
- * courses create theirs, the words of learners' decks only match the catalog. Batches by `words.id` (keyset), a few indexed
- * statements a batch and no long transaction, so it is safe beside the live writers and on a large `words`; a link is written
- * only where `lexeme_id` is still NULL. Idempotent: run it after the deploy that adds the catalog, and again with `--decks`
- * whenever the catalog grew (a deck word that matched nothing may match now). Not scheduled.
+ * `lexemes:backfill` (docs/32 §2.1, task S1): links every word of a platform or organisation course without a lexeme (creating the
+ * lexeme), then unlinks every word of a learner's deck that has one (a deck is outside the catalog: no points of the rating, docs/32
+ * §12.12). Batches by `words.id` (keyset), a few indexed statements a batch and no long transaction, so it is safe beside the live
+ * writers and on a large `words`; a link is written only where `lexeme_id` is still NULL. Idempotent. Not scheduled.
  */
 final class BackfillLexemes extends Command
 {
     /** @var string */
     protected $signature = 'lexemes:backfill
-        {--decks : Only link the words of learners\' decks to the existing catalog}
+        {--decks : Only unlink the words of learners\' decks (they are outside the catalog)}
         {--batch=1000 : Words per batch}';
 
     /** @var string */
-    protected $description = 'Link words to the catalog of lexemes (courses create lexemes, learner decks only match them).';
+    protected $description = 'Link the words of courses to the catalog of lexemes; unlink the words of learner decks.';
 
     public function handle(LexemeCatalog $catalog): int
     {
@@ -40,7 +39,7 @@ final class BackfillLexemes extends Command
         );
 
         $this->info("Course words linked: {$report->catalogWordsLinked}, lexemes created: {$report->lexemesCreated}; "
-            ."deck words linked: {$report->deckWordsLinked}, unmatched: {$report->unmatched}; blank: {$report->blank}");
+            ."deck words unlinked: {$report->deckWordsUnlinked}; blank: {$report->blank}");
 
         return self::SUCCESS;
     }

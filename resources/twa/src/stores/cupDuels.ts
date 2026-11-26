@@ -4,7 +4,7 @@ import { duelFailure, expectedRated, type DuelFailure, type DuelRatedExpectation
 import { newRequestId } from '@/composables/requestId'
 import { useBillingStore } from '@/stores/billing'
 import { useCupBoardStore } from '@/stores/cupBoard'
-import type { CupDuel, CupDuelChallengeRequest, CupDuelListResponse, PracticeLimitHit } from '@/api/types'
+import type { CupDuel, CupDuelChallengeRequest, CupDuelKindChoice, CupDuelListResponse, PracticeLimitHit } from '@/api/types'
 
 export type CupDuelsStatus = 'idle' | 'loading' | 'ready' | 'failed'
 
@@ -37,7 +37,7 @@ interface CupDuelsState {
    * the server answers it with the duel it made (200), never a second duel; a new choice of the opponent is a new attempt.
    */
   requestId: string | null
-  /** The choice the `request_id` belongs to: the participant id, or `public`. */
+  /** The choice the `request_id` belongs to: the participant id, or `public`, and the kind. */
   requestKey: string | null
   creating: boolean
   createFailure: DuelFailure | null
@@ -207,13 +207,15 @@ export const useCupDuelsStore = defineStore('cupDuels', {
     },
 
     /**
-     * Challenges `opponentParticipantId`, or anybody in the group (null: an open challenge, published in the chat). Returns the duel made
-     * (201) or the one made by the same `request_id` before (200); null with the reason in `createFailure` / `limitHit`. A second tap
-     * while the request is on its way does nothing.
+     * Challenges `opponentParticipantId`, or anybody in the group (null: an open challenge, published in the chat), with the kind the
+     * learner chose (`kind`, docs/33 §11.12; null - none sent, the server's choice as before). Returns the duel made (201) or the one made
+     * by the same `request_id` before (200); null with the reason in `createFailure` / `limitHit` (a rated duel no longer possible -
+     * 409 `cup_duel_rating_changed {rated: false}`, `createFailure.rated === false`). A second tap while the request is on its way does
+     * nothing.
      */
-    async challenge(cupId: number, opponentParticipantId: number | null): Promise<CupDuel | null> {
+    async challenge(cupId: number, opponentParticipantId: number | null, kind: CupDuelKindChoice | null = null): Promise<CupDuel | null> {
       if (this.creating || this.off) return null
-      const key = opponentParticipantId === null ? 'public' : String(opponentParticipantId)
+      const key = `${opponentParticipantId === null ? 'public' : String(opponentParticipantId)}:${kind ?? ''}`
       if (this.requestId === null || this.requestKey !== key) {
         this.requestId = newRequestId()
         this.requestKey = key
@@ -222,6 +224,7 @@ export const useCupDuelsStore = defineStore('cupDuels', {
         opponentParticipantId === null
           ? { public: true, request_id: this.requestId }
           : { opponent_participant_id: opponentParticipantId, public: false, request_id: this.requestId }
+      if (kind !== null) body.kind = kind
       this.creating = true
       this.createFailure = null
       this.limitHit = null

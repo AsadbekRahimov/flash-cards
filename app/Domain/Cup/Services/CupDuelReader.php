@@ -294,6 +294,10 @@ final class CupDuelReader
         if ($duel->status !== CupDuelStatus::Open) {
             return null;
         }
+        if ($duel->rated === false) {
+            // Friendly by the challenger's choice (docs/33 §11.12): no acceptance makes it rated.
+            return false;
+        }
         if ($day === null) {
             return $duel->rated_offered;
         }

@@ -105,7 +105,7 @@ describe('SettingsView: the region', () => {
     const w = await render(settings())
 
     expect(w.get('[data-testid=region-name]').text()).toBe('Не указан')
-    expect(w.get('[data-testid=region-card]').text()).toContain('Сменить регион можно раз в 30 дней')
+    expect(w.get('[data-testid=region-card]').text()).toContain('Сменить область можно раз в 30 дней')
 
     await w.get('[data-testid=region-row]').trigger('click')
     await flushPromises()
@@ -169,7 +169,7 @@ describe('SettingsView: the region', () => {
     await flushPromises()
     await click('region-UZ-AN')
 
-    expect(useToast().toast.value?.text).toMatch(/^Сменить регион можно с 24 дек\.? 2026/)
+    expect(useToast().toast.value?.text).toMatch(/^Сменить область можно с 24 дек\.? 2026/)
     expect(sheet()).not.toBeNull()
     expect(w.get('[data-testid=region-name]').text()).toBe('город Ташкент')
     w.unmount()
@@ -211,7 +211,7 @@ describe('SettingsView: the region', () => {
     const w = await render(settings({ region_code: null, interface_locale: 'uz' }))
 
     expect(w.get('[data-testid=region-name]').text()).toBe("Ko'rsatilmagan")
-    expect(w.get('[data-testid=region-row]').text()).toContain('Hudud')
+    expect(w.get('[data-testid=region-row]').text()).toContain('Viloyat')
     w.unmount()
   })
 })

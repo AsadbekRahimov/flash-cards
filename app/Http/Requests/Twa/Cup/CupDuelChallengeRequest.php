@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Twa\Cup;
 
+use App\Domain\Cup\Enums\CupDuelKind;
 use App\Domain\Practice\Enums\PracticeMode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * POST /api/twa/cups/{id}/duels (docs/04 A.23d): `{opponent_participant_id?, public, mode = pairs, request_id}`. Only the shape is
+ * POST /api/twa/cups/{id}/duels (docs/04 A.23d): `{opponent_participant_id?, public, mode = pairs, kind?, request_id}`; `kind` -
+ * `rated` | `friendly` (the challenger's choice, {@see CupDuelKind}), none - the behaviour of an older client. Only the shape is
  * checked here; who may be challenged, whether the mode is played in a duel (422 `cup_duel_mode_invalid`) and the limits are the core's.
  * The opponent is a participant id (the table gives no other id); a missing one is an open challenge to anybody.
  */
@@ -24,6 +26,7 @@ final class CupDuelChallengeRequest extends FormRequest
             'opponent_participant_id' => ['nullable', 'integer', 'min:1', 'max:'.self::MAX_ID],
             'public' => ['required', 'boolean'],
             'mode' => ['nullable', 'string', Rule::enum(PracticeMode::class)],
+            'kind' => ['nullable', 'string', Rule::enum(CupDuelKind::class)],
             'request_id' => ['required', 'string', 'uuid'],
         ];
     }
@@ -41,6 +44,12 @@ final class CupDuelChallengeRequest extends FormRequest
     public function mode(): PracticeMode
     {
         return PracticeMode::tryFrom($this->string('mode')->toString()) ?? PracticeMode::Pairs;
+    }
+
+    /** The kind the challenger chose; null - an older client (the kind is decided by the slots, as before the choice). */
+    public function kind(): ?CupDuelKind
+    {
+        return $this->filled('kind') ? CupDuelKind::tryFrom($this->string('kind')->toString()) : null;
     }
 
     /** A UUID in lower case (PostgreSQL stores it that way, SQLite compares strings). */

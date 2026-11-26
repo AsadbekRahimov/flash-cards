@@ -181,6 +181,56 @@ it('adds 10 statements to the first /review of a week and a month and 5 to the n
         ->and(count($liveSecond))->toBeLessThanOrEqual(19);
 });
 
+/**
+ * A Free learner on a daily review of due words of HIS OWN DECK whose spellings the catalog knows (docs/32 §12.12: a deck is outside
+ * the catalog - the words have no lexeme), with the caches warm.
+ *
+ * @param  list<string>  $spellings
+ * @return array{headers: array<string, string>, session: int, card: array<string, mixed>}
+ */
+function wsbDeckReview(object $test, array $spellings): array
+{
+    $learner = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent']);
+    $decks = app(\App\Domain\Content\Services\LearnerDeckService::class);
+    $deck = $decks->create($learner, 'Мои слова');
+    $decks->addWords($learner, $deck, array_map(fn (string $w): \App\Domain\Content\DTO\DeckRow => new \App\Domain\Content\DTO\DeckRow($w, 'перевод '.$w), $spellings));
+    $lessons = DB::table('lessons')->join('stages', 'stages.id', '=', 'lessons.stage_id')->where('stages.course_id', $deck->id)->pluck('lessons.id');
+    foreach (DB::table('words')->whereIn('lesson_id', $lessons)->pluck('id') as $wordId) {
+        WordRepetition::factory()->create([
+            'learner_id' => $learner->id, 'word_id' => (int) $wordId, 'state' => 'review', 'repetitions' => 1, 'interval_days' => 8,
+            'last_reviewed_at' => now()->subDays(8)->subHour(), 'next_review_at' => now()->subHour(), 'easiness_factor' => 2.5,
+            'is_hard' => false, 'last_quality' => 4, 'lapses' => 0, 'meta' => [],
+        ]);
+    }
+    $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
+    $test->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+    $opened = $test->withHeaders($headers)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk()->json();
+
+    return ['headers' => $headers, 'session' => (int) $opened['session_id'], 'card' => $opened['card']];
+}
+
+it('costs a /review of a deck word in live exactly what it costs with the points off: no statement of the word points', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-11-25 05:00:00', 'UTC'));
+    // The catalog knows the spellings (a course of the platform): the deck words still have no lexeme.
+    $spellings = ['harbour', 'lantern', 'meadow', 'orchard'];
+    foreach ($spellings as $spelling) {
+        Lexeme::factory()->create(['key' => $spelling]);
+    }
+
+    wsbTwoAnswers($this, wsbDeckReview($this, $spellings)); // warms what is shared
+    config()->set('leagues.scoring.mode', 'off');
+    [$offFirst, $offSecond] = wsbTwoAnswers($this, wsbDeckReview($this, $spellings));
+    config()->set('leagues.scoring.mode', 'live');
+    [$liveFirst, $liveSecond] = wsbTwoAnswers($this, wsbDeckReview($this, $spellings));
+
+    expect(QueryLog::matching($liveFirst, WSB_SCORE_TABLES))->toBe([])
+        ->and(QueryLog::matching($liveSecond, WSB_SCORE_TABLES))->toBe([])
+        ->and(QueryLog::matching($liveSecond, '/["`]lexemes["`]/'))->toBe([])
+        ->and(count($liveFirst))->toBe(count($offFirst))
+        ->and(count($liveSecond))->toBe(count($offSecond))
+        ->and(count($liveSecond))->toBeLessThanOrEqual(14);
+});
+
 it('adds 6 statements to a counted answer of the game (5 and the card read without a lock), none with the points off', function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
     GameKit::openAccess();

@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Cup\DTO\CupDuelOutcome;
 use App\Domain\Cup\Enums\CupDuelEndReason;
+use App\Domain\Cup\Enums\CupDuelKind;
 use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Enums\CupMessageKind;
 use App\Domain\Cup\Enums\CupParticipantStatus;
@@ -55,8 +56,9 @@ use Throwable;
  *    player gets 1 point per OWN right answer (0…5), assigned to `duel_points` of the day of the ACCEPTANCE; the surrender, the absence
  *    or a weak opponent give nothing more; a match nobody answered in (whatever its end) or one the system voided is `void` and
  *    gives the slots back;
- *  - a FRIENDLY match (one of them has played the rated duel of the day): no points of the cup; it spends the Free limit of battles of
- *    the challenger like an ordinary invitation (К5) - checked at the challenge, claimed at the acceptance;
+ *  - a FRIENDLY match (one of them has played the rated duel of the day, or the challenger chose it - {@see CupDuelKind}, then
+ *    `rated = false` is written at the challenge and no acceptance makes it rated): no points of the cup, no slot; it spends the Free
+ *    limit of battles of the challenger like an ordinary invitation (К5) - checked at the challenge, claimed at the acceptance;
  *  - nothing outside the cup and the battle is written: no league points, daily goal, streak, SRS (К3);
  *  - anti-spam (docs/33 §6.3, §11.9): one open challenge per participant; per day of the cup `daily_challenges` challenges, at most
  *    `pair_daily_challenges` to the same participant, `public_per_participant` / `public_per_chat` in the chat.
@@ -89,12 +91,17 @@ final class CupDuelService
      * the chat (`$public`: a row of the outbox `duel:{id}`) or not. A repeated `request_id` of the same participant returns the duel it
      * made (`created = false`), whatever happened to it since.
      *
+     * `$kind` - the challenger's choice ({@see CupDuelKind}): `friendly` writes `rated = false` at once (never rated, no slot, whatever
+     * the slots); `rated` with the challenger's own rated duel of today played - 409 `cup_duel_rating_changed {rated: false}`, nothing
+     * made (the addressee's played duel makes it a friendly offer, as before the choice); null (an older client) - rated when both slots
+     * are free, else friendly. The same statements on every path: the slots come from the one statement of the limits.
+     *
      * @throws CupException cup_unavailable | cup_not_member | cup_duel_disabled | cup_not_open | cup_not_started | cup_closed
      *                      | cup_paused | cup_round_unavailable | cup_duel_mode_invalid | cup_duel_self | cup_duel_unavailable
-     *                      | cup_duel_already_open | cup_duel_limit | cup_unverifiable | cup_check_busy
+     *                      | cup_duel_already_open | cup_duel_limit | cup_duel_rating_changed | cup_unverifiable | cup_check_busy
      * @throws PracticeException practice_mode_disabled | practice_limit_reached (a friendly duel of a Free learner at the limit)
      */
-    public function challenge(Learner $by, Cup $cup, ?int $targetParticipantId, bool $public, PracticeMode $mode, string $requestId, ?CarbonImmutable $now = null): CupDuelOutcome
+    public function challenge(Learner $by, Cup $cup, ?int $targetParticipantId, bool $public, PracticeMode $mode, string $requestId, ?CarbonImmutable $now = null, ?CupDuelKind $kind = null): CupDuelOutcome
     {
         $now = ($now ?? CarbonImmutable::now())->startOfSecond();
         $requestId = strtolower($requestId);
@@ -129,7 +136,14 @@ final class CupDuelService
             }
         }
 
-        $ratedOffered = $this->assertUnderLimits($cup, $me, $target, $public, $day, $now);
+        [$myFree, $targetFree] = $this->assertUnderLimits($cup, $me, $target, $public, $day, $now);
+        if ($kind === CupDuelKind::Rated && ! $myFree) {
+            // Asked for a rated duel while his own of today is played: say so before anything is made (the screen offers the friendly
+            // match). The addressee's slot is his own business - as before the choice, the challenge offers a friendly match then.
+            throw CupException::duelRatingChanged(false);
+        }
+        $friendly = $kind === CupDuelKind::Friendly;
+        $ratedOffered = $myFree && $targetFree && ! $friendly;
         if (! $ratedOffered) {
             $this->limits->assertBattleAllowed($by, $now);
         }
@@ -139,7 +153,7 @@ final class CupDuelService
 
         try {
             /** @var CupDuel|CupException $made */
-            $made = DB::transaction(function () use ($cup, $me, $target, $public, $mode, $requestId, $day, $ratedOffered, $now): CupDuel|CupException {
+            $made = DB::transaction(function () use ($cup, $me, $target, $public, $mode, $requestId, $day, $ratedOffered, $friendly, $now): CupDuel|CupException {
                 if ($public) {
                     // The budget of the chat is decided under the row of the cup (FOR NO KEY UPDATE: inserts that only reference the
                     // cup are not held up; a join's FOR SHARE and the transitions of the cup wait a moment).
@@ -158,7 +172,8 @@ final class CupDuelService
                     'opponent_participant_id' => $target?->id,
                     'is_public' => $public,
                     'rated_offered' => $ratedOffered,
-                    'rated' => null,
+                    // A friendly duel by choice is decided now and for good; otherwise the acceptance decides it by the slots.
+                    'rated' => $friendly ? false : null,
                     'mode' => $mode,
                     'status' => CupDuelStatus::Open,
                     'open_challenger_id' => $me->id,
@@ -194,6 +209,7 @@ final class CupDuelService
             'public' => $public,
             'addressed' => $target !== null,
             'rated_offered' => $ratedOffered,
+            'kind' => $kind?->value,
             'mode' => $mode->value,
         ], learner: $by);
 
@@ -254,7 +270,8 @@ final class CupDuelService
 
         $this->gate->admitToRound($cup, $me, $by, $now);
 
-        $rated = $this->freeOfSlots([$challenger->id, $me->id], $day);
+        // A friendly duel by the challenger's choice stays friendly whatever the slots (no statement); else the slots decide.
+        $rated = $duel->rated !== false && $this->freeOfSlots([$challenger->id, $me->id], $day);
         if ($rated !== $expectRated) {
             throw CupException::duelRatingChanged($rated);
         }
@@ -539,6 +556,28 @@ final class CupDuelService
         return count($rows);
     }
 
+    /**
+     * A participant leaves the cup himself (docs/33 §11.12, {@see CupParticipationService::leave()}): his open challenge and the open
+     * challenges addressed to him → `canceled/left`, in ONE statement (the partial unique `open_challenger_id` and the index of
+     * `opponent_participant_id`), and the public ones get the edit of their message («Вызов не состоялся»). An accepted duel is not
+     * touched: its match plays out and is scored (§11.9.2 п. 5). Runs inside the caller's transaction, after the cup and BEFORE the
+     * participant (the order `cups → cup_duels → … → cup_participants`); an acceptance that holds a row first wins it (the UPDATE
+     * waits and then finds it `accepted`). Returns how many were closed.
+     */
+    public function closeOpenOfLeaving(int $participantId, CarbonImmutable $now): int
+    {
+        $at = $now->format('Y-m-d H:i:s');
+        $rows = DB::select(
+            'UPDATE cup_duels SET status = ?, end_reason = ?, open_challenger_id = NULL, closed_at = ?, updated_at = ?
+             WHERE status = ? AND (open_challenger_id = ? OR opponent_participant_id = ?)
+             RETURNING id, cup_id, is_public',
+            [CupDuelStatus::Canceled->value, CupDuelEndReason::Left->value, $at, $at, CupDuelStatus::Open->value, $participantId, $participantId],
+        );
+        $this->editPublicRows($rows, $now);
+
+        return count($rows);
+    }
+
     // ------------------------------------------------------------------ the pieces
 
     /**
@@ -768,12 +807,14 @@ final class CupDuelService
     /**
      * The limits of a new challenge and the rated status it offers, in ONE statement over the duels of the cup's day (`(cup_id, day)`),
      * the open challenge of the participant (unique `open_challenger_id`) and the slots of the two (unique `(participant_id, day)`). An
-     * open challenge of mine whose time is up (the sweeper has not come yet) is expired on the way. Returns `rated_offered`: neither of
-     * the two has played the rated duel of the day (an open challenge: the challenger has not).
+     * open challenge of mine whose time is up (the sweeper has not come yet) is expired on the way. Returns whether the challenger and
+     * the addressee have NOT played the rated duel of the day (an open challenge: the addressee is nobody - true).
+     *
+     * @return array{0: bool, 1: bool}
      *
      * @throws CupException cup_duel_already_open | cup_duel_limit
      */
-    private function assertUnderLimits(Cup $cup, CupParticipant $me, ?CupParticipant $target, bool $public, int $day, CarbonImmutable $now): bool
+    private function assertUnderLimits(Cup $cup, CupParticipant $me, ?CupParticipant $target, bool $public, int $day, CarbonImmutable $now): array
     {
         $targetId = $target->id ?? 0;
         $row = DB::selectOne(
@@ -815,7 +856,7 @@ final class CupDuelService
             }
         }
 
-        return (int) $row->my_slot === 0 && ($target === null || (int) $row->target_slot === 0);
+        return [(int) $row->my_slot === 0, $target === null || (int) $row->target_slot === 0];
     }
 
     /** The public budget again, under the lock of the cup (one statement). */

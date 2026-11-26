@@ -21,14 +21,15 @@ import { useBillingStore } from '@/stores/billing'
 import { useCupBoardStore } from '@/stores/cupBoard'
 import { useCupDuelsStore } from '@/stores/cupDuels'
 import { useI18n } from '@/i18n'
-import type { CupStandingRow } from '@/api/types'
+import type { CupDuelKindChoice, CupStandingRow } from '@/api/types'
 
 /**
  * A challenge to a duel of a cup (docs/33 §5.7, §7.1, docs/04 A.23d `POST /cups/{id}/duels`): whom - a participant of the table (only
- * the ones still in the group, never me) or anybody in the group (an open challenge, published in the chat); the kind the server will
- * offer - rated (a point of the cup for each own right answer, one rated duel a day) while my rated duel of the day is not played, else
- * friendly (no points of the cup, one of the free battles of the day on Free) - the server decides it and tells it in the answer; then the
- * confirmation and "Send". One `request_id` per attempt: a repeat after a lost reply sends the same one (the server answers it with the
+ * the ones still in the group, never me) or anybody in the group (an open challenge, published in the chat); the kind - the learner
+ * chooses it (docs/33 §11.12, `kind` of the request): rated (a point of the cup for each own right answer, one rated duel a day; not
+ * offered once my rated duel of the day is played - `rated_available` of the server, the reason said beside it) or friendly (never rated,
+ * no points of the cup, one of the free battles of the day on Free); then the confirmation and "Send". A rated duel that became impossible
+ * meanwhile (409 `cup_duel_rating_changed {rated: false}`) switches the choice to friendly with the reason, nothing is sent. One `request_id` per attempt: a repeat after a lost reply sends the same one (the server answers it with the
  * duel it made), a double tap is one request. After the challenge - its screen, where the challenger waits.
  *
  * The table is the one of the cup screen (no second read while it is young). My open challenge is shown instead of a new one; a day
@@ -125,8 +126,19 @@ const confirmOpen = ref(false)
 const chosen = computed((): CupStandingRow | null => candidates.value.find((row) => String(row.participant_id) === choice.value) ?? null)
 const isPublic = computed((): boolean => choice.value === PUBLIC)
 
-/** The kind the challenge will offer, as the server's hint says: rated while my rated duel of the day is not played. */
-const rated = computed((): boolean => availability.value?.rated_available === true)
+/** A rated duel may be chosen: my rated duel of the day is not played (the server's hint), and the server has not said otherwise since. */
+const ratedGone = ref(false)
+const ratedAvailable = computed((): boolean => availability.value?.rated_available === true && !ratedGone.value)
+/** The kind the learner picked; null - the default: rated while it may be, else friendly. */
+const kindChoice = ref<CupDuelKindChoice | null>(null)
+const kind = computed((): CupDuelKindChoice => (kindChoice.value === 'rated' && ratedAvailable.value) || (kindChoice.value === null && ratedAvailable.value) ? 'rated' : 'friendly')
+const rated = computed((): boolean => kind.value === 'rated')
+
+function pickKind(value: CupDuelKindChoice): void {
+  if (creating.value || (value === 'rated' && !ratedAvailable.value)) return
+  haptic('light')
+  kindChoice.value = value
+}
 
 const rowName = (row: CupStandingRow): string => row.display_name || t('league.anonymous')
 
@@ -149,11 +161,18 @@ async function send(): Promise<void> {
   haptic('medium')
   const opponent = isPublic.value ? null : (chosen.value?.participant_id ?? null)
   if (!isPublic.value && opponent === null) return
-  const duel = await duels.challenge(props.id, opponent)
+  const duel = await duels.challenge(props.id, opponent, kind.value)
   if (left) return
   if (duel !== null) {
     confirmOpen.value = false
     await router.replace({ name: 'cup-duel', params: { id: props.id, duelId: duel.id } })
+    return
+  }
+  if (createFailure.value?.rated === false) {
+    // My rated duel of the day was played meanwhile: the choice goes to friendly, the learner looks and sends again.
+    ratedGone.value = true
+    kindChoice.value = 'friendly'
+    confirmOpen.value = false
     return
   }
   // The paywall and the states of the screen replace the sheet; a refusal with its words stays in it.
@@ -165,7 +184,7 @@ function openMine(): void {
   if (id !== null) void router.push({ name: 'cup-duel', params: { id: props.id, duelId: id } })
 }
 
-const sendError = computed((): string => (createFailure.value !== null && createFailure.value.kind !== 'limit' ? createFailure.value.message : ''))
+const sendError = computed((): string => (createFailure.value !== null && createFailure.value.kind !== 'limit' && createFailure.value.rated === null ? createFailure.value.message : ''))
 
 const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(), { toastErrors: true })
 </script>
@@ -236,11 +255,47 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
           <p v-if="candidates.length === 0" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="no-candidates">{{ t('cup.duel.new.no_candidates') }}</p>
         </section>
 
-        <section class="card flex flex-col gap-2" data-testid="kind-section">
-          <h2 class="text-base leading-[22px] font-bold">{{ t('cup.duel.new.kind') }}</h2>
-          <CupDuelKind :rated="rated" hint />
-          <p v-if="rated && !isPublic" class="text-[13px] leading-[18px] text-muted" data-testid="rated-note">{{ t('cup.duel.new.rated_note') }}</p>
-          <p v-if="!rated && battleLimit" class="text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
+        <section data-testid="kind-section">
+          <h2 id="duel-kind-label" class="section-label mt-0">{{ t('cup.duel.new.kind') }}</h2>
+          <InlineAlert v-if="ratedGone" tone="info" :message="t('cup.duel.new.rated_gone')" class="mb-2" data-testid="rated-gone" />
+          <div class="list" role="radiogroup" aria-labelledby="duel-kind-label">
+            <button
+              type="button"
+              role="radio"
+              class="list-row disabled:opacity-60"
+              :aria-checked="rated"
+              :aria-disabled="!ratedAvailable ? 'true' : undefined"
+              :disabled="!ratedAvailable"
+              :data-selected="rated"
+              data-testid="kind-rated"
+              @click="pickKind('rated')"
+            >
+              <span class="flex min-w-0 flex-1 flex-col">
+                <span class="font-bold">{{ t('cup.duel.kind.rated') }}</span>
+                <span class="text-[13px] leading-[18px] text-muted" data-testid="kind-rated-hint">
+                  {{ ratedAvailable ? t('cup.duel.new.kind_rated_hint') : t('cup.duel.block_rated_played') }}
+                </span>
+              </span>
+              <AppIcon v-if="rated" name="check" :size="20" class="text-accent" />
+            </button>
+            <button
+              type="button"
+              role="radio"
+              class="list-row"
+              :aria-checked="!rated"
+              :data-selected="!rated"
+              data-testid="kind-friendly"
+              @click="pickKind('friendly')"
+            >
+              <span class="flex min-w-0 flex-1 flex-col">
+                <span class="font-bold">{{ t('cup.duel.kind.friendly') }}</span>
+                <span class="text-[13px] leading-[18px] text-muted">{{ t('cup.duel.kind.friendly_hint') }}</span>
+              </span>
+              <AppIcon v-if="!rated" name="check" :size="20" class="text-accent" />
+            </button>
+          </div>
+          <p v-if="rated && !isPublic" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="rated-note">{{ t('cup.duel.new.rated_note') }}</p>
+          <p v-if="!rated && battleLimit" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
             {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
           </p>
         </section>

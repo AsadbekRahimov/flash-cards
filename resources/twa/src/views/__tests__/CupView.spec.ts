@@ -10,10 +10,10 @@ import { useTodayStore } from '@/stores/today'
 import { cupBoard, cupFields, cupRules, standing } from '@/api/__tests__/cupFixtures'
 import type { CupBoardResponse, TodayResponse } from '@/api/types'
 
-/** The cup screen (docs/33 §7.1, docs/04 A.23 `GET /cups/{id}`): the states, the table, my day, the name, the cancel. */
+/** The cup screen (docs/33 §7.1, docs/04 A.23 `GET /cups/{id}`): the states, the table, my day, the name, the cancel, leaving the cup. */
 
 vi.mock('@/api', () => ({
-  api: { cups: { show: vi.fn(), join: vi.fn(), rename: vi.fn(), cancel: vi.fn(), list: vi.fn() } },
+  api: { cups: { show: vi.fn(), join: vi.fn(), rename: vi.fn(), cancel: vi.fn(), leave: vi.fn(), list: vi.fn() } },
 }))
 
 const authEnsure = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
@@ -509,6 +509,81 @@ describe('CupView: cancel (an administrator of the chat)', () => {
     await flushPromises()
 
     expect(body().querySelector('[data-testid=cancel-error]')?.textContent).toBe('Это может сделать только администратор группы.')
+  })
+})
+
+describe('CupView: leaving the cup (docs/33 §11.12)', () => {
+  it('a participant of an open cup: the button at the very bottom, under the link to my cups', async () => {
+    const r = await render()
+
+    const buttons = r.wrapper.findAll('[data-testid=cup-view] .space-y-3 > *')
+    expect(buttons[buttons.length - 1]?.attributes('data-testid')).toBe('leave-btn')
+    expect(tid(r, 'leave-btn').text()).toBe('Выйти из кубка')
+  })
+
+  it('no button for a member who has not joined, nor in a cup that is over', async () => {
+    const notJoined = await render(cupBoard({ me: null }))
+    expect(has(notJoined, 'leave-btn')).toBe(false)
+    notJoined.wrapper.unmount()
+
+    const over = await render(cupBoard({ cup: { ...cupFields({ status: 'finished', day: null }), rules: cupRules() } }))
+    expect(has(over, 'leave-btn')).toBe(false)
+  })
+
+  it('asks first, saying what it means; "Stay" sends nothing', async () => {
+    const r = await render()
+    await tid(r, 'leave-btn').trigger('click')
+
+    expect(body().querySelector('[data-testid=leave-text]')?.textContent).toContain('Вернуться в этот кубок будет нельзя')
+    expect(body().querySelector('[data-testid=leave-text]')?.textContent).toContain('останутся в таблице')
+    ;(body().querySelector('[data-testid=leave-keep]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(body().querySelector('[data-testid=leave-sheet]')).toBeNull()
+    expect(api.cups.leave).not.toHaveBeenCalled()
+  })
+
+  it('leaves after the confirmation and goes to the list of cups; a double tap is one request', async () => {
+    let resolve!: (value: never) => void
+    vi.mocked(api.cups.leave).mockReturnValue(new Promise((yes) => (resolve = yes)))
+    const r = await render()
+    await tid(r, 'leave-btn').trigger('click')
+
+    const confirm = () => body().querySelector('[data-testid=leave-confirm]') as HTMLButtonElement
+    confirm().click()
+    confirm().click()
+    await flushPromises()
+    expect(confirm().getAttribute('aria-busy')).toBe('true')
+    resolve({ participant_id: 2, cup_id: 5, status: 'left', left: true, left_at: '2026-12-02T10:00:00.000Z' } as never)
+    await flushPromises()
+
+    expect(api.cups.leave).toHaveBeenCalledTimes(1)
+    expect(api.cups.leave).toHaveBeenCalledWith(5)
+    expect(r.router.currentRoute.value.name).toBe('cups')
+  })
+
+  it('403 cup_not_member: out already - the list of cups; another refusal stays in the sheet with its words', async () => {
+    vi.mocked(api.cups.leave).mockRejectedValueOnce(apiError('server', 503, 'server'))
+    vi.mocked(api.cups.leave).mockRejectedValueOnce(apiError('forbidden', 403, 'cup_not_member'))
+    const r = await render()
+    await tid(r, 'leave-btn').trigger('click')
+
+    ;(body().querySelector('[data-testid=leave-confirm]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(body().querySelector('[data-testid=leave-error]')?.textContent).not.toBe('')
+    expect(r.router.currentRoute.value.name).toBe('cup')
+
+    ;(body().querySelector('[data-testid=leave-confirm]') as HTMLButtonElement).click()
+    await flushPromises()
+    expect(r.router.currentRoute.value.name).toBe('cups')
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const r = await render()
+
+    expect(tid(r, 'leave-btn').text()).toBe('Kubokdan chiqish')
+    await tid(r, 'leave-btn').trigger('click')
+    expect(body().querySelector('[data-testid=leave-text]')?.textContent).toContain("Bu kubokka qaytib bo'lmaydi")
   })
 })
 

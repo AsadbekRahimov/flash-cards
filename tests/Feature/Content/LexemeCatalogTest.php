@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /*
  * The catalog of lexemes (docs/32 §2.1, S1): the words of platform and organisation courses create their lexeme, the words of a
- * learner's deck only match one; the copies of one spelling in different courses share it; a renamed word moves to the lexeme of the
+ * learner's deck never get one (owner's decision of 27.11.2026, docs/32 §12.12); the copies of one spelling in different courses share it; a renamed word moves to the lexeme of the
  * new spelling; `lexemes:backfill` links the words written before the catalog, in batches, idempotently.
  */
 
@@ -90,7 +90,7 @@ it('resolves the lexemes of a file with two statements and none when nothing cha
         ->and(QueryLog::matching($queries, '/^update ["`]?words["`]? set ["`]?lexeme_id/i'))->toHaveCount(0);
 });
 
-it('only matches the catalog for the words of a learner deck', function (): void {
+it('never links the words of a learner deck, even a spelling the catalog knows', function (): void {
     $learner = Learner::factory()->onboarded()->create();
     lexWord('apple');
     app(LexemeCatalog::class)->backfill();
@@ -100,11 +100,11 @@ it('only matches the catalog for the words of a learner deck', function (): void
     $decks->addWords($learner, $deck, [new DeckRow('Apple', 'яблоко'), new DeckRow('zyxword', 'нечто')]);
 
     expect(Lexeme::query()->count())->toBe(1)
-        ->and(lexemeOf(Word::query()->where('word', 'Apple')->sole()))->toBe('apple')
+        ->and(Word::query()->where('word', 'Apple')->value('lexeme_id'))->toBeNull()
         ->and(Word::query()->where('word', 'zyxword')->value('lexeme_id'))->toBeNull();
 });
 
-it('matches a revived deck word to the catalog that grew meanwhile', function (): void {
+it('leaves a revived deck word without a lexeme and clears a link it had', function (): void {
     $learner = Learner::factory()->onboarded()->create();
     $decks = app(LearnerDeckService::class);
     $deck = $decks->create($learner, 'Мои слова');
@@ -117,13 +117,16 @@ it('matches a revived deck word to the catalog that grew meanwhile', function ()
     app(LexemeCatalog::class)->ensureFor(lexWord('pear'));
     expect($pear->fresh()->lexeme_id)->toBeNull();
 
+    // A link written before the decision (the old `matchFor`) is cleared by the revival.
+    Word::query()->whereKey($pear->id)->update(['lexeme_id' => Lexeme::query()->where('key', 'pear')->value('id')]);
+
     $decks->addWords($learner, $deck, [new DeckRow('pear', 'груша')]);
 
-    expect(lexemeOf($pear))->toBe('pear')
+    expect($pear->fresh()->lexeme_id)->toBeNull()
         ->and($pear->fresh()->is_active)->toBeTrue();
 });
 
-it('keeps the deck import within one more statement for the catalog', function (): void {
+it('asks nothing of the catalog on a deck import', function (): void {
     $learner = Learner::factory()->onboarded()->create();
     $decks = app(LearnerDeckService::class);
     $deck = $decks->create($learner, 'Мои слова');
@@ -131,8 +134,7 @@ it('keeps the deck import within one more statement for the catalog', function (
 
     $queries = QueryLog::during(fn () => $decks->addWords($learner, $deck->fresh(), $rows));
 
-    expect(QueryLog::matching($queries, '/from ["`]lexemes["`]/'))->toHaveCount(1)
-        ->and(QueryLog::matching($queries, '/into ["`]lexemes["`]/'))->toHaveCount(0);
+    expect(QueryLog::matching($queries, '/lexemes["`]/'))->toBe([]);
 });
 
 it('links a word added in the admin panel and moves it when its spelling is edited', function (): void {
@@ -155,7 +157,7 @@ it('links a word added in the admin panel and moves it when its spelling is edit
         ->and(lexemeOf($word))->toBe('dog');
 });
 
-it('only matches an admin edit of a deck word', function (): void {
+it('never links an admin edit of a deck word and clears a link it had', function (): void {
     $learner = Learner::factory()->create();
     $deckWord = lexWord('rare', Course::factory()->deckOf($learner->id)->create());
 
@@ -165,9 +167,10 @@ it('only matches an admin edit of a deck word', function (): void {
 
     lexWord('rare');
     app(LexemeCatalog::class)->backfill();
-    expect(lexemeOf($deckWord))->toBe('rare');
+    expect($deckWord->fresh()->lexeme_id)->toBeNull();
 
-    // Renamed to a spelling the catalog does not know: the old link is dropped.
+    // A link made before the decision is dropped by the next edit of the word.
+    Word::query()->whereKey($deckWord->id)->update(['lexeme_id' => Lexeme::query()->where('key', 'rare')->value('id')]);
     $deckWord->update(['word' => 'rarest']);
     app(LessonContentRefresher::class)->wordEdited($deckWord);
     expect($deckWord->fresh()->lexeme_id)->toBeNull();
@@ -183,30 +186,32 @@ it('does not move updated_at of a word it links', function (): void {
         ->and(lexemeOf($word))->toBe('owl');
 });
 
-it('backfills in batches: courses create, decks match, a second run changes nothing', function (): void {
+it('backfills in batches: courses create, deck words are unlinked, a second run changes nothing', function (): void {
     $learner = Learner::factory()->create();
     $deck = Course::factory()->deckOf($learner->id)->create();
     $org = Course::factory()->create(['owner_type' => 'organization', 'owner_id' => 7]);
 
-    // The deck word has a LOWER id than the course word it matches: the second pass must still find it.
     $deckWord = lexWord('Sun', $deck);
     $unknown = lexWord('qwertyish', $deck);
     $words = [lexWord('the sun'), lexWord('moon'), lexWord('star', $org), lexWord('moon', $org)];
+    // Links of deck words made before the decision (S1 matched them): three, more than a batch.
+    $linkedDeck = [lexWord('a', $deck), lexWord('b', $deck), lexWord('c', $deck)];
+    $any = Lexeme::factory()->create(['key' => 'old-link']);
+    Word::query()->whereIn('id', array_map(fn (Word $w): int => $w->id, $linkedDeck))->update(['lexeme_id' => $any->id]);
 
     $report = app(LexemeCatalog::class)->backfill(batch: 2);
 
     expect($report->catalogWordsLinked)->toBe(4)
         ->and($report->lexemesCreated)->toBe(3)
-        ->and($report->deckWordsLinked)->toBe(1)
-        ->and($report->unmatched)->toBe(1)
-        ->and(lexemeOf($deckWord))->toBe('sun')
-        ->and(lexemeOf($unknown))->toBeNull()
+        ->and($report->deckWordsUnlinked)->toBe(3)
+        ->and($deckWord->fresh()->lexeme_id)->toBeNull()
+        ->and($unknown->fresh()->lexeme_id)->toBeNull()
+        ->and(Word::query()->whereIn('id', array_map(fn (Word $w): int => $w->id, $linkedDeck))->whereNotNull('lexeme_id')->count())->toBe(0)
         ->and(array_map('lexemeOf', $words))->toBe(['sun', 'moon', 'star', 'moon']);
 
     $again = app(LexemeCatalog::class)->backfill(batch: 2);
-    expect($again->catalogWordsLinked + $again->deckWordsLinked + $again->lexemesCreated)->toBe(0)
-        ->and($again->unmatched)->toBe(1)
-        ->and(Lexeme::query()->count())->toBe(3);
+    expect($again->catalogWordsLinked + $again->deckWordsUnlinked + $again->lexemesCreated)->toBe(0)
+        ->and(Lexeme::query()->count())->toBe(4);
 });
 
 it('never overwrites a link a writer made meanwhile', function (): void {
@@ -218,17 +223,18 @@ it('never overwrites a link a writer made meanwhile', function (): void {
         ->and($word->fresh()->lexeme_id)->toBe($other->id);
 });
 
-it('links only the deck words with --decks', function (): void {
+it('only unlinks the deck words with --decks', function (): void {
     $learner = Learner::factory()->create();
     $deckWord = lexWord('tree', Course::factory()->deckOf($learner->id)->create());
     $courseWord = lexWord('tree');
-    Lexeme::factory()->create(['key' => 'tree']);
+    $tree = Lexeme::factory()->create(['key' => 'tree']);
+    Word::query()->whereKey($deckWord->id)->update(['lexeme_id' => $tree->id]);
 
     $this->artisan('lexemes:backfill', ['--decks' => true])
-        ->expectsOutputToContain('deck words linked: 1')
+        ->expectsOutputToContain('deck words unlinked: 1')
         ->assertSuccessful();
 
-    expect(lexemeOf($deckWord))->toBe('tree')
+    expect($deckWord->fresh()->lexeme_id)->toBeNull()
         ->and($courseWord->fresh()->lexeme_id)->toBeNull();
 
     $this->artisan('lexemes:backfill')->expectsOutputToContain('Course words linked: 1, lexemes created: 0')->assertSuccessful();

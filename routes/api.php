@@ -286,6 +286,7 @@ Route::prefix('twa')->group(function (): void {
                 Route::middleware('throttle:twa-cup-join')->group(function (): void {
                     Route::post('/join', [CupController::class, 'join'])->name('twa.cups.join');
                     Route::patch('/me', [CupController::class, 'rename'])->name('twa.cups.rename');
+                    Route::post('/leave', [CupController::class, 'leave'])->name('twa.cups.leave');
                 });
                 Route::post('/rounds/today', [CupController::class, 'start'])->middleware('throttle:twa-cup-start')->name('twa.cups.start');
 

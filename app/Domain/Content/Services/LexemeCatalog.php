@@ -15,11 +15,15 @@ use Illuminate\Support\Facades\DB;
  *
  *   ensure — the words of platform and organisation courses CREATE their lexeme (insert-or-ignore, then a select: two parallel
  *            writers of one key meet on the unique `(language, key)` and read the same row);
- *   match  — a word of a learner's deck (`courses.owner_type = learner`) only LOOKS one up: no match = `lexeme_id` NULL, the word is
- *            studied as usual but earns no public points (docs/28); `lexemes:backfill --decks` links it once the catalog has it.
+ *   none   — a word of a learner's deck (`courses.owner_type = learner`) is NEVER linked (owner's decision of 27.11.2026, docs/32 §2.1,
+ *            §12.12): the learner writes its translation himself, so it earns no points of the rating - and, having no lexeme, its
+ *            answer neither credits nor spends the attempt of the day of the same spelling in a course of the platform. The answer
+ *            needs no statement to know it: `words.lexeme_id` IS NULL rides in the read of the card it already makes. Every writer of
+ *            a deck word writes NULL ({@see clearFor()}, {@see LearnerDeckService}); `lexemes:backfill` unlinks a deck word that has
+ *            a lexeme (the links made before the decision; the migration `2026_12_01_100001` did it once).
  *
  * Writers: the vocabulary import (and the course pack import through it), the admin panel's word create / edit
- * ({@see LessonContentRefresher}), the learner decks ({@see LearnerDeckService}) and the backfill ({@see backfill()}).
+ * ({@see LessonContentRefresher}), the learner decks ({@see LearnerDeckService}, always NULL) and the backfill ({@see backfill()}).
  * The link is written with the query builder: it does not move `words.updated_at` (the word's content did not change), and a
  * link of the backfill is conditional on `lexeme_id IS NULL`, so it never overwrites a link a writer made meanwhile.
  */
@@ -30,7 +34,7 @@ final class LexemeCatalog
     /** Keys per insert / select statement (two bound parameters a row: far below the PostgreSQL limit). */
     private const KEYS_PER_STATEMENT = 500;
 
-    /** Whether the words of a course of this owner create lexemes (platform, organisation) or only match them (a learner's deck). */
+    /** Whether the words of a course of this owner are linked to the catalog (platform, organisation) - a learner's deck never is. */
     public function createsLexemes(string $ownerType): bool
     {
         return $ownerType !== 'learner';
@@ -52,22 +56,18 @@ final class LexemeCatalog
     }
 
     /**
-     * Links a word of a learner's deck to an EXISTING lexeme of its spelling; none = the link is cleared (a renamed word drops
-     * the lexeme of its old spelling).
+     * A word of a learner's deck: no lexeme, ever (see the class) - a link it has is cleared.
      */
-    public function matchFor(Word $word, string $language = self::DEFAULT_LANGUAGE): ?int
+    public function clearFor(Word $word): null
     {
-        $key = LexemeKey::of($word->word);
-        $lexemeId = $key === null ? null : ($this->matchKeys([$key], $language)[$key] ?? null);
+        $this->write($word, null);
 
-        $this->write($word, $lexemeId);
-
-        return $lexemeId;
+        return null;
     }
 
     /**
      * Links a word whose course is not in hand (the admin panel edits words of every course): one read of the course's owner
-     * and language, then {@see ensureFor()} or {@see matchFor()}. A word without a lesson / course is left as it is.
+     * and language, then {@see ensureFor()} or {@see clearFor()}. A word without a lesson / course is left as it is.
      */
     public function syncFor(Word $word): ?int
     {
@@ -85,7 +85,7 @@ final class LexemeCatalog
 
         return $this->createsLexemes((string) $course->owner_type)
             ? $this->ensureFor($word, $language)
-            : $this->matchFor($word, $language);
+            : $this->clearFor($word);
     }
 
     /**
@@ -150,12 +150,11 @@ final class LexemeCatalog
     }
 
     /**
-     * `lexemes:backfill`: links the words that have no lexeme yet, in batches by `words.id` (keyset, each batch a few indexed
-     * statements, no long transaction). First the words of platform and organisation courses (they create the lexemes), then
-     * the decks (they only match - after the first pass, so a deck word finds a lexeme a course word of a higher id created).
-     * Idempotent: a second run links nothing new (a deck word that still matches nothing is counted as `unmatched` again).
+     * `lexemes:backfill`: links the words of platform and organisation courses that have no lexeme yet, in batches by `words.id` (keyset,
+     * each batch a few indexed statements, no long transaction), then unlinks every word of a learner's deck that has one (see the
+     * class: a deck is outside the catalog). Idempotent: a second run changes nothing.
      *
-     * @param  bool  $decksOnly  only the second pass (the catalog grew: link the deck words that match it now)
+     * @param  bool  $decksOnly  only the second pass (the unlinking of the deck words)
      * @param  (callable(string $phase, int $scanned): void)|null  $progress
      */
     public function backfill(int $batch = 1000, bool $decksOnly = false, ?callable $progress = null): LexemeBackfillReport
@@ -164,15 +163,56 @@ final class LexemeCatalog
         $batch = max(1, $batch);
 
         if (! $decksOnly) {
-            $this->backfillPhase(decks: false, batch: $batch, report: $report, progress: $progress);
+            $this->backfillCatalog($batch, $report, $progress);
         }
-        $this->backfillPhase(decks: true, batch: $batch, report: $report, progress: $progress);
+        $report->deckWordsUnlinked = $this->unlinkDeckWords($batch, $progress);
 
         return $report;
     }
 
+    /**
+     * The words of learners' decks that still have a lexeme get NULL, in batches of `$batch` by `words.id` (the keyset over the deck
+     * words with a link: lessons → stages → courses by their keys, `owner_type = learner`). Returns how many were unlinked.
+     *
+     * @param  (callable(string $phase, int $scanned): void)|null  $progress
+     */
+    public function unlinkDeckWords(int $batch = 1000, ?callable $progress = null): int
+    {
+        $batch = max(1, $batch);
+        $after = 0;
+        $unlinked = 0;
+
+        do {
+            $ids = DB::table('words')
+                ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
+                ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+                ->join('courses', 'courses.id', '=', 'stages.course_id')
+                ->where('words.id', '>', $after)
+                ->whereNotNull('words.lexeme_id')
+                ->where('courses.owner_type', '=', 'learner')
+                ->orderBy('words.id')
+                ->limit($batch)
+                ->pluck('words.id')
+                ->map(static fn (mixed $id): int => (int) $id)
+                ->all();
+
+            if ($ids === []) {
+                break;
+            }
+
+            $after = $ids[count($ids) - 1];
+            $unlinked += DB::table('words')->whereIn('id', $ids)->whereNotNull('lexeme_id')->update(['lexeme_id' => null]);
+
+            if ($progress !== null) {
+                $progress('decks', $unlinked);
+            }
+        } while (count($ids) === $batch);
+
+        return $unlinked;
+    }
+
     /** @param  (callable(string $phase, int $scanned): void)|null  $progress */
-    private function backfillPhase(bool $decks, int $batch, LexemeBackfillReport $report, ?callable $progress): void
+    private function backfillCatalog(int $batch, LexemeBackfillReport $report, ?callable $progress): void
     {
         $after = 0;
         $scanned = 0;
@@ -184,7 +224,7 @@ final class LexemeCatalog
                 ->join('courses', 'courses.id', '=', 'stages.course_id')
                 ->where('words.id', '>', $after)
                 ->whereNull('words.lexeme_id')
-                ->where('courses.owner_type', $decks ? '=' : '<>', 'learner')
+                ->where('courses.owner_type', '<>', 'learner')
                 ->orderBy('words.id')
                 ->limit($batch)
                 ->get(['words.id', 'words.word', 'courses.target_language']);
@@ -210,27 +250,20 @@ final class LexemeCatalog
 
             $links = [];
             foreach ($byLanguage as $language => $keysByWord) {
-                [$lexemes, $created] = $this->resolve(array_values(array_unique($keysByWord)), $language, create: ! $decks);
+                [$lexemes, $created] = $this->resolve(array_values(array_unique($keysByWord)), $language, create: true);
                 $report->lexemesCreated += $created;
 
                 foreach ($keysByWord as $wordId => $key) {
                     if (isset($lexemes[$key])) {
                         $links[$wordId] = $lexemes[$key];
-                    } else {
-                        $report->unmatched++;
                     }
                 }
             }
 
-            $linked = $this->link($links, onlyUnlinked: true);
-            if ($decks) {
-                $report->deckWordsLinked += $linked;
-            } else {
-                $report->catalogWordsLinked += $linked;
-            }
+            $report->catalogWordsLinked += $this->link($links, onlyUnlinked: true);
 
             if ($progress !== null) {
-                $progress($decks ? 'decks' : 'catalog', $scanned);
+                $progress('catalog', $scanned);
             }
         } while ($rows->count() === $batch);
     }

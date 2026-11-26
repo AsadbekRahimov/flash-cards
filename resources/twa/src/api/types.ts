@@ -2328,6 +2328,15 @@ export interface CupParticipantView {
   renames_left: number
 }
 
+/** POST /cups/{id}/leave (docs/33 §11.12): the participant has left the cup for good (200, a repeat too). */
+export interface CupLeaveResponse {
+  participant_id: number
+  cup_id: number
+  status: CupParticipantStatus
+  left: boolean
+  left_at: string | null
+}
+
 /** GET /cups: the open cups first, then the last ten finished or canceled. */
 export interface CupListResponse {
   cups: Array<
@@ -2561,7 +2570,10 @@ export interface CupDuel {
    * it), else `rated` / `rated_offered`. The `expect_rated` of "Accept". Absent from an older server.
    */
   rated_for_me?: boolean
-  /** What the acceptance made of it; null while open. */
+  /**
+   * The kind decided for good: null while the acceptance will decide it; `false` already on an open challenge the challenger made friendly
+   * by choice (`kind = friendly`, docs/33 §11.12); else what the acceptance made of it.
+   */
   rated: boolean | null
   public: boolean
   mode: PracticeMode
@@ -2603,10 +2615,18 @@ export interface CupDuelListResponse {
   server_now: string
 }
 
+/**
+ * The kind the challenger chooses (docs/33 §11.12): `rated` - the duel of the cup (one a day; 409 `cup_duel_rating_changed {rated: false}`
+ * when the rated duel of today is played already), `friendly` - never rated, no points of the cup. Absent - an older client: the server
+ * offers rated while both slots are free.
+ */
+export type CupDuelKindChoice = 'rated' | 'friendly'
+
 /** Body of POST /cups/{id}/duels. `opponent_participant_id` absent - an open challenge to anybody; `request_id` - a UUID per tap. */
 export interface CupDuelChallengeRequest {
   opponent_participant_id?: number | null
   public: boolean
   mode?: PracticeMode
+  kind?: CupDuelKindChoice
   request_id: string
 }

@@ -14,7 +14,8 @@ import type { CupBoardResponse, CupDuel, CupDuelAvailability, CupDuelChallengeRe
 
 /**
  * A challenge to a duel (docs/33 §7.1, docs/04 A.23d `POST /cups/{id}/duels`): whom (a participant still in the group, never me, or
- * anybody in the group), the kind the server will offer, the confirmation, one `request_id` per attempt, the paywall of the limit.
+ * anybody in the group), the kind the learner chooses (rated / friendly - a radio group; rated only while my rated duel of the day is not
+ * played, docs/33 §11.12), the confirmation, one `request_id` per attempt, the paywall of the limit.
  */
 
 vi.mock('@/api', () => ({
@@ -123,23 +124,80 @@ describe('CupDuelNewView: whom', () => {
 })
 
 describe('CupDuelNewView: the kind', () => {
-  it('rated while my rated duel of the day is not played; a personal one may turn friendly', async () => {
+  it('a radio group of two: rated chosen while my rated duel of the day is not played, «one a day» under it', async () => {
     const r = await render()
     await click(r, 'opponent-1')
 
-    expect(tid(r, 'duel-kind').text()).toBe('Зачётная')
-    expect(tid(r, 'duel-kind-hint').text()).toContain('Очко кубка за каждый свой верный ответ')
+    const group = r.wrapper.get('[role=radiogroup][aria-labelledby=duel-kind-label]')
+    expect(group.findAll('[role=radio]')).toHaveLength(2)
+    expect(r.wrapper.get('#duel-kind-label').text()).toBe('Вид дуэли')
+    expect(tid(r, 'kind-rated').attributes('aria-checked')).toBe('true')
+    expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('false')
+    expect(tid(r, 'kind-rated').attributes('disabled')).toBeUndefined()
+    expect(tid(r, 'kind-rated-hint').text()).toBe('Очко кубка за каждый свой верный ответ. Одна в день.')
     expect(tid(r, 'rated-note').text()).toContain('товарищеский матч')
   })
 
-  it('friendly once it is played: no points, the free battles of the day (from the server)', async () => {
+  it('friendly by choice: picked, sent as `kind: friendly`, the confirmation says friendly', async () => {
+    vi.mocked(api.cups.duels.challenge).mockResolvedValue(cupDuel({ id: 45 }))
     useBillingStore().setLimits({ sessions: null, battles: { limit: 2, used: 1, remaining: 1, resets_at: '2099-01-01T00:00:00.000Z' } })
-    const r = await render(withDuel(duelAvailability({ rated_available: false })))
+    const r = await render()
+    await click(r, 'opponent-1')
+    await click(r, 'kind-friendly')
 
-    expect(tid(r, 'duel-kind').text()).toBe('Товарищеская')
-    expect(tid(r, 'duel-kind-hint').text()).toContain('бесплатных игр дня')
-    expect(tid(r, 'battle-limit').text()).toBe('Баттлов сегодня: осталось 1 из 2')
+    expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('true')
+    expect(tid(r, 'kind-rated').attributes('aria-checked')).toBe('false')
     expect(has(r, 'rated-note')).toBe(false)
+    expect(tid(r, 'battle-limit').text()).toBe('Баттлов сегодня: осталось 1 из 2')
+    await click(r, 'next-btn')
+    expect(sheet('duel-kind')?.textContent?.trim()).toBe('Товарищеская')
+    await press('send-btn')
+
+    expect(sent()).toEqual({ opponent_participant_id: 1, public: false, kind: 'friendly', request_id: expect.stringMatching(UUID) })
+  })
+
+  it('my rated duel of the day is played: rated is not offered, the reason beside it; friendly is chosen', async () => {
+    const r = await render(withDuel(duelAvailability({ rated_available: false })))
+    await click(r, 'opponent-1')
+
+    expect(tid(r, 'kind-rated').attributes('disabled')).toBeDefined()
+    expect(tid(r, 'kind-rated').attributes('aria-disabled')).toBe('true')
+    expect(tid(r, 'kind-rated-hint').text()).toBe('Зачётная дуэль сегодня уже сыграна — можно сыграть товарищеский матч.')
+    expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('true')
+    await click(r, 'kind-rated')
+    expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('true')
+  })
+
+  it('409 cup_duel_rating_changed {rated: false} on sending a rated one: the choice turns friendly with the reason, nothing more is sent', async () => {
+    vi.mocked(api.cups.duels.challenge).mockRejectedValueOnce(apiError('conflict', 409, 'cup_duel_rating_changed', { rated: false }))
+    vi.mocked(api.cups.duels.challenge).mockResolvedValueOnce(cupDuel({ id: 46 }))
+    const r = await render()
+    await click(r, 'opponent-1')
+    await click(r, 'next-btn')
+    await press('send-btn')
+
+    expect(sent().kind).toBe('rated')
+    expect(api.cups.duels.challenge).toHaveBeenCalledTimes(1)
+    expect(sheet('confirm-sheet')).toBeNull()
+    expect(tid(r, 'rated-gone').text()).toBe('Зачётная дуэль сегодня уже сыграна — можно вызвать на товарищеский матч.')
+    expect(tid(r, 'kind-rated').attributes('disabled')).toBeDefined()
+    expect(tid(r, 'kind-friendly').attributes('aria-checked')).toBe('true')
+
+    await click(r, 'next-btn')
+    await press('send-btn')
+    expect(sent(1).kind).toBe('friendly')
+    expect(sent(1).request_id).not.toBe(sent(0).request_id)
+    expect(route(r)).toBe('/cups/5/duels/46')
+  })
+
+  it('fits 320 px: the rows of the kind wrap their text, nothing is wider than the screen', async () => {
+    const r = await render()
+    await click(r, 'opponent-1')
+
+    for (const id of ['kind-rated', 'kind-friendly']) {
+      expect(tid(r, id).classes()).toContain('list-row')
+      expect(tid(r, id).find('.min-w-0').exists()).toBe(true)
+    }
   })
 })
 
@@ -157,7 +215,7 @@ describe('CupDuelNewView: the challenge', () => {
 
     expect(api.cups.duels.challenge).toHaveBeenCalledTimes(1)
     expect(vi.mocked(api.cups.duels.challenge).mock.calls[0]?.[0]).toBe(5)
-    expect(sent()).toEqual({ opponent_participant_id: 1, public: false, request_id: expect.stringMatching(UUID) })
+    expect(sent()).toEqual({ opponent_participant_id: 1, public: false, kind: 'rated', request_id: expect.stringMatching(UUID) })
     expect(route(r)).toBe('/cups/5/duels/41')
   })
 
@@ -171,7 +229,7 @@ describe('CupDuelNewView: the challenge', () => {
     expect(sheet('confirm-text')?.textContent).toContain('чате группы')
     await press('send-btn')
 
-    expect(sent()).toEqual({ public: true, request_id: expect.stringMatching(UUID) })
+    expect(sent()).toEqual({ public: true, kind: 'rated', request_id: expect.stringMatching(UUID) })
     expect(route(r)).toBe('/cups/5/duels/42')
   })
 
@@ -317,7 +375,8 @@ describe('CupDuelNewView: uz', () => {
 
     expect(tid(r, 'opponent-public').text()).toContain('Guruhdagi hammani')
     await click(r, 'opponent-1')
-    expect(tid(r, 'duel-kind').text()).toBe('Hisobli')
+    expect(tid(r, 'kind-rated').text()).toContain('Hisobli')
+    expect(tid(r, 'kind-rated-hint').text()).toBe("Har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta.")
     await click(r, 'next-btn')
     expect(sheet('confirm-title')?.textContent).toBe('Azizani chaqirasizmi?')
   })

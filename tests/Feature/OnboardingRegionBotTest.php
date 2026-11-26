@@ -58,7 +58,7 @@ it('asks the region right after the language, in the chosen language, with three
     rgbTap(7401, 'onb1:locale:uz', 1);
 
     expect(rgbLearner(7401)->onboarding_state)->toBe('region')
-        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nQayerda yashaysiz? Bu hududingiz reytingi uchun kerak.")
+        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nQayerda yashaysiz? Bu viloyatingiz reytingi uchun kerak.")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:region:uz', 'onb1:region:other', 'onb1:region:none'])
         ->and(array_column(end($this->tg->sent)['markup']['inline_keyboard'][0], 'text'))->toBe(["🇺🇿 O'zbekiston"]);
 });
@@ -74,7 +74,7 @@ it('opens the 14 regions in the same message in two columns with Back alone, and
     $rows = $edit['markup']['inline_keyboard'] ?? [];
     expect($this->tg->sent)->toHaveCount($sent)
         ->and($edit['message_id'] ?? null)->toBe(2)
-        ->and($edit['text'] ?? null)->toBe("Шаг 2 из 4\nВыберите ваш регион")
+        ->and($edit['text'] ?? null)->toBe("Шаг 2 из 4\nВыберите вашу область")
         ->and($rows)->toHaveCount(8)
         ->and($rows[0])->toBe([
             ['text' => 'город Ташкент', 'callback_data' => 'onb1:region:UZ-TK'],
@@ -170,25 +170,25 @@ it('offers "Region" in /settings and saves a region there with the undo button',
     expect($this->tg->lastCallbackData())->toContain('set1:region');
 
     rgbTap(7410, 'set1:region', 10);
-    expect(end($this->tg->sent)['text'])->toBe('Где вы живёте? Это нужно для рейтинга вашего региона.')
+    expect(end($this->tg->sent)['text'])->toBe('Где вы живёте? Это нужно для рейтинга вашей области.')
         ->and($this->tg->lastCallbackData())->toBe(['set1:region:uz', 'set1:region:other', 'set1:region:none']);
 
     rgbTap(7410, 'set1:region:uz', 11);
-    expect($this->tg->lastTextEdit()['text'] ?? null)->toBe('Выберите ваш регион');
+    expect($this->tg->lastTextEdit()['text'] ?? null)->toBe('Выберите вашу область');
 
     rgbTap(7410, 'set1:region:UZ-SA', 11);
     expect($learner->fresh()->region_code)->toBe('UZ-SA')
-        ->and(end($this->tg->sent)['text'])->toBe('Регион: Самаркандская область. Сохранено.')
+        ->and(end($this->tg->sent)['text'])->toBe('Сохранено: Самаркандская область.')
         ->and($this->tg->lastCallbackData())->toBe(['set1:rgundo'])
         ->and(ProductEvent::query()->where('name', 'region.set')->sole()->props)->toEqual(['from' => null, 'to' => 'UZ-SA', 'via' => 'settings']);
 
     // "Undo" within 10 minutes: the region is gone again.
     rgbTap(7410, 'set1:rgundo', 12);
     expect($learner->fresh()->region_code)->toBeNull()
-        ->and(end($this->tg->sent)['text'])->toBe('Прежний регион возвращён.');
+        ->and(end($this->tg->sent)['text'])->toBe('Прежняя область возвращена.');
 
     rgbTap(7410, 'set1:rgundo', 12);
-    expect(end($this->tg->sent)['text'])->toContain('Отменить смену региона уже нельзя');
+    expect(end($this->tg->sent)['text'])->toContain('Отменить смену области уже нельзя');
 });
 
 it('says from which date the region can be changed in /settings, in Uzbek too', function (string $locale, string $text): void {
@@ -202,8 +202,8 @@ it('says from which date the region can be changed in /settings, in Uzbek too', 
     expect($learner->fresh()->region_code)->toBe('UZ-TK')
         ->and(end($this->tg->sent)['text'])->toBe($text);
 })->with([
-    ['ru', 'Регион можно менять раз в 30 дней. Сменить регион можно с 25.12.2026.'],
-    ['uz', "Hududni 30 kunda bir marta o'zgartirish mumkin. Hududni 25.12.2026 dan boshlab o'zgartirishingiz mumkin."],
+    ['ru', 'Область можно менять раз в 30 дней. Сменить область можно с 25.12.2026.'],
+    ['uz', "Viloyatni 30 kunda bir marta o'zgartirish mumkin. Viloyatni 25.12.2026 dan boshlab o'zgartirishingiz mumkin."],
 ]);
 
 it('lets "Rather not say" through /settings at any time', function (): void {
@@ -212,7 +212,7 @@ it('lets "Rather not say" through /settings at any time', function (): void {
     rgbTap(7412, 'set1:region:none', 30);
 
     expect($learner->fresh()->region_code)->toBeNull()
-        ->and(end($this->tg->sent)['text'])->toBe('Регион: не указан. Сохранено.');
+        ->and(end($this->tg->sent)['text'])->toBe('Сохранено: область не указана.');
 });
 
 it('ignores tampered region buttons', function (string $data): void {

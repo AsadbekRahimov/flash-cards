@@ -21,12 +21,13 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Joining a cup, the name in it, leaving the chat (docs/33 §2.3, §4.5, §5.4).
+ * Joining a cup, the name in it, leaving the chat, leaving the cup (docs/33 §2.3, §4.5, §5.4, §11.12).
  *
  * Joining asks Telegram afresh (a forwarded invitation gives nothing to a stranger), then takes `FOR SHARE` of the cup: the start and
  * the finish hold `FOR UPDATE` of it, so a join either lands before the start (counted among the two players, plays from day 1) or
  * after it (plays from the current day, `first_day`), and never after the finish. A learner who left the chat and came back gets
- * his old row back - the same scores; the days he missed stay empty.
+ * his old row back - the same scores; the days he missed stay empty. One who left the CUP himself ({@see leave()}) never comes back
+ * into it: `withdrawn_at` - neither a join nor a fresh "member" of Telegram makes him `active` again.
  */
 final class CupParticipationService
 {
@@ -36,6 +37,7 @@ final class CupParticipationService
         private readonly CupMembershipGate $gate,
         private readonly CupStandings $standings,
         private readonly ProductEventRecorder $events,
+        private readonly CupDuelService $duels,
     ) {}
 
     /**
@@ -77,6 +79,10 @@ final class CupParticipationService
             $participant = CupParticipant::query()->where('cup_id', $locked->id)->where('learner_id', $learner->id)->lockForUpdate()->firstOrFail();
             $returned = false;
             if (! $created) {
+                if ($participant->withdrawn_at !== null) {
+                    // Left the cup himself (docs/33 §11.12): no way back into this cup.
+                    throw CupException::notMember();
+                }
                 if ($participant->left_at !== null && $participant->left_at->getTimestamp() > $askedAt) {
                     // Telegram said "member" before the leave we recorded (the leave is the newer fact, CupMembershipGate).
                     throw CupException::notMember();
@@ -97,6 +103,79 @@ final class CupParticipationService
         }
 
         return new CupJoinOutcome($participant, $created);
+    }
+
+    /**
+     * The participant leaves the cup himself (`POST /cups/{id}/leave`, owner's decision of 27.11.2026, docs/33 §11.12): `left` with
+     * `withdrawn_at` - for good, he stays in the chat but no "member" of Telegram brings him back, he no longer sees the cup and its table.
+     * What he scored stays in the table with the mark «вышел(а)» and takes its place at the finish, as for one who left the chat. His
+     * open challenges and the open challenges to him are closed (`canceled/left`, the public ones edited); an accepted duel plays out
+     * and is scored; a started attempt of the round plays out to its own deadline (its answers count).
+     *
+     * Only while the cup is `scheduled` or `running` (409 `cup_closed` after); allowed to a `left` participant too (he left the chat and
+     * now leaves the cup for good) and to the organiser - the cup is the chat's: its administrators manage it, a participation gives
+     * no rights (docs/33 §3.2). No call to Telegram. A repeat (a double tap) returns the row as it is.
+     *
+     * Locks, in the one order of the cup (§11.2 п. 1, §11.9.2 п. 1): the cup `FOR KEY SHARE` (PostgreSQL; the start, the finish and the
+     * cancel take `FOR UPDATE` of it, so the status read under it holds until the commit, and the edits of the outbox it inserts need it
+     * anyway) → the open duels of the participant (one UPDATE) → his row `FOR UPDATE`. A round answer (attempt → participant) and an
+     * acceptance (duel → slots → battle) never take the cup: no cycle.
+     *
+     * @throws CupException cup_closed | cup_not_member
+     */
+    public function leave(Cup $cup, CupParticipant $participant, Learner $learner, ?CarbonImmutable $now = null): CupParticipant
+    {
+        $now = ($now ?? CarbonImmutable::now())->startOfSecond();
+        if ($participant->cup_id !== $cup->id || $participant->learner_id !== $learner->id) {
+            throw CupException::notMember();
+        }
+        if ($participant->withdrawn_at !== null) {
+            return $participant;
+        }
+        if ($cup->status !== CupStatus::Scheduled && $cup->status !== CupStatus::Running) {
+            throw CupException::closed();
+        }
+
+        /** @var array{0: CupParticipant, 1: bool, 2: int}|CupException $outcome */
+        $outcome = DB::transaction(function () use ($cup, $participant, $now): array|CupException {
+            $query = DB::table('cups')->where('id', $cup->id);
+            $status = (DB::getDriverName() === 'pgsql' ? $query->lock('for key share') : $query)->value('status');
+            if (! in_array($status, [CupStatus::Scheduled->value, CupStatus::Running->value], true)) {
+                return CupException::closed();
+            }
+
+            $closed = $this->duels->closeOpenOfLeaving($participant->id, $now);
+
+            /** @var CupParticipant $locked */
+            $locked = CupParticipant::query()->whereKey($participant->id)->lockForUpdate()->firstOrFail();
+            if ($locked->withdrawn_at !== null) {
+                return [$locked, false, $closed];
+            }
+            $locked->forceFill([
+                'status' => CupParticipantStatus::Left,
+                'left_at' => $locked->left_at ?? $now,
+                'withdrawn_at' => $now,
+                'updated_at' => $now,
+            ])->save();
+
+            return [$locked, true, $closed];
+        });
+        if ($outcome instanceof CupException) {
+            throw $outcome;
+        }
+
+        [$left, $changed, $closed] = $outcome;
+        if ($changed) {
+            $this->standings->forget($cup->id);
+            $this->events->record(ProductEventName::CupLeft, [
+                'cup_id' => $cup->id,
+                'participant_id' => $left->id,
+                'status' => $cup->status->value,
+                'duels_closed' => $closed,
+            ], learner: $learner);
+        }
+
+        return $left;
     }
 
     /**

@@ -104,9 +104,9 @@ it('shows the widget to an active admin only and opens it a second time without 
 
     Livewire::test(RegionDistributionWidget::class)
         ->assertOk()
-        ->assertSee('Ученики по регионам')
+        ->assertSee('Ученики по областям')
         ->assertSee('Бухарская область')
-        ->assertSee('Не указан')
+        ->assertSee('Не указана')
         ->assertSee('66,7%');
 
     expect(QueryLog::during(fn () => Livewire::test(RegionDistributionWidget::class)->assertOk()))

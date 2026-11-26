@@ -704,7 +704,7 @@ describe('FriendsView', () => {
 
     expect(wrapper.get('h1').text()).toBe("Do'stlar")
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
-    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
+    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Hafta')
     expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Havolani ulashish')
     expect(wrapper.get('[data-testid=copy-btn]').text()).toBe('Nusxalash')
     expect(text(wrapper, 'friends-count')).toBe('2 / 100')

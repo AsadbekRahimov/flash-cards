@@ -202,7 +202,7 @@ describe('LeagueView', () => {
       const { wrapper, router } = await render()
 
       expect(wrapper.get('h1').text()).toBe('Недельная лига')
-      expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Лига')
+      expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Неделя')
       expect(wrapper.get('[data-testid=seg-league]').attributes('aria-current')).toBe('page')
       expect(wrapper.get('[data-testid=seg-month]').text()).toBe('Месяц')
       expect(wrapper.get('[data-testid=seg-month]').attributes('aria-current')).toBeUndefined()
@@ -540,7 +540,7 @@ describe('LeagueView', () => {
 
     expect(wrapper.get('h1').text()).toBe('Haftalik liga')
     expect(text(wrapper, 'tier')).toBe('Kumush liga')
-    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
+    expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Hafta')
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
     expect(text(wrapper, 'my-place')).toBe("Siz 3-o'rindasiz")
     expect(text(wrapper, 'my-points')).toBe('41 ball')

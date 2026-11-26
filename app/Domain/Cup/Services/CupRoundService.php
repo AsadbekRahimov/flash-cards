@@ -115,6 +115,10 @@ final class CupRoundService
         if ($existing !== null) {
             return new CupRoundStart($this->resume($existing, $cup, $day, $now), false);
         }
+        // Left the cup himself (docs/33 §11.12): a started attempt plays out (above), a new one never starts - no call to Telegram.
+        if ($participant->withdrawn_at !== null) {
+            throw CupException::notMember();
+        }
 
         $pause = CupAccess::pauseReason($group);
         if ($pause !== null) {

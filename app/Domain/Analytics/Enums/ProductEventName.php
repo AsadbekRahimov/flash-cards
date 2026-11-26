@@ -253,7 +253,12 @@ enum ProductEventName: string
     case CupCanceled = 'cup.canceled';
     /** The summary of a day of a cup was posted in its chat (docs/33 §6.1, K6; props: cup_id, day); actor - the group. */
     case CupSummaryPosted = 'cup.summary_posted';
-    /** A participant challenged to a duel (docs/33 §5.7, D1; props: cup_id, duel_id, public, addressed, rated_offered, mode). */
+    /**
+     * A participant left the cup himself - «Выйти из кубка» (docs/33 §11.12; props: cup_id, participant_id, status - scheduled / running,
+     * duels_closed).
+     */
+    case CupLeft = 'cup.left';
+    /** A participant challenged to a duel (docs/33 §5.7, D1; props: cup_id, duel_id, public, addressed, rated_offered, kind - rated / friendly / null, mode). */
     case CupDuelChallenged = 'cup.duel_challenged';
     /** A challenge was accepted - the match is on (props: cup_id, duel_id, battle_id, rated). */
     case CupDuelAccepted = 'cup.duel_accepted';

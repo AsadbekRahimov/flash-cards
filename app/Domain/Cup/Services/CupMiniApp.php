@@ -183,6 +183,29 @@ final class CupMiniApp
     }
 
     /**
+     * «Выйти из кубка» (`POST /cups/{id}/leave`, docs/33 §11.12): a participant leaves the cup himself - for good. The door is the
+     * database's (no call to Telegram: leaving needs no membership): a missing cup, a stranger, a member of the chat who never joined -
+     * the 403 of every route of the cup; a repeat by one who has left already returns his row (a double tap). The cup closed for the chat
+     * (`CUP_ACCESS`) - `cup_unavailable`, as elsewhere.
+     *
+     * @throws CupException cup_not_member | cup_unavailable | cup_closed
+     */
+    public function leave(int $cupId, Learner $learner, ?CarbonImmutable $now = null): CupParticipant
+    {
+        $context = $this->reader->locate($cupId, $learner);
+        $participant = $context?->participant;
+        if ($context === null || $participant === null) {
+            throw CupException::notMember();
+        }
+        if ($participant->withdrawn_at !== null) {
+            return $participant;
+        }
+        $this->assertAvailable($context->cup);
+
+        return $this->participation->leave($context->cup, $participant, $learner, $now);
+    }
+
+    /**
      * "Play today" (`POST /cups/{id}/rounds/today`): a participant only; the core asks Telegram and decides the rest.
      *
      * @throws CupException cup_not_member | cup_unavailable | cup_not_open | cup_not_started | cup_closed | cup_round_unavailable

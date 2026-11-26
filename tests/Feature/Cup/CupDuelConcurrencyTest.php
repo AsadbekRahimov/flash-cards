@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Cup\Enums\CupDuelEndReason;
+use App\Domain\Cup\Enums\CupDuelKind;
 use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Services\CupDuelService;
@@ -156,6 +157,33 @@ it('makes one match of two crossing acceptances (each accepts the other\'s chall
     }
     assertDuelInvariants();
 })->with(['rated' => [true], 'friendly' => [false]]);
+
+it('never makes a friendly duel by choice rated nor a second rated duel: it and a rated one accepted by the same participant at the same instant', function (bool $openToAll): void {
+    // docs/33 §11.12: $a challenges $b friendly by choice, $c challenges $b (or anybody) rated; $b accepts both at the same instant.
+    ['cup' => $cup, 'learners' => [$a, $b, $c], 'participants' => [, $pb], 'start' => $now] = CupDuelKit::running(3);
+    $friendly = CupDuelKit::challenge($a, $cup, $pb, now: $now, kind: CupDuelKind::Friendly)->duel;
+    $rated = CupDuelKit::challenge($c, $cup, $openToAll ? null : $pb, now: $now, kind: CupDuelKind::Rated)->duel;
+    $at = $now->addMinute();
+
+    $values = duelRaceValues(GameRace::run([
+        duelRaceTask(fn (): string => 'friendly:'.app(CupDuelService::class)->accept(Learner::query()->findOrFail($b->id), $friendly->id, false, $at)->duel->id),
+        duelRaceTask(fn (): string => 'rated:'.app(CupDuelService::class)->accept(Learner::query()->findOrFail($b->id), $rated->id, true, $at)->duel->id),
+    ]));
+
+    // One match for $b (a player is in one match at a time); the other acceptance is refused by the battle, never by a slot.
+    expect(array_values(array_filter($values, 'is_string')))->toHaveCount(1)
+        ->and(Battle::query()->count())->toBe(1);
+    foreach (array_filter($values, 'is_array') as $refused) {
+        expect($refused['refused'])->toBe('battle_busy');
+    }
+    $f = CupDuelKit::fresh($friendly);
+    $r = CupDuelKit::fresh($rated);
+    expect($f->rated)->toBeFalse()
+        ->and(DB::table('cup_duel_slots')->where('cup_duel_id', $f->id)->count())->toBe(0)
+        ->and(DB::table('cup_duel_slots')->count())->toBe($r->status === CupDuelStatus::Accepted ? 2 : 0)
+        ->and(DB::table('cup_duel_slots')->where('participant_id', $pb->id)->count())->toBeLessThanOrEqual(1);
+    assertDuelInvariants();
+})->with(['addressed' => [false], 'open to all' => [true]]);
 
 it('decides an acceptance and a withdrawal at the same instant one way only', function (): void {
     ['cup' => $cup, 'learners' => [$a, $b], 'participants' => [, $pb], 'start' => $now] = CupDuelKit::running(2);

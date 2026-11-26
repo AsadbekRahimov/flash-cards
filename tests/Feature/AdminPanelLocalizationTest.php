@@ -584,7 +584,7 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [CentersFirstAssignmentWidget::class, 'Центры: до первого задания', 'first assignment'],
     [ProPathWidget::class, 'Путь к Pro · Stars', 'Path to Pro'],
     [WeeklyActivityWidget::class, 'Занятия по неделям', 'Weekly activity'],
-    [RegionDistributionWidget::class, 'Ученики по регионам', 'Learners by region'],
+    [RegionDistributionWidget::class, 'Ученики по областям', 'Learners by region'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {

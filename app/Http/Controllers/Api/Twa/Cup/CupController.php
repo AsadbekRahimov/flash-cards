@@ -10,6 +10,7 @@ use App\Http\Requests\Twa\Cup\CupJoinRequest;
 use App\Http\Requests\Twa\Cup\CupRenameRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\Cup\CupInviteResource;
+use App\Http\Resources\Twa\Cup\CupLeaveResource;
 use App\Http\Resources\Twa\Cup\CupListResource;
 use App\Http\Resources\Twa\Cup\CupParticipantResource;
 use App\Http\Resources\Twa\Cup\CupResource;
@@ -20,8 +21,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * The cup of a group in the Mini App (docs/33 §7.2, docs/04 A.23, K7): the invitation, my cups, the table, joining, the name, the round
- * of the day. Thin: the body is validated by a FormRequest, who may see and do what is {@see CupMiniApp} and the core, the body is a
+ * The cup of a group in the Mini App (docs/33 §7.2, docs/04 A.23, K7): the invitation, my cups, the table, joining, the name, leaving
+ * the cup (§11.12), the round of the day. Thin: the body is validated by a FormRequest, who may see and do what is {@see CupMiniApp} and the core, the body is a
  * Resource, a refusal is the envelope of {@see CupException}.
  */
 final class CupController
@@ -60,6 +61,12 @@ final class CupController
     public function rename(CupRenameRequest $request, int $id): JsonResponse
     {
         return $this->guard(fn (): JsonResponse => (new CupParticipantResource($this->cups->rename($id, $this->learner($request), $request->displayName())))->response());
+    }
+
+    /** POST /api/twa/cups/{id}/leave - the participant leaves the cup for good (200, also for a repeat). */
+    public function leave(Request $request, int $id): JsonResponse
+    {
+        return $this->guard(fn (): JsonResponse => (new CupLeaveResource($this->cups->leave($id, $this->learner($request))))->response());
     }
 
     /** GET /api/twa/cups/{id}/rounds/today */

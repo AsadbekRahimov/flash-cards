@@ -36,6 +36,8 @@ import type { CupDayResult } from '@/api/types'
  * refusal (not a member, a pause, a failed check), so the screen says only "join by the invitation link of the group". A refusal of the
  * read is a state: `unavailable` (403 - a stranger, a missing cup, a participant who left the chat: one state, nothing of the group),
  * `off`, the rest (a failed check of a participant: 409 / 503 / 429) - its words and "Retry" by hand, never a loop.
+ * «Выйти из кубка» (docs/33 §11.12): at the bottom, for a participant of an open cup; a sheet says what it means (the points stay in the
+ * table, no way back into this cup) before `POST /cups/{id}/leave`; then the list of cups.
  */
 const props = defineProps<{ id: number }>()
 
@@ -275,6 +277,44 @@ async function cancelCup(): Promise<void> {
   }
 }
 
+// ---- leaving the cup (a participant, for good) ----
+
+const leaveOpen = ref(false)
+const leaving = ref(false)
+const leaveError = ref('')
+
+function openLeave(): void {
+  leaveError.value = ''
+  leaveOpen.value = true
+}
+
+async function leaveCup(): Promise<void> {
+  if (leaving.value) return
+  haptic('medium')
+  leaving.value = true
+  leaveError.value = ''
+  try {
+    await api.cups.leave(props.id)
+    cups.invalidate()
+    boards.invalidate()
+    if (left) return
+    leaveOpen.value = false
+    await router.replace({ name: 'cups' })
+  } catch (err) {
+    if (left) return
+    // Not a participant any more by the server (a 403 of the door): he is out already - the list of cups.
+    if (err instanceof ApiClientError && err.code === 'cup_not_member') {
+      leaveOpen.value = false
+      cups.invalidate()
+      await router.replace({ name: 'cups' })
+      return
+    }
+    leaveError.value = cupFailure(err).message
+  } finally {
+    if (!left) leaving.value = false
+  }
+}
+
 watch(() => props.id, () => void load())
 
 onMounted(() => {
@@ -404,6 +444,10 @@ onBeforeUnmount(() => {
       </button>
 
       <RouterLink :to="{ name: 'cups' }" class="btn btn-plain btn-block" data-testid="my-cups-link">{{ t('cup.list.title') }}</RouterLink>
+
+      <button v-if="me && open" type="button" class="btn btn-plain btn-block text-danger-ink" data-testid="leave-btn" @click="openLeave">
+        {{ t('cup.leave.open') }}
+      </button>
     </div>
 
     <BottomSheet v-if="renameOpen" :label="t('cup.name.title')" @close="renameOpen = false">
@@ -437,6 +481,25 @@ onBeforeUnmount(() => {
           @click="rename"
         >
           {{ t('cup.name.save') }}
+        </button>
+      </div>
+    </BottomSheet>
+
+    <BottomSheet v-if="leaveOpen" :label="t('cup.leave.title')" @close="leaveOpen = false">
+      <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="leave-sheet">
+        <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.leave.title') }}</h2>
+        <p class="text-[15px] leading-5 text-muted" data-testid="leave-text">{{ t('cup.leave.text') }}</p>
+        <InlineAlert v-if="leaveError" tone="danger" :message="leaveError" data-testid="leave-error" />
+        <button type="button" class="btn btn-primary btn-block" :disabled="leaving" data-testid="leave-keep" @click="leaveOpen = false">{{ t('cup.leave.keep') }}</button>
+        <button
+          type="button"
+          class="btn btn-danger btn-block"
+          :disabled="leaving"
+          :aria-busy="leaving ? 'true' : undefined"
+          data-testid="leave-confirm"
+          @click="leaveCup"
+        >
+          {{ t('cup.leave.confirm') }}
         </button>
       </div>
     </BottomSheet>

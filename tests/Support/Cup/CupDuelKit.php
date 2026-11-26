@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Support\Cup;
 
 use App\Domain\Cup\DTO\CupDuelOutcome;
+use App\Domain\Cup\Enums\CupDuelKind;
 use App\Domain\Cup\Services\CupDuelService;
 use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
@@ -59,9 +60,9 @@ final class CupDuelKit
         return Cup::query()->with('telegramGroup')->findOrFail($cup instanceof Cup ? $cup->id : $cup);
     }
 
-    public static function challenge(Learner $by, Cup $cup, ?CupParticipant $target = null, bool $public = false, ?CarbonImmutable $now = null, ?string $requestId = null): CupDuelOutcome
+    public static function challenge(Learner $by, Cup $cup, ?CupParticipant $target = null, bool $public = false, ?CarbonImmutable $now = null, ?string $requestId = null, ?CupDuelKind $kind = null): CupDuelOutcome
     {
-        return self::service()->challenge($by, self::cup($cup), $target?->id, $public, PracticeMode::Pairs, $requestId ?? (string) Str::uuid(), $now);
+        return self::service()->challenge($by, self::cup($cup), $target?->id, $public, PracticeMode::Pairs, $requestId ?? (string) Str::uuid(), $now, $kind);
     }
 
     public static function accept(Learner $by, CupDuel|int $duel, bool $expectRated = true, ?CarbonImmutable $now = null): CupDuel

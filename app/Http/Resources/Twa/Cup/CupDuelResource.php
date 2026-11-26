@@ -17,7 +17,9 @@ use Illuminate\Http\Request;
  *
  * `rated_offered` - what the challenger offered (written once, at the challenge); `rated_for_me` - the kind for the one who looks: an
  * open challenge is read with today's slots of the two who would play it on HIS acceptance (the `expect_rated` of "Accept" - an open
- * rated challenge is friendly for a participant who has played his rated duel today), else `rated` / `rated_offered`.
+ * rated challenge is friendly for a participant who has played his rated duel today), else `rated` / `rated_offered`. `rated` -
+ * the kind decided for good: null while the acceptance will decide it, `false` already on an open challenge the challenger made
+ * friendly by choice (`kind = friendly`, docs/33 §11.12 - no acceptance makes it rated), else what the acceptance decided.
  * `role` - who looks: `challenger`, `opponent`, or null (somebody who may accept an open challenge). `battle_id` - the match once the
  * duel is accepted: the screen goes to the existing `/battles/{battle_id}` at once (its room waits 30 s). `points` - once the result is
  * in (`done`), else null. Times are ISO 8601 UTC with milliseconds; `server_now` is the clock of the countdown to `expires_at`.

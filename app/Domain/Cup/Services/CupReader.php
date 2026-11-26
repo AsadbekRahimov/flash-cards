@@ -35,7 +35,7 @@ final class CupReader
     private const GROUP_COLUMNS = ['id', 'chat_id', 'title', 'status', 'bot_status', 'bot_status_at', 'organization_id', 'course_id', 'meta', 'created_at', 'updated_at'];
 
     private const PARTICIPANT_COLUMNS = [
-        'id', 'cup_id', 'learner_id', 'display_name', 'status', 'joined_at', 'first_day', 'left_at', 'membership_checked_at',
+        'id', 'cup_id', 'learner_id', 'display_name', 'status', 'joined_at', 'first_day', 'left_at', 'withdrawn_at', 'membership_checked_at',
         'best_total', 'best_round_points', 'days_played', 'final_rank', 'rename_count', 'created_at', 'updated_at',
     ];
 
@@ -69,7 +69,7 @@ final class CupReader
     }
 
     /**
-     * "My cups" (`GET /cups`): every participation of the learner (index `learner_id`, a few rows) with its cup and group in one
+     * "My cups" (`GET /cups`): every participation of the learner (index `learner_id`, a few rows) but the cups he left himself, with its cup and group in one
      * statement; the open cups first, then the last `$closedLimit` finished or canceled ones, newest first. With each, the state of
      * the round of today ({@see todayOf()}) - two scalar subqueries in the SAME statement: today's day of the cup (unique
      * `(cup_id, day)`) and the participant's attempt of that day (unique `(cup_day_id, participant_id)`).
@@ -89,6 +89,8 @@ final class CupReader
             ->join('cups', 'cups.id', '=', 'cp.cup_id')
             ->join('telegram_groups as tg', 'tg.id', '=', 'cups.telegram_group_id')
             ->where('cp.learner_id', $learner->id)
+            // A cup the learner left himself is not his any more (docs/33 §11.12): it is not listed (and not opened).
+            ->whereNull('cp.withdrawn_at')
             ->where('cups.status', '!=', CupStatus::Draft->value)
             ->orderByDesc('cups.id')
             ->limit(100)

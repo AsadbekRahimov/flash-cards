@@ -59,6 +59,8 @@ final class CupMembershipGate
      * Viewing the cup (the invitation by its code, the table, docs/33 §11.2 п. 7):
      *
      *  - an `active` participant sees it without a call;
+     *  - a participant who left the cup HIMSELF (`withdrawn_at`, docs/33 §11.12) never sees it again - the 403 of a stranger, without
+     *    a call (he may well be in the chat: a "member" must not open it);
      *  - anybody else - a participant who left or was removed (`left`, in an open or a closed cup alike), a member who is not a
      *    participant - must be a member of the chat right now (a fresh check; a "no" is remembered 30 s);
      *  - why a check failed (409 `cup_paused` / `cup_unverifiable`, 503, 429 `cup_check_busy`) is told only to who already knows the
@@ -71,6 +73,9 @@ final class CupMembershipGate
     public function assertCanView(Cup $cup, Learner $learner, ?CupParticipant $participant, bool $opaque): void
     {
         $mine = $participant !== null && $participant->cup_id === $cup->id && $participant->learner_id === $learner->id;
+        if ($mine && $participant->withdrawn_at !== null) {
+            throw CupException::notMember();
+        }
         if ($mine && $participant->status === CupParticipantStatus::Active) {
             return;
         }
@@ -297,13 +302,16 @@ final class CupMembershipGate
 
     /**
      * A "member" asked at `$askedAt`: the participant is `active` with the check written - unless his recorded leave (`left_at`) is
-     * newer than the question (a check asked before the leave, finished after it). False then, nothing written.
+     * newer than the question (a check asked before the leave, finished after it), or he left the cup himself (`withdrawn_at`, docs/33
+     * §11.12: being in the chat does not bring him back - read on the row, so a withdrawal that committed after the door's read wins).
+     * False then, nothing written.
      */
     private function markMember(CupParticipant $participant, CarbonImmutable $now, int $askedAt): bool
     {
         $returned = $participant->status === CupParticipantStatus::Left;
         $changed = DB::table('cup_participants')
             ->where('id', $participant->id)
+            ->whereNull('withdrawn_at')
             ->where(fn ($q) => $q->whereNull('left_at')->orWhere('left_at', '<=', CarbonImmutable::createFromTimestamp($askedAt)))
             ->update([
                 'status' => CupParticipantStatus::Active->value,

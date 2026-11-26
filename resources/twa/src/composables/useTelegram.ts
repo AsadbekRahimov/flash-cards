@@ -1,39 +1,17 @@
 import WebApp from '@twa-dev/sdk'
 
-/**
- * The bits of Mini Apps 8.0 the installed `@twa-dev/sdk` (7.10) does not know (docs/36 §1а): its own copy of `telegram-web-apps.js`
- * replaces `window.Telegram.WebApp` on import, so `WebApp.shareMessage` is there only once the SDK is updated. Until then the message
- * goes the way the official script sends it: the event `web_app_send_prepared_message` through `Telegram.WebView`, answered by
- * `prepared_message_sent` or `prepared_message_failed {error}`.
- */
-interface WebAppWithShareMessage {
-  isVersionAtLeast?: (version: string) => boolean
-  shareMessage?: (id: string, callback?: (sent: boolean) => void) => void
-}
-
-type WebViewHandler = (eventType: string, eventData: unknown) => void
-
-interface TelegramWebView {
-  postEvent: (eventType: string, callback: ((error?: unknown) => void) | false, eventData?: unknown) => void
-  onEvent: (eventType: string, handler: WebViewHandler) => void
-  offEvent: (eventType: string, handler: WebViewHandler) => void
-}
-
-/** The error of `prepared_message_failed` that is the learner closing the chat picker, not a failure. */
+/** The error of `shareMessageFailed` that is the learner closing the chat picker, not a failure. */
 const USER_DECLINED = 'USER_DECLINED'
 
 /**
- * How long the chat picker may stay open without an answer from Telegram. A client that says 8.0 but ignores the event would otherwise
+ * How long the chat picker may stay open without an answer from Telegram. A client that says 8.0 but ignores the request would otherwise
  * keep the share button busy for good; past it the share counts as dropped (nothing is marked, no fallback).
  */
 export const SHARE_MESSAGE_TIMEOUT_MS = 120_000
 
-function telegramWebView(): TelegramWebView | null {
-  if (typeof window === 'undefined') return null
-  const webView = (window.Telegram as { WebView?: Partial<TelegramWebView> } | undefined)?.WebView
-  return webView && typeof webView.postEvent === 'function' && typeof webView.onEvent === 'function' && typeof webView.offEvent === 'function'
-    ? (webView as TelegramWebView)
-    : null
+/** The payload of the SDK event `shareMessageFailed` (`UNSUPPORTED`, `MESSAGE_EXPIRED`, `MESSAGE_SEND_FAILED`, `USER_DECLINED`, …). */
+interface ShareMessageFailed {
+  error?: string
 }
 
 /**
@@ -114,61 +92,57 @@ export function useTelegram() {
 
   /**
    * Whether this client can send a message the server prepared (`shareMessage`, Mini Apps 8.0+, docs/36 §1в): a Telegram client of
-   * 8.0 or newer and a way to ask it (the SDK method, or the WebView event the SDK 7.10 lacks a method for).
+   * 8.0 or newer and the method of the SDK (8.x has it; its own copy of `telegram-web-apps.js` replaces `window.Telegram.WebApp`).
    */
   function canShareMessage(): boolean {
-    const app = webApp as WebAppWithShareMessage | null
     try {
-      if (!app || typeof app.isVersionAtLeast !== 'function' || !app.isVersionAtLeast('8.0')) return false
+      return Boolean(webApp)
+        && typeof webApp?.isVersionAtLeast === 'function'
+        && webApp.isVersionAtLeast('8.0')
+        && typeof webApp.shareMessage === 'function'
     } catch {
       return false
     }
-    return typeof app.shareMessage === 'function' || telegramWebView() !== null
   }
 
   /**
    * Opens the chat picker for a prepared message (`POST /share/prepare` -> `id`). Resolves `true` once it is sent, `false` when the
-   * learner closed the picker (or nothing can be sent here); rejects when Telegram could not send it (expired, failed), so the caller
-   * can take the plain share dialog instead. Call it only from a tap.
+   * learner closed the picker (or nothing can be sent here); rejects when Telegram could not send it (expired, failed) or the SDK refused
+   * the call, so the caller can take the plain share dialog instead. Call it only from a tap.
+   *
+   * `WebApp.shareMessage` (SDK 8.x) calls back with "sent or not" only; the reason of a "not" comes right after it, in the same turn, as
+   * the event `shareMessageFailed {error}`: `USER_DECLINED` is a closed picker, anything else a failure. So the events decide, and a
+   * "not sent" without an event (a script that raises none) counts as closed, as before.
    */
   function shareMessage(id: string): Promise<boolean> {
-    if (!canShareMessage()) return Promise.resolve(false)
-    const app = webApp as WebAppWithShareMessage
-    if (typeof app.shareMessage === 'function') {
-      // An SDK (or a script) that has the method: its callback says only "sent or not", so "not" counts as closed.
-      return new Promise((resolve, reject) => {
-        try {
-          app.shareMessage?.(id, (sent) => resolve(sent === true))
-        } catch (err) {
-          reject(err instanceof Error ? err : new Error('share_message_failed'))
-        }
-      })
-    }
-    const webView = telegramWebView() as TelegramWebView
+    if (!canShareMessage() || !webApp) return Promise.resolve(false)
+    const app = webApp
     return new Promise((resolve, reject) => {
       let done = false
       const finish = (outcome: () => void): void => {
         if (done) return
         done = true
         clearTimeout(timer)
-        webView.offEvent('prepared_message_sent', onSent)
-        webView.offEvent('prepared_message_failed', onFailed)
+        app.offEvent('shareMessageSent', onSent)
+        app.offEvent('shareMessageFailed', onFailed)
         outcome()
       }
-      const onSent: WebViewHandler = () => finish(() => resolve(true))
-      const onFailed: WebViewHandler = (_type, data) => {
-        const error = (data as { error?: unknown } | null | undefined)?.error
+      const onSent = (): void => finish(() => resolve(true))
+      const onFailed = (params: ShareMessageFailed): void => {
+        const error = (params as ShareMessageFailed | null | undefined)?.error
         finish(() => (error === USER_DECLINED ? resolve(false) : reject(new Error(typeof error === 'string' ? error : 'share_message_failed'))))
       }
       const timer = setTimeout(() => finish(() => resolve(false)), SHARE_MESSAGE_TIMEOUT_MS)
-      webView.onEvent('prepared_message_sent', onSent)
-      webView.onEvent('prepared_message_failed', onFailed)
+      app.onEvent('shareMessageSent', onSent)
+      app.onEvent('shareMessageFailed', onFailed)
       try {
-        webView.postEvent('web_app_send_prepared_message', (error) => {
-          if (error) finish(() => reject(new Error('share_message_unavailable')))
-        }, { id })
-      } catch {
-        finish(() => reject(new Error('share_message_unavailable')))
+        app.shareMessage(id, (sent) => {
+          if (sent === true) finish(() => resolve(true))
+          else queueMicrotask(() => finish(() => resolve(false)))
+        })
+      } catch (err) {
+        // `WebAppMethodUnsupported` / `WebAppShareMessageOpened` (an earlier picker never answered): the plain dialog instead.
+        finish(() => reject(err instanceof Error ? err : new Error('share_message_unavailable')))
       }
     })
   }
