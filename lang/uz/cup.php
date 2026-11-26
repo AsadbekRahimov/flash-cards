@@ -68,6 +68,15 @@ return [
         'fell_through' => "Chaqiruv bo'lib o'tmadi.",
     ],
 
+    // The DMs of a duel (docs/33 §5.7, D2): a private challenge to the one challenged; "accepted" to the challenger - the room of the
+    // match waits only 30 seconds for him.
+    'duel_dm' => [
+        'challenged' => '⚔️ :name sizni «:group» kubogida duelga chaqirmoqda.',
+        'rated' => "Hisobli duel: har bir o'z to'g'ri javobingiz uchun kubok bali.",
+        'friendly' => "O'rtoqlik o'yini: kubok ballarisiz.",
+        'accepted' => "⚔️ :name «:group» kubogidagi chaqiruvingizni qabul qildi. O'yin kutmoqda — 30 soniya ichida kiring.",
+    ],
+
     'command' => [
         'exists' => 'Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali.',
         'draft' => "Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin.",

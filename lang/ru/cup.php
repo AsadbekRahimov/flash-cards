@@ -68,6 +68,15 @@ return [
         'fell_through' => 'Вызов не состоялся.',
     ],
 
+    // The DMs of a duel (docs/33 §5.7, D2): a private challenge to the one challenged; "accepted" to the challenger - the room of the
+    // match waits only 30 seconds for him.
+    'duel_dm' => [
+        'challenged' => '⚔️ :name вызывает вас на дуэль в кубке «:group».',
+        'rated' => 'Зачётная дуэль: очко кубка за каждый свой верный ответ.',
+        'friendly' => 'Товарищеский матч: без очков кубка.',
+        'accepted' => '⚔️ :name принял(а) ваш вызов в кубке «:group». Матч уже ждёт — заходите в течение 30 секунд.',
+    ],
+
     'command' => [
         'exists' => 'В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже.',
         'draft' => 'В чате уже есть черновик кубка «:group». Администратор чата может настроить и опубликовать его по кнопке ниже.',

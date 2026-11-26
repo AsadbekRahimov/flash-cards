@@ -42,7 +42,7 @@ Work as an examiner who wants to prove the entry wrong.
 
 1. **The equivalent.** Is this what an Uzbek speaker says in the same situation, with the same tone? A calque from Russian
    or a word-for-word translation of the English is an error. For a proverb or an idiom: does Uzbek have its own proverb or
-   set phrase with the same meaning and tone (*Ko'z qo'rqoq, qo'l botir*)? If yes - prefer it, unless its image would mislead.
+   set phrase with the same meaning and tone? If yes - prefer it, unless its image would mislead.
    If no - a short plain rendering of the meaning.
 2. **The register in Uzbek**: «sen» for informal phrases, «siz» for neutral and formal ones; no bookish word where people
    use a common one, no rough word where the English is neutral.
@@ -73,7 +73,7 @@ Keep it compact:
 - **Counts**: entries changed out of entries read, by field (`word`, `translations`, `literal`, `hooks`, `example`, `phrase.*`).
 - **Fixes** - one line each, typo-level fixes only counted:
 
-      m03-l2 #4 «Here you go» | translations.uz | "mana sizga" -> "mana, oling" | "mana sizga" sounds like a reproach
+      m03-l2 #4 «Here you go» | translations.ru | "вот тебе" -> "вот, пожалуйста" | "вот тебе" sounds like a reproach
 
 - **Replaced phrases**: `file #n «old» -> «new» - why`.
 - **For the native speaker** - not more than about ten real doubts per two modules:

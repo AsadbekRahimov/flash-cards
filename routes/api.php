@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Twa\ClassCaravanController;
 use App\Http\Controllers\Api\Twa\ClientTimingController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\Cup\CupController;
+use App\Http\Controllers\Api\Twa\Cup\CupDuelController;
 use App\Http\Controllers\Api\Twa\Cup\CupRoundController;
 use App\Http\Controllers\Api\Twa\Cup\CupSetupController;
 use App\Http\Controllers\Api\Twa\DeckController;
@@ -45,6 +46,7 @@ use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
 use App\Http\Middleware\EnsureCupAccess;
+use App\Http\Middleware\EnsureCupDuels;
 use App\Http\Middleware\SetTwaLocale;
 use App\Http\Middleware\TwaAuth;
 use App\Http\Resources\Twa\Cup\CupRoundResource;
@@ -286,6 +288,22 @@ Route::prefix('twa')->group(function (): void {
                     Route::patch('/me', [CupController::class, 'rename'])->name('twa.cups.rename');
                 });
                 Route::post('/rounds/today', [CupController::class, 'start'])->middleware('throttle:twa-cup-start')->name('twa.cups.start');
+
+                // The duels (docs/04 A.23d, D2): `CUP_DUELS` off - one 409 `cup_duel_disabled` before anything is read. The actions
+                // ask Telegram about the one who acts and write: `twa-cup-duel`; the poll of one duel (the waiting screen) has a bucket of
+                // its own, the list shares the reads of the cup.
+                Route::prefix('duels')->middleware(EnsureCupDuels::class)->group(function (): void {
+                    Route::get('/', [CupDuelController::class, 'index'])->middleware('throttle:twa-cup-read')->name('twa.cups.duels.index');
+                    Route::post('/', [CupDuelController::class, 'store'])->middleware('throttle:twa-cup-duel')->name('twa.cups.duels.store');
+                    Route::prefix('{duel}')->where(['duel' => '[0-9]{1,18}'])->group(function (): void {
+                        Route::get('/', [CupDuelController::class, 'show'])->middleware('throttle:twa-cup-duel-poll')->name('twa.cups.duels.show');
+                        Route::middleware('throttle:twa-cup-duel')->group(function (): void {
+                            Route::post('/accept', [CupDuelController::class, 'accept'])->name('twa.cups.duels.accept');
+                            Route::post('/decline', [CupDuelController::class, 'decline'])->name('twa.cups.duels.decline');
+                            Route::post('/cancel', [CupDuelController::class, 'cancel'])->name('twa.cups.duels.cancel');
+                        });
+                    });
+                });
             });
             Route::prefix('cup-rounds/{attempt}')->where(['attempt' => '[0-9]{1,18}'])->group(function (): void {
                 Route::get('/', [CupRoundController::class, 'show'])->name('twa.cup-rounds.show');

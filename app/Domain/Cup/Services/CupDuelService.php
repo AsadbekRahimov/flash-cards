@@ -892,13 +892,17 @@ final class CupDuelService
 
     /**
      * The duels are on: the switch of the cup, the battles, and a practice that is not off (the sweeper of the battles voids every
-     * match when it is).
-     *
-     * @throws CupException cup_duel_disabled
+     * match when it is). No query - the HTTP layer asks it before anything is read (D2: one answer whatever the cup or the duel).
      */
+    public function enabled(): bool
+    {
+        return (bool) config('cup.duels', false) && $this->practice->battleEnabled() && ! $this->practice->isOff();
+    }
+
+    /** @throws CupException cup_duel_disabled */
     private function assertDuelsOn(): void
     {
-        if (! (bool) config('cup.duels', false) || ! $this->practice->battleEnabled() || $this->practice->isOff()) {
+        if (! $this->enabled()) {
             throw CupException::duelDisabled();
         }
     }

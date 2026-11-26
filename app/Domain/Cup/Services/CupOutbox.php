@@ -14,12 +14,14 @@ use App\Domain\Cup\Support\CupAccess;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramChatMigratedException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\GroupBotRemoval;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\PostCupMessageJob;
 use App\Models\Cup;
+use App\Models\CupDuel;
 use App\Models\CupMessage;
 use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
@@ -43,6 +45,8 @@ use Illuminate\Support\Facades\Log;
  *     send in the new chat);
  *  5. a timeout or a 5xx (it may have been posted) → `unknown`, never sent again: a summary lost is better than a summary twice; the
  *     card shows the result anyway.
+ * The rows of a duel (`kind = duel`, D2, {@see deliverDuel()}): `duel:{id}` is a new message (never one that only says the challenge
+ * fell through), `duel:{id}:end` the EDIT of that message - never a new one; it waits while `duel:{id}` is on its way.
  * A row left in `sending` (the worker died) becomes `unknown` after {@see STALE_SENDING_MINUTES} ({@see sweep()}), not `pending` - the
  * same reason.
  *
@@ -66,12 +70,16 @@ final class CupOutbox
     /** `cups.meta` key: post the card again when its send in flight ends without posting it ({@see republishCard()}). */
     public const REPOST_KEY = 'card_repost';
 
+    /** The edit of a duel waits this long for the message it edits (`duel:{id}` still `pending` / `sending`). */
+    public const DUEL_EDIT_WAIT_SECONDS = 20;
+
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly TelegramMessageRateLimiter $limiter,
         private readonly CupCardRenderer $renderer,
         private readonly GroupBotRemoval $removal,
         private readonly ProductEventRecorder $events,
+        private readonly CupDuelRenderer $duels,
     ) {}
 
     public static function summaryKey(int $day): string
@@ -225,6 +233,10 @@ final class CupOutbox
             return 0;
         }
 
+        if ($message->kind === CupMessageKind::Duel) {
+            return $this->deliverDuel($message, $cup, $group, $now);
+        }
+
         $wait = $this->limiter->reserve($group->chat_id);
         if ($wait > 0) {
             $this->release($message, $now);
@@ -374,6 +386,184 @@ final class CupOutbox
             : ["json_set(CASE WHEN json_type(meta) = 'object' THEN meta ELSE '{}' END, ?, json(?))", ['$.'.$key, $json]];
     }
 
+    /**
+     * A row of a duel (docs/33 §6.1, §11.9 п. 10; D2), claimed and not paused - the text is {@see CupDuelRenderer::message()} of the
+     * duel as it is NOW:
+     *  - `duel:{id}` - a new message in the chat (the topic of the card) with the button «Принять вызов»; a challenge that has already
+     *    fallen through (declined, expired, withdrawn, void) is `skipped`: the chat never gets a message that says nothing happened;
+     *  - `duel:{id}:end` - the EDIT of that message (`editMessageText`, no buttons), never a new one: the message `sent` → edited
+     *    («message is not modified» = success: the message went out with the outcome already); still `pending` / `sending` → this row
+     *    back to `pending`, the job comes back in {@see DUEL_EDIT_WAIT_SECONDS}; anything else (skipped, unknown, failed, no row) →
+     *    `skipped` - nothing to edit.
+     * The refusals of Telegram are those of every row (docs/34 §4в): 403 → `skipped` and the group `disabled`, 429 → `pending` (the
+     * client paused only this chat), a timeout → `unknown`.
+     *
+     * @throws TelegramRateLimitedException
+     * @throws TelegramApiException
+     */
+    private function deliverDuel(CupMessage $message, Cup $cup, TelegramGroup $group, CarbonImmutable $now): int
+    {
+        $key = self::parseDuelKey($message->dedupe_key);
+        /** @var CupDuel|null $duel */
+        $duel = $key === null ? null : CupDuel::query()->find($key['duel_id']);
+        if ($key === null || $duel === null || $duel->cup_id !== $cup->id) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, 'no_duel');
+
+            return 0;
+        }
+
+        if (! $key['end']) {
+            if ($duel->status->fellThrough()) {
+                $this->finish($message, CupMessageStatus::Skipped, $now, 'fell_through');
+
+                return 0;
+            }
+
+            return $this->sendDuel($message, $cup, $group, $duel, $now);
+        }
+
+        $base = DB::table('cup_messages')->where('cup_id', $cup->id)->where('dedupe_key', self::duelKey($duel->id))->first(['status', 'chat_id', 'message_id']);
+        $baseStatus = $base === null ? null : CupMessageStatus::tryFrom((string) $base->status);
+        if ($baseStatus === CupMessageStatus::Pending || $baseStatus === CupMessageStatus::Sending) {
+            $this->release($message, $now);
+
+            return self::DUEL_EDIT_WAIT_SECONDS;
+        }
+        if ($base === null || $baseStatus !== CupMessageStatus::Sent || $base->message_id === null || $base->chat_id === null) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, 'nothing_to_edit');
+
+            return 0;
+        }
+
+        return $this->editDuel($message, $cup, $group, $duel, (int) $base->chat_id, (int) $base->message_id, $now);
+    }
+
+    /** @throws TelegramApiException */
+    private function sendDuel(CupMessage $message, Cup $cup, TelegramGroup $group, CupDuel $duel, CarbonImmutable $now): int
+    {
+        $wait = $this->limiter->reserve($group->chat_id);
+        if ($wait > 0) {
+            $this->release($message, $now);
+
+            return $wait;
+        }
+
+        $content = $this->duels->message($duel, $cup, $group);
+        try {
+            $messageId = $this->telegram->sendGroupMessage($group->chat_id, $content->textFor(false), null, $content->keyboard, $cup->card_thread_id);
+        } catch (TelegramForbiddenException $e) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, 'forbidden:'.$e->reason);
+            $this->removal->disable($group, $e, 'cup_duel');
+
+            return 0;
+        } catch (TelegramRateLimitedException $e) {
+            $this->release($message, $now);
+
+            throw $e;
+        } catch (TelegramApiException $e) {
+            return $this->refused($message, $e, $now);
+        }
+
+        $this->sent($message, $cup, $group, $content, false, $messageId, $cup->card_thread_id, $now);
+
+        return 0;
+    }
+
+    /** @throws TelegramApiException */
+    private function editDuel(CupMessage $message, Cup $cup, TelegramGroup $group, CupDuel $duel, int $chatId, int $messageId, CarbonImmutable $now): int
+    {
+        $wait = $this->limiter->reserve($chatId);
+        if ($wait > 0) {
+            $this->release($message, $now);
+
+            return $wait;
+        }
+
+        $content = $this->duels->message($duel, $cup, $group);
+        try {
+            $this->telegram->editMessageText($chatId, $messageId, $content->textFor(false), null, $content->keyboard);
+        } catch (TelegramChatMigratedException) {
+            // The message is in a chat that is gone (the group became a supergroup): there is nothing left to edit.
+            $this->finish($message, CupMessageStatus::Skipped, $now, 'migrated');
+
+            return 0;
+        } catch (TelegramRateLimitedException $e) {
+            $this->release($message, $now);
+
+            throw $e;
+        } catch (TelegramApiException $e) {
+            if (! $e->isMessageNotModified()) {
+                return $this->refusedEdit($message, $group, $e, $now);
+            }
+        }
+
+        $this->sent($message, $cup, $group, $content, false, $messageId, null, $now);
+
+        return 0;
+    }
+
+    /**
+     * A refused edit of a duel (not a 429, not «not modified»): 403 - the bot is out of the chat; the message deleted by an
+     * administrator or too old to be edited - nothing to do; the rest as a refused send ({@see refused()}).
+     *
+     * @throws TelegramApiException
+     */
+    private function refusedEdit(CupMessage $message, TelegramGroup $group, TelegramApiException $e, CarbonImmutable $now): int
+    {
+        if ($e->isApiResponse() && $e->getCode() === 403) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, $this->error($e));
+            $this->removal->disable($group, new TelegramForbiddenException(TelegramForbiddenException::REASON_FORBIDDEN), 'cup_duel');
+
+            return 0;
+        }
+        $text = strtolower($e->getMessage());
+        if ($e->isApiResponse() && (str_contains($text, 'message to edit not found') || str_contains($text, "message can't be edited"))) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, $this->error($e));
+
+            return 0;
+        }
+
+        return $this->refused($message, $e, $now);
+    }
+
+    /**
+     * A refusal of Telegram other than 403 / 429 for a row of a duel: a timeout → `unknown` (never again); a definite refusal → back to
+     * `pending` and rethrown (the job retries), `failed` after {@see MAX_ATTEMPTS}.
+     *
+     * @throws TelegramApiException
+     */
+    private function refused(CupMessage $message, TelegramApiException $e, CarbonImmutable $now): int
+    {
+        if (! $e->isApiResponse()) {
+            $this->finish($message, CupMessageStatus::Unknown, $now, $this->error($e));
+
+            return 0;
+        }
+        if ($message->attempts >= self::MAX_ATTEMPTS) {
+            $this->finish($message, CupMessageStatus::Failed, $now, $this->error($e));
+            Log::warning('cup.message_failed', ['cup_message_id' => $message->id, 'kind' => $message->kind->value, 'code' => $e->getCode()]);
+
+            return 0;
+        }
+        $this->release($message, $now, $this->error($e));
+
+        throw $e;
+    }
+
+    /**
+     * `duel:{id}` / `duel:{id}:end` → the duel and whether the row is the edit; null for any other key.
+     *
+     * @return array{duel_id: int, end: bool}|null
+     */
+    private static function parseDuelKey(string $key): ?array
+    {
+        if (preg_match('/^duel:([1-9][0-9]{0,18})(:end)?$/', $key, $m) !== 1) {
+            return null;
+        }
+
+        return ['duel_id' => (int) $m[1], 'end' => ($m[2] ?? '') !== ''];
+    }
+
     /** Why the row is not sent at all, or null. */
     private function skipReason(CupMessage $message, Cup $cup, TelegramGroup $group): ?string
     {
@@ -389,6 +579,8 @@ final class CupOutbox
             CupMessageKind::Card => $cup->status->isOpen() ? null : 'closed',
             CupMessageKind::Summary => $cup->status === CupStatus::Running || $cup->status === CupStatus::Finished ? null : 'closed',
             CupMessageKind::Final => $cup->status === CupStatus::Finished ? null : 'not_finished',
+            // A duel speaks of itself whatever the cup became (a result may come after the finish): {@see deliverDuel()}.
+            CupMessageKind::Duel => null,
             default => 'unsupported',
         };
     }

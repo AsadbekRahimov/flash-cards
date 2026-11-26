@@ -2002,7 +2002,8 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 - **`CupResource`** (`GET /cups/{id}`): `{cup: CupFields + {rules}, standings: [{participant_id, rank, display_name, pro_emoji (эмодзи
   Pro, docs/31 §5а, или null), total, round_points, days_played, left, me}], me: null | {participant_id, display_name, status, first_day,
   renames_left, total, final_rank, today: {state, day, attempt_id, points, expires_at}, days: [{day, points, round_points, duel_points,
-  played, counted, available}] (все дни кубка; `counted` — день в зачёте лучших `counted_days`)}, can_manage, server_now}`. `can_manage` —
+  played, counted, available}] (все дни кубка; `counted` — день в зачёте лучших `counted_days`), duel: Availability | null (можно ли вызвать
+  на дуэль сегодня, A.23d; null — дуэли выключены)}, can_manage, server_now}`. `can_manage` —
   только подсказка для ссылки «Настройки» (ученик предложил или опубликовал кубок); каждое действие админа спрашивает Telegram заново.
 - **`CupRoundResource`**: `{attempt_id, cup_id, participant_id, day, status (active | finished), finish_reason (null | completed | expired),
   total, answered, correct, points, max_points, position, started_at, expires_at, server_now, current, answers: [{element_id, verdict,
@@ -2029,26 +2030,72 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 (с событием) / 2; вступление — 6; `PATCH /me` — 6 (+ запись свежей проверки членства); старт раунда — 11 (ядро 9), возобновление — 6; `GET /cup-rounds/{id}` — 2;
 `GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков (с `me.today`).
 
-#### A.23d Дуэли кубка — черновик для D2 (ядро D1 ✅ 26.11.2026, маршруты — D2; контракт и коды — docs/33 §11.9)
+#### A.23d Дуэли кубка (ядро D1 ✅ 26.11.2026, HTTP и бот D2 ✅ 26.11.2026; решения — docs/33 §11.9, §11.10)
 
-Все маршруты — за `TwaAuth` и `EnsureCupAccess`, выключатель `CUP_DUELS` (иначе 409 `cup_duel_disabled`), ответы — Resource-классы,
-дверь по id кубка — как у остальных маршрутов кубка (`CupMiniApp`, `opaque: true`); дуэль по чужому кубку / чужая адресная — 404
-`cup_duel_not_found`. Лимитеры: `twa-cup-duel` 20/мин (вызов, принятие, отказ, отмена), чтения — `twa-cup-read`.
+Все маршруты — `/api/twa/cups/{id}/duels…`, за `TwaAuth`, `twa-api`, `EnsureCupAccess` и `EnsureCupDuels`; ответы — Resource-классы
+(`CupDuelResource`, `CupDuelListResource`), ошибки — конверт `ApiErrorResource` с кодами `CupException` / `BattleException` /
+`PracticeException`. Тонкий контроллер `Api\Twa\Cup\CupDuelController` → `Cup\Services\CupDuelMiniApp` (дверь) → ядро `CupDuelService` /
+чтения `CupDuelReader`.
 
-| Метод и путь | Ядро | Ответ / ошибки |
-|---|---|---|
-| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, request_id}` | `CupDuelService::challenge()` | 201 / 200 (повтор `request_id`) `CupDuelResource`; 403 `cup_not_member`, `cup_duel_unavailable`, `practice_limit_reached`; 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope, limit}`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`, `cup_duel_disabled`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`; 503 / 429 — проверка членства |
-| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `accept()` | 201 / 200 (повтор) `CupDuelResource` с `battle_id` → экран `/battles/{battle_id}`; 409 `cup_duel_rating_changed {rated}` (показать новый статус и принять ещё раз), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}`, `cup_duel_opponent_busy`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable` |
-| `POST /cups/{id}/duels/{duel}/decline` · `/cancel` | `decline()` · `cancel()` | 200 `CupDuelResource`; 403 `cup_duel_not_recipient`; 404; 409 `cup_duel_closed` |
-| `GET /cups/{id}/duels` · `GET /cups/{id}/duels/{duel}` | чтение D2 (docs/33 §11.9) | открытые вызовы мне и открытые всем, мой открытый вызов, мои дуэли сегодня; `rated_offered` / `rated`, `expires_at`, `server_now` |
+**Порядок ответов (одинаковые тела — байт в байт):**
+1. `CUP_ACCESS=off` → 403 `cup_unavailable` (до БД).
+2. Дуэли выключены (`CUP_DUELS=false`, или `PRACTICE_BATTLE=false`, или `PRACTICE_ACCESS=off`) → **409 `cup_duel_disabled`** на всех
+   маршрутах до чтения БД — есть кубок, дуэль, участие или нет.
+3. **Дверь кубка** — один оператор (`CupReader::locate` + скаляры маршрута), **без Telegram**: нет кубка, посторонний (в т. ч. член чата
+   без участия), участник `left` → один 403 `cup_not_member`. Пилот без флага группы → 403 `cup_unavailable` (только прошедшему дверь).
+4. **Дуэль** (маршруты `/{duel}`): нет такой, дуэль другого кубка, адресный вызов другому → один 404 `cup_duel_not_found`.
+5. Ядро: свежая проверка членства того, кто действует (вызов, принятие), и все правила — причины видит участник.
 
-`CupDuelResource`: `id, status, end_reason, rated_offered, rated, public, mode, day, accepted_day, expires_at, battle_id, challenger
-{participant_id, display_name}, opponent {participant_id, display_name} | null, points {challenger, opponent} | null,
-winner_participant_id`. Без `learner_id`, Telegram id и `request_id` других участников.
+| Метод и путь | Лимитер (сверх `twa-api`) | Ответ | Ошибки (сверх п. 1–4) |
+|---|---|---|---|
+| `GET /cups/{id}/duels` | `twa-cup-read` 30/мин | 200 `CupDuelListResource` | — |
+| `GET /cups/{id}/duels/{duel}` | `twa-cup-duel-poll` 40/мин (`CUP_DUEL_POLLS_PER_MINUTE`) | 200 `CupDuelResource` | 404: дуэль не видна (видна игрокам; публичная и открытая всем — любому участнику) |
+| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, request_id}` | `twa-cup-duel` 20/мин (`CUP_DUEL_ACTIONS_PER_MINUTE`) | 201 новый / 200 тот же `request_id` — `CupDuelResource` | 403 `cup_duel_unavailable` (соперника нельзя вызвать — без причины), `practice_limit_reached` (товарищеская, Free); 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope: daily \| pair \| public_participant \| public_chat, limit}`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`, форма (`public` обязателен, `request_id` — UUID, `mode` — значение `PracticeMode`); 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
+| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `twa-cup-duel` | 201 принят сейчас / 200 принят раньше — `CupDuelResource` с `battle_id` | 409 `cup_duel_rating_changed {rated}` (показать новый статус, принять ещё раз с ним), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}` (мой матч), `cup_duel_opponent_busy`, `cup_paused`, `battle_disabled`, `practice_mode_disabled`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`, форма (`expect_rated` обязателен); 503 / 429 — проверка членства |
+| `POST /cups/{id}/duels/{duel}/decline` | `twa-cup-duel` | 200 `CupDuelResource` (`declined`; повтор — то же) | 403 `cup_duel_not_recipient` (свой вызов или открытый всем); 409 `cup_duel_closed {status, reason}` |
+| `POST /cups/{id}/duels/{duel}/cancel` | `twa-cup-duel` | 200 `CupDuelResource` (`canceled`, `end_reason: challenger`; повтор — то же) | 404 (не мой вызов); 409 `cup_duel_closed` |
 
-Бот (B.16): публичный вызов — строка outbox `duel:{id}` (новое сообщение, url-кнопка «Принять вызов» → `TwaScreen::CupDuel`
-`/cups/c/{code}/duels/{duel}`), исход — строка `duel:{id}:end` — **правка** того же сообщения (`editMessageText`, без кнопок), никогда не новое;
-текст — `CupDuelRenderer::message()` по состоянию дуэли на момент отправки. ЛС адресату / вызвавшему — job D2.
+**Формы** (точно закреплены `tests/Feature/Cup/CupDuelHttpTest.php`; время — ISO 8601 UTC с миллисекундами; наружу — только
+`participant_id`, никогда `learner_id` / Telegram id / `request_id` / `public_code`):
+
+- **`CupDuelResource`**: `{id, status (open | accepted | declined | expired | canceled | done | void), end_reason (null | declined | expired |
+  cup_over | challenger | cup_closed | left | challenger_limit | material | no_answers | battle_gone), rated_offered, rated (null пока открыт),
+  public, mode, day, accepted_day, expires_at, battle_id (null до принятия), role (challenger | opponent | null — смотрит тот, кто может
+  принять открытый вызов), challenger: {participant_id, display_name, pro_emoji}, opponent: {participant_id, display_name, pro_emoji} | null
+  (открытый вызов), points: {challenger, opponent} | null (до `done`), winner_participant_id, server_now}`. Имена — имена участников в
+  кубке, эмодзи — из кэша эмодзи таблицы (`CupProEmoji::forCup`).
+- **`CupDuelListResource`** (`GET …/duels`): `{incoming: [CupDuelResource] (открытые вызовы мне), open: [CupDuelResource] (открытые всем, не
+  мои), mine: CupDuelResource | null (мой открытый вызов), today: [CupDuelResource] (мои дуэли сегодняшнего дня кубка, уже не открытые —
+  принятые, сыгранные, сорванные, отклонённые, истёкшие, отменённые; новые сверху), availability: Availability, server_now}`. Вызов, чьё
+  время вышло (уборщик ещё не прошёл), не показывается нигде.
+- **`Availability`** — и в `availability` списка, и в **`GET /cups/{id}` → `me.duel`** (`null`, пока дуэли выключены): `{day (сегодняшний
+  день идущего кубка или null), can_challenge (кубок идёт, не на паузе, я `active`, нет моего открытого вызова, вызовы дня не кончились),
+  rated_available (моя зачётная дуэль сегодня не сыграна), challenges_left (из `cup.duel.daily_challenges` = 20), open_duel_id (мой
+  открытый вызов — показать его вместо нового)}`. Это подсказка экрана: ядро решает заново при вызове.
+
+**Переход в баттл (экран ожидания).** Комната матча дуэли живёт `presence_grace_seconds` (30 с) от принятия.
+- Принявший: ответ `accept` (201) уже содержит `battle_id` — экран сразу ведёт в существующий `/battles/{battle_id}` (`BattleView`,
+  `GET /practice/battles/{id}` и опрос `…/poll`), как после принятия обычного вызова на баттл.
+- Вызвавший: после `POST …/duels` экран ожидания опрашивает `GET /cups/{id}/duels/{duel}` раз в 3 с (лимит 40/мин) до `status ≠ open`:
+  `accepted` → сразу `/battles/{battle_id}`; `declined` / `expired` / `canceled` → экран итога вызова. Параллельно ему приходит ЛС «Вызов
+  принят» с кнопкой в матч (`TwaScreen::Battle`) — если экран закрыт.
+- Ссылка из чата `TwaScreen::CupDuel` → `/cups/c/{code}/duels/{duel}`: экран сначала открывает кубок по коду (`GET /cups/by-code/{code}` →
+  `id`), затем `GET /cups/{id}/duels/{duel}`.
+
+**Операторы SQL** (`CupDuelHttpQueryBudgetTest`; PostgreSQL = SQLite; тёплый кэш эмодзи, холодный — +1): HTTP-слой добавляет к ядру
+ученика JWT (1) и дверь (1) — `GET …/duels` 3 при любом числе дуэлей (дверь со скалярами доступности + **один** оператор списка),
+`GET …/duels/{duel}` 3, вызов личный / публичный / повтор — 10 / 11 / 4 (ядро 8 / 9 / 2), принятие — 22 (ядро 21, два события —
+один INSERT после ответа), повтор принятия — 6, отказ публичного — 9, отмена личного — 8. `GET /cups/{id}` — те же 5 тёплый / 7 холодный:
+доступность дуэли — скалярные подзапросы в том же операторе двери.
+
+**Бот (B.16).** Публичный вызов — строка outbox `duel:{id}`: новое сообщение в чат (тема `card_thread_id`) с url-кнопкой «⚔️ Принять вызов»
+→ `TwaScreen::CupDuel`; вызов, сорвавшийся до отправки (отклонён, истёк, отменён, void), **не публикуется** (`skipped/fell_through`).
+Исход — строка `duel:{id}:end`: **правка** того же сообщения (`editMessageText`, без кнопок), никогда не новое; «message is not modified» —
+успех; исходная строка ещё `pending` / `sending` → правка ждёт 20 с (`pending`); исходная `skipped` / `unknown` / `failed` → `skipped`. Текст —
+`CupDuelRenderer::message()` по состоянию дуэли на момент отправки. 403 → `skipped`, группа `disabled` (`GroupBotRemoval`); 429 → `pending`
+(пауза только этого чата); таймаут → `unknown`; «message to edit not found» → `skipped`. ЛС — `SendCupDuelDmJob` → `CupDuelMessenger`:
+личный (не публичный) адресный вызов — адресату (кнопка в вызов), принятие — вызвавшему (кнопка в матч, пока он в комнате); правила
+отправителей docs/34 §4в п. 8, маркер `notifications_log` `cup_duel_dm`, ключ `{kind}:{duel}`.
 
 ## Часть B — Telegram Bot
 

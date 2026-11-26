@@ -12,8 +12,9 @@ use Illuminate\Http\Request;
 
 /**
  * `GET /cups/{id}` (docs/04 A.23): the cup, its table (place, name in the tournament, emoji of Pro, total, "left the chat") and, for a
- * participant, his day and his days (which counted). `can_manage` is a hint for the link to the settings - every action of an
- * administrator asks Telegram again. `server_now` is the clock of the timer of the screen.
+ * participant, his day, his days (which counted) and `duel` - may he challenge today (null: the duels are off; docs/04 A.23d).
+ * `can_manage` is a hint for the link to the settings - every action of an administrator asks Telegram again. `server_now` is the
+ * clock of the timer of the screen.
  *
  * @property CupBoard $resource
  */
@@ -39,6 +40,7 @@ final class CupResource extends TwaResource
                 'final_rank' => $mine->final_rank,
                 'today' => $board->today,
                 'days' => $board->days ?? [],
+                'duel' => $board->duel,
             ],
             'can_manage' => $board->canManage,
             'server_now' => IsoTime::format($board->now),

@@ -33,6 +33,9 @@ import type {
   CupSettingsPatch,
   CupSetup,
   CupTodayResponse,
+  CupDuel,
+  CupDuelChallengeRequest,
+  CupDuelListResponse,
   Course,
   CourseDetail,
   CoursesResponse,
@@ -446,5 +449,32 @@ export const api = {
       client().post<CupSetup>(`/cups/setup/${encodeURIComponent(code)}/publish`, { ...body }),
     settings: (id: number, patch: CupSettingsPatch) => client().patch<CupSetup>(`/cups/${id}/settings`, { ...patch }),
     cancel: (id: number) => client().post<CupSetup>(`/cups/${id}/cancel`),
+    /**
+     * The duels of a cup (docs/04 A.23d). 409 `cup_duel_disabled` while off; 403 `cup_not_member` (also no cup, a participant who
+     * left); 404 `cup_duel_not_found` (also a duel of another cup or addressed to somebody else).
+     */
+    duels: {
+      /** Challenges to me, open ones to anybody, mine, my duels of today, and whether I may challenge. */
+      list: (id: number) => client().get<CupDuelListResponse>(`/cups/${id}/duels`),
+      /** One duel: the screen of a challenge and the poll of the waiting screen (every 3 s; `battle_id` appears once accepted). */
+      show: (id: number, duelId: number) => client().get<CupDuel>(`/cups/${id}/duels/${duelId}`, undefined, READ),
+      /**
+       * Challenges (201) or answers the same `request_id` again (200). 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope,
+       * limit}`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`; 403 `cup_duel_unavailable`, `practice_limit_reached`; 410
+       * `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`.
+       */
+      challenge: (id: number, body: CupDuelChallengeRequest) => client().post<CupDuel>(`/cups/${id}/duels`, { ...body }, ACT),
+      /**
+       * Accepts (201; 200 accepted before): go to `/battles/{battle_id}` at once. 409 `cup_duel_rating_changed {rated}` (show the new
+       * status, accept again with it), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}`,
+       * `cup_duel_opponent_busy`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`.
+       */
+      accept: (id: number, duelId: number, expectRated: boolean) =>
+        client().post<CupDuel>(`/cups/${id}/duels/${duelId}/accept`, { expect_rated: expectRated }, ACT),
+      /** The one challenged says no. 403 `cup_duel_not_recipient`; 409 `cup_duel_closed`. */
+      decline: (id: number, duelId: number) => client().post<CupDuel>(`/cups/${id}/duels/${duelId}/decline`, undefined, ACT),
+      /** The challenger withdraws. 409 `cup_duel_closed`. */
+      cancel: (id: number, duelId: number) => client().post<CupDuel>(`/cups/${id}/duels/${duelId}/cancel`, undefined, ACT),
+    },
   },
 }

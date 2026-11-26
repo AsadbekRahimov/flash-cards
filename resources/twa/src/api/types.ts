@@ -2392,6 +2392,8 @@ export interface CupBoardResponse {
     final_rank: number | null
     today: CupToday
     days: CupDayResult[]
+    /** May I challenge today (D2); null while the duels are off. */
+    duel?: CupDuelAvailability | null
   } | null
   /** A hint for the link to the settings; the server asks Telegram again on every action of an administrator. */
   can_manage: boolean
@@ -2490,4 +2492,111 @@ export interface CupSettingsPatch {
   summaries_enabled?: boolean
   /** The minute of the local day, 0…1439. */
   summary_minute?: number
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The duels of a cup (docs/04 A.23d, docs/33 §11.9; D2). Only the types of the server's answers: the screens are D2 (TWA). The routes
+// answer 409 `cup_duel_disabled` while the duels are off; by id every refusal of a stranger, a participant who left and a missing cup is
+// 403 `cup_not_member`; a duel the participant may not see (missing, of another cup, addressed to somebody else) is 404
+// `cup_duel_not_found`.
+
+export type CupDuelStatus = 'open' | 'accepted' | 'declined' | 'expired' | 'canceled' | 'done' | 'void'
+export type CupDuelEndReason =
+  | 'declined'
+  | 'expired'
+  | 'cup_over'
+  | 'challenger'
+  | 'cup_closed'
+  | 'left'
+  | 'challenger_limit'
+  | 'material'
+  | 'no_answers'
+  | 'battle_gone'
+
+/**
+ * The codes of the duels on top of `CupErrorCode` (and `battle_busy {battle_id}`, `battle_disabled`, `battle_material_unavailable`,
+ * `practice_mode_disabled`, `practice_limit_reached` of the battles). `details`: `cup_duel_closed {status, reason}`,
+ * `cup_duel_already_open {duel_id}`, `cup_duel_rating_changed {rated}`, `cup_duel_limit {scope: daily | pair | public_participant |
+ * public_chat, limit}`.
+ */
+export type CupDuelErrorCode =
+  | 'cup_duel_disabled'
+  | 'cup_duel_unavailable'
+  | 'cup_duel_not_recipient'
+  | 'cup_duel_not_found'
+  | 'cup_duel_closed'
+  | 'cup_duel_own'
+  | 'cup_duel_already_open'
+  | 'cup_duel_rating_changed'
+  | 'cup_duel_limit'
+  | 'cup_duel_opponent_busy'
+  | 'cup_duel_self'
+  | 'cup_duel_mode_invalid'
+
+/** A player of a duel: a participant of the cup (never a learner id). */
+export interface CupDuelPlayer {
+  participant_id: number
+  display_name: string
+  pro_emoji: string | null
+}
+
+/**
+ * A duel (`CupDuelResource`): the answer of a challenge, an acceptance, a decline, a withdrawal, of GET one duel and every row of the
+ * list. `role` - who looks (`null`: somebody who may accept an open challenge). `battle_id` - once accepted: go to `/battles/{battle_id}`
+ * at once, the room waits 30 s. `points` - once `done`.
+ */
+export interface CupDuel {
+  id: number
+  status: CupDuelStatus
+  end_reason: CupDuelEndReason | null
+  /** Rated or friendly as the challenge offers it (shown before the acceptance). */
+  rated_offered: boolean
+  /** What the acceptance made of it; null while open. */
+  rated: boolean | null
+  public: boolean
+  mode: PracticeMode
+  day: number
+  accepted_day: number | null
+  expires_at: string
+  battle_id: number | null
+  role: 'challenger' | 'opponent' | null
+  challenger: CupDuelPlayer
+  opponent: CupDuelPlayer | null
+  points: { challenger: number; opponent: number } | null
+  winner_participant_id: number | null
+  server_now: string
+}
+
+/** May I challenge today: `me.duel` of GET /cups/{id} and `availability` of GET /cups/{id}/duels (null: duels off / not a participant). */
+export interface CupDuelAvailability {
+  /** Today's day of a running cup, else null. */
+  day: number | null
+  can_challenge: boolean
+  /** My rated duel of the day is not played yet. */
+  rated_available: boolean
+  challenges_left: number
+  /** My open challenge: show it instead of a new one. */
+  open_duel_id: number | null
+}
+
+/** GET /cups/{id}/duels. */
+export interface CupDuelListResponse {
+  /** Open challenges addressed to me. */
+  incoming: CupDuel[]
+  /** Open challenges to anybody (not mine). */
+  open: CupDuel[]
+  /** My open challenge. */
+  mine: CupDuel | null
+  /** My duels of today that are not open any more, newest first. */
+  today: CupDuel[]
+  availability: CupDuelAvailability | null
+  server_now: string
+}
+
+/** Body of POST /cups/{id}/duels. `opponent_participant_id` absent - an open challenge to anybody; `request_id` - a UUID per tap. */
+export interface CupDuelChallengeRequest {
+  opponent_participant_id?: number | null
+  public: boolean
+  mode?: PracticeMode
+  request_id: string
 }

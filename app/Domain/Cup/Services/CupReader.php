@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\DB;
  */
 final class CupReader
 {
+    /** The alias prefix of the scalars of {@see locate()} `$extra` in the row. */
+    private const EXTRA_PREFIX = 'ctx_x_';
+
     /** The columns of `telegram_groups` the core reads (the pause, the chat, the language of the group). */
     private const GROUP_COLUMNS = ['id', 'chat_id', 'title', 'status', 'bot_status', 'bot_status_at', 'organization_id', 'course_id', 'meta', 'created_at', 'updated_at'];
 
@@ -36,10 +39,21 @@ final class CupReader
         'best_total', 'best_round_points', 'days_played', 'final_rank', 'rename_count', 'created_at', 'updated_at',
     ];
 
-    /** The cup by its numeric id (the routes `/cups/{id}`), with the learner's participation. */
-    public function locate(int $cupId, Learner $learner): ?CupContext
+    /**
+     * The cup by its numeric id (the routes `/cups/{id}`), with the learner's participation. `$extra` - scalar subqueries a caller
+     * needs in the SAME statement (the duels, {@see CupDuelReader}), by name; they may refer to `cups` (the cup) and `cp` (my row, NULL
+     * columns for a non-participant) and come back in {@see CupContext::$extra}.
+     *
+     * @param  array<string, Builder>  $extra
+     */
+    public function locate(int $cupId, Learner $learner, array $extra = []): ?CupContext
     {
-        return $this->first($this->query($learner)->where('cups.id', $cupId));
+        $query = $this->query($learner)->where('cups.id', $cupId);
+        foreach ($extra as $name => $subquery) {
+            $query->selectSub($subquery, self::EXTRA_PREFIX.$name);
+        }
+
+        return $this->first($query);
     }
 
     /** The cup by the code of its link (`/cups/by-code/{code}`, `/cups/setup/{code}`), with the number of its participants. */
@@ -152,11 +166,13 @@ final class CupReader
         $participant = [];
         $count = null;
         $ctx = [];
+        $extra = [];
         foreach ($row as $key => $value) {
             match (true) {
                 str_starts_with($key, 'tg__') => $group[substr($key, 4)] = $value,
                 str_starts_with($key, 'cp__') => $participant[substr($key, 4)] = $value,
                 $key === 'ctx_participants_count' => $count = (int) $value,
+                str_starts_with($key, self::EXTRA_PREFIX) => $extra[substr($key, strlen(self::EXTRA_PREFIX))] = $value,
                 str_starts_with($key, 'ctx_') => $ctx[$key] = $value,
                 default => $cup[$key] = $value,
             };
@@ -176,7 +192,7 @@ final class CupReader
 
         $today = $now !== null && array_key_exists('ctx_today_day', $ctx) && $mine !== null ? self::todayOf($model, $mine, $ctx, $now) : null;
 
-        return new CupContext($model, $mine, $count, $today);
+        return new CupContext($model, $mine, $count, $today, $extra);
     }
 
     /**

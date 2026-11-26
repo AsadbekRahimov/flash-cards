@@ -8,6 +8,8 @@ other code except the few a broken file cannot avoid (EXTRA below).
 """
 import os, re, shutil, subprocess, sys, tempfile, unittest
 
+sys.dont_write_bytecode = True  # importing check_phrases must leave no __pycache__ in the repository
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 SCRIPT = os.path.join(HERE, 'check_phrases.py')

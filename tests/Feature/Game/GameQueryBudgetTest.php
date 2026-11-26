@@ -47,7 +47,8 @@ uses(RefreshDatabase::class);
 /**
  * Statements of the start of a stop, measured: `TwaAuth` 1, the course 1, the lesson 1, the active run 1, the words of the pool and their
  * translations 2, the authored tasks 3 kinds x 2 (the items, their versions) + the clips of the dictation 3, the distractors of the
- * wider tiers 1 + the translations of those 1 (only when the pool is short of distractors: 19 without them), then the lock of the
+ * course 1 + the translations of those 1 (the public tier is not read unless a word of the run is short of distractors, and then it
+ * comes from the cached pool of the platform: no statement on a hit, one on a miss - docs/38), then the lock of the
  * active run, the insert and the event 3, and (G2.5b part 2) the boosters of the learner for the view 1 and the block `limits` of the 201 with the
  * plan of the learner (a cold cache) 2 more, and (G2.9a) the caravan of the class the run joins (the learner's active groups with an
  * active caravan, one read without a lock) 1. All of them are fixed phases - none runs per word. (docs/18 §12.14 guessed 14; the real count is

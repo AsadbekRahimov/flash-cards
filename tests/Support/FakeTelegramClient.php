@@ -42,6 +42,9 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, editMessageText throws like Telegram does for an unchanged / too old message. */
     public bool $failTextEdits = false;
 
+    /** When set, the next editMessageText throws it (a 403, a 429, a timeout, «message to edit not found»), once. */
+    public ?\Throwable $failNextTextEditWith = null;
+
     /** When true, editMessageReplyMarkup throws like Telegram does for a deleted / unchanged message. */
     public bool $failEdits = false;
 
@@ -288,6 +291,12 @@ final class FakeTelegramClient implements TelegramClient
     {
         if ($this->failTextEdits) {
             throw TelegramApiException::apiError('Bad Request: message is not modified', 400);
+        }
+        if ($this->failNextTextEditWith !== null) {
+            $e = $this->failNextTextEditWith;
+            $this->failNextTextEditWith = null;
+
+            throw $e;
         }
 
         $this->textEdits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'text' => $text, 'parse_mode' => $parseMode, 'markup' => $replyMarkup];

@@ -4914,6 +4914,19 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `buttons.cup_open` | 🏆 Kubokni ochish | 🏆 Открыть кубок |
 | `buttons.cup_duel_accept` | ⚔️ Chaqiruvni qabul qilish | ⚔️ Принять вызов |
 
+## Выпуск 6 · дуэли кубка: личные сообщения бота (docs/33 D2, 26.11.2026) — на проверку носителю
+
+Личное сообщение тому, кого вызвали (личный вызов), и вызвавшему, когда вызов приняли (комната матча ждёт 30 секунд). Язык — язык получателя. Простой текст. Термины — как у кубка: «duel», «chaqiruv» (вызов), «hisobli duel» (зачётная дуэль), «o'rtoqlik o'yini» (товарищеский матч). Носителю проверить: «:name … chaqiruvingizni qabul qildi» (рус. «принял(а) ваш вызов»), «30 soniya ichida kiring» (рус. «заходите в течение 30 секунд»), кнопка «Duelga» (рус. «К дуэли»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.duel_dm.challenged` | ⚔️ :name sizni «:group» kubogida duelga chaqirmoqda. | ⚔️ :name вызывает вас на дуэль в кубке «:group». |
+| `cup.duel_dm.rated` | Hisobli duel: har bir o'z to'g'ri javobingiz uchun kubok bali. | Зачётная дуэль: очко кубка за каждый свой верный ответ. |
+| `cup.duel_dm.friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel_dm.accepted` | ⚔️ :name «:group» kubogidagi chaqiruvingizni qabul qildi. O'yin kutmoqda — 30 soniya ichida kiring. | ⚔️ :name принял(а) ваш вызов в кубке «:group». Матч уже ждёт — заходите в течение 30 секунд. |
+| `buttons.cup_duel_open` | ⚔️ Chaqiruvni ochish | ⚔️ Открыть вызов |
+| `buttons.cup_duel_play` | ⚔️ Duelga | ⚔️ К дуэли |
+
 ## Выпуск 5 · кубок друзей в группе: экраны Mini App (docs/33 K8, 25.11.2026) — на проверку носителю
 
 Экраны приглашения, кубка, раунда дня, настройки и «Мои кубки», карточка на «Bugun» и строка в профиле. Термины те же, что у бота (K6): «kubok», «Do'stlar kubogi», «raund», «ball», «ishtirokchi», «jadval», «daraja»; «{brand}» — название продукта (Muhrla). Числа, даты и время — с сервера. Носителю проверить: «O'ynayapman: {group}» (рус. «Играю за: …»), «chiqib ketgan» как пометку в таблице (рус. «вышел(а)»), «xato yozilgan javob» (рус. «ответ с опечаткой»), «{total} tadan {correct}» (рус. «Верно: 7 из 10»).

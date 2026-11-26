@@ -116,7 +116,8 @@ it('shapes the invitation, my cups, the table and the state of today exactly', f
     expect(array_keys($board))->toBe(['cup', 'standings', 'me', 'can_manage', 'server_now'])
         ->and(array_keys($board['cup']))->toBe([...CUP_FIELDS, 'rules'])
         ->and(array_keys($board['standings'][0]))->toBe(['participant_id', 'rank', 'display_name', 'pro_emoji', 'total', 'round_points', 'days_played', 'left', 'me'])
-        ->and(array_keys($board['me']))->toBe(['participant_id', 'display_name', 'status', 'first_day', 'renames_left', 'total', 'final_rank', 'today', 'days'])
+        ->and(array_keys($board['me']))->toBe(['participant_id', 'display_name', 'status', 'first_day', 'renames_left', 'total', 'final_rank', 'today', 'days', 'duel'])
+        ->and($board['me']['duel'])->toBeNull() // the duels are off here: docs/04 A.23d, CupDuelHttpTest
         ->and(array_keys($board['me']['today']))->toBe(['state', 'day', 'attempt_id', 'points', 'expires_at'])
         ->and($board['me']['days'])->toHaveCount(7)
         ->and(array_keys($board['me']['days'][0]))->toBe(['day', 'points', 'round_points', 'duel_points', 'played', 'counted', 'available'])

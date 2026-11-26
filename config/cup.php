@@ -18,7 +18,7 @@ return [
     'access' => env('CUP_ACCESS', 'off'),
 
     // Stage 2 (docs/33 §5.7, D1-D3): duels on top of the battles. Needs PRACTICE_BATTLE=true and PRACTICE_ACCESS other than off too
-    // (the sweeper of the battles voids every match when the practice is off). Off by default until D2 (API, screens, the bot) is done.
+    // (the sweeper of the battles voids every match when the practice is off). Off by default until D2 (the screens, the live bot) is checked.
     'duels' => (bool) env('CUP_DUELS', false),
 
     // One timezone for the whole cup: every participant shares the borders of the days.
@@ -61,6 +61,12 @@ return [
         'public_per_chat' => 10,
         // cups:sweep-duels: rows per step and run.
         'sweep_batch' => 200,
+        // The limiters of the Mini App (docs/07 §6, D2), per learner and minute: `twa-cup-duel` - challenge, accept, decline, cancel;
+        // `twa-cup-duel-poll` - `GET /cups/{id}/duels/{duel}`, the waiting screen polls it every 3 s for up to 10 minutes.
+        'http' => [
+            'actions_per_minute' => (int) env('CUP_DUEL_ACTIONS_PER_MINUTE', 20),
+            'polls_per_minute' => (int) env('CUP_DUEL_POLLS_PER_MINUTE', 40),
+        ],
     ],
 
     // The finish waits this long after the end of the last day (an attempt of 10 minutes started at 23:59, a duel).

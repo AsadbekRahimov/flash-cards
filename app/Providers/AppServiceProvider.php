@@ -436,6 +436,17 @@ class AppServiceProvider extends ServiceProvider
                 return Limit::perMinute($perMinute)->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
             });
         }
+
+        // The duels of a cup (docs/04 A.23d, docs/07 §6, D2), by the learner: a challenge, an acceptance, a decline, a withdrawal (a
+        // getChatMember of the one who acts, a battle at the acceptance); the poll of one duel by the waiting screen - a bucket of its own.
+        foreach (['twa-cup-duel' => 'cup.duel.http.actions_per_minute', 'twa-cup-duel-poll' => 'cup.duel.http.polls_per_minute'] as $name => $key) {
+            RateLimiter::for($name, function (Request $request) use ($name, $key): Limit {
+                /** @var array{learner_id:int}|null $ctx */
+                $ctx = $request->attributes->get('twa');
+
+                return Limit::perMinute(max(1, (int) config($key, 20)))->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
+            });
+        }
     }
 
     /**

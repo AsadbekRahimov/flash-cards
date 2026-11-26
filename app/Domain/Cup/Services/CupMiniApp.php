@@ -18,6 +18,7 @@ use App\Models\Cup;
 use App\Models\CupParticipant;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
@@ -55,6 +56,8 @@ final class CupMiniApp
         private readonly CupLifecycleService $lifecycle,
         private readonly CupAdminCheck $admins,
         private readonly ProductEventRecorder $events,
+        private readonly CupDuelReader $duels,
+        private readonly CupDuelService $duelCore,
     ) {}
 
     /**
@@ -84,14 +87,16 @@ final class CupMiniApp
     }
 
     /**
-     * The table (`GET /cups/{id}`): the standings (cached) with the emoji of Pro (cached apart), and for a participant his day and days.
+     * The table (`GET /cups/{id}`): the standings (cached) with the emoji of Pro (cached apart), and for a participant his day and days
+     * and - the duels on - whether he may challenge today ({@see CupDuelReader::availability()}: scalars of the same statement of the
+     * door, no statement of its own).
      *
      * @throws CupException cup_not_member | cup_unavailable
      */
     public function board(int $cupId, Learner $learner, ?CarbonImmutable $now = null): CupBoard
     {
         $now ??= CarbonImmutable::now();
-        $context = $this->visible($cupId, $learner);
+        $context = $this->door($cupId, $learner, $this->duelCore->enabled() ? $this->duels->availabilityScalars($now) : []);
         $cup = $context->cup;
         $mine = $context->participant;
 
@@ -119,6 +124,7 @@ final class CupMiniApp
             days: $mine === null || $cup->starts_at === null ? null : $this->reader->days($cup, $mine),
             canManage: $this->isOrganiser($cup, $learner),
             now: $now,
+            duel: $mine === null ? null : $this->duels->availability($context, $now),
         );
     }
 
@@ -273,11 +279,13 @@ final class CupMiniApp
      * A cup by its id behind the door of membership: a missing cup is the refusal of a stranger, and so is every refusal of the gate
      * to a non-participant (`opaque`); a participant is told the reasons.
      *
+     * @param  array<string, Builder>  $extra  scalars of the same statement ({@see CupReader::locate()})
+     *
      * @throws CupException cup_not_member | cup_unavailable | cup_paused | cup_unverifiable | cup_check_busy
      */
-    private function door(int $cupId, Learner $learner): CupContext
+    private function door(int $cupId, Learner $learner, array $extra = []): CupContext
     {
-        $context = $this->reader->locate($cupId, $learner) ?? throw CupException::notMember();
+        $context = $this->reader->locate($cupId, $learner, $extra) ?? throw CupException::notMember();
         $this->gate->assertCanView($context->cup, $learner, $context->participant, opaque: true);
         $this->assertAvailable($context->cup);
 
