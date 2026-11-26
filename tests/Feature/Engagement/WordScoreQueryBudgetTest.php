@@ -19,6 +19,8 @@ declare(strict_types=1);
  */
 
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Content\DTO\DeckRow;
+use App\Domain\Content\Services\LearnerDeckService;
 use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Game\Enums\TaskKind;
 use App\Domain\Game\Services\Runs\RunService;
@@ -191,9 +193,9 @@ it('adds 10 statements to the first /review of a week and a month and 5 to the n
 function wsbDeckReview(object $test, array $spellings): array
 {
     $learner = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent']);
-    $decks = app(\App\Domain\Content\Services\LearnerDeckService::class);
+    $decks = app(LearnerDeckService::class);
     $deck = $decks->create($learner, 'Мои слова');
-    $decks->addWords($learner, $deck, array_map(fn (string $w): \App\Domain\Content\DTO\DeckRow => new \App\Domain\Content\DTO\DeckRow($w, 'перевод '.$w), $spellings));
+    $decks->addWords($learner, $deck, array_map(fn (string $w): DeckRow => new DeckRow($w, 'перевод '.$w), $spellings));
     $lessons = DB::table('lessons')->join('stages', 'stages.id', '=', 'lessons.stage_id')->where('stages.course_id', $deck->id)->pluck('lessons.id');
     foreach (DB::table('words')->whereIn('lesson_id', $lessons)->pluck('id') as $wordId) {
         WordRepetition::factory()->create([

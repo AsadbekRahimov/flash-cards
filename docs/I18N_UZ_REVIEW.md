@@ -5268,3 +5268,20 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `today.hero.new_phrases.one/other` | {count} ta yangi ibora | {count} новая фраза / новые фразы / новых фраз |
 | `today.hero.training_text_phrases.one/other` | {count} ta iborani mustahkamlang | Закрепите {count} фразу / фразы / фраз |
 | `today.hero.game_text_phrases` | Shu dars iboralari bilan o'yin | Игра на фразах этого урока |
+
+## Выпуск 8 · кубок: вид дуэли при вызове и «Выйти из кубка» (docs/33 §11.12, 27.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`. Строки бота не менялись (вид дуэли в сообщениях бота уже называется строками `cup.duel.*` /
+`cup.duel_dm.*` выпуска 6).
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `cup.duel.new.kind_rated_hint` | Har bir o'z to'g'ri javobingiz uchun kubok bali. Kuniga bitta. | Очко кубка за каждый свой верный ответ. Одна в день. |
+| `cup.duel.new.rated_gone` | Bugungi hisobli duel o'ynalgan — o'rtoqlik o'yiniga chaqirish mumkin. | Зачётная дуэль сегодня уже сыграна — можно вызвать на товарищеский матч. |
+| `cup.duel.outcome.canceled_left` (изменено) | Chaqiruv bekor qilindi: o'yinchi kubokdan chiqib ketdi. | Вызов отменён: игрок вышел из кубка. |
+| `cup.leave.open` | Kubokdan chiqish | Выйти из кубка |
+| `cup.leave.title` | Kubokdan chiqilsinmi? | Выйти из кубка? |
+| `cup.leave.text` | Ballaringiz jadvalda «chiqib ketgan» belgisi bilan qoladi, lekin boshqa o'ynay olmaysiz va jadvalni ko'ra olmaysiz. Ochiq duel chaqiruvlari bekor qilinadi. Bu kubokka qaytib bo'lmaydi. | Ваши очки останутся в таблице с пометкой «вышел(а)», но играть дальше и видеть таблицу вы не сможете. Открытые вызовы на дуэль отменятся. Вернуться в этот кубок будет нельзя. |
+| `cup.leave.keep` | Qolish | Остаться |
+| `cup.leave.confirm` | Chiqish | Выйти |
+

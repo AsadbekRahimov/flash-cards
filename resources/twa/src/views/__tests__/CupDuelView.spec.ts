@@ -200,7 +200,7 @@ describe('CupDuelView: over', () => {
     ['void: nobody came in time (late)', { status: 'void', end_reason: 'no_answers', rated: true }, 'Матч не состоялся: в комнату не зашли вовремя, ответов не было. Можно вызвать снова.'],
     ['declined', { status: 'declined', end_reason: 'declined' }, 'Соперник отклонил вызов.'],
     ['canceled by me', { status: 'canceled', end_reason: 'challenger' }, 'Вы отменили вызов.'],
-    ['canceled: a player left', { status: 'canceled', end_reason: 'left' }, 'Вызов отменён: игрок вышел из группы.'],
+    ['canceled: a player left', { status: 'canceled', end_reason: 'left' }, 'Вызов отменён: игрок вышел из кубка.'],
     ['expired', { status: 'expired', end_reason: 'expired' }, 'Никто не принял вызов вовремя.'],
     ['expired with the day of the cup', { status: 'expired', end_reason: 'cup_over' }, 'День кубка закончился — вызов закрыт.'],
     ['canceled: the cup closed', { status: 'canceled', end_reason: 'cup_closed' }, 'Кубок завершился — вызов закрыт.'],

@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonInterface $joined_at
  * @property int $first_day
  * @property CarbonInterface|null $left_at
- * @property CarbonInterface|null $withdrawn_at  left the cup himself (docs/33 §11.12): `left` for good - no "member" brings him back
+ * @property CarbonInterface|null $withdrawn_at left the cup himself (docs/33 §11.12): `left` for good - no "member" brings him back
  * @property CarbonInterface|null $membership_checked_at
  * @property int $best_total
  * @property int $best_round_points

@@ -12,6 +12,7 @@ use App\Domain\Cup\Services\CupRoundService;
 use App\Domain\Cup\Services\CupScoreBook;
 use App\Domain\Cup\Services\CupStandings;
 use App\Domain\Operations\Support\PureCache;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Jobs\PostCupMessageJob;
 use App\Jobs\SendCupDuelDmJob;
 use App\Models\Cup;
@@ -20,6 +21,7 @@ use App\Models\CupRoundAttempt;
 use App\Models\Learner;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -158,7 +160,7 @@ it('lets a participant who left the chat leave the cup for good, and the organis
     // The organiser: the cup is the chat's - its administrators keep managing it (the cancel asks Telegram, not the participation).
     Cup::query()->whereKey($cup->id)->update(['proposed_by_telegram_user_id' => $c->telegram_user_id]);
     leaveHttp($c, 'POST', "/cups/{$cup->id}/leave")->assertOk();
-    CupKit::telegram()->chatMembersByUser[(int) $c->telegram_user_id] = new App\Domain\Telegram\DTO\ChatMemberInfo('administrator', true);
+    CupKit::telegram()->chatMembersByUser[(int) $c->telegram_user_id] = new ChatMemberInfo('administrator', true);
     expect(app(CupLifecycleService::class)->cancelByChatAdmin(CupDuelKit::cup($cup), (int) $c->telegram_user_id, $now))->toBeTrue();
 
     leaveHttp($a, 'POST', "/cups/{$cup->id}/leave")->assertStatus(410)->assertJsonPath('error.code', 'cup_closed');
@@ -238,7 +240,7 @@ it('keeps the CHECK of a withdrawal on PostgreSQL: withdrawn only as left', func
     ['cup' => $cup, 'learners' => [$a]] = CupDuelKit::running(2);
 
     expect(fn () => CupParticipant::query()->whereKey(leaveRow($a, $cup)->id)->update(['withdrawn_at' => now()]))
-        ->toThrow(Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 });
 
 it('leaves in 8 statements with a public challenge to edit, 7 without, a repeat in 2, without Telegram', function (): void {

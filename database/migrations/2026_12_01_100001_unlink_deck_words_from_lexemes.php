@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Support\LexemeKey;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -66,7 +67,7 @@ return new class extends Migration
         } while ($rows->count() === self::BATCH);
     }
 
-    private function deckWords(int $after, bool $linked): \Illuminate\Database\Query\Builder
+    private function deckWords(int $after, bool $linked): Builder
     {
         return DB::table('words')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')

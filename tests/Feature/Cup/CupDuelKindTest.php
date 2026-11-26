@@ -7,6 +7,7 @@ use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Services\CupDuelRenderer;
 use App\Domain\Operations\Support\PureCache;
+use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\BattleException;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\PracticeLimits;
@@ -157,11 +158,11 @@ it('costs the same statements: a challenge of either kind as before (8), a frien
 
     $count = fn (Closure $fn): int => count(QueryLog::during($fn));
     // The challenge: the same 8 statements whatever the kind (the slots ride in the one statement of the limits).
-    $none = $count(fn () => $service->challenge($a, $loaded, $pb->id, false, \App\Domain\Practice\Enums\PracticeMode::Pairs, (string) Str::uuid(), $now));
+    $none = $count(fn () => $service->challenge($a, $loaded, $pb->id, false, PracticeMode::Pairs, (string) Str::uuid(), $now));
     CupDuel::query()->update(['status' => 'canceled', 'end_reason' => 'challenger', 'open_challenger_id' => null, 'closed_at' => $now]);
-    $rated = $count(fn () => $service->challenge($a, $loaded, $pb->id, false, \App\Domain\Practice\Enums\PracticeMode::Pairs, (string) Str::uuid(), $now, CupDuelKind::Rated));
+    $rated = $count(fn () => $service->challenge($a, $loaded, $pb->id, false, PracticeMode::Pairs, (string) Str::uuid(), $now, CupDuelKind::Rated));
     CupDuel::query()->update(['status' => 'canceled', 'end_reason' => 'challenger', 'open_challenger_id' => null, 'closed_at' => $now]);
-    $friendly = $count(fn () => $service->challenge($c, $loaded, $pd->id, false, \App\Domain\Practice\Enums\PracticeMode::Pairs, (string) Str::uuid(), $now, CupDuelKind::Friendly));
+    $friendly = $count(fn () => $service->challenge($c, $loaded, $pd->id, false, PracticeMode::Pairs, (string) Str::uuid(), $now, CupDuelKind::Friendly));
 
     expect($none)->toBe(8)->and($rated)->toBe(8)->and($friendly)->toBe(8);
 
