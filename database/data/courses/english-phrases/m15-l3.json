@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 15,
+    "title": "Идиомы: животные",
+    "title_uz": "Iboralar: hayvonlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Лошади",
+    "title_uz": "Otlar"
+  },
+  "words": [
+    {
+      "word": "hold your horses",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не гони лошадей",
+        "uz": "shoshilma, sabr qil"
+      },
+      "example": "Let's buy the car today! — Hold your horses. We haven't even seen it yet.",
+      "example_translations": {
+        "ru": "Давай купим машину сегодня! — Не гони лошадей. Мы её ещё даже не видели.",
+        "uz": "Mashinani bugun sotib olaylik! — Shoshilma. Biz uni hali ko'rmadik ham."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто слишком торопится с решением или действием",
+        "uz": "Qaror yoki harakatda haddan tashqari shoshilayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hold",
+        "literal": {
+          "ru": "придержи своих лошадей",
+          "uz": "otlaringni ushlab tur"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "straight from the horse's mouth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "из первых уст",
+        "uz": "bevosita o'zidan"
+      },
+      "example": "Is the school really closing? — Yes, I heard it straight from the horse's mouth: the head teacher told me.",
+      "example_translations": {
+        "ru": "Школу правда закрывают? — Да, я узнал из первых уст: мне сказал директор.",
+        "uz": "Maktab rostdan yopilyaptimi? — Ha, bevosita o'zidan eshitdim: direktorning o'zi aytdi."
+      },
+      "hooks": {
+        "ru": "Говорят о новости, услышанной прямо от человека, который точно знает",
+        "uz": "Aniq biladigan odamning o'zidan eshitilgan yangilik haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mouth",
+        "literal": {
+          "ru": "прямо изо рта лошади",
+          "uz": "to'ppa-to'g'ri otning og'zidan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a dark horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тёмная лошадка",
+        "uz": "yashirin iste'dod egasi"
+      },
+      "example": "Quiet Anvar won the singing contest. He's a dark horse!",
+      "example_translations": {
+        "ru": "Тихий Анвар выиграл конкурс песни. Вот это тёмная лошадка!",
+        "uz": "Kamgap Anvar qo'shiq tanlovida g'olib bo'ldi. U yashirin iste'dod egasi ekan!"
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который неожиданно проявил скрытые таланты или выиграл",
+        "uz": "Kutilmaganda yashirin iste'dodini ko'rsatgan yoki g'olib chiqqan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "dark",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't look a gift horse in the mouth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дарёному коню в зубы не смотрят",
+        "uz": "sovg'aning aybini qidirma"
+      },
+      "example": "The free laptop is a bit old. — Don't look a gift horse in the mouth; it still works!",
+      "example_translations": {
+        "ru": "Бесплатный ноутбук староват. — Дарёному коню в зубы не смотрят: он же работает!",
+        "uz": "Tekin noutbuk biroz eski. — Sovg'aning aybini qidirma: axir u ishlayapti-ku!"
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто придирается к подарку или к тому, что досталось бесплатно",
+        "uz": "Sovg'a yoki tekin kelgan narsadan ayb qidirayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "gift",
+        "literal": {
+          "ru": "не смотри подаренной лошади в рот",
+          "uz": "sovg'a qilingan otning og'ziga qarama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "eat like a horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "есть за троих",
+        "uz": "uch kishilik ovqat yemoq"
+      },
+      "example": "My teenage son eats like a horse, but he's still thin.",
+      "example_translations": {
+        "ru": "Мой сын-подросток ест за троих, но всё равно худой.",
+        "uz": "O'smir o'g'lim uch kishilik ovqat yeydi, lekin baribir oriq."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят о человеке с очень хорошим аппетитом",
+        "uz": "Ishtahasi juda yaxshi odam haqida hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "eat",
+        "literal": {
+          "ru": "есть как лошадь",
+          "uz": "otdek yemoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get back on the horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "снова взяться за дело после неудачи",
+        "uz": "muvaffaqiyatsizlikdan keyin yana urinmoq"
+      },
+      "example": "After the accident, she was afraid to drive, but she got back on the horse a week later.",
+      "example_translations": {
+        "ru": "После аварии она боялась водить, но через неделю снова села за руль.",
+        "uz": "Avariyadan keyin u mashina haydashdan qo'rqardi, lekin bir haftadan so'ng yana rulga o'tirdi."
+      },
+      "hooks": {
+        "ru": "Советуют после неудачи или испуга не бросать дело, а снова попробовать",
+        "uz": "Muvaffaqiyatsizlik yoki qo'rquvdan keyin ishni tashlamay, yana urinib ko'rishni maslahat berishadi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "снова сесть на лошадь",
+          "uz": "yana otga minmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "beat a dead horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "переливать из пустого в порожнее",
+        "uz": "hovonchada suv tuymoq"
+      },
+      "example": "We've already decided. Stop beating a dead horse.",
+      "example_translations": {
+        "ru": "Мы уже всё решили. Хватит переливать из пустого в порожнее.",
+        "uz": "Biz allaqachon qaror qildik. Hovonchada suv tuyishni bas qil."
+      },
+      "hooks": {
+        "ru": "Говорят о бесполезных спорах о том, что уже решено; в Британии — flog a dead horse",
+        "uz": "Hal bo'lgan masala ustida befoyda bahslashish haqida aytiladi; Britaniyada — flog a dead horse"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "us",
+        "gap": "dead",
+        "literal": {
+          "ru": "бить мёртвую лошадь",
+          "uz": "o'lik otni urmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "horse around",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "дурачиться, баловаться",
+        "uz": "sho'xlik qilmoq"
+      },
+      "example": "Stop horsing around and finish your homework!",
+      "example_translations": {
+        "ru": "Хватит баловаться, доделывай уроки!",
+        "uz": "Sho'xlikni bas qil-da, uy vazifangni tugat!"
+      },
+      "hooks": {
+        "ru": "Говорят, часто детям, когда они шумно дурачатся вместо дела",
+        "uz": "Ko'pincha bolalarga, ular ish o'rniga shovqin solib sho'xlik qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "around",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "put the cart before the horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать всё задом наперёд",
+        "uz": "ishni oxiridan boshlamoq"
+      },
+      "example": "Buying furniture before you've found a flat is putting the cart before the horse.",
+      "example_translations": {
+        "ru": "Покупать мебель, ещё не найдя квартиру, — значит делать всё задом наперёд.",
+        "uz": "Kvartira topmasdan mebel sotib olish — ishni oxiridan boshlash degani."
+      },
+      "hooks": {
+        "ru": "Говорят, когда дела делают в неправильном порядке",
+        "uz": "Ishlar noto'g'ri tartibda qilinganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cart",
+        "literal": {
+          "ru": "ставить телегу перед лошадью",
+          "uz": "aravani otdan oldin qo'ymoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get on your high horse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поучать свысока",
+        "uz": "o'zini katta olib, aql o'rgatmoq"
+      },
+      "example": "Don't get on your high horse with me; you were late too!",
+      "example_translations": {
+        "ru": "Не надо меня поучать свысока: ты тоже опоздал!",
+        "uz": "Menga o'zingni katta olib, aql o'rgatma: sen ham kechikding-ku!"
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто ведёт себя так, будто он лучше и умнее других",
+        "uz": "O'zini boshqalardan yaxshiroq va aqlliroq tutayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "high",
+        "literal": {
+          "ru": "сесть на свою высокую лошадь",
+          "uz": "baland otingga minmoq"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    }
+  ]
+}

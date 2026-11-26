@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 15,
+    "title": "Идиомы: животные",
+    "title_uz": "Iboralar: hayvonlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Кошки и собаки",
+    "title_uz": "Mushuklar va itlar"
+  },
+  "words": [
+    {
+      "word": "let the cat out of the bag",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "случайно проговориться",
+        "uz": "og'zidan gullab qo'ymoq"
+      },
+      "example": "It was supposed to be a secret, but my little brother let the cat out of the bag.",
+      "example_translations": {
+        "ru": "Это должно было остаться секретом, но младший брат случайно проговорился.",
+        "uz": "Bu sir bo'lishi kerak edi, lekin ukam og'zidan gullab qo'ydi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда кто-то нечаянно раскрыл секрет или сюрприз",
+        "uz": "Kimdir bilmasdan sir yoki syurprizni oshkor qilib qo'yganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bag",
+        "literal": {
+          "ru": "выпустить кошку из мешка",
+          "uz": "mushukni qopdan chiqarib yubormoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "fight like cat and dog",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жить как кошка с собакой",
+        "uz": "it bilan mushukdek urishmoq"
+      },
+      "example": "My two brothers fight like cat and dog, but they love each other.",
+      "example_translations": {
+        "ru": "Мои два брата живут как кошка с собакой, но любят друг друга.",
+        "uz": "Ikki akam it bilan mushukdek urishadi, lekin bir-birini yaxshi ko'radi."
+      },
+      "hooks": {
+        "ru": "Говорят о людях, которые постоянно ссорятся, обычно о родных",
+        "uz": "Doim janjallashadigan odamlar, odatda qarindoshlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fight",
+        "literal": {
+          "ru": "драться как кошка и собака",
+          "uz": "mushuk va it kabi olishmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Curiosity killed the cat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "любопытной Варваре на базаре нос оторвали",
+        "uz": "ortiqcha qiziqish boshga balo"
+      },
+      "example": "What's in that box? — Curiosity killed the cat. It's your birthday present!",
+      "example_translations": {
+        "ru": "Что в той коробке? — Любопытной Варваре на базаре нос оторвали. Это твой подарок на день рождения!",
+        "uz": "Anavi qutida nima bor? — Ortiqcha qiziqish boshga balo. Bu sening tug'ilgan kuningga sovg'a!"
+      },
+      "hooks": {
+        "ru": "Шутливо говорят слишком любопытному человеку, чтобы он не задавал вопросов",
+        "uz": "Haddan tashqari qiziquvchan odamga savol bermasligi uchun hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "curiosity",
+        "literal": {
+          "ru": "любопытство сгубило кошку",
+          "uz": "qiziquvchanlik mushukni o'ldirdi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as sick as a dog",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ужасно плохо себя чувствовать",
+        "uz": "o'lgudek betob bo'lmoq"
+      },
+      "example": "I ate some bad fish last night and was as sick as a dog.",
+      "example_translations": {
+        "ru": "Вчера вечером я съел несвежую рыбу, и мне было ужасно плохо.",
+        "uz": "Kecha kechqurun aynigan baliq yeb, o'lgudek betob bo'ldim."
+      },
+      "hooks": {
+        "ru": "Разговорно говорят о сильном недомогании, особенно с тошнотой",
+        "uz": "Kuchli betoblik, ayniqsa ko'ngil aynishi haqida so'zlashuvda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "dog",
+        "literal": {
+          "ru": "больной как собака",
+          "uz": "itdek kasal"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Cat got your tongue?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "язык проглотил?",
+        "uz": "tilingni yutib yubordingmi?"
+      },
+      "example": "Why are you so quiet today? Cat got your tongue?",
+      "example_translations": {
+        "ru": "Что ты сегодня такой молчаливый? Язык проглотил?",
+        "uz": "Bugun nega bunchalik jimsan? Tilingni yutib yubordingmi?"
+      },
+      "hooks": {
+        "ru": "Шутливо спрашивают того, кто вдруг замолчал и не отвечает",
+        "uz": "To'satdan jim bo'lib qolgan, javob bermayotgan odamdan hazil tarzida so'raladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tongue",
+        "literal": {
+          "ru": "кошка забрала твой язык?",
+          "uz": "tilingni mushuk olib ketdimi?"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Let sleeping dogs lie",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не буди лихо, пока оно тихо",
+        "uz": "yotgan ilonning dumini bosma"
+      },
+      "example": "Should I tell my boss about his old mistake? — No, it's all fixed now. Let sleeping dogs lie.",
+      "example_translations": {
+        "ru": "Сказать начальнику о его старой ошибке? — Нет, всё уже исправлено. Не буди лихо, пока оно тихо.",
+        "uz": "Rahbarga uning eski xatosini aytaymi? — Yo'q, hammasi tuzatildi. Yotgan ilonning dumini bosma."
+      },
+      "hooks": {
+        "ru": "Советуют не трогать старую проблему, которая сейчас никому не мешает",
+        "uz": "Hozir hech kimga xalaqit bermayotgan eski muammoga tegmaslikni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sleeping",
+        "literal": {
+          "ru": "пусть спящие собаки лежат",
+          "uz": "uxlab yotgan itlarni bezovta qilma"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "His bark is worse than his bite",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "грозный только на словах",
+        "uz": "gapi qattiq, ko'ngli yumshoq"
+      },
+      "example": "The new coach shouts a lot, but don't worry. His bark is worse than his bite.",
+      "example_translations": {
+        "ru": "Новый тренер много кричит, но не бойся: он грозный только на словах.",
+        "uz": "Yangi murabbiy ko'p baqiradi, lekin qo'rqma: gapi qattiq, ko'ngli yumshoq."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который громко ругается или грозит, но на деле не злой",
+        "uz": "Baland ovozda urishadigan yoki po'pisa qiladigan, lekin aslida yomon bo'lmagan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bark",
+        "literal": {
+          "ru": "его лай хуже его укуса",
+          "uz": "uning hurishi tishlashidan yomonroq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "work like a dog",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "работать как вол",
+        "uz": "kecha-yu kunduz ishlamoq"
+      },
+      "example": "I worked like a dog all summer to buy this laptop.",
+      "example_translations": {
+        "ru": "Я всё лето работал как вол, чтобы купить этот ноутбук.",
+        "uz": "Bu noutbukni sotib olish uchun butun yoz kecha-yu kunduz ishladim."
+      },
+      "hooks": {
+        "ru": "Говорят об очень тяжёлой и долгой работе, обычно о своей",
+        "uz": "Juda og'ir va uzoq ish, odatda o'zining ishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "work",
+        "literal": {
+          "ru": "работать как собака",
+          "uz": "itdek ishlamoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "bark up the wrong tree",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "обратиться не по адресу",
+        "uz": "noto'g'ri joydan izlamoq"
+      },
+      "example": "If you think I took your pen, you're barking up the wrong tree.",
+      "example_translations": {
+        "ru": "Если ты думаешь, что я взял твою ручку, ты обратился не по адресу.",
+        "uz": "Agar ruchkangni men oldim deb o'ylasang, noto'g'ri joydan izlayapsan."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто ошибочно подозревает не того человека или ищет ответ не там",
+        "uz": "Noto'g'ri odamdan gumon qilayotgan yoki javobni noto'g'ri joydan izlayotgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tree",
+        "literal": {
+          "ru": "лаять не на то дерево",
+          "uz": "noto'g'ri daraxtga qarab hurmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "in the doghouse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в немилости",
+        "uz": "nazardan qolgan"
+      },
+      "example": "I forgot Mum's birthday, so I'm in the doghouse now.",
+      "example_translations": {
+        "ru": "Я забыл про мамин день рождения, так что теперь я в немилости.",
+        "uz": "Oyimning tug'ilgan kunini unutib qo'ydim, endi nazardan qolganman."
+      },
+      "hooks": {
+        "ru": "Шутливо говорят, когда на тебя сердятся близкие за какой-то промах",
+        "uz": "Biror xato uchun yaqinlar xafa bo'lib yurganda hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "doghouse",
+        "literal": {
+          "ru": "в собачьей будке",
+          "uz": "it uychasida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

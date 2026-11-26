@@ -153,29 +153,29 @@
       }
     },
     {
-      "word": "push your luck",
+      "word": "a calculated risk",
       "part_of_speech": "phrase",
       "translations": {
-        "ru": "испытывать судьбу",
-        "uz": "omadga haddan ortiq ishonmoq"
+        "ru": "обдуманный риск",
+        "uz": "o'ylab qilingan tavakkal"
       },
-      "example": "You got away with it once. Don't push your luck.",
+      "example": "Opening a second shop was a calculated risk, and it paid off.",
       "example_translations": {
-        "ru": "Один раз тебе это сошло с рук. Не испытывай судьбу.",
-        "uz": "Bir marta jazosiz qolding. Omadingga haddan ortiq ishonma."
+        "ru": "Открыть второй магазин было обдуманным риском, и он оправдался.",
+        "uz": "Ikkinchi do'konni ochish o'ylab qilingan tavakkal edi va u o'zini oqladi."
       },
       "hooks": {
-        "ru": "Предупреждают того, кому уже повезло, не рисковать снова",
-        "uz": "Bir marta omadi kelgan odamni yana tavakkal qilmaslikka ogohlantirib aytiladi"
+        "ru": "Говорят о риске, на который идут, заранее взвесив возможные потери и выгоды",
+        "uz": "Yo'qotish va foydani oldindan o'lchab-tortib qilingan tavakkal haqida aytiladi"
       },
       "phrase": {
-        "kind": "idiom",
-        "register": "informal",
+        "kind": "fixed",
+        "register": "neutral",
         "variant": "both",
-        "gap": "luck",
+        "gap": "calculated",
         "literal": {
-          "ru": "толкать свою удачу",
-          "uz": "omadingni itarmoq"
+          "ru": "рассчитанный риск",
+          "uz": "hisoblangan tavakkal"
         },
         "cefr": "B2",
         "frequency": 2

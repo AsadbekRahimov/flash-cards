@@ -192,10 +192,10 @@
         "ru": "быть сладкоежкой",
         "uz": "shirinlikka o'ch bo'lmoq"
       },
-      "example": "I have a real sweet tooth; I can't say no to chocolate.",
+      "example": "I have a sweet tooth, so I can't say no to chocolate.",
       "example_translations": {
-        "ru": "Я ужасный сладкоежка: не могу отказаться от шоколада.",
-        "uz": "Men shirinlikka juda o'chman: shokoladdan voz kecha olmayman."
+        "ru": "Я сладкоежка, поэтому не могу отказаться от шоколада.",
+        "uz": "Men shirinlikka o'chman, shuning uchun shokoladdan voz kecha olmayman."
       },
       "hooks": {
         "ru": "Говорят о человеке, который очень любит сладкое",
@@ -250,7 +250,7 @@
         "ru": "подлизываться к кому-то",
         "uz": "kimgadir xushomad qilmoq"
       },
-      "example": "He's been buttering up the teacher all week because he wants a better mark.",
+      "example": "He's been buttering the teacher up all week because he wants a better mark.",
       "example_translations": {
         "ru": "Он всю неделю подлизывается к учителю, потому что хочет оценку получше.",
         "uz": "U yaxshiroq baho olish uchun hafta bo'yi o'qituvchiga xushomad qilyapti."

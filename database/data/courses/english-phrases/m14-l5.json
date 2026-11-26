@@ -236,31 +236,31 @@
       }
     },
     {
-      "word": "Don't bite the hand that feeds you",
+      "word": "You can't make an omelette without breaking eggs",
       "part_of_speech": "phrase",
       "translations": {
-        "ru": "не плюй в колодец, из которого пьёшь",
-        "uz": "tuzini yeb, tuzlug'iga tupurma"
+        "ru": "лес рубят — щепки летят",
+        "uz": "yo'qotishsiz natijaga erishib bo'lmaydi"
       },
-      "example": "Stop complaining about the company that pays you. Don't bite the hand that feeds you!",
+      "example": "We had to close the road for a month to build the new bridge. — You can't make an omelette without breaking eggs.",
       "example_translations": {
-        "ru": "Хватит жаловаться на компанию, которая тебе платит. Не плюй в колодец, из которого пьёшь!",
-        "uz": "Senga maosh beradigan kompaniyadan shikoyat qilishni bas qil. Tuzini yeb, tuzlug'iga tupurma!"
+        "ru": "Чтобы построить новый мост, пришлось на месяц закрыть дорогу. — Лес рубят — щепки летят.",
+        "uz": "Yangi ko'prik qurish uchun yo'lni bir oyga yopishga to'g'ri keldi. — Yo'qotishsiz natijaga erishib bo'lmaydi."
       },
       "hooks": {
-        "ru": "Предупреждают, что нельзя вредить тому, кто тебе помогает или даёт работу",
-        "uz": "Senga yordam beradigan yoki ish beradigan odamga zarar yetkazmaslik kerakligini eslatib aytiladi"
+        "ru": "Говорят, что ради большого результата приходится мириться с потерями и неудобствами",
+        "uz": "Katta natija uchun ba'zi yo'qotish va noqulayliklarga ko'nish kerakligini aytishda ishlatiladi"
       },
       "phrase": {
         "kind": "proverb",
         "register": "neutral",
         "variant": "both",
-        "gap": "feeds",
+        "gap": "omelette",
         "literal": {
-          "ru": "не кусай руку, которая тебя кормит",
-          "uz": "seni boqayotgan qo'lni tishlama"
+          "ru": "нельзя приготовить омлет, не разбив яиц",
+          "uz": "tuxum chaqmasdan quymoq pishirib bo'lmaydi"
         },
-        "cefr": "B2",
+        "cefr": "C1",
         "frequency": 2
       }
     },

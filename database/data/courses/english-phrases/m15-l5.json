@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 15,
+    "title": "Идиомы: животные",
+    "title_uz": "Iboralar: hayvonlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Характер в образах животных",
+    "title_uz": "Hayvonlar timsolidagi xarakter"
+  },
+  "words": [
+    {
+      "word": "the black sheep",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "паршивая овца",
+        "uz": "oilaning noxalaf farzandi"
+      },
+      "example": "He never calls his parents and is always in trouble; he's the black sheep of the family.",
+      "example_translations": {
+        "ru": "Он никогда не звонит родителям и вечно попадает в неприятности: он паршивая овца в семье.",
+        "uz": "U ota-onasiga hech qo'ng'iroq qilmaydi, boshi balodan chiqmaydi: oilaning noxalaf farzandi."
+      },
+      "hooks": {
+        "ru": "Говорят о члене семьи или группы, который не похож на остальных и которого не одобряют",
+        "uz": "Boshqalarga o'xshamaydigan va ma'qullanmaydigan oila yoki guruh a'zosi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sheep",
+        "literal": {
+          "ru": "чёрная овца",
+          "uz": "qora qo'y"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as busy as a bee",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вертится как белка в колесе",
+        "uz": "tinim bilmay ishlaydigan"
+      },
+      "example": "Grandma has been as busy as a bee all day, cooking for the guests.",
+      "example_translations": {
+        "ru": "Бабушка весь день вертится как белка в колесе, готовит для гостей.",
+        "uz": "Buvim kun bo'yi mehmonlarga ovqat tayyorlab, tinim bilmayapti."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который весело и без остановки занят делами",
+        "uz": "Tinim bilmay, g'ayrat bilan ish qilayotgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bee",
+        "literal": {
+          "ru": "занят как пчела",
+          "uz": "asalaridek band"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a wild goose chase",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "напрасные поиски",
+        "uz": "behuda izlash"
+      },
+      "example": "The shop on the map didn't exist. It was a wild goose chase.",
+      "example_translations": {
+        "ru": "Магазина с карты не существовало. Мы искали напрасно.",
+        "uz": "Xaritadagi do'kon yo'q ekan. Behuda izlab yuribmiz."
+      },
+      "hooks": {
+        "ru": "Говорят о долгих бесполезных поисках того, чего нет или не найти",
+        "uz": "Yo'q yoki topib bo'lmaydigan narsani uzoq va befoyda izlash haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "goose",
+        "literal": {
+          "ru": "погоня за диким гусем",
+          "uz": "yovvoyi g'oz ortidan quvish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "monkey business",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проделки, мутные дела",
+        "uz": "shumlik, qing'ir ish"
+      },
+      "example": "The teacher is watching you, so no monkey business during the test!",
+      "example_translations": {
+        "ru": "Учитель за вами следит, так что никаких проделок на контрольной!",
+        "uz": "O'qituvchi sizlarni kuzatib turibdi, nazorat paytida shumlik qilmanglar!"
+      },
+      "hooks": {
+        "ru": "Говорят о шалостях или нечестных делах, часто запрещая их",
+        "uz": "Sho'xlik yoki nohalol ishlar haqida, ko'pincha ularni taqiqlab aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "monkey",
+        "literal": {
+          "ru": "обезьяньи дела",
+          "uz": "maymun ishlari"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "an eager beaver",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "трудяга-энтузиаст",
+        "uz": "ishga chanqoq g'ayratli odam"
+      },
+      "example": "The new intern comes in an hour early every day. What an eager beaver!",
+      "example_translations": {
+        "ru": "Новый стажёр каждый день приходит на час раньше. Вот это энтузиаст!",
+        "uz": "Yangi stajyor har kuni bir soat erta keladi. Juda g'ayratli ekan!"
+      },
+      "hooks": {
+        "ru": "С улыбкой говорят об очень старательном человеке, который рвётся работать",
+        "uz": "Ishlashga intilib turadigan juda tirishqoq odam haqida tabassum bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "beaver",
+        "literal": {
+          "ru": "старательный бобёр",
+          "uz": "g'ayratli qunduz"
+        },
+        "cefr": "B2",
+        "frequency": 3
+      }
+    },
+    {
+      "word": "a lone wolf",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "одиночка",
+        "uz": "yolg'izlikni yoqtiradigan odam"
+      },
+      "example": "Tim doesn't like working in teams; he's a bit of a lone wolf.",
+      "example_translations": {
+        "ru": "Тим не любит работать в команде: он немного одиночка.",
+        "uz": "Tim jamoada ishlashni yoqtirmaydi: u biroz yolg'izlikni yoqtiradigan odam."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который предпочитает действовать один, без других",
+        "uz": "Boshqalarsiz, yolg'iz harakat qilishni afzal ko'radigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lone",
+        "literal": {
+          "ru": "одинокий волк",
+          "uz": "yolg'iz bo'ri"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as stubborn as a mule",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "упрямый как осёл",
+        "uz": "eshakdek qaysar"
+      },
+      "example": "My little sister won't wear her coat; she's as stubborn as a mule.",
+      "example_translations": {
+        "ru": "Моя младшая сестра ни в какую не хочет надевать пальто: упрямая как осёл.",
+        "uz": "Singlim paltosini kiygisi yo'q: eshakdek qaysar."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, которого невозможно переубедить; может прозвучать грубовато",
+        "uz": "Fikridan qaytarib bo'lmaydigan odam haqida aytiladi; qo'pol eshitilishi mumkin"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "mule",
+        "literal": {
+          "ru": "упрямый как мул",
+          "uz": "xachirdek qaysar"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a scaredy-cat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "трусишка",
+        "uz": "qo'rqoq"
+      },
+      "example": "Come on, the water isn't deep. Don't be such a scaredy-cat!",
+      "example_translations": {
+        "ru": "Ну же, тут неглубоко. Не будь трусишкой!",
+        "uz": "Qani, suv chuqur emas. Bunchalik qo'rqoq bo'lma!"
+      },
+      "hooks": {
+        "ru": "Шутливо, часто в детской речи, говорят тому, кто боится пустяков",
+        "uz": "Arzimas narsadan qo'rqadigan odamga, ko'pincha bolalar tilida, hazil tarzida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "scaredy",
+        "literal": {
+          "ru": "кошка-трусишка",
+          "uz": "qo'rqoq mushuk"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a wolf in sheep's clothing",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "волк в овечьей шкуре",
+        "uz": "yuvosh ko'ringan xavfli odam"
+      },
+      "example": "He seems friendly, but be careful. He's a wolf in sheep's clothing.",
+      "example_translations": {
+        "ru": "Он кажется дружелюбным, но будь осторожен: это волк в овечьей шкуре.",
+        "uz": "U samimiy ko'rinadi, lekin ehtiyot bo'l: u yuvosh ko'ringan xavfli odam."
+      },
+      "hooks": {
+        "ru": "Предупреждают о человеке, который кажется добрым, а на деле опасен",
+        "uz": "Mehribon ko'rinadigan, lekin aslida xavfli odam haqida ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "clothing",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as quiet as a mouse",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "тише воды, ниже травы",
+        "uz": "juda jim, sas chiqarmaydigan"
+      },
+      "example": "The baby is asleep, so be as quiet as a mouse.",
+      "example_translations": {
+        "ru": "Малыш спит, так что веди себя тише воды, ниже травы.",
+        "uz": "Chaqaloq uxlayapti, shuning uchun juda jim bo'l, sas chiqarma."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который ведёт себя очень тихо и незаметно",
+        "uz": "O'zini juda jim, sezdirmay tutadigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mouse",
+        "literal": {
+          "ru": "тихий как мышь",
+          "uz": "sichqondek jim"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

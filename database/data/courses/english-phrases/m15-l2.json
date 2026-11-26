@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 15,
+    "title": "Идиомы: животные",
+    "title_uz": "Iboralar: hayvonlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Птицы",
+    "title_uz": "Qushlar"
+  },
+  "words": [
+    {
+      "word": "kill two birds with one stone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "убить двух зайцев",
+        "uz": "bir o'q bilan ikki quyonni urmoq"
+      },
+      "example": "I'll visit Grandma and buy bread on the way back. That's killing two birds with one stone.",
+      "example_translations": {
+        "ru": "Зайду к бабушке, а на обратном пути куплю хлеб. Убью двух зайцев.",
+        "uz": "Buvimnikiga kirib, qaytishda non olaman. Bir o'q bilan ikki quyonni uraman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда одним действием решают сразу две задачи",
+        "uz": "Bitta harakat bilan ikki vazifa birdaniga hal qilinganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stone",
+        "literal": {
+          "ru": "убить двух птиц одним камнем",
+          "uz": "bitta tosh bilan ikki qushni urmoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "The early bird catches the worm",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кто раньше пришёл, тому и удача",
+        "uz": "erta turgan ko'p narsaga ulguradi"
+      },
+      "example": "Why are you at the shop so early? — The early bird catches the worm! The sale starts at eight.",
+      "example_translations": {
+        "ru": "Почему ты в магазине так рано? — Кто раньше пришёл, тому и удача! Распродажа начинается в восемь.",
+        "uz": "Nega do'konga buncha erta kelding? — Erta turgan ko'p narsaga ulguradi! Chegirma soat sakkizda boshlanadi."
+      },
+      "hooks": {
+        "ru": "Говорят, что тот, кто начинает раньше других, получает лучшее",
+        "uz": "Boshqalardan oldin boshlagan odam eng yaxshisini olishini aytishda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "worm",
+        "literal": {
+          "ru": "ранняя птица ловит червяка",
+          "uz": "erta uchgan qush chuvalchangni tutadi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "A little bird told me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сорока на хвосте принесла",
+        "uz": "qulog'imga chalindi"
+      },
+      "example": "How did you know it was my birthday? — A little bird told me.",
+      "example_translations": {
+        "ru": "Откуда ты знаешь, что у меня день рождения? — Сорока на хвосте принесла.",
+        "uz": "Tug'ilgan kunim ekanini qayerdan bilding? — Qulog'imga chalindi."
+      },
+      "hooks": {
+        "ru": "Шутливо отвечают, когда не хотят говорить, от кого узнали новость",
+        "uz": "Yangilikni kimdan eshitganini aytishni istamaganda hazil tarzida javob beriladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "little",
+        "literal": {
+          "ru": "маленькая птичка мне сказала",
+          "uz": "kichkina qush menga aytdi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "as free as a bird",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "свободен как птица",
+        "uz": "qushdek erkin"
+      },
+      "example": "Exams are over, and I'm as free as a bird!",
+      "example_translations": {
+        "ru": "Экзамены позади, и я свободен как птица!",
+        "uz": "Imtihonlar tugadi, endi qushdek erkinman!"
+      },
+      "hooks": {
+        "ru": "Радостно говорят, когда больше нет обязанностей, забот или ограничений",
+        "uz": "Endi majburiyat, tashvish yoki cheklovlar qolmaganda quvonib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "free",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a bird's-eye view",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вид с высоты птичьего полёта",
+        "uz": "yuqoridan umumiy ko'rinish"
+      },
+      "example": "From the top of the tower, you get a bird's-eye view of the whole city.",
+      "example_translations": {
+        "ru": "С вершины башни весь город виден с высоты птичьего полёта.",
+        "uz": "Minora tepasidan butun shahar kaftdagidek ko'rinadi."
+      },
+      "hooks": {
+        "ru": "Говорят о виде сверху, а также об общем взгляде на дело без мелочей",
+        "uz": "Yuqoridan ko'rinish, shuningdek ishga mayda tafsilotlarsiz umumiy nazar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "view",
+        "literal": {
+          "ru": "вид глазами птицы",
+          "uz": "qush ko'zi bilan ko'rinish"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a night owl",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сова (о человеке)",
+        "uz": "tunda bedor yuradigan odam"
+      },
+      "example": "I'm a real night owl; I do my best work after midnight.",
+      "example_translations": {
+        "ru": "Я настоящая сова: лучше всего работаю после полуночи.",
+        "uz": "Men tunda bedor yuradigan odamman: eng yaxshi ishlarimni yarim tundan keyin qilaman."
+      },
+      "hooks": {
+        "ru": "Говорят о человеке, который поздно ложится и лучше всего чувствует себя вечером и ночью",
+        "uz": "Kech yotadigan va kechqurun, tunda o'zini eng yaxshi his qiladigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "owl",
+        "literal": {
+          "ru": "ночная сова",
+          "uz": "tungi boyqush"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "chicken out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "струсить, пойти на попятную",
+        "uz": "qo'rqib, aynib qolmoq"
+      },
+      "example": "He wanted to jump into the lake, but he chickened out at the last minute.",
+      "example_translations": {
+        "ru": "Он хотел прыгнуть в озеро, но в последний момент струсил.",
+        "uz": "U ko'lga sakramoqchi edi, lekin so'nggi lahzada qo'rqib, aynib qoldi."
+      },
+      "hooks": {
+        "ru": "Говорят о том, кто из страха отказался от задуманного в последний момент",
+        "uz": "Qo'rquv tufayli so'nggi lahzada niyatidan qaytgan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chicken",
+        "literal": {
+          "ru": "поступить как цыплёнок",
+          "uz": "jo'jadek qilmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "like water off a duck's back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как с гуся вода",
+        "uz": "parvoyi falak"
+      },
+      "example": "I told him his work was careless, but it was like water off a duck's back.",
+      "example_translations": {
+        "ru": "Я сказал ему, что он работает небрежно, но с него как с гуся вода.",
+        "uz": "Unga ishini beparvo qilayotganini aytdim, lekin u parvoyi falak."
+      },
+      "hooks": {
+        "ru": "Говорят, когда критика или замечания никак не задевают человека",
+        "uz": "Tanqid yoki tanbeh odamga hech qanday ta'sir qilmaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "water",
+        "literal": {
+          "ru": "как вода со спины утки",
+          "uz": "o'rdakning orqasidan oqqan suvdek"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take someone under your wing",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "взять кого-то под своё крыло",
+        "uz": "kimnidir qanoti ostiga olmoq"
+      },
+      "example": "When I started at the company, an older colleague took me under her wing.",
+      "example_translations": {
+        "ru": "Когда я пришла в компанию, одна опытная коллега взяла меня под своё крыло.",
+        "uz": "Kompaniyaga ishga kelganimda, tajribali hamkasbim meni o'z qanoti ostiga oldi."
+      },
+      "hooks": {
+        "ru": "Говорят об опытном человеке, который заботится о новичке и помогает ему",
+        "uz": "Yangi kelgan odamga g'amxo'rlik qilib, yordam beradigan tajribali kishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wing",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "fly the nest",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вылететь из родительского гнезда",
+        "uz": "ota-ona uyidan chiqib ketmoq"
+      },
+      "example": "Our youngest son flew the nest last year when he went to university.",
+      "example_translations": {
+        "ru": "Наш младший сын вылетел из родительского гнезда в прошлом году, когда поступил в университет.",
+        "uz": "Kenja o'g'limiz o'tgan yili universitetga kirib, ota-ona uyidan chiqib ketdi."
+      },
+      "hooks": {
+        "ru": "Говорят о взрослых детях, которые уезжают жить отдельно от родителей",
+        "uz": "Ota-onasidan alohida yashashga ketgan voyaga yetgan farzandlar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nest",
+        "literal": {
+          "ru": "вылететь из гнезда",
+          "uz": "uyadan uchib ketmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}
