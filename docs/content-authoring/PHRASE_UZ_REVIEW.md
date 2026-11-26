@@ -103,3 +103,32 @@
 - Break a leg! передано как «ни пуха ни пера» (традиционный ответ — «к чёрту»): решить, уместно ли.
 - Помечены `uk`: at short notice, take something on board, cheap as chips, splash out, A problem shared is a problem halved. Помечены `us`: I'm down, hit me up, You bet, I'm beat, Enough already!
 - Сленг в курсе — 2 записи (обе в модуле 19): I'm down, hit me up.
+
+## Модули 11–15 (люди и отношения, здоровье и отдых, решения и проблемы, идиомы про еду и животных)
+
+- m11-l1 #10 the life and soul of the party: «davraning guli» — естественная ли идиома?
+- m11-l1 #3 easy-going: «xushfe'l va bosiq» — подходит ли к «спокойный, лёгкий в общении»?
+- m11-l5 #1 Like father, like son: «qush uyasida ko'rganini qiladi» — пословица скорее про воспитание.
+- m11-l5 #4 Blood is thicker than water: «qon qonni tortadi».
+- m12-l1 #3 as fit as a fiddle: «temirdek sog'lom»; сама английская идиома устаревает (частота 3).
+- m12-l4 #2 a close call: «qil ustida qolish».
+- m13-l2 #6 open a can of worms: «ari uyasiga cho'p suqmoq» — точная ли форма?
+- m14-l4 #4 the icing on the cake: «nur ustiga nur».
+- m14-l5 #1 Too many cooks spoil the broth: «xo'rozi ko'p qishloqning tongi kech otar» — настоящая ли пословица и верна ли форма?
+- m14-l5 #3 You can't have your cake and eat it: «ikki kemaning boshini tutib bo'lmaydi» — смысл шире.
+- m14-l5 #8 You are what you eat: «nima yesang, o'shasan» — калька.
+- m15-l1 #2 fight like cat and dog: «it bilan mushukdek urishmoq».
+- m15-l1 #6 Let sleeping dogs lie: «yotgan ilonning dumini bosma» — верна ли форма пословицы?
+- m15-l1 #10 in the doghouse: «nazardan qolgan».
+- m15-l3 #4 Don't look a gift horse in the mouth: «sovg'aning aybini qidirma» — описательно; есть ли пословица?
+- m15-l3 #7 beat a dead horse: «hovonchada suv tuymoq».
+- m15-l4 #2 a big fish in a small pond: «kichik davraning kattasi».
+- m15-l5 #1 the black sheep: «oilaning noxalaf farzandi» — возможно, слишком сильно.
+- Описательные переводы пословиц без точного узбекского соответствия: m13-l4 #4 Nothing ventured, nothing gained; m14-l5 #9 You can't make an omelette without breaking eggs; m15-l2 #2 The early bird catches the worm.
+
+Не узбекский:
+- m12-l4: ориентир «neck and neck» заменён на «a neck-and-neck race» (у исходной фразы нет допустимого пропуска); ключевое слово `race` слабое.
+- m15-l1: ориентир «It's raining cats and dogs» заменён на «fight like cat and dog» (исходная фраза встречается только в учебниках).
+- `variant = both` у «on second thought» и «take it with a grain of salt», хотя британцы чаще говорят «second thoughts» и «pinch of salt» (в подсказках это сказано).
+- Помечены `uk`: keep fit, fall out, end in a draw, a storm in a teacup, go pear-shaped, full of beans, the life and soul of the party. Помечены `us`: Way to go!, beat a dead horse.
+- Почти-дубли, которые скрипт не ловит, авторы разводили вручную (например, «a day off» / «take a day off»); при вычитке стоит проверить, нет ли ещё таких пар и одинаковых эквивалентов у разных фраз — они делают упражнения на выбор двусмысленными.
