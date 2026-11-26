@@ -210,13 +210,13 @@
       "word": "Way to go!",
       "part_of_speech": "phrase",
       "translations": {
-        "ru": "молодец!",
-        "uz": "barakalla!"
+        "ru": "молодчина!",
+        "uz": "qoyil!"
       },
       "example": "I got the highest score in the class! — Way to go!",
       "example_translations": {
         "ru": "Я получил самый высокий балл в классе! — Молодец!",
-        "uz": "Sinfda eng yuqori ballni oldim! — Barakalla!"
+        "uz": "Sinfda eng yuqori ballni oldim! — Qoyil!"
       },
       "hooks": {
         "ru": "Радостно хвалят за успех или хороший поступок",
