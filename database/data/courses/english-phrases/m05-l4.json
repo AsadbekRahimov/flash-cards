@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 5,
+    "title": "Город и дорога",
+    "title_uz": "Shahar va yo'l"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Поездки",
+    "title_uz": "Sayohatlar"
+  },
+  "words": [
+    {
+      "word": "Have a safe trip",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "счастливого пути",
+        "uz": "oq yo'l!"
+      },
+      "example": "We're leaving for Samarkand tomorrow. — Have a safe trip!",
+      "example_translations": {
+        "ru": "Завтра уезжаем в Самарканд. — Счастливого пути!",
+        "uz": "Ertaga Samarqandga jo'naymiz. — Oq yo'l!"
+      },
+      "hooks": {
+        "ru": "Желают тому, кто уезжает в дорогу",
+        "uz": "Yo'lga chiqayotgan odamga aytiladigan tilak"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "safe",
+        "literal": {
+          "ru": "безопасной поездки",
+          "uz": "safaringiz xavfsiz bo'lsin"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "on the way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "по дороге",
+        "uz": "yo'lda"
+      },
+      "example": "Let's stop for lunch on the way to the mountains.",
+      "example_translations": {
+        "ru": "Давай остановимся пообедать по дороге в горы.",
+        "uz": "Tog'larga ketayotib yo'lda tushlik qilaylik."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что сделают во время поездки, по пути",
+        "uz": "Safar davomida, yo'l-yo'lakay qilinadigan ish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hit the road",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "отправиться в путь",
+        "uz": "yo'lga chiqmoq"
+      },
+      "example": "It's getting late. We should hit the road.",
+      "example_translations": {
+        "ru": "Уже поздно. Пора в путь.",
+        "uz": "Kech bo'lyapti. Yo'lga chiqishimiz kerak."
+      },
+      "hooks": {
+        "ru": "Говорят друзьям, когда пора уезжать",
+        "uz": "Ketish vaqti bo'lganda do'stlarga aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hit",
+        "literal": {
+          "ru": "ударить дорогу",
+          "uz": "yo'lga urmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "travel light",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "путешествовать налегке",
+        "uz": "yengil yuk bilan sayohat qilmoq"
+      },
+      "example": "I always travel light. I take just one small backpack.",
+      "example_translations": {
+        "ru": "Я всегда путешествую налегке: беру только маленький рюкзак.",
+        "uz": "Men doim yengil yuk bilan sayohat qilaman: faqat kichik ryukzak olaman."
+      },
+      "hooks": {
+        "ru": "Говорят о поездке с минимумом вещей",
+        "uz": "Eng kam narsa bilan safar qilish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "light",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "go sightseeing",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "осматривать достопримечательности",
+        "uz": "diqqatga sazovor joylarni ko'rmoq"
+      },
+      "example": "We went sightseeing in Bukhara all day.",
+      "example_translations": {
+        "ru": "Мы весь день осматривали достопримечательности Бухары.",
+        "uz": "Kun bo'yi Buxoroning diqqatga sazovor joylarini ko'rdik."
+      },
+      "hooks": {
+        "ru": "Говорят о прогулках туриста по знаменитым местам",
+        "uz": "Sayyohning mashhur joylarni aylanishi haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sightseeing",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "pack your bags",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "собирать чемоданы",
+        "uz": "yuklarni yig'moq"
+      },
+      "example": "Our flight is at six, so let's pack our bags tonight.",
+      "example_translations": {
+        "ru": "Наш рейс в шесть, так что давай соберём чемоданы сегодня вечером.",
+        "uz": "Reysimiz soat oltida, shuning uchun yuklarimizni bugun kechqurun yig'aylik."
+      },
+      "hooks": {
+        "ru": "Говорят о сборах перед поездкой; иногда — об уходе насовсем",
+        "uz": "Safar oldidan yig'inish haqida; ba'zan — butunlay ketish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "pack",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "a day trip",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поездка на один день",
+        "uz": "bir kunlik sayohat"
+      },
+      "example": "We took a day trip to Chimgan from Tashkent.",
+      "example_translations": {
+        "ru": "Мы съездили из Ташкента в Чимган на один день.",
+        "uz": "Toshkentdan Chimyonga bir kunlik sayohatga bordik."
+      },
+      "hooks": {
+        "ru": "Говорят о поездке туда и обратно за один день",
+        "uz": "Bir kunda borib-kelinadigan safar haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "day",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "lose your way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "заблудиться",
+        "uz": "yo'ldan adashmoq"
+      },
+      "example": "We lost our way in the old town, but a kind man helped us.",
+      "example_translations": {
+        "ru": "Мы заблудились в старом городе, но нам помог добрый человек.",
+        "uz": "Eski shaharda yo'ldan adashib qoldik, lekin bir mehribon odam yordam berdi."
+      },
+      "hooks": {
+        "ru": "Говорят, что сбились с дороги в незнакомом месте",
+        "uz": "Notanish joyda yo'ldan adashib qolish haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lose",
+        "literal": {
+          "ru": "потерять свою дорогу",
+          "uz": "yo'lingni yo'qotmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on vacation",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в отпуске",
+        "uz": "ta'tilda"
+      },
+      "example": "Mr. Brown isn't in the office. He's on vacation until Monday.",
+      "example_translations": {
+        "ru": "Мистера Брауна нет в офисе. Он в отпуске до понедельника.",
+        "uz": "Janob Braun ofisda yo'q. U dushanbagacha ta'tilda."
+      },
+      "hooks": {
+        "ru": "Говорят, что человек отдыхает от работы; в Британии — «on holiday»",
+        "uz": "Odam ishdan dam olayotganini bildiradi; Britaniyada — «on holiday»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "us",
+        "gap": "vacation",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "the trip of a lifetime",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "путешествие мечты",
+        "uz": "umrbod esda qoladigan safar"
+      },
+      "example": "Our trip to Japan was the trip of a lifetime.",
+      "example_translations": {
+        "ru": "Наша поездка в Японию была путешествием мечты.",
+        "uz": "Yaponiyaga safarimiz umrbod esda qoladigan sayohat bo'ldi."
+      },
+      "hooks": {
+        "ru": "Говорят о незабываемом, редком путешествии",
+        "uz": "Unutilmas, kamdan-kam bo'ladigan sayohat haqida"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "lifetime",
+        "literal": {
+          "ru": "поездка всей жизни",
+          "uz": "butun umrlik safar"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

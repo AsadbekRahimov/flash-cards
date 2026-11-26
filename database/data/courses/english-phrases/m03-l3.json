@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 3,
+    "title": "Просьбы и предложения",
+    "title_uz": "Iltimos va takliflar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Пригласить",
+    "title_uz": "Taklif qilish"
+  },
+  "words": [
+    {
+      "word": "Are you free tonight?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты свободен сегодня вечером?",
+        "uz": "bugun kechqurun bo'shmisan?"
+      },
+      "example": "Are you free tonight? Let's watch a movie. — Great idea!",
+      "example_translations": {
+        "ru": "Ты свободен сегодня вечером? Давай посмотрим фильм. — Отличная идея!",
+        "uz": "Bugun kechqurun bo'shmisan? Kino ko'raylik. — Zo'r fikr!"
+      },
+      "hooks": {
+        "ru": "Начинают приглашение: сначала узнают, есть ли у друга время",
+        "uz": "Taklifning boshlanishi: avval do'stning vaqti bor-yo'qligini bilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "tonight",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Let's grab a coffee",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давай выпьем кофе",
+        "uz": "kel, kofe ichib olaylik"
+      },
+      "example": "Let's grab a coffee after class. — Good idea!",
+      "example_translations": {
+        "ru": "Давай выпьем кофе после занятий. — Хорошая идея!",
+        "uz": "Darsdan keyin kofe ichib olaylik. — Yaxshi fikr!"
+      },
+      "hooks": {
+        "ru": "Неформально зовут ненадолго посидеть и поговорить",
+        "uz": "Qisqa o'tirib suhbatlashishga norasmiy taklif"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "grab",
+        "literal": {
+          "ru": "давай схватим кофе",
+          "uz": "kel, kofe ilib olaylik"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you want to come?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хочешь пойти с нами?",
+        "uz": "biz bilan borasanmi?"
+      },
+      "example": "We're going to the park on Sunday. Do you want to come? — I'd love to!",
+      "example_translations": {
+        "ru": "В воскресенье мы идём в парк. Хочешь с нами? — С удовольствием!",
+        "uz": "Yakshanba kuni bog'ga boramiz. Biz bilan borasanmi? — Jonim bilan!"
+      },
+      "hooks": {
+        "ru": "Простое приглашение присоединиться к планам",
+        "uz": "Rejalarga qo'shilishga oddiy taklif"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "come",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Join us",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "присоединяйтесь",
+        "uz": "bizga qo'shiling"
+      },
+      "example": "We're having lunch. Join us! — Thanks, I will.",
+      "example_translations": {
+        "ru": "Мы обедаем. Присоединяйтесь! — Спасибо, с радостью.",
+        "uz": "Tushlik qilyapmiz. Bizga qo'shiling! — Rahmat, mamnuniyat bilan."
+      },
+      "hooks": {
+        "ru": "Зовут к столу или в компанию, которая уже собралась",
+        "uz": "Allaqachon yig'ilgan davra yoki dasturxonga taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "join",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Would you like to come over?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не хотите зайти в гости?",
+        "uz": "uyimizga mehmonga kelasizmi?"
+      },
+      "example": "Would you like to come over for dinner on Friday? — I'd love that!",
+      "example_translations": {
+        "ru": "Не хотите прийти к нам на ужин в пятницу? — С радостью!",
+        "uz": "Juma kuni kechki ovqatga bizga kelasizmi? — Mamnuniyat bilan!"
+      },
+      "hooks": {
+        "ru": "Приглашают к себе домой",
+        "uz": "O'z uyiga taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "over",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "My door is always open",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мои двери всегда открыты",
+        "uz": "eshigim doim ochiq"
+      },
+      "example": "If you ever need advice, my door is always open.",
+      "example_translations": {
+        "ru": "Если понадобится совет, мои двери всегда открыты.",
+        "uz": "Maslahat kerak bo'lsa, eshigim doim ochiq."
+      },
+      "hooks": {
+        "ru": "Приглашают обращаться или приходить в любое время",
+        "uz": "Istalgan vaqtda murojaat qilish yoki kelishga taklif"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "door",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "How about tomorrow?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как насчёт завтра?",
+        "uz": "ertaga-chi?"
+      },
+      "example": "I can't meet today. — How about tomorrow, then?",
+      "example_translations": {
+        "ru": "Сегодня не могу встретиться. — Тогда как насчёт завтра?",
+        "uz": "Bugun uchrasha olmayman. — Unda ertaga-chi?"
+      },
+      "hooks": {
+        "ru": "Предлагают другое время, если первое не подошло",
+        "uz": "Birinchi vaqt to'g'ri kelmasa, boshqa vaqt taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "about",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "The more, the merrier",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "чем больше, тем веселее",
+        "uz": "qancha ko'p bo'lsa, shuncha qiziq"
+      },
+      "example": "Can I bring my cousin to the picnic? — Of course! The more, the merrier.",
+      "example_translations": {
+        "ru": "Можно я возьму на пикник двоюродного брата? — Конечно! Чем больше, тем веселее.",
+        "uz": "Piknikka amakivachchamni olib borsam bo'ladimi? — Albatta! Qancha ko'p bo'lsak, shuncha qiziq."
+      },
+      "hooks": {
+        "ru": "Радостно соглашаются, чтобы пришло больше гостей",
+        "uz": "Ko'proq mehmon kelishiga xursand bo'lib rozilik bildirish"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "merrier",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get together",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "собраться, встретиться",
+        "uz": "yig'ilishmoq, uchrashmoq"
+      },
+      "example": "Let's get together this weekend! — Great, I'll call the others.",
+      "example_translations": {
+        "ru": "Давай соберёмся в выходные! — Отлично, я позвоню остальным.",
+        "uz": "Dam olish kunlari bir yig'ilaylik! — Zo'r, boshqalarga qo'ng'iroq qilaman."
+      },
+      "hooks": {
+        "ru": "Предлагают встретиться компанией или вдвоём",
+        "uz": "Davra bo'lib yoki ikkovlon uchrashishni taklif qilish"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "together",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'd like to invite you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я хотел бы вас пригласить",
+        "uz": "sizni taklif qilmoqchiman"
+      },
+      "example": "I'd like to invite you to my wedding in June. — Oh, congratulations!",
+      "example_translations": {
+        "ru": "Я хотел бы пригласить вас на мою свадьбу в июне. — О, поздравляю!",
+        "uz": "Sizni iyun oyidagi to'yimga taklif qilmoqchiman. — Voy, tabriklayman!"
+      },
+      "hooks": {
+        "ru": "Официально приглашают на свадьбу, праздник или встречу",
+        "uz": "To'y, bayram yoki uchrashuvga rasmiy taklif"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "invite",
+        "cefr": "A2",
+        "frequency": 2
+      }
+    }
+  ]
+}

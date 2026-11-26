@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 19,
+    "title": "Разговорный английский",
+    "title_uz": "So'zlashuv ingliz tili"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Среди друзей",
+    "title_uz": "Do'stlar orasida"
+  },
+  "words": [
+    {
+      "word": "hang out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проводить время вместе",
+        "uz": "birga vaqt o'tkazmoq"
+      },
+      "example": "What did you do at the weekend? — I just hung out with friends.",
+      "example_translations": {
+        "ru": "Что делал на выходных? — Просто проводил время с друзьями.",
+        "uz": "Dam olish kunlari nima qilding? — Do'stlar bilan vaqt o'tkazdim, xolos."
+      },
+      "hooks": {
+        "ru": "Говорят о том, как проводят свободное время с друзьями без особого плана",
+        "uz": "Do'stlar bilan maxsus rejasiz bo'sh vaqt o'tkazish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "hang",
+        "literal": {
+          "ru": "висеть снаружи",
+          "uz": "tashqarida osilib turmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "No big deal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ничего страшного",
+        "uz": "hech qisi yo'q"
+      },
+      "example": "Sorry I'm late! — No big deal, the film hasn't started yet.",
+      "example_translations": {
+        "ru": "Извини, что опоздал! — Ничего страшного, фильм ещё не начался.",
+        "uz": "Kechirasan, kechikdim! — Hech qisi yo'q, film hali boshlanmadi."
+      },
+      "hooks": {
+        "ru": "Отвечают на извинение или говорят, что что-то не так уж важно",
+        "uz": "Uzrga javoban yoki biror narsa unchalik muhim emasligini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "deal",
+        "literal": {
+          "ru": "не большое дело",
+          "uz": "katta ish emas"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "for real",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "серьёзно",
+        "uz": "rostdan ham"
+      },
+      "example": "I got the job in Seoul! — For real? That's amazing!",
+      "example_translations": {
+        "ru": "Меня взяли на работу в Сеуле! — Серьёзно? Это потрясающе!",
+        "uz": "Meni Seuldagi ishga olishdi! — Rostdanmi? Bu ajoyib!"
+      },
+      "hooks": {
+        "ru": "Переспрашивают, не шутка ли это, или подчёркивают, что говорят всерьёз",
+        "uz": "Hazil emasmi deb qayta so'raganda yoki jiddiy gapirayotganini ta'kidlaganda aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "real",
+        "literal": {
+          "ru": "по-настоящему",
+          "uz": "haqiqatda"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It's not rocket science",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "это не бином Ньютона",
+        "uz": "bu unchalik qiyin emas"
+      },
+      "example": "Just press this button and wait — it's not rocket science.",
+      "example_translations": {
+        "ru": "Просто нажми эту кнопку и подожди — это не бином Ньютона.",
+        "uz": "Shu tugmani bosib, kutib tur — bu unchalik qiyin emas."
+      },
+      "hooks": {
+        "ru": "Говорят о простом деле, которое кто-то считает сложным; может звучать слегка насмешливо",
+        "uz": "Kimdir qiyin deb o'ylagan oddiy ish haqida aytiladi; biroz kinoyali eshitilishi mumkin"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "rocket",
+        "literal": {
+          "ru": "это не ракетостроение",
+          "uz": "bu raketa ilmi emas"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "catch up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поболтать, обменяться новостями",
+        "uz": "yangiliklarni gaplashib olmoq"
+      },
+      "example": "Let's meet for coffee and catch up — it's been ages!",
+      "example_translations": {
+        "ru": "Давай встретимся за кофе и поболтаем — сто лет не виделись!",
+        "uz": "Kel, qahva ichib, yangiliklarni gaplashib olaylik — ko'rishmaganimizga ancha bo'ldi!"
+      },
+      "hooks": {
+        "ru": "Предлагают встретиться и рассказать друг другу новости после долгой разлуки",
+        "uz": "Uzoq ko'rishmagandan keyin uchrashib, yangiliklarni aytishishni taklif qilganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "catch",
+        "literal": {
+          "ru": "догнать",
+          "uz": "quvib yetmoq"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Long story short",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "короче говоря",
+        "uz": "qisqasi"
+      },
+      "example": "Long story short, we missed the train and slept at the station.",
+      "example_translations": {
+        "ru": "Короче говоря, мы опоздали на поезд и ночевали на вокзале.",
+        "uz": "Qisqasi, poyezdga ulgurmadik va vokzalda tunadik."
+      },
+      "hooks": {
+        "ru": "Говорят, когда пропускают подробности и сразу переходят к главному в рассказе",
+        "uz": "Hikoyada tafsilotlarni tashlab, darhol asosiy narsaga o'tganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "story",
+        "literal": {
+          "ru": "длинная история — коротко",
+          "uz": "uzun hikoya — qisqa"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm down",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я за!",
+        "uz": "men tayyorman!"
+      },
+      "example": "We're going bowling on Friday. Want to come? — Sure, I'm down!",
+      "example_translations": {
+        "ru": "В пятницу идём в боулинг. Пойдёшь? — Конечно, я за!",
+        "uz": "Juma kuni boulingga boramiz. Borasanmi? — Albatta, men tayyorman!"
+      },
+      "hooks": {
+        "ru": "Молодёжный ответ на приглашение: согласен, участвую; только с друзьями",
+        "uz": "Taklifga yoshlarcha javob: roziman, qatnashaman; faqat do'stlar orasida"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "slang",
+        "variant": "us",
+        "gap": "down",
+        "literal": {
+          "ru": "я внизу",
+          "uz": "men pastdaman"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I've got your back",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я тебя прикрою",
+        "uz": "orqangda men turibman"
+      },
+      "example": "I'm scared to tell the boss about the mistake. — Don't worry, I've got your back.",
+      "example_translations": {
+        "ru": "Мне страшно говорить начальнику об ошибке. — Не бойся, я тебя прикрою.",
+        "uz": "Xato haqida boshliqqa aytishga qo'rqyapman. — Qo'rqma, orqangda men turibman."
+      },
+      "hooks": {
+        "ru": "Обещают другу поддержку и защиту в трудной ситуации",
+        "uz": "Qiyin vaziyatda do'stga yordam va himoya va'da qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "back",
+        "literal": {
+          "ru": "у меня есть твоя спина",
+          "uz": "sening orqang menda"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "hit me up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "напиши мне",
+        "uz": "menga yozib qo'y"
+      },
+      "example": "If you're free on Saturday, hit me up.",
+      "example_translations": {
+        "ru": "Если будешь свободен в субботу, напиши мне.",
+        "uz": "Shanba kuni bo'sh bo'lsang, menga yozib qo'y."
+      },
+      "hooks": {
+        "ru": "Сленг молодёжи: просят написать или позвонить; с начальством так не говорят",
+        "uz": "Yoshlar slengi: yozish yoki qo'ng'iroq qilishni so'raydi; rahbarga bunday deyilmaydi"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "slang",
+        "variant": "us",
+        "gap": "hit",
+        "literal": {
+          "ru": "ударь меня вверх",
+          "uz": "meni yuqoriga ur"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What are friends for?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "а для чего же ещё друзья?",
+        "uz": "do'stlar shuning uchun bor-da!"
+      },
+      "example": "Thanks for helping me move! — Hey, what are friends for?",
+      "example_translations": {
+        "ru": "Спасибо, что помог с переездом! — Да брось, для чего же ещё друзья?",
+        "uz": "Ko'chishga yordam berganing uchun rahmat! — Qo'ysang-chi, do'stlar shuning uchun bor-da!"
+      },
+      "hooks": {
+        "ru": "Отвечают другу на благодарность: помогать — это нормально для друзей",
+        "uz": "Do'stning minnatdorchiligiga javob: yordam berish do'stlar uchun odatiy hol"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "friends",
+        "literal": {
+          "ru": "для чего друзья?",
+          "uz": "do'stlar nima uchun?"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

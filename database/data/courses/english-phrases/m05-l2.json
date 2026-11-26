@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 5,
+    "title": "Город и дорога",
+    "title_uz": "Shahar va yo'l"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Транспорт",
+    "title_uz": "Transport"
+  },
+  "words": [
+    {
+      "word": "get on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сесть в транспорт",
+        "uz": "transportga chiqmoq"
+      },
+      "example": "We got on the train just before the doors closed.",
+      "example_translations": {
+        "ru": "Мы сели в поезд прямо перед тем, как закрылись двери.",
+        "uz": "Eshiklar yopilishidan sal oldin poyezdga chiqib oldik."
+      },
+      "hooks": {
+        "ru": "Говорят про автобус, поезд, самолёт; про такси и машину — «get in»",
+        "uz": "Avtobus, poyezd, samolyot haqida; taksi va mashina uchun — «get in»"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "on",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "get off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "выйти из транспорта",
+        "uz": "transportdan tushmoq"
+      },
+      "example": "Excuse me, where should I get off for the museum? — At the next stop.",
+      "example_translations": {
+        "ru": "Извините, где мне выйти, чтобы попасть в музей? — На следующей остановке.",
+        "uz": "Kechirasiz, muzeyga borish uchun qayerda tushishim kerak? — Keyingi bekatda."
+      },
+      "hooks": {
+        "ru": "Говорят о выходе из автобуса или поезда; из машины — «get out»",
+        "uz": "Avtobus yoki poyezddan tushish haqida; mashinadan — «get out»"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "off",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Is this seat taken?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "здесь свободно?",
+        "uz": "bu joy bandmi?"
+      },
+      "example": "Sorry, is this seat taken? — No, please sit down.",
+      "example_translations": {
+        "ru": "Простите, здесь свободно? — Да, садитесь.",
+        "uz": "Kechirasiz, bu joy bandmi? — Yo'q, o'tiring."
+      },
+      "hooks": {
+        "ru": "Вежливо спрашивают, можно ли сесть рядом; «No» значит «свободно»",
+        "uz": "Yoniga o'tirish mumkinmi, deb xushmuomala so'rash; «No» — «bo'sh» degani"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "taken",
+        "literal": {
+          "ru": "это место занято?",
+          "uz": "bu o'rin olinganmi?"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "miss the bus",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "опоздать на автобус",
+        "uz": "avtobusga ulgurmay qolmoq"
+      },
+      "example": "Hurry up, or we'll miss the bus!",
+      "example_translations": {
+        "ru": "Поторопись, а то опоздаем на автобус!",
+        "uz": "Tezroq bo'l, bo'lmasa avtobusga ulgurmay qolamiz!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда не успели на транспорт; так же про поезд и самолёт",
+        "uz": "Transportga ulgurmay qolganda aytiladi; poyezd va samolyot haqida ham"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "miss",
+        "literal": {
+          "ru": "пропустить автобус",
+          "uz": "avtobusni o'tkazib yubormoq"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take the metro",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "поехать на метро",
+        "uz": "metroda bormoq"
+      },
+      "example": "It's faster to take the metro than a taxi at this time of day.",
+      "example_translations": {
+        "ru": "В это время дня быстрее поехать на метро, чем на такси.",
+        "uz": "Kunning bu paytida taksidan ko'ra metroda borish tezroq."
+      },
+      "hooks": {
+        "ru": "Говорят о выборе транспорта: «take» + автобус, такси, поезд",
+        "uz": "Transport tanlash haqida: «take» + avtobus, taksi, poyezd"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "take",
+        "literal": {
+          "ru": "взять метро",
+          "uz": "metroni olmoq"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Where's the nearest bus stop?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "где ближайшая остановка?",
+        "uz": "eng yaqin bekat qayerda?"
+      },
+      "example": "Where's the nearest bus stop? — Just across the road.",
+      "example_translations": {
+        "ru": "Где ближайшая автобусная остановка? — Прямо через дорогу.",
+        "uz": "Eng yaqin avtobus bekati qayerda? — Yo'lning narigi tomonida."
+      },
+      "hooks": {
+        "ru": "Спрашивают у прохожих, где можно сесть на автобус",
+        "uz": "Avtobusga qayerda chiqish mumkinligini o'tkinchilardan so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nearest",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How often do the buses run?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как часто ходят автобусы?",
+        "uz": "avtobuslar qanchalik tez-tez qatnaydi?"
+      },
+      "example": "How often do the buses run on Sundays? — Every twenty minutes.",
+      "example_translations": {
+        "ru": "Как часто ходят автобусы по воскресеньям? — Каждые двадцать минут.",
+        "uz": "Yakshanba kunlari avtobuslar qanchalik tez-tez qatnaydi? — Har yigirma daqiqada."
+      },
+      "hooks": {
+        "ru": "Узнают, с каким интервалом ходит транспорт",
+        "uz": "Transport qanday oraliqda qatnashini bilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "often",
+        "literal": {
+          "ru": "как часто бегают автобусы?",
+          "uz": "avtobuslar qanchalik tez-tez yuguradi?"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "change trains",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "делать пересадку",
+        "uz": "boshqa poyezdga o'tmoq"
+      },
+      "example": "You'll have to change trains at the next station.",
+      "example_translations": {
+        "ru": "На следующей станции вам придётся сделать пересадку.",
+        "uz": "Keyingi bekatda boshqa poyezdga o'tishingiz kerak bo'ladi."
+      },
+      "hooks": {
+        "ru": "Говорят о пересадке с поезда на поезд; с автобуса — «change buses»",
+        "uz": "Poyezddan poyezdga o'tish haqida; avtobus uchun — «change buses»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "change",
+        "literal": {
+          "ru": "менять поезда",
+          "uz": "poyezdlarni almashtirmoq"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on foot",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "пешком",
+        "uz": "piyoda"
+      },
+      "example": "Do you take the bus to school? — No, I go on foot.",
+      "example_translations": {
+        "ru": "Ты ездишь в школу на автобусе? — Нет, я хожу пешком.",
+        "uz": "Maktabga avtobusda borasanmi? — Yo'q, piyoda boraman."
+      },
+      "hooks": {
+        "ru": "Говорят, что идут пешком, а не едут",
+        "uz": "Transportda emas, piyoda borish haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "foot",
+        "literal": {
+          "ru": "на ноге",
+          "uz": "oyoqda"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "give up your seat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "уступить место",
+        "uz": "joy bermoq"
+      },
+      "example": "Aziz gave up his seat to an old woman on the bus.",
+      "example_translations": {
+        "ru": "Азиз уступил место пожилой женщине в автобусе.",
+        "uz": "Aziz avtobusda keksa ayolga joy berdi."
+      },
+      "hooks": {
+        "ru": "Говорят о вежливости в транспорте: место — пожилым, детям",
+        "uz": "Transportdagi odob haqida: joy keksalar va bolalarga beriladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "seat",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

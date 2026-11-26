@@ -32,3 +32,25 @@
 - m07-l1 #3, #4: русские эквиваленты в мужском роде («порадовал», «рад»).
 - m06-l2 #3 take out the trash помечена US; британская пара «take out the rubbish» не добавлена.
 - m10-l2 #3: американское написание «colors»; в подсказке упомянуто британское «colours».
+
+## Модули 1–5
+
+- m01-l3 #10 My pleasure: «men uchun mamnuniyat» — может звучать книжно; «arzimaydi» естественнее, но уже занято фразой «You're welcome» в том же уроке.
+- m01-l3 #3 Don't mention it: «rahmatga hojat yo'q» — выбрано, чтобы не совпасть с «arzimaydi»; в речи реже.
+- m04-l3 #6 dirt cheap: «suvtekin» — слитно или раздельно («suv tekin»)?
+- m05-l3 #1 rush hour: «tig'iz soatlar» — стандартный ли термин?
+- m05-l1 #6 just around the corner: «shundoq burilishda» — возможно, естественнее «muyulishda».
+- m01-l5 #7 in my twenties: «yoshim yigirmadan oshgan» — передаёт смысл, но теряет «до 29»; `literal` («yigirmalarimda») неуклюж.
+- m03-l5 #1–#3 Go ahead «mayli, qilavering», Feel free «tortinmang», Be my guest «bemalol» — разведены намеренно; проверить естественность каждого.
+- m03-l4 #10 Sure thing: «bo'pti» (ru «без вопросов») — очень разговорно. m03-l4 #7 I'll pass: «menga kerakmas» — больше подходит к отказу от еды, чем от участия.
+- m02-l3 #10 Oh dear: «voy, attang». m02-l3 #7 Poor you!: «voy, bechora!» — не слишком ли сильно? Фраза помечена UK и US, хотя в основном британская.
+- m03-l1 #9 Could you keep it down?: `literal` («buni pastroq tuta olasizmi?») может путать.
+- m04-l2 #9 come to (о сумме): «jami bo'lmoq»; `literal` («yetib kelmoq») слабый, можно убрать.
+- m01-l5 #6 be into something: «biror narsaga qiziqmoq» — слабее, чем «увлекаться».
+- Заимствования, которые стоит подтвердить: «pechenye», «kurtka», «plyaj», «svetofor», «choynak» (об электрическом чайнике).
+
+Не узбекский:
+- m01-l5: ориентир плана «What do you do?» заменён на «What do you do for a living?» (в короткой форме «do» встречается дважды, пропуск был бы только «what»).
+- m01-l1 #10 Fancy seeing you here! помечена `uk`, частота 2. m01-l4 #2 My bad — B1, разговорная, ближе к сленгу.
+- Доля формул в модулях 1–5 — 70 % при ориентире плана около 60 % для модулей 1–6.
+- Написание американское (favor, apologize, center, math), как в курсах по уровням.

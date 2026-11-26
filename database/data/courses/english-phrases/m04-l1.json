@@ -1,0 +1,273 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 4,
+    "title": "Покупки и деньги",
+    "title_uz": "Xarid va pul"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "В магазине",
+    "title_uz": "Do'konda"
+  },
+  "words": [
+    {
+      "word": "I'm just looking",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я просто смотрю",
+        "uz": "shunchaki ko'ryapman"
+      },
+      "example": "Can I help you? — No, thanks. I'm just looking.",
+      "example_translations": {
+        "ru": "Вам помочь? — Нет, спасибо. Я просто смотрю.",
+        "uz": "Yordam kerakmi? — Yo'q, rahmat. Shunchaki ko'ryapman."
+      },
+      "hooks": {
+        "ru": "Вежливо отвечают продавцу, когда пока ничего не выбрали",
+        "uz": "Hali hech narsa tanlamaganda sotuvchiga xushmuomala javob"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "looking",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How much is it?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сколько это стоит?",
+        "uz": "bu qancha turadi?"
+      },
+      "example": "I like this scarf. How much is it? — Fifty thousand sum.",
+      "example_translations": {
+        "ru": "Мне нравится этот шарф. Сколько он стоит? — Пятьдесят тысяч сумов.",
+        "uz": "Bu sharf menga yoqdi. Qancha turadi? — Ellik ming so'm."
+      },
+      "hooks": {
+        "ru": "Главный вопрос покупателя о цене",
+        "uz": "Xaridorning narx haqidagi asosiy savoli"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "much",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I try it on?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно примерить?",
+        "uz": "kiyib ko'rsam bo'ladimi?"
+      },
+      "example": "These jeans look nice. Can I try them on? — Sure, the fitting room is over there.",
+      "example_translations": {
+        "ru": "Эти джинсы симпатичные. Можно примерить? — Конечно, примерочная вон там.",
+        "uz": "Bu jinsi shim chiroyli ekan. Kiyib ko'rsam bo'ladimi? — Albatta, kiyinish xonasi ana u yerda."
+      },
+      "hooks": {
+        "ru": "Просят примерить одежду или обувь перед покупкой",
+        "uz": "Kiyim yoki poyabzalni sotib olishdan oldin kiyib ko'rishni so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "on",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Anything else?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что-нибудь ещё?",
+        "uz": "yana biror narsa kerakmi?"
+      },
+      "example": "Two loaves of bread, please. — Here you are. Anything else?",
+      "example_translations": {
+        "ru": "Две буханки хлеба, пожалуйста. — Пожалуйста. Что-нибудь ещё?",
+        "uz": "Ikkita non bering. — Mana. Yana biror narsa kerakmi?"
+      },
+      "hooks": {
+        "ru": "Так спрашивает продавец или официант перед оплатой",
+        "uz": "Sotuvchi yoki ofitsiant to'lovdan oldin shunday so'raydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "else",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you have this in a smaller size?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "есть такой же размером поменьше?",
+        "uz": "shuning kichikroq o'lchami bormi?"
+      },
+      "example": "This shirt is too big. Do you have this in a smaller size? — Let me check.",
+      "example_translations": {
+        "ru": "Эта рубашка слишком большая. Есть такая же размером поменьше? — Сейчас посмотрю.",
+        "uz": "Bu ko'ylak juda katta. Shuning kichikroq o'lchami bormi? — Hozir qarab ko'raman."
+      },
+      "hooks": {
+        "ru": "Просят другой размер; размер больше — «a bigger size»",
+        "uz": "Boshqa o'lcham so'raladi; kattarog'i — «a bigger size»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "size",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "It doesn't fit",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не подходит по размеру",
+        "uz": "o'lchami to'g'ri kelmaydi"
+      },
+      "example": "How's the jacket? — It looks nice, but it doesn't fit.",
+      "example_translations": {
+        "ru": "Как куртка? — Красивая, но не подходит по размеру.",
+        "uz": "Kurtka qalay? — Chiroyli, lekin o'lchami to'g'ri kelmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят, когда вещь мала или велика; о стиле и цвете — «doesn't suit»",
+        "uz": "Narsa kichik yoki katta bo'lganda aytiladi; uslub va rang haqida — «doesn't suit»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fit",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'll take it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "беру",
+        "uz": "olaman"
+      },
+      "example": "It's the last one in your size. — Great, I'll take it!",
+      "example_translations": {
+        "ru": "Это последняя в вашем размере. — Отлично, беру!",
+        "uz": "Bu sizning o'lchamingizdagi oxirgisi. — Zo'r, olaman!"
+      },
+      "hooks": {
+        "ru": "Говорят продавцу, когда решили купить вещь",
+        "uz": "Narsani sotib olishga qaror qilganda sotuvchiga aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "take",
+        "literal": {
+          "ru": "я возьму это",
+          "uz": "men buni olaman"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "out of stock",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "нет в наличии",
+        "uz": "sotuvda yo'q"
+      },
+      "example": "Sorry, that model is out of stock. We'll get more next week.",
+      "example_translations": {
+        "ru": "Извините, этой модели нет в наличии. Новые будут на следующей неделе.",
+        "uz": "Kechirasiz, bu model hozir sotuvda yo'q. Keyingi hafta keladi."
+      },
+      "hooks": {
+        "ru": "Так говорит продавец, когда товар закончился",
+        "uz": "Mahsulot tugab qolganda sotuvchi shunday deydi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stock",
+        "literal": {
+          "ru": "вне запаса",
+          "uz": "zaxiradan tashqari"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "get a refund",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "получить деньги назад",
+        "uz": "pulni qaytarib olmoq"
+      },
+      "example": "The kettle doesn't work. Can I get a refund? — Do you have the receipt?",
+      "example_translations": {
+        "ru": "Чайник не работает. Можно вернуть деньги? — У вас есть чек?",
+        "uz": "Choynak ishlamayapti. Pulimni qaytarib olsam bo'ladimi? — Chekingiz bormi?"
+      },
+      "hooks": {
+        "ru": "Возвращают покупку в магазин и просят вернуть деньги",
+        "uz": "Xaridni do'konga qaytarib, pulni qaytarishni so'rash"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "refund",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "shop around",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сравнить цены в разных магазинах",
+        "uz": "narxlarni solishtirib, do'kon aylanmoq"
+      },
+      "example": "Don't buy the first phone you see. Shop around first.",
+      "example_translations": {
+        "ru": "Не покупай первый попавшийся телефон. Сначала сравни цены в разных магазинах.",
+        "uz": "Birinchi ko'rgan telefoningni olma. Avval do'konlarni aylanib, narxlarni solishtir."
+      },
+      "hooks": {
+        "ru": "Советуют не спешить с покупкой и сравнить цены",
+        "uz": "Xaridga shoshilmaslik va narxlarni solishtirishni maslahat berish"
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "around",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

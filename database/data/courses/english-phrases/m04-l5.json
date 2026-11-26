@@ -1,0 +1,269 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 4,
+    "title": "Покупки и деньги",
+    "title_uz": "Xarid va pul"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Кафе и ресторан",
+    "title_uz": "Kafe va restoran"
+  },
+  "words": [
+    {
+      "word": "For here or to go?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "здесь или с собой?",
+        "uz": "shu yerda yeysizmi yoki olib ketasizmi?"
+      },
+      "example": "A large coffee, please. — For here or to go?",
+      "example_translations": {
+        "ru": "Большой кофе, пожалуйста. — Здесь или с собой?",
+        "uz": "Katta kofe, iltimos. — Shu yerda ichasizmi yoki olib ketasizmi?"
+      },
+      "hooks": {
+        "ru": "Вопрос кассира в кафе в США; в Британии — «Eat in or take away?»",
+        "uz": "AQSh kafelarida kassir savoli; Britaniyada — «Eat in or take away?»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "us",
+        "gap": "here",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I have the bill?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно счёт?",
+        "uz": "hisobni olib kelasizmi?"
+      },
+      "example": "Excuse me, can I have the bill, please? — Of course, one moment.",
+      "example_translations": {
+        "ru": "Извините, можно счёт? — Конечно, одну минуту.",
+        "uz": "Kechirasiz, hisobni olib kelasizmi? — Albatta, bir daqiqa."
+      },
+      "hooks": {
+        "ru": "Просят счёт в британском кафе; в США говорят «the check»",
+        "uz": "Britaniya kafesida hisobni so'rash; AQShda «the check» deyiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "uk",
+        "gap": "bill",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'll have the same",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "мне то же самое",
+        "uz": "menga ham xuddi shunisi"
+      },
+      "example": "I'd like the chicken soup. — I'll have the same, please.",
+      "example_translations": {
+        "ru": "Я буду куриный суп. — Мне то же самое, пожалуйста.",
+        "uz": "Menga tovuq sho'rva. — Menga ham xuddi shunisi, iltimos."
+      },
+      "hooks": {
+        "ru": "Заказывают то же, что и сосед по столу",
+        "uz": "Yonidagi odam buyurtma qilgan narsani buyurtma qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "same",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Enjoy your meal",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "приятного аппетита",
+        "uz": "yoqimli ishtaha"
+      },
+      "example": "Here's your pasta. Enjoy your meal! — Thank you!",
+      "example_translations": {
+        "ru": "Вот ваша паста. Приятного аппетита! — Спасибо!",
+        "uz": "Mana makaroningiz. Yoqimli ishtaha! — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Говорит официант, подавая блюдо",
+        "uz": "Ofitsiant taomni olib kelganda aytadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "meal",
+        "literal": {
+          "ru": "наслаждайтесь едой",
+          "uz": "taomingizdan lazzatlaning"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Are you ready to order?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы готовы сделать заказ?",
+        "uz": "buyurtma berishga tayyormisiz?"
+      },
+      "example": "Are you ready to order? — Not yet. Could we have a few more minutes?",
+      "example_translations": {
+        "ru": "Вы готовы сделать заказ? — Ещё нет. Можно нам ещё пару минут?",
+        "uz": "Buyurtma berishga tayyormisiz? — Hali yo'q. Yana bir necha daqiqa bera olasizmi?"
+      },
+      "hooks": {
+        "ru": "Официант спрашивает, выбрали ли вы блюда",
+        "uz": "Ofitsiant taom tanlaganingizni so'raydi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ready",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Could I see the menu?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно меню?",
+        "uz": "menyuni ko'rsam bo'ladimi?"
+      },
+      "example": "Hello. Could I see the menu, please? — Here you are.",
+      "example_translations": {
+        "ru": "Здравствуйте. Можно меню, пожалуйста? — Пожалуйста.",
+        "uz": "Assalomu alaykum. Menyuni ko'rsam bo'ladimi? — Marhamat."
+      },
+      "hooks": {
+        "ru": "Просят меню, как только сели за стол",
+        "uz": "Stolga o'tirishi bilan menyu so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "menu",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "What do you recommend?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что вы посоветуете?",
+        "uz": "nimani tavsiya qilasiz?"
+      },
+      "example": "It's my first time here. What do you recommend? — Our plov is very popular.",
+      "example_translations": {
+        "ru": "Я здесь впервые. Что посоветуете? — Наш плов очень популярен.",
+        "uz": "Bu yerga birinchi marta kelishim. Nimani tavsiya qilasiz? — Bizning oshimiz juda mashhur."
+      },
+      "hooks": {
+        "ru": "Спрашивают совета официанта, если не знают, что выбрать",
+        "uz": "Nima tanlashni bilmaganda ofitsiantdan maslahat so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "recommend",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "a table for two",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "столик на двоих",
+        "uz": "ikki kishilik stol"
+      },
+      "example": "Good evening. A table for two, please. — This way, please.",
+      "example_translations": {
+        "ru": "Добрый вечер. Столик на двоих, пожалуйста. — Проходите сюда.",
+        "uz": "Xayrli kech. Ikki kishilik stol, iltimos. — Bu tomonga marhamat."
+      },
+      "hooks": {
+        "ru": "Просят столик, входя в ресторан; число гостей меняется",
+        "uz": "Restoranga kirganda stol so'rash; mehmonlar soni o'zgaradi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "table",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm full",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я наелся",
+        "uz": "to'ydim"
+      },
+      "example": "Would you like dessert? — No, thank you. I'm full.",
+      "example_translations": {
+        "ru": "Хотите десерт? — Нет, спасибо. Я наелся.",
+        "uz": "Shirinlik olasizmi? — Yo'q, rahmat. To'ydim."
+      },
+      "hooks": {
+        "ru": "Вежливо отказываются от добавки или десерта",
+        "uz": "Qo'shimcha taom yoki shirinlikdan xushmuomala voz kechish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "full",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "This isn't what I ordered",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я заказывал не это",
+        "uz": "men buni buyurtma qilmagandim"
+      },
+      "example": "Excuse me, this isn't what I ordered. I asked for fish. — Oh, I'm sorry!",
+      "example_translations": {
+        "ru": "Извините, я заказывал не это. Я просил рыбу. — Ой, простите!",
+        "uz": "Kechirasiz, men buni buyurtma qilmagandim. Baliq so'ragan edim. — Voy, uzr!"
+      },
+      "hooks": {
+        "ru": "Вежливо говорят официанту, что принесли не то блюдо",
+        "uz": "Boshqa taom olib kelinganini ofitsiantga xushmuomala aytish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ordered",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

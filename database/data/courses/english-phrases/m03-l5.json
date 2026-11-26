@@ -1,0 +1,281 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 3,
+    "title": "Просьбы и предложения",
+    "title_uz": "Iltimos va takliflar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Разрешение",
+    "title_uz": "Ruxsat"
+  },
+  "words": [
+    {
+      "word": "Go ahead",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давайте, пожалуйста",
+        "uz": "mayli, qilavering"
+      },
+      "example": "Can I ask a question? — Sure, go ahead.",
+      "example_translations": {
+        "ru": "Можно задать вопрос? — Конечно, давайте.",
+        "uz": "Savol bersam maylimi? — Albatta, beravering."
+      },
+      "hooks": {
+        "ru": "Разрешают начать действовать: «да, можно»",
+        "uz": "Biror ishni boshlashga ruxsat: «ha, mumkin»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ahead",
+        "literal": {
+          "ru": "иди вперёд",
+          "uz": "oldinga yur"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Feel free",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не стесняйтесь",
+        "uz": "tortinmang"
+      },
+      "example": "Feel free to call me if you have any questions.",
+      "example_translations": {
+        "ru": "Не стесняйтесь звонить, если будут вопросы.",
+        "uz": "Savollaringiz bo'lsa, tortinmasdan qo'ng'iroq qiling."
+      },
+      "hooks": {
+        "ru": "Дружески разрешают или предлагают сделать что-то без стеснения",
+        "uz": "Hech tortinmasdan biror narsa qilishga do'stona ruxsat"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "free",
+        "literal": {
+          "ru": "чувствуйте себя свободно",
+          "uz": "o'zingizni erkin his qiling"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Be my guest",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "конечно, прошу",
+        "uz": "bemalol"
+      },
+      "example": "Can I try your new bike? — Be my guest!",
+      "example_translations": {
+        "ru": "Можно прокатиться на твоём новом велосипеде? — Конечно, прошу!",
+        "uz": "Yangi velosipedingni minib ko'rsam bo'ladimi? — Bemalol!"
+      },
+      "hooks": {
+        "ru": "Охотно разрешают воспользоваться своей вещью или местом",
+        "uz": "O'z narsasi yoki joyidan foydalanishga bajonidil ruxsat berish"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "guest",
+        "literal": {
+          "ru": "будь моим гостем",
+          "uz": "mening mehmonim bo'l"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Is that OK?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "так можно?",
+        "uz": "shunday qilsam maylimi?"
+      },
+      "example": "I'll bring the documents on Monday. Is that OK? — Yes, that's fine.",
+      "example_translations": {
+        "ru": "Я принесу документы в понедельник. Так можно? — Да, хорошо.",
+        "uz": "Hujjatlarni dushanba kuni olib kelaman. Shunday qilsam maylimi? — Ha, mayli."
+      },
+      "hooks": {
+        "ru": "Спрашивают, устраивает ли собеседника ваш план или действие",
+        "uz": "Rejangiz yoki harakatingiz suhbatdoshga ma'qulmi, deb so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "OK",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Help yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "угощайтесь",
+        "uz": "oling, marhamat"
+      },
+      "example": "These cookies are for everyone. Help yourself! — Thank you!",
+      "example_translations": {
+        "ru": "Это печенье для всех. Угощайтесь! — Спасибо!",
+        "uz": "Bu pechenyelar hamma uchun. Oling, marhamat! — Rahmat!"
+      },
+      "hooks": {
+        "ru": "Гостеприимно предлагают гостям самим брать еду или напитки",
+        "uz": "Mehmonlarga ovqat yoki ichimlikni o'zlari olishni taklif qilish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "help",
+        "literal": {
+          "ru": "помоги себе сам",
+          "uz": "o'zingga o'zing yordam ber"
+        },
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Can I use your phone?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "можно воспользоваться вашим телефоном?",
+        "uz": "telefoningizdan foydalansam maylimi?"
+      },
+      "example": "My battery is dead. Can I use your phone? — Here you are.",
+      "example_translations": {
+        "ru": "У меня сел телефон. Можно воспользоваться вашим? — Вот, пожалуйста.",
+        "uz": "Telefonimning quvvati tugadi. Telefoningizdan foydalansam maylimi? — Mana, oling."
+      },
+      "hooks": {
+        "ru": "Просят разрешения ненадолго воспользоваться чужой вещью",
+        "uz": "Birovning narsasidan qisqa vaqt foydalanishga ruxsat so'rash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "use",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Do you mind if I open the window?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "вы не против, если я открою окно?",
+        "uz": "derazani ochsam, qarshi emasmisiz?"
+      },
+      "example": "It's hot in here. Do you mind if I open the window? — Not at all.",
+      "example_translations": {
+        "ru": "Здесь жарко. Вы не против, если я открою окно? — Нисколько.",
+        "uz": "Bu yer issiq ekan. Derazani ochsam, qarshi emasmisiz? — Aslo."
+      },
+      "hooks": {
+        "ru": "Вежливо спрашивают разрешения; ответ «No» или «Not at all» значит «можно»",
+        "uz": "Xushmuomala ruxsat so'rash; «No» yoki «Not at all» javobi «mumkin» degani"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "mind",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Of course",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "конечно",
+        "uz": "albatta"
+      },
+      "example": "Can I borrow your dictionary? — Of course! Here it is.",
+      "example_translations": {
+        "ru": "Можно взять твой словарь? — Конечно! Вот он.",
+        "uz": "Lug'atingni olib tursam bo'ladimi? — Albatta! Mana."
+      },
+      "hooks": {
+        "ru": "Самый простой и частый ответ «да» на просьбу",
+        "uz": "Iltimosga eng oddiy va ko'p ishlatiladigan «ha» javobi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "course",
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "be allowed to",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "иметь разрешение",
+        "uz": "ruxsat bo'lmoq"
+      },
+      "example": "Students are allowed to use calculators in this test.",
+      "example_translations": {
+        "ru": "На этом тесте ученикам разрешается пользоваться калькуляторами.",
+        "uz": "Bu testda o'quvchilarga kalkulyatordan foydalanishga ruxsat bor."
+      },
+      "hooks": {
+        "ru": "Говорят о правилах: что можно, а что нельзя",
+        "uz": "Qoidalar haqida: nima mumkin, nima mumkin emas"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "allowed",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Fine by me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я не против",
+        "uz": "men qarshi emasman"
+      },
+      "example": "Can we leave a bit earlier today? — Fine by me.",
+      "example_translations": {
+        "ru": "Можно сегодня уйти чуть пораньше? — Я не против.",
+        "uz": "Bugun biroz ertaroq ketsak bo'ladimi? — Men qarshi emasman."
+      },
+      "hooks": {
+        "ru": "Разрешают или соглашаются: лично меня это устраивает",
+        "uz": "Ruxsat yoki rozilik: shaxsan menga ma'qul"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "fine",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}

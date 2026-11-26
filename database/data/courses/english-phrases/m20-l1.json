@@ -1,0 +1,305 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 20,
+    "title": "Мудрость и пословицы",
+    "title_uz": "Hikmatlar va maqollar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Поступки и люди",
+    "title_uz": "Xatti-harakat va odamlar"
+  },
+  "words": [
+    {
+      "word": "Actions speak louder than words",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не по словам судят, а по делам",
+        "uz": "quruq gap bilan osh pishmas"
+      },
+      "example": "He promised to help us every week. — Well, actions speak louder than words.",
+      "example_translations": {
+        "ru": "Он обещал помогать нам каждую неделю. — Ну, судят не по словам, а по делам.",
+        "uz": "U har hafta bizga yordam berishga va'da bergandi. — Nima ham derdik, quruq gap bilan osh pishmas."
+      },
+      "hooks": {
+        "ru": "Говорят, когда человек много обещает, но ничего не делает",
+        "uz": "Ko'p va'da berib, hech narsa qilmaydigan odam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "louder",
+        "literal": {
+          "ru": "поступки говорят громче слов",
+          "uz": "ishlar so'zlardan balandroq gapiradi"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Don't judge a book by its cover",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не суди по внешнему виду",
+        "uz": "tashqi ko'rinishiga qarab baho berma"
+      },
+      "example": "The café looks old, but the food is excellent. Don't judge a book by its cover!",
+      "example_translations": {
+        "ru": "Кафе выглядит старым, но еда отличная. Не суди по внешнему виду!",
+        "uz": "Kafe eski ko'rinadi, lekin taomlari a'lo. Tashqi ko'rinishiga qarab baho berma!"
+      },
+      "hooks": {
+        "ru": "Советуют не делать выводов о человеке или вещи по первому впечатлению",
+        "uz": "Odam yoki narsa haqida birinchi taassurotga qarab xulosa chiqarmaslikni maslahat berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cover",
+        "literal": {
+          "ru": "не суди о книге по обложке",
+          "uz": "kitobga muqovasiga qarab baho berma"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Honesty is the best policy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "честным быть всегда лучше",
+        "uz": "halollik — eng to'g'ri yo'l"
+      },
+      "example": "I broke Dad's phone. Should I tell him? — Yes, honesty is the best policy.",
+      "example_translations": {
+        "ru": "Я разбил папин телефон. Сказать ему? — Да, честным быть всегда лучше.",
+        "uz": "Dadamning telefonini sindirib qo'ydim. Unga aytaymi? — Ha, halollik — eng to'g'ri yo'l."
+      },
+      "hooks": {
+        "ru": "Советуют сказать правду, даже если это неприятно",
+        "uz": "Yoqimsiz bo'lsa ham, rostini aytishni maslahat berganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "honesty",
+        "literal": {
+          "ru": "честность — лучшая политика",
+          "uz": "halollik — eng yaxshi siyosat"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "The grass is always greener on the other side",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хорошо там, где нас нет",
+        "uz": "qo'shnining tovug'i g'oz ko'rinadi"
+      },
+      "example": "I want to leave my job and move abroad. — Be careful, the grass is always greener on the other side.",
+      "example_translations": {
+        "ru": "Хочу уйти с работы и уехать за границу. — Осторожно, хорошо там, где нас нет.",
+        "uz": "Ishdan ketib, chet elga ko'chmoqchiman. — Ehtiyot bo'l, qo'shnining tovug'i g'oz ko'rinadi."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кому чужая жизнь, работа или вещь кажутся лучше своей",
+        "uz": "Birovning hayoti, ishi yoki narsasi o'zinikidan yaxshiroq tuyulgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "greener",
+        "literal": {
+          "ru": "трава всегда зеленее по ту сторону",
+          "uz": "narigi tomonda o't doim yashilroq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You reap what you sow",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что посеешь, то и пожнёшь",
+        "uz": "nima eksang, shuni o'rasan"
+      },
+      "example": "He was rude to everyone, and now nobody helps him. You reap what you sow.",
+      "example_translations": {
+        "ru": "Он грубил всем, и теперь ему никто не помогает. Что посеешь, то и пожнёшь.",
+        "uz": "U hammaga qo'pollik qilardi, endi unga hech kim yordam bermaydi. Nima eksang, shuni o'rasan."
+      },
+      "hooks": {
+        "ru": "Говорят о том, что последствия поступков — хорошие или плохие — возвращаются к человеку",
+        "uz": "Qilmishning yaxshi yoki yomon oqibati odamning o'ziga qaytishi haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sow",
+        "literal": {
+          "ru": "ты жнёшь то, что сеешь",
+          "uz": "sepganingni o'rasan"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Old habits die hard",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "от старых привычек трудно избавиться",
+        "uz": "eski odatdan qutulish qiyin"
+      },
+      "example": "I still wake up at six, even on holiday. Old habits die hard!",
+      "example_translations": {
+        "ru": "Я до сих пор просыпаюсь в шесть, даже в отпуске. От старых привычек трудно избавиться!",
+        "uz": "Ta'tilda ham soat oltida uyg'onaman. Eski odatdan qutulish qiyin!"
+      },
+      "hooks": {
+        "ru": "Говорят с пониманием или иронией о привычке, которую никак не бросить",
+        "uz": "Hech tashlab bo'lmaydigan odat haqida tushunish yoki kinoya bilan aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "habits",
+        "literal": {
+          "ru": "старые привычки умирают тяжело",
+          "uz": "eski odatlar qiyinlik bilan o'ladi"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Two wrongs don't make a right",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "злом зла не поправишь",
+        "uz": "yomonlikni yomonlik bilan tuzatib bo'lmaydi"
+      },
+      "example": "He broke my pencil, so I broke his! — Two wrongs don't make a right.",
+      "example_translations": {
+        "ru": "Он сломал мой карандаш, а я сломал его! — Злом зла не поправишь.",
+        "uz": "U qalamimni sindirdi, men ham unikini sindirdim! — Yomonlikni yomonlik bilan tuzatib bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто хочет ответить обидой на обиду",
+        "uz": "Xafagarchilikka xafagarchilik bilan javob bermoqchi bo'lgan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "wrongs",
+        "literal": {
+          "ru": "две ошибки не делают правильного",
+          "uz": "ikki xato bir to'g'rini yaratmaydi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't bite the hand that feeds you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не плюй в колодец, из которого пьёшь",
+        "uz": "tuz ichgan joyingga tupurma"
+      },
+      "example": "Why are you complaining about your boss online? Don't bite the hand that feeds you.",
+      "example_translations": {
+        "ru": "Зачем ты ругаешь начальника в интернете? Не плюй в колодец, из которого пьёшь.",
+        "uz": "Nega boshlig'ingdan internetda shikoyat qilyapsan? Tuz ichgan joyingga tupurma."
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кто вредит людям, которые ему помогают или его кормят",
+        "uz": "Unga yordam beradigan yoki uni boqadigan odamlarga zarar yetkazayotgan kishini ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "feeds",
+        "literal": {
+          "ru": "не кусай руку, которая тебя кормит",
+          "uz": "seni boqqan qo'lni tishlama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Beauty is in the eye of the beholder",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на вкус и цвет товарищей нет",
+        "uz": "har kimning didi o'ziga"
+      },
+      "example": "You like this strange painting? — Why not? Beauty is in the eye of the beholder.",
+      "example_translations": {
+        "ru": "Тебе нравится эта странная картина? — А почему нет? На вкус и цвет товарищей нет.",
+        "uz": "Senga shu g'alati rasm yoqadimi? — Nega endi? Har kimning didi o'ziga."
+      },
+      "hooks": {
+        "ru": "Говорят, что красота у каждого своя и спорить о вкусах бесполезно",
+        "uz": "Go'zallikni har kim o'zicha tushunishi va did haqida bahslashish befoydaligini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "beholder",
+        "literal": {
+          "ru": "красота — в глазах смотрящего",
+          "uz": "go'zallik qarovchining ko'zida"
+        },
+        "cefr": "C1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It's the thought that counts",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "главное — не подарок, а внимание",
+        "uz": "sovg'a emas, e'tibor muhim"
+      },
+      "example": "Sorry, it's only a small present. — Don't worry, it's the thought that counts.",
+      "example_translations": {
+        "ru": "Извини, это всего лишь маленький подарок. — Не переживай, главное — внимание.",
+        "uz": "Kechirasiz, bu kichkina sovg'a, xolos. — Xavotir olmang, sovg'a emas, e'tibor muhim."
+      },
+      "hooks": {
+        "ru": "Говорят о подарке или помощи: ценна забота, а не цена или результат",
+        "uz": "Sovg'a yoki yordam haqida aytiladi: narxi yoki natijasi emas, g'amxo'rlik qadrli"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "thought",
+        "literal": {
+          "ru": "считается мысль",
+          "uz": "fikr hisobga olinadi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

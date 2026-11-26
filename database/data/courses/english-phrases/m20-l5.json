@@ -1,0 +1,289 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 20,
+    "title": "Мудрость и пословицы",
+    "title_uz": "Hikmatlar va maqollar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Жизненный опыт",
+    "title_uz": "Hayot tajribasi"
+  },
+  "words": [
+    {
+      "word": "All's well that ends well",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "всё хорошо, что хорошо кончается",
+        "uz": "oxiri yaxshi bo'lsa, hammasi yaxshi"
+      },
+      "example": "We got lost twice, but we arrived in time for the wedding. All's well that ends well!",
+      "example_translations": {
+        "ru": "Мы дважды заблудились, но успели на свадьбу. Всё хорошо, что хорошо кончается!",
+        "uz": "Ikki marta adashdik, lekin to'yga o'z vaqtida yetib keldik. Oxiri yaxshi bo'lsa, hammasi yaxshi!"
+      },
+      "hooks": {
+        "ru": "Говорят с облегчением, когда трудная история закончилась хорошо",
+        "uz": "Qiyin voqea yaxshi tugaganda yengil tortib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ends",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "No pain, no gain",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "без труда не выловишь и рыбку из пруда",
+        "uz": "mehnatning tagi — rohat"
+      },
+      "example": "My legs hurt after the gym. — No pain, no gain!",
+      "example_translations": {
+        "ru": "После спортзала болят ноги. — Без труда не выловишь и рыбку из пруда!",
+        "uz": "Sport zalidan keyin oyoqlarim og'riyapti. — Mehnatning tagi — rohat!"
+      },
+      "hooks": {
+        "ru": "Говорят, что без усилий и трудностей результата не будет; часто о спорте",
+        "uz": "Harakat va qiyinchiliksiz natija bo'lmasligini aytganda ishlatiladi; ko'pincha sport haqida"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "gain",
+        "literal": {
+          "ru": "нет боли — нет выгоды",
+          "uz": "og'riq yo'q — foyda yo'q"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Live and learn",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "век живи — век учись",
+        "uz": "yashab, o'rganib boramiz"
+      },
+      "example": "I didn't know you can't take water through airport security. — Well, live and learn.",
+      "example_translations": {
+        "ru": "Я не знал, что воду нельзя проносить через досмотр в аэропорту. — Что ж, век живи — век учись.",
+        "uz": "Aeroport nazoratidan suv olib o'tib bo'lmasligini bilmasdim. — Nima qilamiz, yashab, o'rganib boramiz."
+      },
+      "hooks": {
+        "ru": "Говорят, когда узнали что-то новое, часто после небольшой ошибки",
+        "uz": "Ko'pincha kichik xatodan keyin yangi narsani bilib olganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "learn",
+        "literal": {
+          "ru": "живи и учись",
+          "uz": "yasha va o'rgan"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Every dog has its day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "будет и на нашей улице праздник",
+        "uz": "har kimning ham kuni keladi"
+      },
+      "example": "Our team has lost every game this year. — Don't worry, every dog has its day.",
+      "example_translations": {
+        "ru": "Наша команда в этом году проиграла все игры. — Не переживай, будет и на нашей улице праздник.",
+        "uz": "Jamoamiz bu yil hamma o'yinda yutqazdi. — Xavotir olma, har kimning ham kuni keladi."
+      },
+      "hooks": {
+        "ru": "Утешают неудачника: и ему когда-нибудь повезёт",
+        "uz": "Omadsiz odamga taskin berib aytiladi: bir kun unga ham omad kulib boqadi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "dog",
+        "literal": {
+          "ru": "у каждой собаки бывает свой день",
+          "uz": "har bir itning o'z kuni bo'ladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Life goes on",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "жизнь продолжается",
+        "uz": "hayot davom etadi"
+      },
+      "example": "I failed the exam, but life goes on — I'll take it again in June.",
+      "example_translations": {
+        "ru": "Я провалил экзамен, но жизнь продолжается — пересдам в июне.",
+        "uz": "Imtihondan o'ta olmadim, lekin hayot davom etadi — iyunda qayta topshiraman."
+      },
+      "hooks": {
+        "ru": "Говорят после неудачи или потери: надо жить дальше",
+        "uz": "Omadsizlik yoki yo'qotishdan keyin aytiladi: yashashda davom etish kerak"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "goes",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You can't please everyone",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "на всех не угодишь",
+        "uz": "hammaga yoqib bo'lmaydi"
+      },
+      "example": "Some customers didn't like the new menu. — You can't please everyone.",
+      "example_translations": {
+        "ru": "Некоторым клиентам не понравилось новое меню. — На всех не угодишь.",
+        "uz": "Ba'zi mijozlarga yangi menyu yoqmadi. — Hammaga yoqib bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Утешают того, кого критикуют, хотя он старался",
+        "uz": "Harakat qilgan bo'lsa ham tanqid qilingan odamga taskin berib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "please",
+        "literal": {
+          "ru": "ты не можешь угодить всем",
+          "uz": "hammani rozi qila olmaysan"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Experience is the best teacher",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "опыт — лучший учитель",
+        "uz": "tajriba — eng yaxshi ustoz"
+      },
+      "example": "I learned more in my first week at work than in a year of classes. Experience is the best teacher.",
+      "example_translations": {
+        "ru": "За первую неделю работы я узнал больше, чем за год занятий. Опыт — лучший учитель.",
+        "uz": "Ishdagi birinchi haftamda bir yillik darsdan ko'ra ko'proq narsa o'rgandim. Tajriba — eng yaxshi ustoz."
+      },
+      "hooks": {
+        "ru": "Говорят, что практика учит лучше, чем книги и объяснения",
+        "uz": "Amaliyot kitob va tushuntirishlardan yaxshiroq o'rgatishini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "teacher",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What doesn't kill you makes you stronger",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что нас не убивает, делает нас сильнее",
+        "uz": "qiyinchilik insonni chiniqtiradi"
+      },
+      "example": "The first year abroad was really hard, but what doesn't kill you makes you stronger.",
+      "example_translations": {
+        "ru": "Первый год за границей был очень трудным, но что нас не убивает, делает нас сильнее.",
+        "uz": "Chet eldagi birinchi yil juda qiyin bo'ldi, lekin qiyinchilik insonni chiniqtiradi."
+      },
+      "hooks": {
+        "ru": "Говорят о трудностях, после которых человек стал сильнее и опытнее",
+        "uz": "Odamni kuchliroq va tajribaliroq qilgan qiyinchiliklar haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "stronger",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "When one door closes, another opens",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не было бы счастья, да несчастье помогло",
+        "uz": "bir eshik yopilsa, boshqasi ochiladi"
+      },
+      "example": "I didn't get into medical school, but I found my love for teaching. When one door closes, another opens.",
+      "example_translations": {
+        "ru": "Я не поступил в медицинский, но понял, что люблю преподавать. Не было бы счастья, да несчастье помогло.",
+        "uz": "Tibbiyot institutiga kira olmadim, lekin o'qituvchilikni sevib qoldim. Bir eshik yopilsa, boshqasi ochiladi."
+      },
+      "hooks": {
+        "ru": "Утешают после потери или отказа: появится новая возможность",
+        "uz": "Yo'qotish yoki rad javobidan keyin taskin berib aytiladi: yangi imkoniyat paydo bo'ladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "door",
+        "literal": {
+          "ru": "когда одна дверь закрывается, открывается другая",
+          "uz": "bir eshik yopilganda, boshqasi ochiladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You only live once",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "живём один раз",
+        "uz": "hayot bir marta beriladi"
+      },
+      "example": "Should I spend my savings on a trip to Japan? — Go! You only live once.",
+      "example_translations": {
+        "ru": "Потратить сбережения на поездку в Японию? — Поезжай! Живём один раз.",
+        "uz": "Jamg'armamni Yaponiyaga sayohatga sarflaymi? — Bor! Hayot bir marta beriladi."
+      },
+      "hooks": {
+        "ru": "Подбадривают решиться на что-то приятное или смелое; иногда в шутку",
+        "uz": "Yoqimli yoki jasoratli ishga qaror qilishga undab aytiladi; ba'zan hazil bilan"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "once",
+        "literal": {
+          "ru": "ты живёшь только однажды",
+          "uz": "sen faqat bir marta yashaysan"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

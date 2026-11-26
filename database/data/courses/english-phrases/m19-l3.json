@@ -1,0 +1,301 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 19,
+    "title": "Разговорный английский",
+    "title_uz": "So'zlashuv ingliz tili"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Короткие ответы",
+    "title_uz": "Qisqa javoblar"
+  },
+  "words": [
+    {
+      "word": "Beats me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "понятия не имею",
+        "uz": "xabarim yo'q"
+      },
+      "example": "Where did Tom put the keys? — Beats me.",
+      "example_translations": {
+        "ru": "Куда Том положил ключи? — Понятия не имею.",
+        "uz": "Tom kalitlarni qayerga qo'ydi? — Xabarim yo'q."
+      },
+      "hooks": {
+        "ru": "Коротко и небрежно отвечают, что не знают ответа",
+        "uz": "Javobni bilmasligini qisqa va beparvo aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "beats",
+        "literal": {
+          "ru": "это меня побеждает",
+          "uz": "bu meni yengadi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You bet",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ещё бы!",
+        "uz": "bo'lmasa-chi!"
+      },
+      "example": "Are you coming to the match on Sunday? — You bet!",
+      "example_translations": {
+        "ru": "Ты придёшь на матч в воскресенье? — Ещё бы!",
+        "uz": "Yakshanba kuni o'yinga borasanmi? — Bo'lmasa-chi!"
+      },
+      "hooks": {
+        "ru": "Радостно и уверенно соглашаются: конечно да",
+        "uz": "Quvonch va ishonch bilan rozi bo'lganda aytiladi: albatta, ha"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "us",
+        "gap": "bet",
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm beat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я без сил",
+        "uz": "holdan toydim"
+      },
+      "example": "Do you want to go out tonight? — Sorry, I'm beat. I worked twelve hours.",
+      "example_translations": {
+        "ru": "Хочешь куда-нибудь сходить вечером? — Извини, я без сил. Я работал двенадцать часов.",
+        "uz": "Kechqurun biror joyga chiqamizmi? — Kechir, holdan toydim. O'n ikki soat ishladim."
+      },
+      "hooks": {
+        "ru": "Говорят друзьям или родным, что очень устали",
+        "uz": "Do'stlar yoki yaqinlarga juda charchaganini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "us",
+        "gap": "beat",
+        "literal": {
+          "ru": "я побит",
+          "uz": "men yengilganman"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Suit yourself",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как хочешь",
+        "uz": "o'zing bilasan"
+      },
+      "example": "I don't want any cake. — Suit yourself, more for me!",
+      "example_translations": {
+        "ru": "Я не буду торт. — Как хочешь, мне больше достанется!",
+        "uz": "Tort yemayman. — O'zing bilasan, menga ko'proq qoladi!"
+      },
+      "hooks": {
+        "ru": "Отвечают тому, кто отказался от предложения; может звучать равнодушно или обиженно",
+        "uz": "Taklifni rad etgan odamga javob; befarq yoki xafa ohangda eshitilishi mumkin"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "suit",
+        "literal": {
+          "ru": "подстраивайся под себя",
+          "uz": "o'zingga moslab ol"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "I'm game",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я в деле!",
+        "uz": "men qatnashaman!"
+      },
+      "example": "Who wants to climb the mountain tomorrow at five? — I'm game!",
+      "example_translations": {
+        "ru": "Кто хочет завтра в пять утра подняться в горы? — Я в деле!",
+        "uz": "Ertaga soat beshda kim tog'ga chiqmoqchi? — Men qatnashaman!"
+      },
+      "hooks": {
+        "ru": "Охотно соглашаются участвовать в чём-то смелом или необычном",
+        "uz": "Jasoratli yoki g'ayrioddiy ishda qatnashishga bajonidil rozi bo'lganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "game",
+        "literal": {
+          "ru": "я — игра",
+          "uz": "men o'yinman"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Not a chance",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ни за что!",
+        "uz": "aslo!"
+      },
+      "example": "Will you lend Tom your new bike? — Not a chance!",
+      "example_translations": {
+        "ru": "Ты одолжишь Тому свой новый велосипед? — Ни за что!",
+        "uz": "Yangi velosipedingni Tomga berib turasanmi? — Aslo!"
+      },
+      "hooks": {
+        "ru": "Твёрдо отказываются или говорят, что что-то совершенно невозможно",
+        "uz": "Qat'iy rad etganda yoki biror narsa mutlaqo imkonsizligini aytganda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "chance",
+        "literal": {
+          "ru": "ни одного шанса",
+          "uz": "birorta ham imkon yo'q"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "You're telling me!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "и не говори!",
+        "uz": "o'zim ham bilaman-ku!"
+      },
+      "example": "This exam was so hard! — You're telling me! I didn't finish half of it.",
+      "example_translations": {
+        "ru": "Экзамен был такой трудный! — И не говори! Я половину не успел.",
+        "uz": "Imtihon juda qiyin bo'ldi! — O'zim ham bilaman-ku! Yarmini ham ulgurmadim."
+      },
+      "hooks": {
+        "ru": "Горячо соглашаются: я это тоже испытал и знаю лучше всех",
+        "uz": "Qizg'in rozi bo'lganda aytiladi: men ham buni boshdan kechirdim, yaxshi bilaman"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "telling",
+        "literal": {
+          "ru": "ты мне рассказываешь!",
+          "uz": "sen menga aytyapsan!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Good call",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "правильное решение",
+        "uz": "to'g'ri qaror"
+      },
+      "example": "I brought an umbrella just in case. — Good call, it's starting to rain.",
+      "example_translations": {
+        "ru": "Я на всякий случай взял зонт. — Правильное решение, начинается дождь.",
+        "uz": "Har ehtimolga qarshi soyabon oldim. — To'g'ri qaror, yomg'ir boshlanyapti."
+      },
+      "hooks": {
+        "ru": "Хвалят чужое удачное решение или выбор",
+        "uz": "Birovning to'g'ri qarori yoki tanlovini maqtab aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "call",
+        "literal": {
+          "ru": "хороший звонок",
+          "uz": "yaxshi qo'ng'iroq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Works for me",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "меня устраивает",
+        "uz": "menga to'g'ri keladi"
+      },
+      "example": "Shall we meet at six by the metro? — Works for me.",
+      "example_translations": {
+        "ru": "Встретимся в шесть у метро? — Меня устраивает.",
+        "uz": "Soat oltida metro yonida uchrashamizmi? — Menga to'g'ri keladi."
+      },
+      "hooks": {
+        "ru": "Коротко соглашаются с предложенным временем, местом или планом",
+        "uz": "Taklif qilingan vaqt, joy yoki rejaga qisqa rozilik bildirganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "works",
+        "literal": {
+          "ru": "работает для меня",
+          "uz": "men uchun ishlaydi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Bring it on!",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "давай, я готов!",
+        "uz": "qani, kel, tayyorman!"
+      },
+      "example": "The next level is much harder. — Bring it on!",
+      "example_translations": {
+        "ru": "Следующий уровень гораздо сложнее. — Давай, я готов!",
+        "uz": "Keyingi bosqich ancha qiyin. — Qani, kel, tayyorman!"
+      },
+      "hooks": {
+        "ru": "Уверенно принимают вызов или трудное испытание",
+        "uz": "Chaqiriq yoki qiyin sinovni ishonch bilan qabul qilganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "bring",
+        "literal": {
+          "ru": "неси это сюда!",
+          "uz": "olib kel buni!"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}

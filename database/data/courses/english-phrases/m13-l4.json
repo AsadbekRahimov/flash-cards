@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 13,
+    "title": "Решения и проблемы",
+    "title_uz": "Qarorlar va muammolar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Риск",
+    "title_uz": "Tavakkal"
+  },
+  "words": [
+    {
+      "word": "take a chance",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "рискнуть",
+        "uz": "tavakkal qilmoq"
+      },
+      "example": "The job is in another city, but I'm going to take a chance.",
+      "example_translations": {
+        "ru": "Работа в другом городе, но я рискну.",
+        "uz": "Ish boshqa shaharda, lekin tavakkal qilaman."
+      },
+      "hooks": {
+        "ru": "Говорят о решении попробовать что-то, не зная, чем это кончится",
+        "uz": "Natijasini bilmay turib, biror narsani sinab ko'rish qarori haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "chance",
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "play it safe",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не рисковать, перестраховаться",
+        "uz": "ehtiyot bo'lmoq, tavakkal qilmaslik"
+      },
+      "example": "I'll leave an hour early, just to play it safe.",
+      "example_translations": {
+        "ru": "Я выйду на час раньше, просто чтобы перестраховаться.",
+        "uz": "Ehtiyot bo'lish uchun bir soat oldin chiqaman."
+      },
+      "hooks": {
+        "ru": "Говорят, когда выбирают осторожный путь без риска",
+        "uz": "Xavfsiz, tavakkalsiz yo'l tanlanganda aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "play",
+        "literal": {
+          "ru": "играть безопасно",
+          "uz": "xavfsiz o'ynamoq"
+        },
+        "cefr": "B2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Better safe than sorry",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лучше перестраховаться",
+        "uz": "ehtiyot shart"
+      },
+      "example": "Should I take an umbrella? — Yes, better safe than sorry.",
+      "example_translations": {
+        "ru": "Взять зонт? — Да, лучше перестраховаться.",
+        "uz": "Soyabon olaymi? — Ha, ehtiyot shart."
+      },
+      "hooks": {
+        "ru": "Говорят, советуя принять меры заранее, даже если опасность небольшая",
+        "uz": "Xavf kichik bo'lsa ham, oldindan chora ko'rishni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "sorry",
+        "literal": {
+          "ru": "лучше быть в безопасности, чем жалеть",
+          "uz": "afsuslangandan ko'ra ehtiyot bo'lgan yaxshi"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Nothing ventured, nothing gained",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не рискнёшь — не выиграешь",
+        "uz": "tavakkal qilmasang, hech narsaga erishmaysan"
+      },
+      "example": "I'm not sure they'll accept my story, but nothing ventured, nothing gained.",
+      "example_translations": {
+        "ru": "Не уверен, что мой рассказ примут, но не рискнёшь — не выиграешь.",
+        "uz": "Hikoyamni qabul qilishlariga ishonchim komil emas, lekin tavakkal qilmasang, hech narsaga erishmaysan."
+      },
+      "hooks": {
+        "ru": "Говорят, решаясь попробовать: без риска не будет и успеха",
+        "uz": "Biror narsani sinab ko'rishga jur'at qilganda aytiladi: tavakkalsiz muvaffaqiyat ham bo'lmaydi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ventured",
+        "literal": {
+          "ru": "ничем не рискнул — ничего не получил",
+          "uz": "hech narsani tavakkal qilmading — hech narsa olmading"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "on thin ice",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ходить по тонкому льду",
+        "uz": "xatarli vaziyatda"
+      },
+      "example": "You've been late three times this week. You're on thin ice.",
+      "example_translations": {
+        "ru": "Ты на этой неделе опоздал три раза. Ты ходишь по тонкому льду.",
+        "uz": "Bu hafta uch marta kechikding. Vaziyating xatarli."
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кто рискует попасть в серьёзные неприятности",
+        "uz": "Jiddiy muammoga duch kelish xavfi bor odamni ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "thin",
+        "literal": {
+          "ru": "на тонком льду",
+          "uz": "yupqa muz ustida"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "push your luck",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "испытывать судьбу",
+        "uz": "omadga haddan ortiq ishonmoq"
+      },
+      "example": "You got away with it once. Don't push your luck.",
+      "example_translations": {
+        "ru": "Один раз тебе это сошло с рук. Не испытывай судьбу.",
+        "uz": "Bir marta jazosiz qolding. Omadingga haddan ortiq ishonma."
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кому уже повезло, не рисковать снова",
+        "uz": "Bir marta omadi kelgan odamni yana tavakkal qilmaslikka ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "luck",
+        "literal": {
+          "ru": "толкать свою удачу",
+          "uz": "omadingni itarmoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "play with fire",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "играть с огнём",
+        "uz": "olov bilan o'ynamoq"
+      },
+      "example": "Driving that fast on a wet road is playing with fire.",
+      "example_translations": {
+        "ru": "Ехать так быстро по мокрой дороге — это игра с огнём.",
+        "uz": "Ho'l yo'lda bunchalik tez haydash — olov bilan o'ynash degani."
+      },
+      "hooks": {
+        "ru": "Предупреждают того, кто делает что-то очень опасное",
+        "uz": "Juda xavfli ish qilayotgan odamni ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fire",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "take the plunge",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "решиться (после долгих сомнений)",
+        "uz": "jur'at qilib, qaror qabul qilmoq"
+      },
+      "example": "After years of thinking about it, she took the plunge and opened her own cafe.",
+      "example_translations": {
+        "ru": "После многих лет раздумий она решилась и открыла своё кафе.",
+        "uz": "Yillar davomida o'ylab yurgach, u jur'at qildi va o'z kafesini ochdi."
+      },
+      "hooks": {
+        "ru": "Говорят о смелом важном шаге после долгих колебаний",
+        "uz": "Uzoq ikkilanishdan keyin qo'yilgan jasoratli, muhim qadam haqida aytiladi"
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "plunge",
+        "literal": {
+          "ru": "прыгнуть в воду",
+          "uz": "suvga sho'ng'imoq"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "There's no harm in trying",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "попытка не пытка",
+        "uz": "urinib ko'rishning ziyoni yo'q"
+      },
+      "example": "They probably won't give me a discount. — Ask anyway. There's no harm in trying.",
+      "example_translations": {
+        "ru": "Скидку мне, наверное, не дадут. — Всё равно спроси. Попытка не пытка.",
+        "uz": "Menga chegirma berishmasa kerak. — Baribir so'ra. Urinib ko'rishning ziyoni yo'q."
+      },
+      "hooks": {
+        "ru": "Советуют попробовать, потому что ничего не теряешь",
+        "uz": "Hech narsa yo'qotmaganing uchun sinab ko'rishni maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "harm",
+        "literal": {
+          "ru": "в попытке нет вреда",
+          "uz": "urinishda zarar yo'q"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "What have you got to lose?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "что ты теряешь?",
+        "uz": "nima yo'qotasan?"
+      },
+      "example": "Enter the competition. What have you got to lose?",
+      "example_translations": {
+        "ru": "Участвуй в конкурсе. Что ты теряешь?",
+        "uz": "Tanlovda qatnash. Nima yo'qotasan?"
+      },
+      "hooks": {
+        "ru": "Уговаривают решиться, когда риск маленький",
+        "uz": "Xavf kichik bo'lganda, jur'at qilishga undab aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "lose",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}
