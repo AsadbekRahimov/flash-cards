@@ -124,13 +124,20 @@ describe('the white screens use it', () => {
     .filter((file) => file.endsWith('.vue'))
     .map((file) => ({ file, code: readFileSync(join(process.cwd(), 'src', 'views', file), 'utf8') }))
 
-  it.each(['TrainingView.vue', 'ExamView.vue', 'BattleView.vue', 'PracticeSessionView.vue', 'GameRunView.vue'])('%s', (file) => {
+  it.each(['BattleView.vue', 'GameRunView.vue'])('%s', (file) => {
     expect(views.find((view) => view.file === file)?.code).toMatch(/\buseChromeSurface\(/)
+  })
+
+  // The lesson, the exam and the practice stand on the canvas of the kit Muhrla (04-urok-vopros): the chrome keeps the page colour.
+  it.each(['TrainingView.vue', 'ExamView.vue', 'PracticeSessionView.vue'])('%s stands on the canvas and leaves the chrome alone', (file) => {
+    const code = views.find((view) => view.file === file)?.code ?? ''
+    expect(code).not.toMatch(/\buseChromeSurface\(/)
+    expect(code).toContain('bg-page')
   })
 
   it('every screen whose own background is white (a static or bound `bg-surface` on the whole screen) uses it', () => {
     const white = views.filter(({ code }) => /flex-1 flex-col bg-surface"|[?:] 'bg-surface'/.test(code))
-    expect(white.length).toBeGreaterThanOrEqual(5)
+    expect(white.length).toBeGreaterThanOrEqual(2)
     for (const { file, code } of white) expect(code, file).toMatch(/\buseChromeSurface\(/)
   })
 })
