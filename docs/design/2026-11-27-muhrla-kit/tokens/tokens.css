@@ -1,0 +1,86 @@
+/* Muhrla design tokens — generated from Figma variables (Color / Dimension) */
+:root {
+  /* Color — Light */
+  --bg-canvas: #F6F2EA;
+  --bg-surface: #FFFDF8;
+  --bg-sunken: #EEE8DC;
+  --bg-accent-soft: #FBE3D9;
+  --bg-inverse: #1A1A1F;
+  --text-primary: #1A1A1F;
+  --text-secondary: #5E5A52;
+  --text-tertiary: #736C60;
+  --text-on-inverse: #FFFDF8;
+  --text-accent: #B53A18;
+  --border-default: #E6DFD2;
+  --border-strong: #1A1A1F;
+  --accent-muhr: #E4572E;
+  --status-success: #2F8F5B;
+  --status-success-soft: #E3F1E8;
+  --status-error: #B3261E;
+  --status-error-soft: #F8E1DE;
+
+  /* Spacing (4px base) */
+  --space-2: 2px;  --space-4: 4px;  --space-8: 8px;  --space-12: 12px;
+  --space-16: 16px; --space-20: 20px; --space-24: 24px; --space-32: 32px;
+  --space-40: 40px; --space-48: 48px;
+
+  /* Radius */
+  --radius-xs: 6px;  --radius-sm: 10px; --radius-md: 14px;
+  --radius-lg: 20px; --radius-xl: 28px; --radius-full: 999px;
+
+  /* Layout */
+  --safe-side: 20px;
+  --tabbar-height: 64px;
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px));
+  --safe-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
+
+  /* Typography */
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-body: "Onest", system-ui, sans-serif;
+
+  /* Motion */
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-stamp: cubic-bezier(.2, .9, .3, 1.2);
+  --dur-press: 120ms;
+  --dur-state: 200ms;
+  --dur-enter: 260ms;
+}
+
+[data-theme="dark"] {
+  --bg-canvas: #121117;
+  --bg-surface: #1C1B22;
+  --bg-sunken: #25232B;
+  --bg-accent-soft: #3A221B;
+  --bg-inverse: #F3EEE4;
+  --text-primary: #F3EEE4;
+  --text-secondary: #B4AEA3;
+  --text-tertiary: #8C867B;
+  --text-on-inverse: #1A1A1F;
+  --text-accent: #FF8A65;
+  --border-default: #302E37;
+  --border-strong: #F3EEE4;
+  --accent-muhr: #FF6B42;
+  --status-success: #4CC38A;
+  --status-success-soft: #173323;
+  --status-error: #FF7A70;
+  --status-error-soft: #3B1816;
+}
+
+/* Text styles */
+.t-display-l   { font: 600 30px/36px var(--font-display); letter-spacing: -0.02em; }
+.t-display-m   { font: 600 24px/30px var(--font-display); letter-spacing: -0.02em; }
+.t-title-m     { font: 500 18px/24px var(--font-display); letter-spacing: -0.01em; }
+.t-word-xl     { font: 600 44px/50px var(--font-display); letter-spacing: -0.03em; }
+.t-numeric-l   { font: 600 22px/26px var(--font-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.t-body-l      { font: 500 17px/24px var(--font-body); }
+.t-body-m      { font: 400 15px/22px var(--font-body); }
+.t-body-m-strong { font: 600 15px/22px var(--font-body); }
+.t-button      { font: 600 16px/20px var(--font-body); }
+.t-label-s     { font: 500 13px/18px var(--font-body); }
+.t-caption     { font: 500 12px/16px var(--font-body); letter-spacing: 0.01em; }
+
+/* Mobile-native base */
+html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-body); }
+button, [role="button"] { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+input, textarea, select { font-size: 16px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
