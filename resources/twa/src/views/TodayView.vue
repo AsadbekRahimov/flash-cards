@@ -1338,6 +1338,10 @@ onBeforeUnmount(() => {
     font-size: 17px;
     line-height: 22px;
   }
+  .greeting-n-xxs {
+    font-size: 15px;
+    line-height: 20px;
+  }
 }
 @media (min-width: 360px) {
   .greeting-w-m {
@@ -1351,6 +1355,10 @@ onBeforeUnmount(() => {
   .greeting-w-xs {
     font-size: 17px;
     line-height: 22px;
+  }
+  .greeting-w-xxs {
+    font-size: 15px;
+    line-height: 20px;
   }
 }
 </style>

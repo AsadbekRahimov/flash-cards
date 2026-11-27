@@ -319,10 +319,10 @@ describe('TodayView', () => {
 
       state.learner = { first_name: 'Мухаммадали' }
       const long = (await render()).get('h1')
-      expect(long.classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-m']))
+      expect(long.classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-s']))
 
       state.learner = { first_name: 'Абдурахмонбек Мухаммадалиевич' }
-      expect((await render()).get('h1').classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-xs']))
+      expect((await render()).get('h1').classes()).toEqual(expect.arrayContaining(['greeting-n-xxs', 'greeting-w-xxs']))
     })
 
     it('badges the plan with a chip that leads to the subscription', async () => {
