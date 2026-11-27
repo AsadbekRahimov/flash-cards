@@ -7,6 +7,7 @@ import { initLocale } from './i18n'
 import { useTelegram } from './composables/useTelegram'
 import { initTelegramTheme } from './composables/telegramTheme'
 import { startTimingMarks } from './composables/useTimingMarks'
+import { installVerticalSwipeGuard } from './composables/verticalSwipes'
 import './style.css'
 
 // The timing marks of this open (docs/04 A.21) start first: the offsets are from the navigation start, the open id and the
@@ -18,8 +19,6 @@ startTimingMarks()
 try {
   WebApp.ready()
   WebApp.expand()
-  // A swipe down must not close the app in the middle of a lesson (kit TELEGRAM.md); Bot API 7.7+.
-  if (WebApp.isVersionAtLeast('7.7')) WebApp.disableVerticalSwipes()
 } catch {
   // running outside Telegram (dev, Playwright) — ignore
 }
@@ -31,6 +30,9 @@ initTelegramTheme()
 
 // Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).
 initLocale(useTelegram().languageCode())
+
+// A swipe down must not close the app in the middle of a lesson (kit TELEGRAM.md): off on the immersive screens only (Bot API 7.7+).
+installVerticalSwipeGuard(router, useTelegram().webApp)
 
 const app = createApp(App)
 app.use(createPinia())

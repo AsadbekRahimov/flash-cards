@@ -7,12 +7,13 @@ import { MASCOT_SIZES, mascotImage, type MascotPose } from '@/composables/illust
  *
  * - `pose` — hello | thinking | celebrate | freeze | trophy | reading.
  * - `height` — the height on screen in px (default 120; the kit uses 84-220); the width follows the proportions of the pose.
+ * - `loading` — `lazy` by default; `eager` for the mascot above the fold of a result or lesson screen (it is the first thing seen there).
  *
  * It enters once (8 px from below and a fade, 300 ms; ANIMATIONS.md §8) and then stands still: no endless bounce.
  *
  * @example <MascotArt pose="reading" :height="112" />
  */
-const props = withDefaults(defineProps<{ pose: MascotPose; height?: number }>(), { height: 120 })
+const props = withDefaults(defineProps<{ pose: MascotPose; height?: number; loading?: 'lazy' | 'eager' }>(), { height: 120, loading: 'lazy' })
 
 const width = computed(() => Math.round((MASCOT_SIZES[props.pose].width / MASCOT_SIZES[props.pose].height) * props.height))
 </script>
@@ -23,7 +24,7 @@ const width = computed(() => Math.round((MASCOT_SIZES[props.pose].width / MASCOT
     :width="width"
     :height="height"
     alt=""
-    loading="lazy"
+    :loading="loading"
     decoding="async"
     draggable="false"
     class="mascot-enter shrink-0 select-none object-contain"

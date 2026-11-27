@@ -512,7 +512,7 @@ describe('PaywallSheet in purchase mode', () => {
       expect(timeout.find('svg').exists()).toBe(true)
       const check = w.get('[data-testid=purchase-check]')
       expect(check.text()).toBe('Проверить ещё раз')
-      expect(check.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-block']))
+      expect(check.classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-block']))
 
       vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
       vi.mocked(api.me.get).mockResolvedValue(me('purchase', 'pro'))
@@ -831,7 +831,7 @@ describe('PaywallSheet in purchase mode', () => {
       const w = await render({ reason: 'quota' })
 
       const review = w.get('[data-testid=paywall-review]')
-      expect(review.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(review.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
       expect(review.classes()).not.toContain('btn-primary')
     })
 

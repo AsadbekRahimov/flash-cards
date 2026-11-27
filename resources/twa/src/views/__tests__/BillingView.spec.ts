@@ -547,7 +547,7 @@ describe('BillingView', () => {
       const buy = wrapper.get('[data-testid=buy]')
       expect(buy.text()).toBe('Продлить Pro')
       // One main action on the screen: "Resume" is it, paying again is the other way.
-      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-lg', 'btn-block']))
+      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-lg', 'btn-block']))
       expect(buy.classes()).not.toContain('btn-primary')
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
@@ -574,7 +574,7 @@ describe('BillingView', () => {
       await wrapper.get('[data-testid=promo-toggle]').trigger('click')
 
       const submit = wrapper.get('[data-testid=promo-submit]')
-      expect(submit.classes()).toContain('btn-tinted')
+      expect(submit.classes()).toContain('btn-secondary')
       expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
     })
 

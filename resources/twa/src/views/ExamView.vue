@@ -251,7 +251,7 @@ function onRetry(): void {
       </div>
 
       <div class="mt-6 flex flex-col items-center gap-2 text-center short:mt-4">
-        <MascotArt pose="thinking" :height="88" class="short:hidden" />
+        <MascotArt loading="eager" pose="thinking" :height="88" class="short:hidden" />
         <LessonWord :text="currentQuestion.word" lang="en" data-testid="word" />
       </div>
 

@@ -271,7 +271,7 @@ describe('AnswerReveal — dictation: listen again', () => {
       const wrapper = render(answered({ verdict }))
       await flushPromises()
       expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Прослушать ещё раз')
-      expect(wrapper.get('[data-testid=listen-again-btn]').classes()).toContain('btn-tinted')
+      expect(wrapper.get('[data-testid=listen-again-btn]').classes()).toContain('btn-secondary')
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1) // "Next" stays the one primary button
       wrapper.unmount()
     }

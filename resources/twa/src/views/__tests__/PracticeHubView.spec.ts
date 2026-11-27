@@ -287,7 +287,7 @@ describe('PracticeHubView — the states', () => {
     expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
     const battle = wrapper.get('[data-testid=battle-play-btn]')
     expect(battle.element.tagName).toBe('BUTTON')
-    expect(battle.classes()).not.toContain('btn-tinted')
+    expect(battle.classes()).not.toContain('btn-secondary')
     expect(battle.classes()).toEqual(expect.arrayContaining(['list-row', 'list-row-icon']))
     wrapper.unmount()
   })

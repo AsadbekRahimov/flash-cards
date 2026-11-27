@@ -457,7 +457,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro.`)
     expect(w.findAll('[data-testid^=pay-]').filter((button) => button.element.tagName === 'BUTTON')).toHaveLength(3)
-    expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-secondary')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
   })
 

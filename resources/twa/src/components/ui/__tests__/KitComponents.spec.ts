@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
-import AppButton from '../AppButton.vue'
 import AppChip from '../AppChip.vue'
 import AppIcon from '../AppIcon.vue'
 import IconButton from '../IconButton.vue'
@@ -10,40 +9,6 @@ import AchievementBadge from '../AchievementBadge.vue'
 import TopicArt from '../TopicArt.vue'
 import MascotArt from '../MascotArt.vue'
 import { achievementArtImage, mascotImage, topicImage } from '@/composables/illustrations'
-
-describe('AppButton', () => {
-  it('is the ink .btn by default, with the arrow of the kit on request', async () => {
-    const w = mount(AppButton, { props: { icon: true, block: true }, slots: { default: 'Начать урок' } })
-    const button = w.get('button')
-
-    expect(button.attributes('type')).toBe('button')
-    expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
-    expect(button.text()).toBe('Начать урок')
-    expect(w.findComponent(AppIcon).props('name')).toBe('arrow-right')
-    await button.trigger('click')
-    expect(w.emitted('click')).toHaveLength(1)
-  })
-
-  it.each(['secondary', 'ghost'] as const)('has the %s variant', (variant) => {
-    expect(mount(AppButton, { props: { variant } }).get('button').classes()).toContain(`btn-${variant}`)
-  })
-
-  it('shows three dots while loading, is busy and takes no press', async () => {
-    const w = mount(AppButton, { props: { loading: true }, slots: { default: 'Сохранить' } })
-
-    expect(w.get('button').attributes('aria-busy')).toBe('true')
-    expect(w.get('[data-testid=btn-dots]').findAll('span:not(.sr-only)')).toHaveLength(3)
-    expect(w.text()).not.toContain('Сохранить')
-    await w.get('button').trigger('click')
-    expect(w.emitted('click')).toBeUndefined()
-  })
-
-  it('is disabled with aria-disabled and takes no press', async () => {
-    const w = mount(AppButton, { props: { disabled: true } })
-    expect(w.get('button').attributes('aria-disabled')).toBe('true')
-    expect(w.get('button').attributes('disabled')).toBeDefined()
-  })
-})
 
 describe('IconButton', () => {
   it('is a 44 px circle with a 20 px icon and its name in aria-label', async () => {

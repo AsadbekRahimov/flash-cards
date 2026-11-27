@@ -110,5 +110,23 @@ describe('App shell', () => {
       await w.get('[data-testid=today]').trigger('animationend')
       expect(w.get('main').classes()).toContain('screen-enter-tab')
     })
+
+    it('puts no class under prefers-reduced-motion: no animation runs, so none would ever end and take it off', async () => {
+      const matchMedia = vi.fn((query: string) => ({ matches: query.includes('reduce'), media: query }))
+      vi.stubGlobal('matchMedia', matchMedia)
+      try {
+        const { w, router } = await mountApp('/today')
+
+        await router.push('/league')
+        await flushPromises()
+        await router.push('/training/5')
+        await flushPromises()
+
+        expect(w.get('main').attributes('data-enter')).toBeUndefined()
+        expect(w.get('main').classes().some((name) => name.startsWith('screen-enter'))).toBe(false)
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    })
   })
 })

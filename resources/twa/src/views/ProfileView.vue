@@ -87,8 +87,9 @@ async function load(): Promise<void> {
   // "Friends' cups" (docs/33 §7.1): the row shows once the learner has a cup; best effort, a young read is not repeated, a switched
   // off cup is not asked again in this session.
   void cups.load()
-  // The three achievements of the screen: best effort, the profile works without them (no row of badges then).
-  void achievements.load()
+  // The three achievements of the screen: best effort, the profile works without them (no row of badges then). Read once: what the
+  // store already has (an earlier visit, the "Achievements" screen) is shown as is, no request on every opening of the tab.
+  void achievements.ensureLoaded()
   await billing.load()
   attempted.value = true
 }

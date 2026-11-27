@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useAchievementsStore } from '@/stores/achievements'
 import { useBillingStore } from '@/stores/billing'
 import { useLeagueStore } from '@/stores/league'
 import { useTodayStore } from '@/stores/today'
@@ -846,6 +847,40 @@ describe('ProfileView', () => {
 
       expect(w.find('[data-testid=profile-achievements]').exists()).toBe(false)
       expect(w.find('[data-testid=profile-name]').exists()).toBe(true)
+    })
+
+    it('asks /achievements once: the second opening of the tab shows what the store has, without a request', async () => {
+      vi.mocked(api.achievements.list).mockResolvedValue(list([item('streak_7', { unlocked_at: '2026-11-20T10:00:00Z' })]))
+
+      const first = await render()
+      first.unmount()
+      const second = await render()
+
+      expect(api.achievements.list).toHaveBeenCalledTimes(1)
+      expect(second.findAll('[data-testid=profile-achievements] [data-testid=achievement-badge]')).toHaveLength(1)
+    })
+
+    it('asks nothing after the "Achievements" screen has loaded the store', async () => {
+      vi.mocked(api.achievements.list).mockResolvedValue(list([item('streak_7', { unlocked_at: '2026-11-20T10:00:00Z' })]))
+      await useAchievementsStore().load()
+      vi.mocked(api.achievements.list).mockClear()
+
+      const w = await render()
+
+      expect(api.achievements.list).not.toHaveBeenCalled()
+      expect(w.findAll('[data-testid=profile-achievements] [data-testid=achievement-badge]')).toHaveLength(1)
+    })
+
+    it('leaves the shared store without an error after a failed background read, and asks again on the next opening', async () => {
+      vi.mocked(api.achievements.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
+
+      ;(await render()).unmount()
+
+      const store = useAchievementsStore()
+      expect(store.status).toBe('idle')
+      expect(store.errorMessage).toBe('')
+      await render()
+      expect(api.achievements.list).toHaveBeenCalledTimes(2)
     })
   })
 })

@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
+import { useCoursesStore } from '@/stores/courses'
 import type { Course, CourseDetail, CourseStage } from '@/api/types'
 
 const tg = vi.hoisted(() => ({ showBack: vi.fn(), hideBack: vi.fn() }))
@@ -438,6 +439,45 @@ describe('CoursesView', () => {
       await pick(wrapper, 'b1')
       await pick(wrapper, 'english-a1')
       expect(vi.mocked(api.courses.get).mock.calls.map(([slug]) => slug)).toEqual(['english-a1', 'english-a1', 'b1'])
+    })
+  })
+
+  describe('the modules from the cache of the store', () => {
+    it('reads a course once however often its tile is picked, and not again when the screen opens anew', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course(), course({ slug: 'b1', level: 'B1' })] })
+
+      const first = await render()
+      await pick(first.wrapper, 'english-a1')
+      await pick(first.wrapper, 'b1')
+      await pick(first.wrapper, 'english-a1')
+      first.wrapper.unmount()
+      const second = await render()
+
+      expect(vi.mocked(api.courses.get).mock.calls.map(([slug]) => slug)).toEqual(['english-a1', 'b1'])
+      expect(second.wrapper.find('[data-testid=modules-loading]').exists()).toBe(false)
+    })
+
+    it('reads a course again when the fresh list shows other progress of it (a lesson was learned since)', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course()] })
+      ;(await render()).wrapper.unmount()
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course({ progress: { done: 3, total: 5 } })] })
+
+      await render()
+
+      expect(api.courses.get).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps a failure of the modules apart from the catalog: no message of the screen, the open course untouched', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course()] })
+      vi.mocked(api.courses.get).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'offline'))
+
+      const { wrapper } = await render()
+
+      const store = useCoursesStore()
+      expect(wrapper.find('[data-testid=modules-error]').exists()).toBe(true)
+      expect(store.errorMessage).toBe('')
+      expect(store.detailStatus).toBe('idle')
+      expect(wrapper.find('[data-testid=select-error]').exists()).toBe(false)
     })
   })
 

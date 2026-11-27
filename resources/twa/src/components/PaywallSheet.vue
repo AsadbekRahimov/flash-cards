@@ -7,7 +7,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import MascotArt from '@/components/ui/MascotArt.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct, splitPrice } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
@@ -377,12 +377,6 @@ function openInvite(): void {
   void router?.push({ name: 'referrals', query: { from: route?.name === 'billing' || route?.name === 'today' ? route.name : undefined } })
 }
 
-/** "1 300 Stars" → the number and the currency, drawn on two lines in a narrow card (the number never breaks). */
-function splitPrice(price: string): { amount: string; unit: string } {
-  const match = /^(.*\S)\s+(\S+)$/u.exec(price)
-  return match ? { amount: match[1] ?? price, unit: match[2] ?? '' } : { amount: price, unit: '' }
-}
-
 /** The first way to pay is the primary button with the price in it; the others are quieter buttons below. */
 const primaryOption = computed((): PayOption | null => options.value[0] ?? null)
 const otherOptions = computed((): PayOption[] => options.value.slice(1))
@@ -608,7 +602,7 @@ onBeforeUnmount(() => {
               v-if="!done && dueCount > 0"
               type="button"
               class="btn btn-block"
-              :class="purchaseMode ? 'btn-tinted' : 'btn-primary'"
+              :class="purchaseMode ? 'btn-secondary' : 'btn-primary'"
               data-testid="paywall-review"
               @click="emit('review')"
             >
@@ -692,7 +686,7 @@ onBeforeUnmount(() => {
             <AppIcon name="clock" :size="18" class="mt-px text-warning" />
             <span>{{ t('billing.timeout') }}</span>
           </p>
-          <button type="button" class="btn btn-tinted btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
+          <button type="button" class="btn btn-secondary btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
             {{ t('billing.check_again') }}
           </button>
         </div>

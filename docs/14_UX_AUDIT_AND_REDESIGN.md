@@ -182,7 +182,7 @@ latin-ext + cyrillic, `font-display: swap`; ʻ U+02BB и ʼ U+02BC — в latin-
 `canvas` (`bg-page`), как `04-urok-vopros` кита; варианты, поля и плашки заданий на них — `surface` с рамкой 1 px. Корень такого
 экрана задаёт `--app-screen: var(--app-page)`: по нему нижняя зона кнопок общих досок (`StickyActions surface`) — того же цвета.
 `useChromeSurface` и тон `surface` шапки удалены (27.11.2026); тест-страж в `telegramTheme.spec.ts` не даёт экрану снова стать белым
-целиком. `disableVerticalSwipes()` (≥ 7.7) в `main.ts`. Свою «Назад» в контенте не рисуем — только `Telegram.WebApp.BackButton`
+целиком. `disableVerticalSwipes()` (≥ 7.7) — только на иммерсивных экранах (`meta.immersive` маршрута: урок, экзамен, сессия практики, баттл и матч дуэли, раунд кубка, забег «Каравана»), при уходе с них — `enableVerticalSwipes()` (`installVerticalSwipeGuard`, `composables/verticalSwipes.ts`). Свою «Назад» в контенте не рисуем — только `Telegram.WebApp.BackButton`
 (`useBackButton`); ссылки «вперёд» (например «Дуэли кубка») остаются. Печать результата (`StampMark haptic`) сопровождается
 `impactOccurred('medium')` — на «Урок пройден», итогах баттла, дуэли, кубка и забега; на «Сегодня» — без хаптика.
 
@@ -195,10 +195,10 @@ latin-ext + cyrillic, `font-display: swap`; ʻ U+02BB и ʼ U+02BC — в latin-
 папка (`ILLUSTRATIONS_VERSION` в `composables/illustrations.ts`). API: `topicImage(slug, stage, size)`, `TopicArt`, `MascotArt`,
 `achievementImage(key)`.
 
-**Новые базовые компоненты** (`src/components/ui/`): `AppButton`, `IconButton`, `AppChip`, `StampMark`, `PlanStep`,
+**Новые базовые компоненты** (`src/components/ui/`): `IconButton`, `AppChip`, `StampMark`, `PlanStep`,
 `SegmentProgress`, `AchievementBadge`, `TopicArt`, `MascotArt`; обновлены `QuizOption` (клавиша 28×28 слева, check/x справа),
 `TabBar` (метка 16×3 `muhr`), `ListRow`/`ListGroup`, `ToggleSwitch` (48×28, вкл — `success`), `ProgressLine` (заливка — чернила,
-тон `muhr`), `SegmentedControl`/`SegmentedNav` (выбранное — чернила), `PageHeader` (Unbounded), CSS `.btn*` (52 px, `btn-ghost`,
+тон `muhr`), `SegmentedControl`/`SegmentedNav` (выбранное — чернила), `PageHeader` (Unbounded), CSS `.btn*` (52 px, `btn-secondary` — прежний `btn-tinted` удалён, `btn-ghost`,
 `btn-dots`), `.chip*` (без рамки, `chip-ink`), `.option`, `.field` (56 px), `.segments`, `.league-row`, `.icon-tile` (40×40 на
 `sunken`), `.skeleton`.
 

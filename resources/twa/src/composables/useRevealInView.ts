@@ -1,4 +1,4 @@
-import { watch, type Ref } from 'vue'
+import { onScopeDispose, watch, type Ref } from 'vue'
 
 /**
  * After a miss on a four-choice card the feedback sheet slides up over the bottom of the screen (kit Muhrla 05) and may cover the right
@@ -10,6 +10,13 @@ import { watch, type Ref } from 'vue'
  * @param isCorrect the verdict of the server; null until it comes
  */
 export function useRevealInView(root: Ref<HTMLElement | null>, isCorrect: Ref<boolean | null>): void {
+  // The frame asked for and not run yet: the card that goes (the next question, the screen left) takes it with it.
+  let frame: number | null = null
+  onScopeDispose(() => {
+    if (frame !== null && typeof window.cancelAnimationFrame === 'function') window.cancelAnimationFrame(frame)
+    frame = null
+  })
+
   watch(
     isCorrect,
     (right) => {
@@ -20,8 +27,13 @@ export function useRevealInView(root: Ref<HTMLElement | null>, isCorrect: Ref<bo
       const still = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
       // On the next frame: the sheet has its height then, and the page has grown by it.
       const scroll = (): void => option.scrollIntoView({ block: 'nearest', behavior: still ? 'auto' : 'smooth' })
-      if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(scroll)
-      else scroll()
+      if (typeof window.requestAnimationFrame === 'function') {
+        if (frame !== null) window.cancelAnimationFrame?.(frame)
+        frame = window.requestAnimationFrame(() => {
+          frame = null
+          scroll()
+        })
+      } else scroll()
     },
     { flush: 'post' },
   )

@@ -432,7 +432,7 @@ onBeforeUnmount(() => {
       data-testid="unavailable"
     >
       <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-course" @click="router.push({ name: 'course', params: { slug } })">
+        <button type="button" class="btn btn-secondary" data-testid="to-course" @click="router.push({ name: 'course', params: { slug } })">
           {{ t('practice.hub.to_course') }}
         </button>
       </template>

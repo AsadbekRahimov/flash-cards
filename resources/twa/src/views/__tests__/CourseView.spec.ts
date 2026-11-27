@@ -3,10 +3,12 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CourseView from '../CourseView.vue'
+import CoursesView from '../CoursesView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
+import { useCoursesStore } from '@/stores/courses'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail, CourseLesson, CourseStage } from '@/api/types'
@@ -104,7 +106,9 @@ async function render(slug = 'english-a1', attach = false, expand = true) {
   const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router] }, ...(attach ? { attachTo: document.body } : {}) })
   await flushPromises()
   if (expand) {
-    for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) await toggle.trigger('click')
+    for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) {
+      if (toggle.attributes('aria-expanded') !== 'true') await toggle.trigger('click')
+    }
   }
   return { wrapper, router }
 }
@@ -347,23 +351,97 @@ describe('CourseView', () => {
       // the card is the button of the current lesson: it says what it does to a screen reader, an arrow for the eye
       const next = card.get('[data-testid=continue-btn]')
       expect(next.element.tagName).toBe('BUTTON')
-      expect(next.get('.sr-only').text()).toBe('Продолжить:')
+      expect(next.get('[data-testid=continue-label]').text()).toBe('Продолжить')
+      expect(next.get('[data-testid=continue-label]').classes()).not.toContain('sr-only')
       expect(next.find('svg').exists()).toBe(true)
       // the mock-up of the screen has no ink button: the card is the main action
       expect(wrapper.find('.btn-primary').exists()).toBe(false)
       expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=all-done]').exists()).toBe(false)
-      // its lessons are under the disclosure of the card, closed at first
-      expect(wrapper.find('[data-testid=lesson-12]').exists()).toBe(false)
+      // its lessons are under the disclosure of the card, open at first: the current lesson and its words are seen without a tap
       const toggle = card.get('[data-testid=module-toggle]')
-      expect(toggle.attributes('aria-expanded')).toBe('false')
-      expect(toggle.text()).toBe('Уроки · 1 из 3 уроков')
-      await toggle.trigger('click')
       expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(toggle.attributes('aria-controls')).toBe('module-lessons-1')
+      expect(wrapper.find('#module-lessons-1').exists()).toBe(true)
+      expect(toggle.text()).toBe('Пройдено 1 из 3 уроков')
       expect(wrapper.get('[data-testid=lesson-12]').attributes('data-state')).toBe('current')
       expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-hint]').text()).toBe('1 из 4 слов · вы здесь')
       expect(wrapper.get('[data-testid=lesson-13]').attributes('data-state')).toBe('new')
+      // the learner may close it; then nothing points at the list that is gone
+      await toggle.trigger('click')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+      expect(toggle.attributes('aria-controls')).toBeUndefined()
+      expect(wrapper.find('[data-testid=lesson-12]').exists()).toBe(false)
+    })
+
+    it('takes the number on the badge and «урок N из M» from one place: the order of the lesson in its module', async () => {
+      // a module whose lessons go on numbering from the module before: the third lesson in it is «Урок 13»
+      vi.mocked(api.courses.get).mockResolvedValue(detail({
+        is_active: true,
+        stages: [stage(1, [lesson(11, 11, 3, 3), lesson(12, 12, 4, 4), lesson(13, 13, 0, 4)])],
+      }))
+
+      const { wrapper } = await render('english-a1', false, false)
+
+      const card = wrapper.get('[data-testid=module-current]')
+      expect(card.get('[data-testid=module-meta]').text()).toBe('урок 3 из 3 · вы здесь')
+      expect(card.get('[data-testid=module-badge]').text()).toBe('3')
+    })
+
+    it('shows a course already in the store at once and still reads it once, as before (no skeleton, no second request)', async () => {
+      const fresh = detail({ is_active: true, title: 'Свежий', stages: [stage(1, [lesson(11, 1, 1, 3)])] })
+      let answer: (value: CourseDetail) => void = () => {}
+      vi.mocked(api.courses.get).mockReturnValue(new Promise((resolve) => { answer = resolve }))
+      useCoursesStore().remember(detail({ is_active: true, title: 'Из кеша', stages: [stage(1, [lesson(11, 1, 0, 3)])] }))
+
+      const { wrapper } = await render('english-a1', false, false)
+
+      expect(wrapper.find('[data-testid=spinner]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Из кеша')
+      expect(wrapper.get('[data-testid=continue-label]').text()).toBe('Начать урок')
+      answer(fresh)
+      await flushPromises()
+      expect(wrapper.get('[data-testid=continue-label]').text()).toBe('Продолжить')
+      expect(api.courses.get).toHaveBeenCalledTimes(1)
+      expect(useCoursesStore().cached['english-a1']?.title).toBe('Свежий')
+    })
+
+    it('All courses -> the course: the course screen adds its one read as always, shown at once; back to All courses adds none', async () => {
+      const row: Course = { slug: 'english-a1', title: 'Английский A1', description: null, level: 'A1', exam_tag: null, words_count: 6, is_featured: false, is_active: true, progress: { done: 2, total: 5 } }
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [row] })
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true }))
+      const stub = { template: '<div />' }
+      const router = createRouter({
+        history: createMemoryHistory(),
+        routes: ['today', 'courses', 'course', 'decks', 'training'].map((name) => ({ path: name === 'course' ? '/courses/:slug' : `/${name}`, name, component: stub })),
+      })
+      await router.push('/courses')
+
+      const catalog = mount(CoursesView, { global: { plugins: [router] } })
+      await flushPromises()
+      expect(api.courses.get).toHaveBeenCalledTimes(1)
+      catalog.unmount()
+
+      const course = mount(CourseView, { props: { slug: 'english-a1' }, global: { plugins: [router] } })
+      expect(course.find('[data-testid=spinner]').exists()).toBe(false)
+      await flushPromises()
+      expect(api.courses.get).toHaveBeenCalledTimes(2)
+      course.unmount()
+
+      mount(CoursesView, { global: { plugins: [router] } })
+      await flushPromises()
+      expect(api.courses.get).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps the course of the store on the screen when its refresh fails, without the error screen', async () => {
+      vi.mocked(api.courses.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+      useCoursesStore().remember(detail({ is_active: true, stages: [stage(1, [lesson(11, 1, 0, 3)])] }))
+
+      const { wrapper } = await render('english-a1', false, false)
+
+      expect(wrapper.find('[data-testid=module-current]').exists()).toBe(true)
+      expect(useCoursesStore().detailStatus).toBe('ready')
     })
 
     it('says "Начать урок" to a screen reader while the current lesson is not begun', async () => {
@@ -374,7 +452,8 @@ describe('CourseView', () => {
 
       const { wrapper } = await render()
 
-      expect(wrapper.get('[data-testid=continue-btn] .sr-only').text()).toBe('Начать урок:')
+      expect(wrapper.get('[data-testid=continue-label]').text()).toBe('Начать урок')
+      expect(wrapper.get('[data-testid=continue-label]').isVisible()).toBe(true)
       expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-hint]').text()).toBe('5 новых слов · вы здесь')
     })
 
@@ -600,9 +679,12 @@ describe('CourseView', () => {
 
       const toggle = wrapper.get('[data-testid=stage-2] [data-testid=module-toggle]')
       expect(toggle.attributes('aria-expanded')).toBe('false')
-      expect(toggle.attributes('aria-controls')).toBe('module-lessons-2')
+      // closed: no list on the page, so nothing to point at
+      expect(toggle.attributes('aria-controls')).toBeUndefined()
+      expect(wrapper.find('#module-lessons-2').exists()).toBe(false)
       await toggle.trigger('click')
       expect(toggle.attributes('aria-expanded')).toBe('true')
+      expect(toggle.attributes('aria-controls')).toBe('module-lessons-2')
       expect(wrapper.get('#module-lessons-2').findAll('li[data-state]').map((row) => row.attributes('data-testid'))).toEqual(['lesson-21', 'lesson-22'])
 
       await wrapper.get('[data-testid=lesson-22] [data-testid=learn-btn]').trigger('click')
@@ -964,7 +1046,7 @@ describe('CourseView', () => {
       expect(card.classes()).toContain('card')
       expect(card.find('.icon-tile').exists()).toBe(false)
       expect(card.find('svg').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=mock-exam-btn]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(wrapper.get('[data-testid=mock-exam-btn]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
     })
 
     it('opens the mock for a Pro learner and goes to the exam screen in mock mode', async () => {
@@ -1132,7 +1214,7 @@ describe('CourseView', () => {
     expect(main.wrapper.get('[data-testid=title] h1').text()).toBe('Mening kursim')
     expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov imtihoni')
     expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Testni boshlash')
-    expect(main.wrapper.get('[data-testid=continue-btn] .sr-only').text()).toBe('Darsni boshlash:')
+    expect(main.wrapper.get('[data-testid=continue-label]').text()).toBe('Darsni boshlash')
     expect(main.wrapper.get('[data-testid=module-meta]').text()).toBe('2 ta darsdan 1-dars · siz shu yerdasiz')
     expect(main.wrapper.get('[data-testid=progress-text]').text()).toBe("1 ta moduldan 1-modul · 5 ta so'zdan 2 tasi")
     expect(main.wrapper.get('[data-testid=lesson-11] [data-testid=lesson-hint]').text()).toBe("3 ta yangi so'z · siz shu yerdasiz")
@@ -1140,7 +1222,7 @@ describe('CourseView', () => {
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true, stages: [stage(1, [lesson(11, 1, 1, 3)])] }))
     const begun = await render()
-    expect(begun.wrapper.get('[data-testid=continue-btn] .sr-only').text()).toBe('Davom etish:')
+    expect(begun.wrapper.get('[data-testid=continue-label]').text()).toBe('Davom etish')
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({
       is_active: true,

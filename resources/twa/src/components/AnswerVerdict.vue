@@ -62,7 +62,7 @@ function onContinue(): void {
       named in words ("your answer" / "right answer"), so that the colour is never the only sign. A right answer has the mascot instead.
     -->
     <article class="mt-6 flex flex-col gap-2.5 px-5 pb-4 short:mt-4 short:gap-2">
-      <MascotArt v-if="kind === 'correct'" pose="celebrate" :height="112" class="self-center short:hidden" />
+      <MascotArt loading="eager" v-if="kind === 'correct'" pose="celebrate" :height="112" class="self-center short:hidden" />
       <p v-else class="t-body-m text-center text-muted">{{ t('exercise.verdict.expected') }}</p>
       <div
         v-if="answer && kind !== 'correct'"

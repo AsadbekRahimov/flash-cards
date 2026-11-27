@@ -94,7 +94,7 @@ function chipOf(mistake: PracticeMistake): Chip {
   <div v-if="timed" class="flex flex-1 flex-col" data-testid="practice-summary" data-variant="timed">
     <!-- The result of the kit (06): the mascot, the score in Display/L, the record and the facts under it. -->
     <div class="flex flex-1 flex-col items-center gap-2 px-5 pt-8 pb-6 text-center short:pt-4">
-      <MascotArt :pose="record ? 'trophy' : 'celebrate'" :height="120" class="mb-2 short:hidden" />
+      <MascotArt loading="eager" :pose="record ? 'trophy' : 'celebrate'" :height="120" class="mb-2 short:hidden" />
       <p
         class="t-label-s"
         :class="summary.finish_reason === 'completed' ? 'text-success-ink' : 'text-muted'"
@@ -126,7 +126,7 @@ function chipOf(mistake: PracticeMistake): Chip {
     <div class="flex flex-1 flex-col px-5 pt-8 pb-6 short:pt-4">
       <!-- The result of the kit (06): the mascot, the title in Display/L, the reason under it. -->
       <header class="flex flex-col items-center gap-1.5 text-center">
-        <MascotArt pose="celebrate" :height="112" class="mb-2 short:hidden" />
+        <MascotArt loading="eager" pose="celebrate" :height="112" class="mb-2 short:hidden" />
         <h1 class="t-display-l">{{ t('practice.summary.title') }}</h1>
         <p class="t-body-m text-muted" data-testid="summary-reason">{{ t(reasonKey(summary.finish_reason)) }}</p>
       </header>

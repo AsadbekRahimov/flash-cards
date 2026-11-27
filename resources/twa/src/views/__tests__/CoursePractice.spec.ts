@@ -86,8 +86,10 @@ async function render(practice: PracticeAccess | undefined, course: CourseDetail
   await router.push({ name: 'course', params: { slug: course.slug } })
   const wrapper = mount(CourseView, { props: { slug: course.slug }, global: { plugins: [router] }, attachTo: document.body })
   await flushPromises()
-  // the lessons of a module are under its disclosure (kit Muhrla 03): every module opened
-  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) await toggle.trigger('click')
+  // the lessons of a module are under its disclosure (kit Muhrla 03; the current one starts open): every module opened
+  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) {
+    if (toggle.attributes('aria-expanded') !== 'true') await toggle.trigger('click')
+  }
   return { wrapper, router }
 }
 

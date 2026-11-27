@@ -16,8 +16,8 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
 /**
- * The result of an exam (docs/14 §6.4), in the look of the end of a lesson (kit Muhrla 06-urok-proyden): the mascot (the trophy of a group
- * exam, celebrating after a mock or a test of the week), "Your result" above the title in Display/L, the numbers in one card of columns
+ * The result of an exam (docs/14 §6.4), in the look of the end of a lesson (kit Muhrla 06-urok-proyden): the mascot (the kit celebrates only
+ * a success: the trophy for places 1-3 of a group exam, celebrating after a mock or a test of the week passed, thinking otherwise), "Your result" above the title in Display/L, the numbers in one card of columns
  * split by 1 px lines (Numeric/L, a caption under each), a line under it — the comparison of a mock, whether a test of the week was
  * recorded — and, for a group exam, the leaderboard as a grouped list. The buttons are in the sticky block at the bottom. A link straight to
  * the result shows a skeleton of the numbers until they come; a failure is the alert above them.
@@ -41,6 +41,21 @@ const unanswered = computed((): number => (mockResult.value ? mockResult.value.t
 const isQuiz = computed((): boolean => quizResult.value !== null)
 const quizUnanswered = computed((): number => (quizResult.value ? quizResult.value.total - quizResult.value.answered : 0))
 const quizWeek = computed((): string => (quizResult.value ? formatDate(quizResult.value.week_start, 'dayMonthShort', locale.value) : ''))
+
+/** A mock or a test of the week counts as passed from half of the answers right (the API has no mark of its own). */
+const EXAM_PASS_PERCENT = 50
+
+/**
+ * The mascot of the result (kit: a celebration only for a success): a mock or a test of the week passed - celebrating, else thinking; a
+ * group exam - the trophy for places 1-3, thinking below them; nothing while the numbers are still coming (no place yet).
+ */
+const mascotPose = computed((): 'celebrate' | 'trophy' | 'thinking' | null => {
+  if (pending.value) return null
+  const percent = quizResult.value?.percent ?? mockResult.value?.percent ?? null
+  if (percent !== null) return percent >= EXAM_PASS_PERCENT ? 'celebrate' : 'thinking'
+  if (finalRank.value === null) return null
+  return finalRank.value <= 3 ? 'trophy' : 'thinking'
+})
 
 /** Back to readiness: Home's block and the screen both read the numbers afresh (a scored test changed them). */
 async function toReadiness(): Promise<void> {
@@ -86,7 +101,7 @@ onMounted(async () => {
     <div class="flex flex-1 flex-col px-5 pt-6 pb-4 short:pt-3">
       <!-- Kit Muhrla 06-urok-proyden: the hero on the central axis - the mascot, "Your result" and the title in Display/L. -->
       <header class="flex flex-col items-center gap-1.5 text-center">
-        <MascotArt :pose="isMock || isQuiz ? 'celebrate' : 'trophy'" :height="112" class="mb-2 short:hidden" />
+        <MascotArt v-if="mascotPose !== null" loading="eager" :pose="mascotPose" :height="112" class="mb-2 short:hidden" />
         <p class="t-label-s text-muted" data-testid="result-eyebrow">{{ t('result.your_score') }}</p>
         <h1 class="t-display-l" data-testid="result-title">
           {{ isQuiz ? t('result.quiz_title') : isMock ? t('result.mock_title') : t('result.title') }}

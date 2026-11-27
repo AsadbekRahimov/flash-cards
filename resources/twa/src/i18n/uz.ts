@@ -731,6 +731,10 @@ export const uz: Translations = {
     one: '{total} ta darsdan {done} tasi',
     other: '{total} ta darsdan {done} tasi',
   },
+  'course.lessons_passed': {
+    one: '{total} ta darsdan {done} tasi tugallangan',
+    other: '{total} ta darsdan {done} tasi tugallangan',
+  },
   'course.new_words': {
     one: "{count} ta yangi so'z",
     other: "{count} ta yangi so'z",
@@ -1677,8 +1681,8 @@ export const uz: Translations = {
   'gameRun.summary.new_stars': 'Yangi yulduzlar',
   'gameRun.summary.plus': '+{count}',
   'gameRun.summary.stamp_unit': {
-    one: 'ball',
-    other: 'ball',
+    one: 'ochko',
+    other: 'ochko',
   },
   'gameRun.summary.streak_held': 'Ketma-ketlik saqlandi',
   'gameRun.summary.boss_won': "Qo'riqchi yengildi",

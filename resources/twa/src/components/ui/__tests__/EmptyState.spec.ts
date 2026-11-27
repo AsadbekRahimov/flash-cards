@@ -47,7 +47,7 @@ describe('EmptyState', () => {
   it('renders the action slot', async () => {
     const w = mount(EmptyState, {
       props: { text: 't' },
-      slots: { action: '<button class="btn btn-tinted" data-testid="create">Выбрать курс</button>' },
+      slots: { action: '<button class="btn btn-secondary" data-testid="create">Выбрать курс</button>' },
     })
 
     expect(w.get('[data-testid=create]').text()).toBe('Выбрать курс')

@@ -138,7 +138,7 @@ describe('FlashCard', () => {
 
     expect(speaker.attributes('aria-label')).toBe('Произнести')
     expect(speaker.classes()).toContain('icon-btn')
-    expect(speaker.classes()).not.toContain('btn-tinted')
+    expect(speaker.classes()).not.toContain('btn-secondary')
     expect(speaker.findComponent(AppIcon).props('name')).toBe('speaker-wave')
     expect(speaker.element.previousElementSibling?.getAttribute('data-testid')).toBe('transcription')
     // The word stands on one card of the surface (kit F1): radius xl, the hairline.

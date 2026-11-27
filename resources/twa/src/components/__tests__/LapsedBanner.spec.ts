@@ -70,7 +70,7 @@ describe('LapsedBanner', () => {
     expect(dot.attributes('aria-hidden')).toBe('true')
 
     const renew = w.get('[data-testid=lapsed-renew]')
-    expect(renew.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(renew.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
     expect(renew.classes()).not.toContain('btn-primary')
 
     const dismiss = w.get('[data-testid=lapsed-dismiss]')

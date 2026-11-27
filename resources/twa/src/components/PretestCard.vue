@@ -65,7 +65,7 @@ function onSkip(): void {
         its transcription and the speaker beside it.
       -->
       <div class="mt-5 flex flex-col items-center gap-2 text-center short:mt-3 short:gap-1.5">
-        <MascotArt pose="thinking" :height="88" class="short:hidden" />
+        <MascotArt loading="eager" pose="thinking" :height="88" class="short:hidden" />
         <p class="t-body-m text-muted" data-testid="exercise-title">{{ title }}</p>
         <LessonWord :text="card.word" :phrase="phrase !== null" lang="en" data-testid="word" />
         <PhraseLabels v-if="phrase" :phrase="phrase" />

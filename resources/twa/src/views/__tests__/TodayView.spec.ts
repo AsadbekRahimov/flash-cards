@@ -441,7 +441,7 @@ describe('TodayView', () => {
 
         expect(w.find('[data-testid=games-card]').exists()).toBe(true)
         expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
-        expect(w.get('[data-testid=all-done]').find('button.btn-tinted').exists()).toBe(false)
+        expect(w.get('[data-testid=all-done]').find('button.btn-secondary').exists()).toBe(false)
         await w.get('[data-testid=games-play-btn]').trigger('click')
         await flushPromises()
 
@@ -1559,7 +1559,7 @@ describe('TodayView', () => {
       expect(text(w, 'next-lesson-hint')).toBe('Только слова этого урока, без повторений')
       const button = w.get('[data-testid=next-lesson-btn]')
       expect(button.text()).toBe('Учить следующий урок')
-      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
       await button.trigger('click')
       await flushPromises()
 
@@ -1589,7 +1589,7 @@ describe('TodayView', () => {
 
       const choose = w.get('[data-testid=choose-course]')
       expect(choose.text()).toBe('Выбрать курс')
-      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       expect(choose.attributes('href')).toBe('/courses')
     })
   })
@@ -1619,7 +1619,7 @@ describe('TodayView', () => {
       expect(w.find('[data-testid=course-progress]').exists()).toBe(false)
       expect(w.find('[data-testid=course-card] [role=progressbar]').exists()).toBe(false)
       const other = w.get('[data-testid=course-choose-other]')
-      expect(other.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(other.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       expect(other.attributes('href')).toBe('/courses')
     })
 

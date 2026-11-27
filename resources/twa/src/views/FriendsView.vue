@@ -377,7 +377,7 @@ onMounted(() => {
           <div class="flex w-full gap-2">
             <button
               type="button"
-              class="btn btn-tinted btn-sm flex-1"
+              class="btn btn-secondary btn-sm flex-1"
               data-testid="battle-accept-btn"
               :disabled="battles.invitationBusy.includes(invitation.id)"
               @click="acceptBattle(invitation)"
@@ -421,7 +421,7 @@ onMounted(() => {
               />
               <span>{{ t('friends.invite.share') }}</span>
             </button>
-            <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
+            <button type="button" class="btn btn-secondary btn-block" data-testid="copy-btn" @click="copyLink">
               {{ t('friends.copy') }}
             </button>
           </div>
@@ -438,7 +438,7 @@ onMounted(() => {
           <div class="flex w-full gap-2">
             <button
               type="button"
-              class="btn btn-tinted btn-sm flex-1"
+              class="btn btn-secondary btn-sm flex-1"
               data-testid="accept-btn"
               :disabled="store.isBusy(`f${request.id}`)"
               @click="answerFriend('accept', request.id)"
@@ -502,7 +502,7 @@ onMounted(() => {
                 <button
                   v-if="battleOn"
                   type="button"
-                  class="btn btn-tinted btn-sm"
+                  class="btn btn-secondary btn-sm"
                   :disabled="checking"
                   :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
                   data-testid="battle-btn"
@@ -513,7 +513,7 @@ onMounted(() => {
                 <button
                   v-if="!withOpenChallenge.has(friend.id)"
                   type="button"
-                  class="btn btn-tinted btn-sm"
+                  class="btn btn-secondary btn-sm"
                   :aria-label="t('friends.challenge.new', { name: personName(friend) })"
                   data-testid="challenge-btn"
                   @click="picking = friend.id"
@@ -529,7 +529,7 @@ onMounted(() => {
                 v-for="metric in METRICS"
                 :key="metric"
                 type="button"
-                class="btn btn-tinted btn-block"
+                class="btn btn-secondary btn-block"
                 :data-testid="`metric-${metric}`"
                 :disabled="store.isBusy(`f${friend.id}`)"
                 @click="propose(friend.id, metric)"
@@ -614,7 +614,7 @@ onMounted(() => {
               <div v-if="c.status === 'pending' && c.role === 'opponent'" class="flex w-full gap-2">
                 <button
                   type="button"
-                  class="btn btn-tinted btn-sm flex-1"
+                  class="btn btn-secondary btn-sm flex-1"
                   data-testid="challenge-accept"
                   :disabled="store.isBusy(`c${c.id}`)"
                   @click="store.answerChallenge('accept', c.id)"

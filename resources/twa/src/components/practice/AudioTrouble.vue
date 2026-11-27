@@ -45,7 +45,7 @@ const { t } = useI18n()
       <button
         v-if="replacementsLeft > 0"
         type="button"
-        class="btn btn-tinted btn-block"
+        class="btn btn-secondary btn-block"
         :disabled="busy"
         data-testid="trouble-replace"
         @click="emit('replace')"

@@ -198,7 +198,7 @@ async function takeQuiz(): Promise<void> {
         <button
           type="button"
           class="btn btn-block"
-          :class="scoredDone ? 'btn-tinted' : 'btn-primary'"
+          :class="scoredDone ? 'btn-secondary' : 'btn-primary'"
           :disabled="openingQuiz"
           data-testid="quiz-btn"
           :data-scored="scoredDone ? 'done' : 'open'"

@@ -145,6 +145,47 @@ describe('ExamResultView', () => {
     expect(wrapper.get('[data-testid=exam-result]').text()).not.toContain('★')
   })
 
+  describe('the mascot: a celebration only for a success (kit)', () => {
+    const mock = (percent: number): AnyExamResultResponse => ({
+      mode: 'personal_mock', correct: percent, total: 100, answered: 100, percent, percentile: null, attempts: 1, course_id: 3,
+    })
+    const quiz = (percent: number): AnyExamResultResponse => ({
+      mode: 'level_quiz', correct: percent, total: 100, answered: 100, percent, scored: true, week_start: '2026-11-23', course_id: 3, course_slug: 'english-a1',
+    })
+    const pose = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']): string | null =>
+      wrapper.find('[data-testid=mascot-art]').exists() ? (wrapper.get('[data-testid=mascot-art]').attributes('data-pose') ?? null) : null
+
+    it.each([
+      ['a group exam, place 1', group({ rank: 1 }), 'trophy'],
+      ['a group exam, place 3', group({ rank: 3 }), 'trophy'],
+      ['a group exam, place 4', group({ rank: 4 }), 'thinking'],
+      ['a group exam without a place yet', group({ rank: null }), null],
+      ['a mock of 75%', mock(75), 'celebrate'],
+      ['a mock of 50% (passed)', mock(50), 'celebrate'],
+      ['a mock of 49%', mock(49), 'thinking'],
+      ['a test of the week of 80%', quiz(80), 'celebrate'],
+      ['a test of the week of 20%', quiz(20), 'thinking'],
+    ])('%s -> %s', async (_name, result, expected) => {
+      const { wrapper } = await render(result)
+
+      expect(pose(wrapper)).toBe(expected)
+    })
+
+    it('shows no mascot while the numbers of a link straight to the result are coming, and loads it at once (above the fold)', async () => {
+      let answer: (value: AnyExamResultResponse) => void = () => {}
+      vi.mocked(api.exam.result).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/exam/:sessionId(\\d+)/result', name: 'exam-result', component: { template: '<div />' } }] })
+      await router.push('/exam/9/result')
+      const wrapper = mount(ExamResultView, { props: { sessionId: 9 }, global: { plugins: [router] } })
+      await flushPromises()
+      expect(wrapper.find('[data-testid=mascot-art]').exists()).toBe(false)
+
+      answer(group({ rank: 1 }))
+      await flushPromises()
+      expect(wrapper.get('[data-testid=mascot-art]').attributes('loading')).toBe('eager')
+    })
+  })
+
   it('draws the three numbers of a test in one card with lines between them, like the end of a session', async () => {
     const { wrapper } = await render({
       mode: 'personal_mock', correct: 30, total: 40, answered: 38, percent: 75, percentile: 82, attempts: 9, course_id: 3,

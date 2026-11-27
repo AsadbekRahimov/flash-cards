@@ -9,13 +9,11 @@ import MascotArt from '@/components/ui/MascotArt.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import TopicArt from '@/components/ui/TopicArt.vue'
-import { api } from '@/api'
 import { catalogTabs, courseChips, isPhraseCourse, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCourseSelect } from '@/composables/useCourseSelect'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
-import { errorMessage as describeError } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { Course, CourseDetail, CourseStage } from '@/api/types'
 
@@ -27,7 +25,8 @@ import type { Course, CourseDetail, CourseStage } from '@/api/types'
  * the lessons" of the learner's course, else "Start course" / "Switch to this course", which leads to Home), and its modules as a grid of
  * two columns with the picture of each topic (`topicImage(course, module)`; a course without pictures - a plate with the number): done -
  * "done", the current one in a 2 px ink frame with «урок 3 из 10», the ones after it dimmed. A module opens the course screen. The modules
- * are `GET /courses/{slug}` of the picked course (the list has no modules), read once per course while the screen is open.
+ * are `GET /courses/{slug}` of the picked course (the list has no modules), read once per course into the store's cache, which the
+ * course screen shows at once; a newer list that shows other progress of a course drops its copy.
  *
  * The courses of phrases (`section = phrases`, docs/35 §3.2) are tiles at the end of the grid named «Фразы» (their level under it); the
  * card of a picked one says what they are. The "Course" tab opens the learner's own course; this list is reached from it ("All courses"),
@@ -80,26 +79,25 @@ function labelSize(course: Course): 'level' | 'word' | 'name' {
 }
 const LABEL_CLASSES = { level: 'text-[22px] leading-[26px]', word: 'text-[18px] leading-[26px]', name: 'line-clamp-2 text-[15px] leading-5 [overflow-wrap:anywhere]' }
 
-// ---- the modules of the picked course: `GET /courses/{slug}`, once per course while the screen is open ----
+// ---- the modules of the picked course: `GET /courses/{slug}` through the cache of the store, once per course (the course screen reuses it) ----
 
 type ModulesState = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; detail: CourseDetail }
-const modules = ref<Record<string, ModulesState>>({})
 
-async function loadModules(slug: string): Promise<void> {
-  modules.value = { ...modules.value, [slug]: { status: 'loading' } }
-  try {
-    const detail = await api.courses.get(slug)
-    modules.value = { ...modules.value, [slug]: { status: 'ready', detail: { ...detail, stages: detail.stages ?? [] } } }
-  } catch (err) {
-    modules.value = { ...modules.value, [slug]: { status: 'error', message: describeError(err, 'catalog') } }
-  }
+function loadModules(slug: string): void {
+  void catalog.ensureCached(slug)
 }
 
 watch(selected, (course) => {
-  if (course !== null && modules.value[course.slug] === undefined) void loadModules(course.slug)
+  if (course !== null) loadModules(course.slug)
 }, { immediate: true })
 
-const selectedModules = computed((): ModulesState | null => (selected.value === null ? null : (modules.value[selected.value.slug] ?? null)))
+const selectedModules = computed((): ModulesState | null => {
+  const slug = selected.value?.slug
+  if (slug === undefined) return null
+  const detail = catalog.cached[slug]
+  if (detail !== undefined) return { status: 'ready', detail }
+  return catalog.cachedLoads[slug] ?? null
+})
 const selectedDetail = computed((): CourseDetail | null => {
   const state = selectedModules.value
   return state !== null && state.status === 'ready' ? state.detail : null

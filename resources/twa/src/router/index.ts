@@ -11,6 +11,11 @@ declare module 'vue-router' {
      * one. Absent on immersive screens (training, exam, finished) and the landing.
      */
     tab?: TabId
+    /**
+     * An immersive screen where a swipe down must not close the app (the lesson, the exam, a practice session, the rounds of a battle,
+     * a cup or a duel, a run of "Karvon"): `installVerticalSwipeGuard` switches the swipe off here and on again elsewhere.
+     */
+    immersive?: boolean
   }
 }
 
@@ -36,6 +41,7 @@ const routes: RouteRecordRaw[] = [
     path: '/training/:sessionId(\\d+)',
     name: 'training',
     component: () => import('@/views/TrainingView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
   {
@@ -52,6 +58,7 @@ const routes: RouteRecordRaw[] = [
     path: '/exam/:sessionId(\\d+)',
     name: 'exam',
     component: () => import('@/views/ExamView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
   {
@@ -121,6 +128,7 @@ const routes: RouteRecordRaw[] = [
     path: '/practice/sessions/:id(\\d+)',
     name: 'practice-session',
     component: () => import('@/views/PracticeSessionView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   // The Karvon game (docs/05 §5b): the map is a screen of the Courses tab. `?course=` is the course (else the active one), `?stop=` opens the sheet of that stop.
@@ -173,6 +181,7 @@ const routes: RouteRecordRaw[] = [
     path: '/game/runs/:id(\\d+)',
     name: 'game-run',
     component: () => import('@/views/GameRunView.vue'),
+    meta: { immersive: true },
     props: (route) => ({
       id: Number(route.params.id),
       course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
@@ -195,6 +204,7 @@ const routes: RouteRecordRaw[] = [
     path: '/battles/:id(\\d+)',
     name: 'battle',
     component: () => import('@/views/BattleView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   {
@@ -299,6 +309,7 @@ const routes: RouteRecordRaw[] = [
     path: '/cups/:id(\\d+)/round',
     name: 'cup-round',
     component: () => import('@/views/CupRoundView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   // The duels of a cup (docs/33 §7.1, docs/04 A.23d): the list, a new challenge, one duel (the waiting screen of the challenger), and the

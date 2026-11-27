@@ -228,7 +228,7 @@ onMounted(() => {
               />
               <span>{{ t('referrals.share') }}</span>
             </button>
-            <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
+            <button type="button" class="btn btn-secondary btn-block" data-testid="copy-btn" @click="copyLink">
               {{ t('referrals.copy') }}
             </button>
           </div>

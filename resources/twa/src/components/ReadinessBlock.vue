@@ -81,7 +81,7 @@ const thisWeek = computed(() => quiz.value?.this_week ?? null)
       <RouterLink
         v-else
         :to="`/courses/${encodeURIComponent(slug)}/readiness?source=today&focus=quiz`"
-        class="btn btn-tinted btn-block"
+        class="btn btn-secondary btn-block"
         data-testid="readiness-quiz-btn"
       >
         {{ t('readiness.quiz.take') }}

@@ -814,6 +814,13 @@ export const ru = {
     many: '{done} из {total} уроков',
     other: '{done} из {total} урока',
   },
+  // The disclosure of the lessons of the current module: «Пройдено 2 из 10 уроков».
+  'course.lessons_passed': {
+    one: 'Пройдено {done} из {total} урока',
+    few: 'Пройдено {done} из {total} уроков',
+    many: 'Пройдено {done} из {total} уроков',
+    other: 'Пройдено {done} из {total} урока',
+  },
   'course.new_words': {
     one: '{count} новое слово',
     few: '{count} новых слова',

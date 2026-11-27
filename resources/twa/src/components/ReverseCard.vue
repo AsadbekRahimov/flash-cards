@@ -113,7 +113,7 @@ function onContinue(): void {
         class="flex flex-col items-center text-center"
         :class="answered ? 'mt-3 gap-1.5 short:mt-2 short:gap-1' : 'mt-5 gap-2 short:mt-3 short:gap-1.5'"
       >
-        <MascotArt pose="thinking" :height="answered ? 72 : 88" class="short:hidden" />
+        <MascotArt loading="eager" pose="thinking" :height="answered ? 72 : 88" class="short:hidden" />
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
         <p class="t-body-m text-muted" data-testid="exercise-title">{{ title }}</p>
         <LessonWord :text="front" :phrase="phrase !== null" :compact="answered" data-testid="front" />

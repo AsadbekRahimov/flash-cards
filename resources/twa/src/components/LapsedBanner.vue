@@ -113,7 +113,7 @@ onMounted(async () => {
       </button>
     </div>
     <!-- Tinted, not primary: the screens around it (Home, Subscription) have their own one primary button. -->
-    <button v-if="renewable" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
+    <button v-if="renewable" type="button" class="btn btn-secondary btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t(isTrial ? 'lapsed.trial.renew' : 'lapsed.renew') }}
     </button>
     <button v-if="isTrial" type="button" class="btn btn-plain btn-block" data-testid="lapsed-invite" @click="emit('invite')">

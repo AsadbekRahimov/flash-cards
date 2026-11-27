@@ -334,7 +334,7 @@ describe('DeckEditView', () => {
       expect(input.classes()).toEqual(expect.arrayContaining(['field', 'font-mono']))
       const add = card.get('[data-testid=add-btn]')
       expect(add.text()).toBe('Добавить')
-      expect(add.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(add.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
       expect(add.attributes('disabled')).toBeDefined()
     })
 
@@ -647,7 +647,7 @@ describe('DeckEditView', () => {
       const back = wrapper.get('[data-testid=back-link]')
       expect(back.attributes('href')).toBe('/decks')
       expect(back.text()).toBe('К колодам')
-      expect(back.classes()).toContain('btn-tinted')
+      expect(back.classes()).toContain('btn-secondary')
 
       await wrapper.get('[data-testid=retry-btn]').trigger('click')
       await flushPromises()

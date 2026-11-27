@@ -616,7 +616,7 @@ watch(
           <section v-if="iAnswered" class="flex flex-1 flex-col gap-4 px-5 pt-6 pb-6 short:pt-3" data-testid="battle-waiting">
             <!-- Waiting for the opponent: the mascot thinks (kit), the answer is in - a check and a word, not the colour alone. -->
             <div class="flex flex-col items-center gap-2 text-center">
-              <MascotArt pose="thinking" :height="112" class="mb-1 short:hidden" />
+              <MascotArt loading="eager" pose="thinking" :height="112" class="mb-1 short:hidden" />
               <h2 class="t-title-m flex items-center gap-1.5 text-success-ink">
                 <AppIcon name="check" :size="20" />
                 {{ t('battle.round.answered') }}

@@ -70,8 +70,10 @@ async function renderCatalog() {
 async function renderCourse(slug: string) {
   const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router()] } })
   await flushPromises()
-  // the lessons of a module are under its disclosure (kit Muhrla 03): every module opened
-  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) await toggle.trigger('click')
+  // the lessons of a module are under its disclosure (kit Muhrla 03; the current one starts open): every module opened
+  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) {
+    if (toggle.attributes('aria-expanded') !== 'true') await toggle.trigger('click')
+  }
   return wrapper
 }
 

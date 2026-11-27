@@ -9,6 +9,8 @@ interface AchievementsState {
   data: AchievementsResponse | null
   status: AchievementsStatus
   errorMessage: string
+  /** A quiet read of `ensureLoaded()` is in flight (it never touches `status`). */
+  ensuring: boolean
 }
 
 /** Achievements (docs/04 A.15): the catalog with the learner's state, and the "shared" mark. */
@@ -17,6 +19,7 @@ export const useAchievementsStore = defineStore('achievements', {
     data: null,
     status: 'idle',
     errorMessage: '',
+    ensuring: false,
   }),
 
   actions: {
@@ -29,6 +32,26 @@ export const useAchievementsStore = defineStore('achievements', {
       } catch (err) {
         this.status = 'error'
         this.errorMessage = errorMessage(err, 'settings')
+      }
+    },
+
+    /**
+     * The profile's read (best effort): asks only while nothing is known and nothing is in flight. A failure stays quiet — `status` and
+     * `errorMessage` are left as they were, so the "Achievements" screen never inherits an error of a background read; it loads fresh
+     * data itself (`load()`).
+     */
+    async ensureLoaded(): Promise<void> {
+      if (this.data !== null || this.status === 'loading' || this.ensuring) return
+      this.ensuring = true
+      try {
+        const data = await api.achievements.list()
+        this.data = data
+        this.status = 'ready'
+        this.errorMessage = ''
+      } catch {
+        /* the profile simply shows no row of badges */
+      } finally {
+        this.ensuring = false
       }
     },
 

@@ -434,7 +434,7 @@ describe('TodayView: the plan of the day', () => {
       const w = await render(today({ due_count: 0, plan: afterLesson({ step: null, done: true, training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null }, game: null }) }))
 
       // the only action of the card: tinted, not plain
-      expect(w.get('[data-testid=hero-next-lesson]').classes()).toContain('btn-tinted')
+      expect(w.get('[data-testid=hero-next-lesson]').classes()).toContain('btn-secondary')
       await w.get('[data-testid=hero-next-lesson]').trigger('click')
       await flushPromises()
 

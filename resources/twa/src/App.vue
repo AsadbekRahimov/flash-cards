@@ -15,7 +15,7 @@ const showTabBar = computed(() => route.meta.tab !== undefined)
  * (260 ms). Only the opacity: a transform on <main> would make it the containing block of the fixed sheets and sticky buttons of the
  * screen while it runs, and nothing is moved, so the scroll and the safe zones stay as they are. Not on the first screen of the open;
  * a change of the query or the params of the same screen is no move. The class goes when its animation ends, so the next move starts
- * it again; `prefers-reduced-motion` turns it off.
+ * it again; under `prefers-reduced-motion` the class is not put at all (and the CSS turns the animation off too).
  */
 const enter = ref<'' | 'tab' | 'inner'>('')
 
@@ -23,6 +23,8 @@ watch(
   () => route.name,
   (name, previous) => {
     if (previous === undefined || name === previous) return
+    // Without motion there is no animation, so no `animationend` would ever take the class off again: no class at all then.
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     enter.value = route.meta.tab !== undefined ? 'tab' : 'inner'
   },
 )

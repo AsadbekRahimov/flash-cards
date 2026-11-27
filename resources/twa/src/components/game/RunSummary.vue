@@ -104,10 +104,10 @@ const celebrate = computed((): boolean => !props.failed && (boss.value === null 
         <!-- A stop run that is won: the "celebrate" mascot of the kit's lesson end (its picture holds its own stamp); a boss beaten: the
              mascot with the cup and the stamp of the score. One stamp on the screen either way. -->
         <template v-if="celebrate && boss">
-          <MascotArt pose="trophy" :height="120" class="short:hidden" />
+          <MascotArt loading="eager" pose="trophy" :height="120" class="short:hidden" />
           <StampMark :value="summary.score" :unit="tn('gameRun.summary.stamp_unit', summary.score)" haptic class="my-1" />
         </template>
-        <MascotArt v-else-if="celebrate" pose="celebrate" :height="176" class="short:h-28 short:w-auto" />
+        <MascotArt loading="eager" v-else-if="celebrate" pose="celebrate" :height="176" class="short:h-28 short:w-auto" />
         <h2 class="t-display-l break-words" data-testid="summary-title">{{ title }}</h2>
         <p v-if="boss && !boss.won" class="t-body-m text-muted" data-testid="boss-lost-hint">
           {{ t(classFight ? 'gameRun.summary.class_boss_lost_hint' : 'gameRun.summary.boss_lost_hint', { accuracy: Math.round(boss.accuracy) }) }}

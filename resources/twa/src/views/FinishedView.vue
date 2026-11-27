@@ -562,7 +562,7 @@ onBeforeUnmount(() => {
   <div class="page" :class="planHeader ? 'pt-4' : 'pt-6 short:pt-3'" data-testid="finished-view">
     <!-- The stamp is pressed in the corner of the page, as on a page of a notebook; on a short window (no mascot) it is the hero itself. -->
     <div class="relative flex justify-center short:static" data-testid="finished-hero">
-      <MascotArt :pose="mascotPose" :height="120" class="short:hidden" />
+      <MascotArt loading="eager" :pose="mascotPose" :height="120" class="short:hidden" />
       <StampMark v-if="stamp" :value="stamp.value" :unit="stamp.unit" haptic class="absolute! top-0 right-0 short:static!" />
     </div>
     <header v-if="planHeader" class="mt-3 flex flex-col items-center gap-1.5 text-center" data-testid="plan-header">
@@ -668,7 +668,7 @@ onBeforeUnmount(() => {
 
       <div v-if="goal && showGoal" class="flex flex-col gap-2.5 px-4 py-3.5" data-testid="goal">
         <div class="flex items-center gap-2">
-          <AppIcon name="target" :size="20" class="shrink-0 text-muhr" />
+          <AppIcon name="target" :size="20" class="shrink-0" data-testid="goal-icon" />
           <p class="t-body-m-strong min-w-0 flex-1" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
             {{ goal.met ? t('finished.goal_met') : t('finished.goal_line', { done: goal.done, target: goal.target }) }}
           </p>
@@ -749,7 +749,7 @@ onBeforeUnmount(() => {
     <section v-if="showQuotaCard" class="card mt-3.5 space-y-3" data-testid="quota-card">
       <p class="t-body-m-strong">{{ t('finished.quota.title') }}</p>
       <div class="flex flex-col gap-2">
-        <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
+        <button type="button" class="btn btn-secondary btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
           {{ t('finished.quota.pro') }}
         </button>
         <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
@@ -864,13 +864,13 @@ onBeforeUnmount(() => {
               v-if="action === 'details'"
               type="button"
               class="btn btn-block"
-              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'"
               data-testid="trial-ending-pro"
               @click="openPaywall('info')"
             >
               {{ t(paymentOpen ? 'lapsed.trial.renew' : 'protip.more') }}
             </button>
-            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="trial-ending-invite">
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'" data-testid="trial-ending-invite">
               {{ t('lapsed.invite') }}
             </RouterLink>
           </template>
@@ -899,13 +899,13 @@ onBeforeUnmount(() => {
               v-if="action === 'details'"
               type="button"
               class="btn btn-block"
-              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'"
               data-testid="pro-tip-details"
               @click="openPaywall('info')"
             >
               {{ t('protip.more') }}
             </button>
-            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="pro-tip-invite">
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'" data-testid="pro-tip-invite">
               {{ t('protip.invite') }}
             </RouterLink>
           </template>

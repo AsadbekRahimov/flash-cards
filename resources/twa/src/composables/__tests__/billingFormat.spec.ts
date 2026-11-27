@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale } from '@/i18n'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '../billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct, splitPrice } from '../billingFormat'
 import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
 
 /** Intl groups digits with (narrow) no-break spaces. */
@@ -143,5 +143,21 @@ describe('billingFormat', () => {
       expect(periodSavingPct([item('quarter', { XTR: 390 })], 'quarter')).toBeNull()
       expect(periodSavingPct([item('month', { XTR: 150 })], 'quarter')).toBeNull()
     })
+  })
+})
+
+describe('splitPrice', () => {
+  it.each([
+    ['150 Stars', '150', 'Stars'],
+    ['1 300 Stars', '1 300', 'Stars'],
+    ['75 000 сум', '75 000', 'сум'],
+    ["75 000 so'm", '75 000', "so'm"],
+    // a currency written first is still the currency, not the number
+    ['USD 4.99', '4.99', 'USD'],
+    ['UZS 75 000', '75 000', 'UZS'],
+    ['$4.99', '$4.99', ''],
+    ['4.99', '4.99', ''],
+  ])('%s -> %s + %s', (price, amount, unit) => {
+    expect(splitPrice(price)).toEqual({ amount, unit })
   })
 })

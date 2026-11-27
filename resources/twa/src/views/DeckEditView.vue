@@ -113,7 +113,7 @@ onMounted(() => {
     <LoadingState v-if="status === 'idle' || status === 'loading'" />
 
     <ErrorState v-else-if="status === 'error' || !detail" :message="errorMessage" @retry="load">
-      <RouterLink :to="{ name: 'decks' }" class="btn btn-tinted btn-block" data-testid="back-link">
+      <RouterLink :to="{ name: 'decks' }" class="btn btn-secondary btn-block" data-testid="back-link">
         {{ t('decks.edit.back') }}
       </RouterLink>
     </ErrorState>
@@ -193,7 +193,7 @@ onMounted(() => {
 
         <button
           type="button"
-          class="btn btn-tinted btn-block"
+          class="btn btn-secondary btn-block"
           :disabled="busy || text.trim() === ''"
           data-testid="add-btn"
           @click="addWords"

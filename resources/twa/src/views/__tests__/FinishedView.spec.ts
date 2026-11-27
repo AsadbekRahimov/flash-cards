@@ -942,6 +942,8 @@ describe('FinishedView', () => {
       expect(w.find('[data-testid=reviewed]').exists()).toBe(false)
       expect(w.find('[data-testid=reason]').exists()).toBe(true)
       expect(w.find('[data-testid=goal]').exists()).toBe(true)
+      // the muhr is the stamp's colour only (kit): the icon of the goal next to it is in the colour of the text
+      expect(w.get('[data-testid=goal-icon]').classes()).not.toContain('text-muhr')
     })
 
     it('has no tiles without a summary (group lesson, failed finish): only how many cards were reviewed', () => {
@@ -992,7 +994,7 @@ describe('FinishedView', () => {
 
       // The learner can bring it back with the same button.
       const open = w.get('[data-testid=paywall-open]')
-      expect(open.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(open.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       expect(open.text()).toBe('Что даёт Pro')
       await open.trigger('click')
       expect(w.find('[data-testid=paywall]').exists()).toBe(true)

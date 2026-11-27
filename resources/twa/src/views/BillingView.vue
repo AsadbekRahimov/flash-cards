@@ -340,7 +340,7 @@ function splitPrice(price: string): { amount: string; unit: string } {
         v-if="canBuy"
         type="button"
         class="btn btn-lg btn-block"
-        :class="subscription?.can_resume ? 'btn-tinted' : 'btn-primary'"
+        :class="subscription?.can_resume ? 'btn-secondary' : 'btn-primary'"
         data-testid="buy"
         @click="openPaywall()"
       >

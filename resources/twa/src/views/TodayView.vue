@@ -823,7 +823,7 @@ onBeforeUnmount(() => {
                 <AppIcon name="arrow-right" :size="20" />
               </button>
               <!-- The Free quota of new words is used up: the lesson would bring none today, so the way is to Pro. -->
-              <button v-else-if="!isPro" type="button" class="btn btn-tinted btn-lg btn-block" data-testid="hero-pro" @click="openPaywall('quota')">
+              <button v-else-if="!isPro" type="button" class="btn btn-secondary btn-lg btn-block" data-testid="hero-pro" @click="openPaywall('quota')">
                 {{ t('today.all_done.pro') }}
               </button>
             </template>
@@ -852,7 +852,7 @@ onBeforeUnmount(() => {
               <button
                 v-if="doneReview"
                 type="button"
-                class="btn btn-tinted btn-lg btn-block"
+                class="btn btn-secondary btn-lg btn-block"
                 :disabled="opening"
                 data-testid="hero-review"
                 @click="review"
@@ -863,7 +863,7 @@ onBeforeUnmount(() => {
                 v-if="doneNextLesson"
                 type="button"
                 class="btn btn-lg btn-block"
-                :class="doneReview ? 'btn-plain' : 'btn-tinted'"
+                :class="doneReview ? 'btn-plain' : 'btn-secondary'"
                 :disabled="opening"
                 data-testid="hero-next-lesson"
                 @click="startLesson"
@@ -1195,7 +1195,7 @@ onBeforeUnmount(() => {
               <template v-if="!allDone && heroStep !== 1">
                 <button
                   type="button"
-                  class="btn btn-tinted btn-block"
+                  class="btn btn-secondary btn-block"
                   :disabled="opening"
                   data-testid="next-lesson-btn"
                   @click="learnNext(data.active_course.next_lesson.id)"
@@ -1210,7 +1210,7 @@ onBeforeUnmount(() => {
                 <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
                 <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
               </p>
-              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
+              <RouterLink :to="{ name: 'courses' }" class="btn btn-secondary btn-block" data-testid="course-choose-other">
                 {{ t('today.course.choose_other') }}
               </RouterLink>
             </template>
@@ -1225,7 +1225,7 @@ onBeforeUnmount(() => {
           <div v-else class="flex flex-col items-center gap-3 py-4 text-center" data-testid="no-course">
             <MascotArt pose="reading" :height="88" />
             <p class="t-body-m text-muted">{{ t('today.course.none') }}</p>
-            <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted" data-testid="choose-course">
+            <RouterLink :to="{ name: 'courses' }" class="btn btn-secondary" data-testid="choose-course">
               {{ t('today.course.choose') }}
             </RouterLink>
           </div>

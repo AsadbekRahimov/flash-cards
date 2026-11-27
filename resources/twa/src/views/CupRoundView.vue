@@ -295,7 +295,7 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
         <p class="t-label-s pt-3.5 text-muted" data-testid="caption">{{ caption }}</p>
         <!-- Before the attempt: the hero of the kit on the central axis - the mascot thinks, the title, what the round is. -->
         <section class="flex flex-col items-center gap-2 rounded-hero bg-highlight p-5 text-center">
-          <MascotArt pose="thinking" :height="112" class="mb-1 short:hidden" />
+          <MascotArt loading="eager" pose="thinking" :height="112" class="mb-1 short:hidden" />
           <h1 class="t-display-m">{{ t('cup.round.confirm_title') }}</h1>
           <p class="t-body-m" data-testid="confirm-text">
             {{ t('cup.round.confirm_text', { tasks: cup?.round_tasks ?? 0, minutes: cup?.round_minutes ?? 0 }) }}
@@ -327,7 +327,7 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
           the mascot glad of it; a round whose time ran out is told quietly. The points are the big figure, the rest lines under it.
         -->
         <section class="flex flex-col items-center gap-2 rounded-hero bg-highlight p-5 text-center" data-testid="summary-card">
-          <MascotArt v-if="!expired && round.points > 0" pose="celebrate" :height="144" class="mb-1 short:hidden" />
+          <MascotArt loading="eager" v-if="!expired && round.points > 0" pose="celebrate" :height="144" class="mb-1 short:hidden" />
           <h1 class="t-display-m" data-testid="summary-title">{{ expired ? t('cup.round.expired_title') : t('cup.round.done_title') }}</h1>
           <p class="font-display text-[44px] leading-[50px] font-semibold tracking-[-0.03em] tabular-nums" data-testid="summary-points">
             {{ round.points }}<span class="t-title-m text-muted"> / {{ round.max_points }}</span>

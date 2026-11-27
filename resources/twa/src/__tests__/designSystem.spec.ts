@@ -458,7 +458,8 @@ describe('style.css: the palette, light and dark', () => {
 
   it('puts the ink on the chips and the danger button, on-primary on the main button, the body text on the secondary one', () => {
     expect(colourOf('.btn-primary')).toEqual(['var(--app-on-primary)'])
-    expect(colourOf('.btn-tinted')).toEqual(['var(--app-text)'])
+    // the old alias `btn-tinted` is gone: one name of the secondary button
+    expect(css).not.toContain('btn-tinted')
     expect(colourOf('.btn-secondary')).toEqual(['var(--app-text)'])
     expect(colourOf('.chip-ink')).toEqual(['var(--app-on-inverse)'])
     expect(colourOf('.chip-accent')).toEqual(['var(--app-accent-ink)'])

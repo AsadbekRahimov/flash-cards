@@ -378,7 +378,7 @@ function onContinue(): void {
         <button
           v-if="clip"
           type="button"
-          class="btn btn-tinted"
+          class="btn btn-secondary"
           :disabled="replayLoading"
           :aria-busy="replayLoading ? 'true' : undefined"
           data-testid="listen-again-btn"

@@ -40,12 +40,12 @@ const subtitleOf = (friend: FriendItem): string =>
 
     <div v-else-if="status === 'error'" class="space-y-3 pb-1">
       <InlineAlert tone="danger" :message="message" data-testid="friends-error" />
-      <button type="button" class="btn btn-tinted btn-block" data-testid="friends-retry" @click="emit('retry')">{{ t('common.retry') }}</button>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="friends-retry" @click="emit('retry')">{{ t('common.retry') }}</button>
     </div>
 
     <EmptyState v-else-if="friends.length === 0" icon="users" :text="t('practice.hub.friends.empty')" data-testid="friends-empty">
       <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="friends-invite" @click="emit('invite')">{{ t('practice.hub.friends.invite') }}</button>
+        <button type="button" class="btn btn-secondary" data-testid="friends-invite" @click="emit('invite')">{{ t('practice.hub.friends.invite') }}</button>
       </template>
     </EmptyState>
 

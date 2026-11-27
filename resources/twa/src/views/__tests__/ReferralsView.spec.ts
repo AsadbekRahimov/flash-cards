@@ -288,7 +288,7 @@ describe('ReferralsView', () => {
       expect(share.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
       const copy = wrapper.get('[data-testid=copy-btn]')
       expect(copy.text()).toBe('Скопировать ссылку')
-      expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
     })
 
     it('is the only primary button of the screen', async () => {

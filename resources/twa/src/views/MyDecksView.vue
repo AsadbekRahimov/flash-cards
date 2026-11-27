@@ -156,7 +156,7 @@ onMounted(() => {
           <template v-else>
             <button
               type="button"
-              class="btn btn-tinted btn-block"
+              class="btn btn-secondary btn-block"
               :disabled="busy || deck.words_count === 0"
               data-testid="choose-btn"
               @click="activating = deck.slug"

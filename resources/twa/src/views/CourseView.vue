@@ -32,9 +32,10 @@ import type { CourseLesson, CourseStage } from '@/api/types'
  * "Modules", the path of the kit: the picture of the topic of each module (`topicImage(course, module)`; a course without pictures - a plate
  * with the number) with the mark of its state - done (a muhr circle with a check, "N words · repeat"), current (an ink circle with the number
  * of the lesson; the card in a 2 px ink frame "lesson 3 of 10 · you are here →" that opens the current lesson), the modules after it (a
- * lock, the picture dimmed, "after module 3"). A module opens its lessons under it (a disclosure): every lesson of it as a row that opens
- * the lesson, learned ones "repeat"; while `/me.practice.available` every lesson has a small "Practice" (the hub of that lesson, the
- * paywall while it is behind Pro). The lessons stay open to the learner in any module: the lock only says where the path goes. Under the
+ * lock, the picture dimmed, "after module 3"). A module opens its lessons under it (a disclosure; the current module starts open, so its
+ * lesson, the number of its new words and its "Practice" are seen without a tap): every lesson of it as a row that opens the lesson,
+ * learned ones "repeat"; while `/me.practice.available` every lesson has a small "Practice" (the hub of that lesson, the paywall while it
+ * is behind Pro). The lessons stay open to the learner in any module: the lock only says where the path goes. Under the
  * modules: "Practice" of the course, the Karvon map and the IELTS / SAT mock. The screen opens scrolled to the current module. "Back" is
  * the system button (-> the catalog). A course of phrases (`section = phrases`, docs/35 §3.2) is the same screen with «фраз» in its lines.
  */
@@ -129,9 +130,9 @@ function stageTitle(stage: CourseStage): string | null {
 }
 
 /** "1 of 5 lessons": the lessons of the module that are learned through. */
-function stageCount(stage: CourseStage): string {
+function stageCount(stage: CourseStage, key: 'course.module_lessons' | 'course.lessons_passed' = 'course.module_lessons'): string {
   const done = stage.lessons.filter((lesson) => lessonState(lesson) === 'done').length
-  return tn('course.module_lessons', stage.lessons.length, { done, total: stage.lessons.length })
+  return tn(key, stage.lessons.length, { done, total: stage.lessons.length })
 }
 
 /** The state of a module on the path: done (its lessons with words are all learned), current (it has the current lesson), locked (a module
@@ -183,13 +184,23 @@ function moduleMeta(stage: CourseStage): string {
   return size
 }
 
-/** The modules opened to show their lessons (a disclosure each); none at first - the current one is a card that opens its lesson. */
-const openModules = ref<Set<number>>(new Set())
+/**
+ * The modules the learner has toggled (a disclosure each). The current module starts open - its lesson, the number of its new words and
+ * its "Practice" are seen without a tap - the others closed; a toggle flips that.
+ */
+const toggledModules = ref<Set<number>>(new Set())
 function toggleModule(number: number): void {
-  const next = new Set(openModules.value)
+  const next = new Set(toggledModules.value)
   if (next.has(number)) next.delete(number)
   else next.add(number)
-  openModules.value = next
+  toggledModules.value = next
+}
+function isModuleOpen(stage: CourseStage): boolean {
+  return (moduleState(stage) === 'current') !== toggledModules.value.has(stage.number)
+}
+/** `aria-controls` of a disclosure: only while its list is on the page. */
+function lessonsId(stage: CourseStage): string | undefined {
+  return isModuleOpen(stage) && stage.lessons.length > 0 ? `module-lessons-${stage.number}` : undefined
 }
 
 /** «Модуль 3 из 20 · 120 из 1000 слов» of the card: the module of the current lesson (the learner's course), else only the words. */
@@ -231,7 +242,8 @@ const lessonList = ref<HTMLElement | null>(null)
 const returning = typeof router.options.history.state?.forward === 'string'
 let scrolled = returning
 
-watch(status, async (value) => {
+// Keyed by the read too: a course from the cache is 'ready' at once, and the status may already have been 'ready' before.
+watch([status, () => catalog.detailSeq], async ([value]) => {
   if (value !== 'ready' || scrolled || currentLessonId.value === null) return
   scrolled = true
   await nextTick()
@@ -279,6 +291,9 @@ watch(openError, (message) => {
   showErrorToast(message)
   training.clearOpenError()
 })
+
+// A course read already (All courses, an earlier visit) is drawn in the first frame; `load()` still reads it once, as always.
+catalog.showCached(props.slug)
 
 onMounted(() => {
   void load()
@@ -392,31 +407,33 @@ onBeforeUnmount(() => {
                 data-testid="continue-btn"
                 @click="currentLessonId !== null && learn(currentLessonId)"
               >
-                <span class="sr-only">{{ (currentLessonOf(stage)?.lesson.progress.done ?? 0) > 0 ? t('course.continue_lesson') : t('course.start_lesson') }}:</span>
                 <span class="relative shrink-0" aria-hidden="true">
                   <TopicArt :course="detail.slug" :stage="stage.number" :size="64">
                     <template #fallback><span class="icon-tile t-title-m size-16 rounded-md">{{ stage.number }}</span></template>
                   </TopicArt>
                   <span class="t-caption absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-inverse font-semibold text-on-inverse ring-2 ring-surface" data-testid="module-badge">
-                    {{ currentLessonOf(stage)?.lesson.number ?? stage.number }}
+                    {{ currentLessonOf(stage)?.place ?? stage.number }}
                   </span>
                 </span>
                 <span class="min-w-0 flex-1">
                   <span class="t-body-l block [overflow-wrap:anywhere]" data-testid="module-title">{{ moduleTitle(stage) }}</span>
                   <span class="t-body-m block text-muted" data-testid="module-meta">{{ moduleMeta(stage) }}</span>
+                  <span class="t-body-m-strong mt-1 block" data-testid="continue-label">
+                    {{ (currentLessonOf(stage)?.lesson.progress.done ?? 0) > 0 ? t('course.continue_lesson') : t('course.start_lesson') }}
+                  </span>
                 </span>
                 <AppIcon name="arrow-right" :size="22" class="shrink-0" />
               </button>
               <button
                 type="button"
                 class="t-label-s flex min-h-11 w-full items-center gap-1 border-t border-divider px-3 text-left text-muted"
-                :aria-expanded="openModules.has(stage.number) ? 'true' : 'false'"
-                :aria-controls="`module-lessons-${stage.number}`"
+                :aria-expanded="isModuleOpen(stage) ? 'true' : 'false'"
+                :aria-controls="lessonsId(stage)"
                 data-testid="module-toggle"
                 @click="toggleModule(stage.number)"
               >
-                <span class="min-w-0 flex-1">{{ t('course.lessons') }} · {{ stageCount(stage) }}</span>
-                <AppIcon name="chevron-down" :size="16" class="shrink-0 transition-transform" :class="{ 'rotate-180': openModules.has(stage.number) }" />
+                <span class="min-w-0 flex-1">{{ stageCount(stage, 'course.lessons_passed') }}</span>
+                <AppIcon name="chevron-down" :size="16" class="shrink-0 transition-transform" :class="{ 'rotate-180': isModuleOpen(stage) }" />
               </button>
             </div>
 
@@ -425,8 +442,8 @@ onBeforeUnmount(() => {
               v-else
               type="button"
               class="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left active:bg-fill"
-              :aria-expanded="openModules.has(stage.number) ? 'true' : 'false'"
-              :aria-controls="`module-lessons-${stage.number}`"
+              :aria-expanded="isModuleOpen(stage) ? 'true' : 'false'"
+              :aria-controls="lessonsId(stage)"
               data-testid="module-toggle"
               @click="toggleModule(stage.number)"
             >
@@ -456,12 +473,12 @@ onBeforeUnmount(() => {
                 <span class="t-body-l block [overflow-wrap:anywhere]" :class="{ 'text-muted': moduleState(stage) === 'locked' }" data-testid="module-title">{{ moduleTitle(stage) }}</span>
                 <span class="t-body-m block" :class="moduleState(stage) === 'done' ? 'text-accent' : 'text-muted'" data-testid="module-meta">{{ moduleMeta(stage) }}</span>
               </span>
-              <AppIcon name="chevron-down" :size="18" class="shrink-0 text-muted transition-transform" :class="{ 'rotate-180': openModules.has(stage.number) }" />
+              <AppIcon name="chevron-down" :size="18" class="shrink-0 text-muted transition-transform" :class="{ 'rotate-180': isModuleOpen(stage) }" />
             </button>
 
             <!-- The lessons of an open module: one list of the kit; a whole row opens its lesson, "Practice" stands above that layer. -->
             <ol
-              v-if="openModules.has(stage.number) && stage.lessons.length > 0"
+              v-if="isModuleOpen(stage) && stage.lessons.length > 0"
               :id="`module-lessons-${stage.number}`"
               class="list mt-2 mb-3"
               data-testid="module-lessons"
@@ -563,7 +580,7 @@ onBeforeUnmount(() => {
         <InlineAlert v-if="mockError" tone="danger" :message="mockError" class="mt-3" data-testid="mock-exam-error" />
         <button
           type="button"
-          class="btn btn-tinted btn-block mt-3"
+          class="btn btn-secondary btn-block mt-3"
           :disabled="openingMock"
           data-testid="mock-exam-btn"
           @click="mockExam()"

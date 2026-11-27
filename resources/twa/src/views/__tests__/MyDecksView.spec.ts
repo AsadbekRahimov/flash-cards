@@ -374,7 +374,7 @@ describe('MyDecksView', () => {
 
       const choose = wrapper.get('[data-testid=deck-other] [data-testid=choose-btn]')
       expect(choose.text()).toBe('Учить вместо курса')
-      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
 
       const active = wrapper.get('[data-testid="deck-deck-1-abc"]')
       const badge = active.get('[data-testid=active-badge]')

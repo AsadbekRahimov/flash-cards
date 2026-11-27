@@ -20,7 +20,7 @@ import { topicImage } from '@/composables/illustrations'
  *
  * @example
  * <LessonHero step="1" eyebrow="A1–A2 · урок 3" title="Напитки" text="5 новых слов" course="english-a1-a2" :stage="3">
- *   <AppButton block icon>Начать урок</AppButton>
+ *   <button type="button" class="btn btn-primary btn-block">Начать урок</button>
  * </LessonHero>
  */
 const props = withDefaults(
