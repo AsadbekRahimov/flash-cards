@@ -154,11 +154,30 @@ describe('TodayView', () => {
       expect(w.get('[data-testid=today-header]').element.contains(w.get('[data-testid=plan-badge]').element)).toBe(true)
     })
 
-    it('leaves the language to Profile once the learner has progress and a streak: the stamp takes the place', async () => {
+    it('stays for a learner with progress and a streak too: a 32 px pill in the date line, the stamp keeps its place on the right', async () => {
       const w = await render()
 
-      expect(w.find('[data-testid=lang-btn]').exists()).toBe(false)
-      expect(w.find('[data-testid=today-header] [data-testid=plan-badge]').exists()).toBe(true)
+      expect(w.findAll('[data-testid=lang-btn]')).toHaveLength(1)
+      const btn = w.get('[data-testid=lang-btn]')
+      expect(btn.text()).toBe('RU')
+      expect(btn.attributes('aria-label')).toBe('Til · Язык')
+      expect(btn.classes()).toEqual(expect.arrayContaining(['chip', 'h-8', 'tap-target']))
+      // In the date line with the plan badge, not in the column of the stamp.
+      const dateLine = w.get('[data-testid=eyebrow]').element.parentElement
+      expect(dateLine?.contains(btn.element)).toBe(true)
+      expect(dateLine?.contains(w.get('[data-testid=plan-badge]').element)).toBe(true)
+      expect(w.find('[data-testid=today-header] [data-testid=stamp]').exists()).toBe(true)
+      expect(dateLine?.querySelector('[data-testid=stamp]')).toBeNull()
+    })
+
+    it('opens the language sheet for a learner with progress and a streak', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
+      const w = await render()
+
+      await w.get('[data-testid=lang-btn]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
     })
 
     it('shows UZ in Uzbek', async () => {

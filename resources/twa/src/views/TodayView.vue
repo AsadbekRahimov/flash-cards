@@ -151,7 +151,7 @@ const hasProgress = computed(() => data.value !== null && hasLearnerProgress(dat
 
 const INTRO_KEY = 'lexiflow:intro-seen'
 const introOpen = ref(false)
-/** The language pill of the header: a newcomer who got the wrong language switches it here, on the first screen (Profile has it for all). */
+/** The language pill of the header: every learner switches the language here, on the first screen (Profile has the row too). */
 const languageOpen = ref(false)
 // The first visit of a newcomer: the sheet "How it works" opens once (marked at the moment it opens), never for a learner with progress.
 watch(data, (current) => {
@@ -711,37 +711,41 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="!data" :message="loadError" @retry="load" />
 
     <div v-else>
-      <!-- The date and the greeting (kit 01), the stamp of the streak on the right. The plan chip leads to the subscription. -->
-      <header class="flex items-center justify-between gap-3 pt-2 pb-6" data-testid="today-header">
-        <div class="min-w-0">
-          <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span class="t-body-m text-tertiary" data-testid="eyebrow">{{ dateLine }}</span>
-            <!-- A chip is 26 px high: the padding (cancelled by the margin) makes the touch target 44 px. -->
-            <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
-              <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
-                {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
-              </span>
-            </RouterLink>
-            <!--
-              The language, for a newcomer or while there is no stamp (Profile has the row for everybody): a
-              chip-sized pill, the invisible layer of .tap-target makes the touch area 44 px. A learner with progress has the stamp there.
-            -->
-            <button
-              v-if="!hasProgress || streakStamp === null"
-              type="button"
-              class="chip chip-neutral tap-target font-semibold text-body"
-              :aria-label="LANGUAGE_TITLE"
-              aria-haspopup="dialog"
-              data-testid="lang-btn"
-              @click="languageOpen = true"
-            >
-              {{ locale.toUpperCase() }}
-              <AppIcon name="chevron-down" :size="14" />
-            </button>
-          </p>
-          <h1 class="t-display-l mt-1 [overflow-wrap:anywhere]" data-testid="greeting">{{ greeting }}</h1>
+      <!--
+        The date and the greeting (kit 01), the stamp of the streak on the right. The plan chip leads to the subscription. The date line
+        spans the whole width (date, plan, language fit in one line from 320 px), the stamp stands next to the greeting only: in the
+        narrow column beside the stamp the language pill would wrap onto a line of its own.
+      -->
+      <header class="pt-2 pb-6" data-testid="today-header">
+        <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span class="t-body-m text-tertiary" data-testid="eyebrow">{{ dateLine }}</span>
+          <!-- A chip is 26 px high: the padding (cancelled by the margin) makes the touch target 44 px. -->
+          <RouterLink :to="{ name: 'billing' }" class="-m-2.5 block p-2.5" data-testid="plan-badge">
+            <span class="chip" :class="isPro ? 'chip-accent' : 'chip-neutral'">
+              {{ t(isPro ? 'today.plan.pro' : 'today.plan.free') }}
+            </span>
+          </RouterLink>
+          <!--
+            The language, for every learner (owner's decision of 27.11.2026): a pill in the date line, so it never moves the greeting
+            and never competes with the stamp. A tappable chip is 32 px high (kit COMPONENTS «Chip»); the invisible layer of
+            .tap-target makes the touch area 44 px.
+          -->
+          <button
+            type="button"
+            class="chip chip-neutral tap-target h-8 font-semibold text-body"
+            :aria-label="LANGUAGE_TITLE"
+            aria-haspopup="dialog"
+            data-testid="lang-btn"
+            @click="languageOpen = true"
+          >
+            {{ locale.toUpperCase() }}
+            <AppIcon name="chevron-down" :size="14" />
+          </button>
+        </p>
+        <div class="mt-1 flex items-center justify-between gap-3">
+          <h1 class="t-display-l min-w-0 [overflow-wrap:anywhere]" data-testid="greeting">{{ greeting }}</h1>
+          <StampMark v-if="streakStamp" :value="streakStamp.value" :unit="streakStamp.unit" class="-my-2 shrink-0" />
         </div>
-        <StampMark v-if="streakStamp" :value="streakStamp.value" :unit="streakStamp.unit" class="-my-2" />
       </header>
 
       <div class="flex flex-col gap-6">
