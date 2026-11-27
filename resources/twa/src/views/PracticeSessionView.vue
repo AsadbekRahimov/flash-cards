@@ -298,8 +298,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
 <template>
   <!--
     The frame of a lesson (kit Muhrla 04) on the canvas: the header (✕, the progress in segments or a line, «3 / 5», the module / lesson
-    under it), the task in the body and its actions at the bottom (StickyActions of the mode component). The boards that the battle and the
-    game draw on a white screen take the canvas here (`--app-screen`).
+    under it), the task in the body and its actions at the bottom (StickyActions of the mode component). The boards it shares with the battle and
+    the game take the canvas for their sticky blocks (`--app-screen`).
   -->
   <section
     class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"

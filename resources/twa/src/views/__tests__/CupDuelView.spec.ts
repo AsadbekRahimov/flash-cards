@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupDuelView from '../CupDuelView.vue'
 import { api } from '@/api'
+import { useBackButton } from '@/composables/useBackButton'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
@@ -190,6 +191,14 @@ describe('CupDuelView: over', () => {
     await advance(10_000)
     expect(api.cups.duels.show).toHaveBeenCalledTimes(1)
     expect(route(r)).toBe('/cups/5/duels/41')
+  })
+
+  it('leads forward to the duels of the cup; back to the cup is the system "Back" of Telegram, not a link of its own (kit TELEGRAM.md)', async () => {
+    const r = await render(cupDuel({ status: 'done', rated: true, points: { challenger: 4, opponent: 3 }, winner_participant_id: 2, battle_id: 77, accepted_day: 3 }))
+
+    expect(tid(r, 'to-duels').attributes('href')).toBe('/cups/5/duels')
+    expect(r.wrapper.find('[data-testid=to-cup]').exists()).toBe(false)
+    expect(vi.mocked(useBackButton)).toHaveBeenCalled()
   })
 
   it('played, friendly: no points of the cup', async () => {

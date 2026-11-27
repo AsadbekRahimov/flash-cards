@@ -360,8 +360,8 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
         </button>
       </div>
 
+      <!-- Forward to the duels of the cup; back to the cup is Telegram's own "Back" (kit TELEGRAM.md: no "Back" of our own in the content). -->
       <RouterLink v-if="cupId !== null" :to="{ name: 'cup-duels', params: { id: cupId } }" class="btn btn-plain btn-block" data-testid="to-duels">{{ t('cup.duel.list_title') }}</RouterLink>
-      <RouterLink v-if="cupId !== null" :to="{ name: 'cup', params: { id: cupId } }" class="btn btn-plain btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
     </div>
 
     <PaywallSheet v-if="limitHit" reason="practice_limit" :limit-hit="limitHit" @close="store.dismissPaywall()" @review="reviewFromPaywall" />

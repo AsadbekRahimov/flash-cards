@@ -109,6 +109,23 @@ describe('QuizOption', () => {
     expect(w.find('[data-testid=option-indicator-0]').exists()).toBe(false)
   })
 
+  it('writes a note under the label when given one (an option the hint of the game took away), and nothing without it', () => {
+    const w = mount(QuizOption, { props: { label: 'apple', index: 1, state: 'idle', disabled: true, note: 'убран подсказкой', lang: 'en' } })
+    const label = w.get('[data-testid=option-label]')
+    const note = w.get('[data-testid=option-note-1]')
+
+    expect(label.text()).toBe('apple')
+    expect(label.attributes('lang')).toBe('en')
+    expect(note.text()).toBe('убран подсказкой')
+    // under the label, in one column with it; the option keeps the quiet look of a disabled one
+    expect(label.element.parentElement).toBe(note.element.parentElement)
+    expect(w.get('[data-testid=option-1]').attributes('data-dimmed')).toBe('true')
+
+    const plain = mount(QuizOption, { props: { label: 'apple', index: 1, state: 'idle' } })
+    expect(plain.find('[data-testid=option-note-1]').exists()).toBe(false)
+    expect(plain.get('[data-testid=option-label]').element.parentElement).toBe(plain.get('[data-testid=option-1]').element)
+  })
+
   it('is the box of the kit: .option (radius md, Body/L), at least 60 px high (48 in a low window)', () => {
     const classes = mount(QuizOption, { props: { label: 'x', index: 0, state: 'idle' } }).get('[data-testid=option-0]').classes()
     expect(classes).toEqual(expect.arrayContaining(['option', 'min-h-[60px]', 'short:min-h-12']))

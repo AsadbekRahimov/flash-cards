@@ -26,7 +26,6 @@ import { remainingMs, secondsLeft } from '@/composables/battleTime'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useBattleAudio } from '@/composables/useBattleAudio'
 import { useNow } from '@/composables/useNow'
 import { usePolling } from '@/composables/usePolling'
@@ -450,9 +449,6 @@ function requestLeave(): void {
 
 useBackButton(requestLeave)
 
-// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
-useChromeSurface()
-
 async function confirmLeave(): Promise<void> {
   const kind = leaving.value
   if (kind === 'match') {
@@ -498,11 +494,15 @@ watch(over, (isOver) => {
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     :data-status="status"
     data-testid="battle-view"
   >
+    <!--
+      A round stands on the canvas of the kit, as a lesson does (04-urok-vopros): the Telegram chrome keeps the page colour, the options and
+      the boards are the surface on it, and the sticky blocks of the boards take the canvas (`--app-screen`).
+    -->
     <!-- Always there, so that what is put into it is announced. -->
     <p class="sr-only" role="status" aria-live="polite" data-testid="battle-live">{{ liveText }}</p>
 

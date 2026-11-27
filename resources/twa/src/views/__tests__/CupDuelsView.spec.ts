@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupDuelsView from '../CupDuelsView.vue'
 import { api } from '@/api'
+import { useBackButton } from '@/composables/useBackButton'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useCupBoardStore } from '@/stores/cupBoard'
@@ -146,6 +147,13 @@ describe('CupDuelsView: the groups', () => {
     expect(tid(r, 'duels-empty').text()).toBe('Пока вызовов нет.')
     expect(tid(r, 'challenge-btn').attributes('href')).toBe('/cups/5/duel')
     expect(tid(r, 'challenges-left').text()).toBe('Сегодня можно отправить ещё 3 вызова')
+  })
+
+  it('draws no "To the cup" of its own: back to the cup is the system "Back" of Telegram (kit TELEGRAM.md)', async () => {
+    const r = await render()
+
+    expect(r.wrapper.find('[data-testid=to-cup]').exists()).toBe(false)
+    expect(vi.mocked(useBackButton)).toHaveBeenCalledWith({ name: 'cup', params: { id: 5 } })
   })
 
   it('no challenge today: why (the state of the cup from the table of the cup screen)', async () => {

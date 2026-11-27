@@ -155,20 +155,12 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('has a link back above the heading, as the system button "Back" has: to Today from the plan, to the course otherwise', async () => {
+  it('draws no "Back" of its own: the way back is the system button of Telegram (kit TELEGRAM.md)', async () => {
     const { wrapper } = await render({ from: 'plan' })
 
-    const back = wrapper.get('[data-testid=hub-back]')
-    expect(back.text()).toBe('Сегодня')
-    expect(back.attributes('href')).toBe('/today')
-    expect(back.classes()).toContain('min-h-11') // a finger's 44 px
+    expect(wrapper.find('[data-testid=hub-back]').exists()).toBe(false)
+    expect(tg.backHandler).not.toBeNull()
     wrapper.unmount()
-
-    const fromCourse = await render()
-    const toCourse = fromCourse.wrapper.get('[data-testid=hub-back]')
-    expect(toCourse.text()).toBe('Курс')
-    expect(toCourse.attributes('href')).toBe('/courses/english-a1')
-    fromCourse.wrapper.unmount()
   })
 
   it('shows the hub: "Word games", the place of the lesson above the heading, and the rows of the modes', async () => {
@@ -338,7 +330,6 @@ describe('PracticeHubView — the states', () => {
     const { wrapper } = await render()
 
     expect(wrapper.get('h1').text()).toBe("So'z o'yinlari")
-    expect(wrapper.get('[data-testid=hub-back]').text()).toBe('Kurs')
     expect(wrapper.get('[data-testid=subtitle]').text()).toBe("Allaqachon o'rgangan so'zlaringizda o'ynang")
     expect(wrapper.get('[data-testid=battle-card]').text()).toContain("Do'st bilan bellashuv")
     expect(wrapper.text()).toContain("Barcha o'yinlar")
@@ -1226,11 +1217,10 @@ describe('PracticeHubView — Back', () => {
     ['the finish screen', { from: 'finished' as const }, { lesson: '41', from: 'finished' }],
     ['the plan of Today', { from: 'plan' as const }, { lesson: '41', from: 'plan' }],
     ['the reminder of the bot', { from: 'lesson_nudge' as const }, { lesson: '41', from: 'lesson_nudge' }],
-  ])('the system "Back" leads to Today for a hub opened from %s, as the link on the screen', async (_, props, query) => {
+  ])('the system "Back" leads to Today for a hub opened from %s', async (_, props, query) => {
     vi.mocked(api.practice.open).mockRejectedValue(apiError('validation', 422, 'practice_not_enough_material'))
     const { wrapper, router } = await render(props, hub(), query)
     expect(tg.backHandler).not.toBeNull()
-    expect(wrapper.get('[data-testid=hub-back]').attributes('href')).toBe('/today')
 
     tg.backHandler?.()
     await flushPromises()

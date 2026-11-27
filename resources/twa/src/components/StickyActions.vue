@@ -6,9 +6,10 @@
  * when the content is taller than the screen. The zone of the kit Muhrla (DESIGN.md §7, TELEGRAM.md `.bottom-cta`): 12 px above,
  * 20 px at the sides, 12 px and the home indicator below.
  *
- * - `surface` — the screen is white (`bg-surface`, a round of a battle, a task of the game): the block takes the card colour instead of
- *   the page colour. A screen of the kit's canvas that hosts such a component (a practice session draws the boards of the battle) says
- *   so with the CSS variable `--app-screen` on its root: the block then takes that colour.
+ * - `surface` — a board shared by the lesson screens (the practice boards, the tasks of the game, the room and result of a battle): the
+ *   block takes the colour the screen names with the CSS variable `--app-screen` on its root. Every such screen (lesson, exam, practice,
+ *   battle, cup round, game run) stands on the kit's canvas and names `var(--app-page)`; without the variable the block falls back to
+ *   the card colour.
  * - `tone` — the feedback sheet of a lesson (COMPONENTS.md "Feedback sheet", ANIMATIONS.md §5): the soft success / error colour, the top
  *   corners 28, padding 20, and it slides up from the bottom edge (260 ms) without dimming the screen - the question stays in view.
  *

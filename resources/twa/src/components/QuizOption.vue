@@ -26,6 +26,9 @@ import { useI18n } from '@/i18n'
  * `long` - the options of a phrase card (docs/35 §3.3 d): whole phrases or their translations. The text is a size smaller and wraps over
  * as many lines as it needs (the box grows with it, nothing is clipped), the caption of the verdict goes under the text instead of
  * beside it. `lang` - the language of the label (`en` for English phrases), for the screen reader.
+ *
+ * `note` - a short line under the label, in the colour of the option (the game "Karvon": "removed by the hint" under an option the hint
+ * of the bazaar took away; such an option is passed `disabled` and takes the quiet look of `dimmed`). Optional; nothing changes without it.
  */
 const props = defineProps<{
   label: string
@@ -34,6 +37,7 @@ const props = defineProps<{
   disabled?: boolean
   long?: boolean
   lang?: string
+  note?: string
 }>()
 
 const emit = defineEmits<{
@@ -134,10 +138,11 @@ function onArrow(event: KeyboardEvent, step: 1 | -1): void {
       aria-hidden="true"
       :data-testid="`option-key-${index}`"
     >{{ index + 1 }}</span>
-    <span v-if="long" class="min-w-0 flex-1 break-words">
+    <span v-if="long || note" class="min-w-0 flex-1 break-words">
       <span class="block" :lang="lang" data-testid="option-label">{{ label }}</span>
+      <span v-if="note" class="mt-0.5 block text-[13px] leading-[18px] font-normal" :data-testid="`option-note-${index}`">{{ note }}</span>
       <span
-        v-if="caption"
+        v-if="caption && long"
         class="mt-0.5 block text-[13px] leading-[18px]"
         :class="state === 'incorrect' ? 'font-normal text-danger-ink' : 'font-medium text-success-ink'"
         :data-testid="`option-caption-${index}`"

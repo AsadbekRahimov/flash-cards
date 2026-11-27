@@ -7,6 +7,8 @@
  *   again (`useResend`). "I don't know" sends `skip`; the server shows the answer.
  * - The hint of the bazaar takes options away (`element.hint.options_removed`): they stay on the screen, dimmed and disabled, so that
  *   the list does not jump.
+ * - The options are `QuizOption` (AnswerOption of the kit, the one of the lesson and the exam): a radio group, the pick `selected`, the
+ *   rest - once the answer has gone, and the ones a hint took away (with the `note` "removed by the hint") - disabled, in the quiet look.
  * - The clip of `listen` is loaded by the screen as soon as the element is shown (the same URL is not fetched twice); this component asks
  *   when nobody has, and plays it from the tap (a gesture on iOS). Nothing is read aloud by the browser: the word must not be solved by a machine.
  * - A phrase (docs/35 §3.3 e) or its translation as the question is longer than a word: from `GAME_LONG_TEXT_MIN` characters it is a
@@ -14,6 +16,7 @@
  * Events: `answer` (`{ option_id }`), `skip`.
  */
 import { computed, onMounted, ref } from 'vue'
+import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -51,22 +54,9 @@ const locked = computed((): boolean => props.disabled === true || lastSent.value
 /** The question is a phrase or its translation (see above). */
 const longPrompt = computed((): boolean => 'prompt' in props.element && isLongGameText(props.element.prompt))
 
-/** The state of `.option`: the pick; the rest once the answer has gone, and an option a hint took away, step back. */
-function stateOf(option: PracticeChoice): 'idle' | 'selected' | 'dimmed' {
-  if (picked.value === option.id) return 'selected'
-  return locked.value || removed.value.has(option.id) ? 'dimmed' : 'idle'
-}
-
-/** The key of an option, as QuizOption draws it: the sunken paper; in ink when picked; a thin quiet ring once it stepped back. */
-function keyTone(option: PracticeChoice): string {
-  switch (stateOf(option)) {
-    case 'selected':
-      return 'bg-inverse text-on-inverse'
-    case 'dimmed':
-      return 'bg-transparent text-muted shadow-[inset_0_0_0_1px_var(--app-divider)]'
-    default:
-      return 'bg-sunken text-muted'
-  }
+/** An option that cannot be picked: every one once the answer has gone, and the ones a hint took away. */
+function blocked(option: PracticeChoice): boolean {
+  return locked.value || removed.value.has(option.id)
 }
 
 function pick(option: PracticeChoice): void {
@@ -154,34 +144,20 @@ function listen(): void {
       <div class="flex flex-col gap-2.5 short:gap-2">
         <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="resend-note" />
 
-        <div class="flex flex-col gap-2.5 short:gap-2" role="group" :aria-label="t('gameRun.options')">
-          <!--
-            AnswerOption of the kit (`.option`, the look of QuizOption): the 28 px key with the number on the left, the label; picked -
-            `selected` (a 2 px ink frame, the key in ink); the others once the answer is gone and the ones a hint took away - `dimmed`.
-          -->
-          <button
+        <div class="flex flex-col gap-2.5 short:gap-2" role="radiogroup" :aria-label="t('gameRun.options')">
+          <!-- AnswerOption of the kit, as the lesson draws it (QuizOption): picked - `selected`; the rest step back once the answer is gone. -->
+          <QuizOption
             v-for="(option, index) in element.options"
             :key="option.id"
-            type="button"
-            class="option short:min-h-12"
-            :data-state="stateOf(option)"
+            :label="option.text"
+            :index="index"
+            :state="picked === option.id ? 'selected' : 'idle'"
+            :disabled="blocked(option)"
+            :lang="element.kind === 'translate_fwd' ? undefined : 'en'"
+            :note="removed.has(option.id) ? t('gameRun.option_removed') : undefined"
             :data-removed="removed.has(option.id) ? 'true' : undefined"
-            :data-testid="`option-${index}`"
-            :disabled="locked || removed.has(option.id)"
-            :aria-pressed="picked === option.id ? 'true' : undefined"
-            @click="pick(option)"
-          >
-            <span
-              class="flex size-7 shrink-0 items-center justify-center self-center rounded-xs text-[15px] leading-5 font-medium transition-colors duration-200"
-              :class="keyTone(option)"
-              aria-hidden="true"
-              :data-testid="`option-key-${index}`"
-            >{{ index + 1 }}</span>
-            <span class="min-w-0 flex-1 break-words">
-              <span class="block" :lang="element.kind === 'translate_fwd' ? undefined : 'en'">{{ option.text }}</span>
-              <span v-if="removed.has(option.id)" class="mt-0.5 block text-[13px] leading-[18px] font-normal">{{ t('gameRun.option_removed') }}</span>
-            </span>
-          </button>
+            @pick="pick(option)"
+          />
         </div>
       </div>
     </div>

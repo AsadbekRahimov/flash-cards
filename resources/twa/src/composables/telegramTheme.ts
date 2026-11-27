@@ -9,29 +9,14 @@ import WebApp from '@twa-dev/sdk'
 export type ColorScheme = 'light' | 'dark'
 
 /**
- * What the Telegram chrome (the header above the app and the window background) is painted like: the page colour on the usual
- * screens, the card colour on the white lesson screens (`bg-surface`: training, exam, battle, practice and game tasks), so there
- * is no seam under the header either way (`useChromeSurface`).
+ * The colours of the Telegram chrome per scheme: `--app-page` of `style.css` (`bg/canvas` of the kit; every screen, the lesson and
+ * the rounds of the games too, stands on it). A copy of the CSS values, because the Telegram methods want a hex string;
+ * `telegramTheme.spec.ts` checks that they agree, and that the start script `src/boot/theme-boot.js` (`<meta name="theme-color">`
+ * before the bundle) uses the same colours.
  */
-export type ChromeTone = 'page' | 'surface'
-
-/**
- * The colours of the Telegram chrome per scheme and tone: `--app-page` and `--app-surface` of `style.css`. A copy of the CSS
- * values, because the Telegram methods want a hex string; `telegramTheme.spec.ts` checks that they agree, and that the start
- * script `src/boot/theme-boot.js` (`<meta name="theme-color">` before the bundle) uses the same page colours.
- */
-export const CHROME_COLORS: Readonly<Record<ColorScheme, Readonly<Record<ChromeTone, `#${string}`>>>> = {
-  light: { page: '#f6f2ea', surface: '#fffdf8' },
-  dark: { page: '#121117', surface: '#1c1b22' },
-}
-
-/**
- * The header keyword of a Bot API 6.1-6.8 client (a hex header needs 6.9): Telegram's own page colour for the page tone, its own
- * card colour for the white screens - the closest such a client can do.
- */
-const HEADER_KEYWORDS: Readonly<Record<ChromeTone, 'bg_color' | 'secondary_bg_color'>> = {
-  page: 'secondary_bg_color',
-  surface: 'bg_color',
+export const CHROME_COLORS: Readonly<Record<ColorScheme, Readonly<{ page: `#${string}` }>>> = {
+  light: { page: '#f6f2ea' },
+  dark: { page: '#121117' },
 }
 
 /** The part of `Telegram.WebApp` the theme code touches; the SDK object satisfies it, tests pass a stub. */
@@ -82,17 +67,17 @@ export function resolveColorScheme(host: ThemeHost = WebApp, query: SchemeQuery 
 }
 
 /**
- * Header, window background and bottom bar take the colour of the scheme and tone (the page colour unless a white screen holds the
- * surface tone), so the Mini App has no seam under Telegram's header or above its bottom bar. The window background takes a hex colour
- * since Bot API 6.1, the header since 6.9, the bottom bar since 7.10; a 6.1-6.8 client gets the keyword of its own page / card colour
- * for the header (the closest it can do). Never throws: outside Telegram it is a no-op.
+ * Header, window background and bottom bar take the page colour of the scheme, so the Mini App has no seam under Telegram's header or
+ * above its bottom bar. The window background takes a hex colour since Bot API 6.1, the header since 6.9, the bottom bar since 7.10;
+ * a 6.1-6.8 client gets the keyword of its own page colour for the header (`secondary_bg_color`, the closest it can do). Never throws:
+ * outside Telegram it is a no-op.
  */
-export function paintTelegramChrome(host: ThemeHost = WebApp, scheme: ColorScheme = resolveColorScheme(host), tone: ChromeTone = chromeTone()): void {
+export function paintTelegramChrome(host: ThemeHost = WebApp, scheme: ColorScheme = resolveColorScheme(host)): void {
   try {
     if (!host.isVersionAtLeast('6.1')) return
-    const color = CHROME_COLORS[scheme][tone]
+    const color = CHROME_COLORS[scheme].page
     host.setBackgroundColor(color)
-    host.setHeaderColor(host.isVersionAtLeast('6.9') ? color : HEADER_KEYWORDS[tone])
+    host.setHeaderColor(host.isVersionAtLeast('6.9') ? color : 'secondary_bg_color')
     if (host.isVersionAtLeast('7.10')) host.setBottomBarColor?.(color)
   } catch {
     // outside Telegram — nothing to paint
@@ -108,42 +93,9 @@ function paintThemeColorMeta(scheme: ColorScheme): void {
   }
 }
 
-/** The host and query `initTelegramTheme` was started with: a change of the tone repaints with them. */
-let themeContext: { host: ThemeHost; query: SchemeQuery | null } | null = null
-
-/** How many white screens hold the surface tone right now (normally 0 or 1; a counter, so the order of mount/unmount does not matter). */
-let surfaceHolds = 0
-
-/** The tone of the chrome right now. */
-export function chromeTone(): ChromeTone {
-  return surfaceHolds > 0 ? 'surface' : 'page'
-}
-
-function repaintChrome(): void {
-  const host = themeContext?.host ?? WebApp
-  const query = themeContext ? themeContext.query : systemSchemeQuery()
-  paintTelegramChrome(host, resolveColorScheme(host, query), chromeTone())
-}
-
-/**
- * A white screen takes the surface tone for the chrome; the returned function gives it back (once; a second call does nothing).
- * The chrome is repainted only when the tone really changes. Used through `useChromeSurface`.
- */
-export function holdSurfaceChrome(): () => void {
-  surfaceHolds += 1
-  if (surfaceHolds === 1) repaintChrome()
-  let held = true
-  return () => {
-    if (!held) return
-    held = false
-    surfaceHolds = Math.max(0, surfaceHolds - 1)
-    if (surfaceHolds === 0) repaintChrome()
-  }
-}
-
 /**
  * Sets `<html data-theme="light|dark">` (the palette of `style.css`), `<meta name="theme-color">` and repaints the Telegram chrome
- * in the current tone. Never throws.
+ * in the page colour. Never throws.
  */
 export function applyTelegramTheme(
   host: ThemeHost = WebApp,
@@ -153,7 +105,7 @@ export function applyTelegramTheme(
   const scheme = resolveColorScheme(host, query)
   root.dataset.theme = scheme
   paintThemeColorMeta(scheme)
-  paintTelegramChrome(host, scheme, chromeTone())
+  paintTelegramChrome(host, scheme)
 }
 
 /**
@@ -166,7 +118,6 @@ export function initTelegramTheme(
   root: HTMLElement = document.documentElement,
   query: SchemeQuery | null = systemSchemeQuery(),
 ): void {
-  themeContext = { host, query }
   const apply = (): void => applyTelegramTheme(host, root, query)
   apply()
   if (insideTelegram(host)) {

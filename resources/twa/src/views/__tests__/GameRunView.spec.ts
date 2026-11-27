@@ -281,18 +281,20 @@ describe('GameRunView — an answer and its reveal', () => {
     r.wrapper.unmount()
   })
 
-  it('is a white lesson screen while a task or its answer is on it, and stands on the page colour at the summary', async () => {
+  it('stands on the canvas of the kit through the task, its answer and the summary (the options are the surface on it)', async () => {
     const r = await render(runView({ position: 10 }))
     vi.mocked(api.gameRuns.answer).mockResolvedValue(answerResponse({ run: finishedRun('completed', {}, { stars: 3, score: 500 }) }))
 
-    expect(r.wrapper.classes()).toContain('bg-surface')
+    expect(r.wrapper.classes()).toContain('bg-page')
+    expect(r.wrapper.classes()).not.toContain('bg-surface')
+    expect(r.wrapper.attributes('style')).toContain('--app-screen: var(--app-page)')
     await click(r, 'option-0')
     expect(has(r, 'game-reveal')).toBe(true)
-    expect(r.wrapper.classes()).toContain('bg-surface')
+    expect(r.wrapper.classes()).not.toContain('bg-surface')
     await click(r, 'next-btn')
 
     expect(has(r, 'run-summary')).toBe(true)
-    expect(r.wrapper.classes()).not.toContain('bg-surface')
+    expect(r.wrapper.classes()).toContain('bg-page')
     r.wrapper.unmount()
   })
 

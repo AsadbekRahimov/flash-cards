@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
 <template>
   <div ref="root" class="flex flex-1 flex-col" :data-mode="mode" data-testid="sentence-builder">
     <div class="flex flex-1 flex-col gap-3 px-5 pt-4 pb-4" :class="{ 'short:gap-2 short:pt-2 short:pb-3': tight }">
-      <!-- The task on the white screen, no card around it (docs/design Question); the paddings are the ones of the old card, so the short window keeps its room. -->
+      <!-- The task on the screen, no card around it (docs/design Question); the paddings are the ones of the old card, so the short window keeps its room. -->
       <article class="flex flex-col items-center gap-2 px-5 py-5 text-center" :class="{ 'short:gap-1 short:px-4 short:py-3': tight }">
         <p class="t-body-m text-muted">{{ modeTitle('sentence') }}</p>
         <h2 class="text-2xl leading-8 font-semibold break-words" data-testid="sentence-prompt">{{ element.prompt }}</h2>

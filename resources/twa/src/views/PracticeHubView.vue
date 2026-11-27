@@ -419,15 +419,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page" data-testid="practice-hub-view">
-    <!-- The way back is on the screen too (the system button of Telegram says nothing about where it leads). -->
-    <RouterLink
-      :to="backTarget"
-      class="-mb-3.5 flex min-h-11 items-center gap-1 self-start text-[15px] font-semibold text-accent"
-      data-testid="hub-back"
-    >
-      <AppIcon name="chevron-left" :size="18" />{{ fromPlan ? t('nav.today') : t('nav.courses') }}
-    </RouterLink>
-
+    <!-- The way back is Telegram's own "Back" (kit TELEGRAM.md: no "Back" of our own in the content); it leads to Today or the course. -->
     <PageHeader :eyebrow="place" :title="t('practice.hub.games_title')" :subtitle="learnedLine" large />
 
     <LoadingState v-if="hubStatus === 'idle' || hubStatus === 'loading'" variant="cards" />

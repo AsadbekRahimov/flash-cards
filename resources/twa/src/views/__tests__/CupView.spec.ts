@@ -80,7 +80,9 @@ describe('CupView: the table', () => {
     expect(rows[1]?.attributes('data-testid')).toBe('row-me')
     expect(rows[1]?.classes()).toContain('league-row')
     expect(rows[1]?.attributes('data-me')).toBe('true')
-    expect(rows[1]?.get('[data-testid=avatar]').classes()).toContain('bg-muhr')
+    // The avatar of the league table (InitialAvatar): my letter on muhr is `on-muhr`, the others are quiet.
+    expect(rows[1]?.get('[data-testid=avatar]').classes()).toEqual(expect.arrayContaining(['bg-muhr', 'text-on-muhr', 'size-8']))
+    expect(rows[1]?.get('[data-testid=avatar]').attributes('aria-hidden')).toBe('true')
     expect(rows[0]?.get('[data-testid=avatar]').classes()).not.toContain('bg-muhr')
     expect(rows[0]?.get('[data-testid=avatar]').text()).toBe('A')
     expect(rows[1]?.text()).toContain('· вы')

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import InitialAvatar from '@/components/InitialAvatar.vue'
 import PlayerName from '@/components/PlayerName.vue'
 import { useI18n } from '@/i18n'
 import type { CupStandingRow } from '@/api/types'
 
 /**
  * The table of a cup (docs/33 §7.1, docs/04 A.23 `standings`), drawn as the table of the league of the kit Muhrla (LeagueRow, 08-liga):
- * a row of 52 px - the place, an avatar of 32 px with the first letter, the name in the tournament with the emoji of Pro (`PlayerName`,
- * docs/31 §5а), the points in tabular figures. My row is the "you" of the kit: the soft accent under it, my avatar in the muhr colour,
+ * a row of 52 px - the place, an avatar of 32 px with the first letter (`InitialAvatar`, the one of `LeagueRow`), the name in the
+ * tournament with the emoji of Pro (`PlayerName`, docs/31 §5а), the points in tabular figures. My row is the "you" of the kit: the soft accent under it, my avatar in the muhr colour,
  * "· you" after the name and my place and points in the accent of text. A shared place (a tie: 1, 1, 3) is the server's `rank` repeated
  * and is said so to a screen reader; "left" under the name of one who left the chat - on its own line, so that a narrow screen (320 px)
  * cuts the name, never the emoji or the points.
@@ -27,9 +28,6 @@ const shared = computed((): Set<number> => {
 })
 
 const rowName = (row: CupStandingRow): string => row.display_name || t('league.anonymous')
-
-/** The first letter of the name for the avatar (a whole character, not half of a surrogate pair). */
-const initial = (row: CupStandingRow): string => (Array.from(rowName(row).trim())[0] ?? '').toUpperCase()
 
 /** What a screen reader hears for a row: "2nd place (shared), Aziza, 14 points, left". */
 function rowLabel(row: CupStandingRow): string {
@@ -60,12 +58,7 @@ function rowLabel(row: CupStandingRow): string {
         :data-testid="row.me ? 'row-me' : 'row'"
       >
         <span class="w-6 shrink-0 text-center font-display text-[15px] leading-5 font-semibold" :class="row.me ? 'text-accent' : 'text-muted'" aria-hidden="true" data-testid="rank">{{ row.rank }}</span>
-        <span
-          class="flex size-8 shrink-0 items-center justify-center rounded-full text-sm leading-none font-semibold"
-          :class="row.me ? 'bg-muhr text-on-muhr' : 'bg-sunken text-muted'"
-          aria-hidden="true"
-          data-testid="avatar"
-        >{{ initial(row) }}</span>
+        <InitialAvatar :name="rowName(row)" size="sm" :muhr="row.me" data-testid="avatar" />
         <span class="flex min-w-0 flex-1 flex-col py-1.5" aria-hidden="true">
           <PlayerName
             :name="rowName(row)"

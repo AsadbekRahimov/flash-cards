@@ -110,7 +110,7 @@ const next = computed((): string => {
       <p v-else class="text-base leading-[22px] text-muted" data-testid="side-answer">{{ t('battle.reveal.no_answer') }}</p>
     </article>
 
-    <section v-if="reveal.translation || reveal.explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-page p-[18px]" data-testid="reveal-notes">
+    <section v-if="reveal.translation || reveal.explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-surface p-[18px]" data-testid="reveal-notes">
       <div v-if="reveal.translation" data-testid="reveal-translation">
         <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.translation') }}</p>
         <p class="mt-0.5 text-base leading-[22px] italic">{{ reveal.translation }}</p>

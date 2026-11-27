@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
 import ClosedState from '@/components/ClosedState.vue'
+import InitialAvatar from '@/components/InitialAvatar.vue'
 import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -168,9 +169,6 @@ function replaceRun(): void {
   void fight(true)
 }
 
-/** The first letter of a name for the avatar of the table (a whole character). */
-const initialOf = (name: string): string => (Array.from(name.trim())[0] ?? '').toUpperCase()
-
 function toMap(): void {
   void router.push({ name: 'game' })
 }
@@ -324,12 +322,7 @@ onBeforeUnmount(() => {
             data-testid="member"
           >
             <span class="w-6 shrink-0 text-center font-display text-[15px] leading-5 font-semibold" :class="member.is_me ? 'text-accent' : 'text-muted'">{{ index + 1 }}</span>
-            <span
-              class="flex size-8 shrink-0 items-center justify-center rounded-full text-sm leading-none font-semibold"
-              :class="member.is_me ? 'bg-muhr text-on-muhr' : 'bg-sunken text-muted'"
-              aria-hidden="true"
-              data-testid="member-avatar"
-            >{{ initialOf(member.name) }}</span>
+            <InitialAvatar :name="member.name" size="sm" :muhr="member.is_me" data-testid="member-avatar" />
             <span class="min-w-0 flex-1">
               <span class="t-body-m-strong block break-words">
                 {{ member.name }}

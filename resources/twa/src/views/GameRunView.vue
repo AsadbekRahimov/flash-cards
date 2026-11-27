@@ -19,7 +19,6 @@ import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { gameVerdictLabel, lessonHeader } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useShare } from '@/composables/useShare'
 import { useTelegram } from '@/composables/useTelegram'
@@ -189,10 +188,6 @@ watch(
 // ---- the task ----
 
 const busy = computed(() => status.value === 'submitting')
-/** The screen is white while a task, its event or its answer is on it (a lesson screen); the rest stands on the page colour. */
-const white = computed((): boolean => run.value !== null && ['event', 'playing', 'submitting', 'reveal'].includes(status.value))
-// Telegram's header and window background follow the white of the screen (docs/14 §4.1).
-useChromeSurface(white)
 const task = computed(() => (status.value === 'playing' || status.value === 'submitting' ? element.value : null))
 const lastElement = computed(() => run.value?.status === 'finished')
 
@@ -336,17 +331,15 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
-    :class="white ? 'bg-surface' : ''"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     :data-status="status"
     data-testid="game-run-view"
   >
     <!--
-      The run is a lesson screen (docs/design Question / Feedback): white while a task, its event or its answer is on it; the summary, the
-      closed and the error screens stand on the page colour. The components of the practice (pairs, collocation, sentence, dictation) keep
-      their own sticky block in the page colour: on the white task it takes the white too, and under their answer it gets the hairline of
-      the panel of an answer, as the answer of a word has.
+      The run is a lesson screen of the kit (04-urok-vopros): it stands on the canvas, as a lesson does, and the Telegram chrome keeps the page
+      colour; the options and the boards are the surface on it. The sticky blocks of the tasks take the canvas (`--app-screen`), and under
+      their answer they get the hairline of the panel of an answer, as the answer of a word has.
     -->
     <!-- Always there, so that what is put into it is announced. -->
     <p class="sr-only" role="status" aria-live="polite" data-testid="verdict-live">{{ liveText }}</p>
@@ -426,7 +419,6 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
         <!-- The component of the kind (gameTasks.ts); the key makes every element a new one, with no pick left over. -->
         <component
           :is="taskComponentFor(task)"
-          class="[&_[data-testid=actions]]:bg-surface"
           :key="`${task.kind}-${elementSeq}`"
           :element="task"
           :disabled="busy"

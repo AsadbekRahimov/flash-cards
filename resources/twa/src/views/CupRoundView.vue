@@ -17,7 +17,6 @@ import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { gameVerdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useNow } from '@/composables/useNow'
 import { useServerClock } from '@/composables/useServerClock'
 import { useTelegram } from '@/composables/useTelegram'
@@ -140,9 +139,6 @@ watch(
 
 // ---- the task ----
 
-const white = computed((): boolean => live.value)
-useChromeSurface(white)
-
 const busy = computed((): boolean => status.value === 'submitting')
 const task = computed(() => (status.value === 'playing' || status.value === 'submitting' ? store.element : null))
 const lastTask = computed((): boolean => round.value?.status === 'finished')
@@ -264,9 +260,8 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
-    :class="white ? 'bg-surface' : ''"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     :data-status="status"
     data-testid="cup-round-view"
   >
@@ -396,7 +391,6 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
         :is="taskComponentFor(task)"
         v-else-if="task"
         :key="`${task.kind}-${elementSeq}`"
-        class="[&_[data-testid=actions]]:bg-surface"
         :element="task"
         :disabled="busy"
         @answer="onAnswer"

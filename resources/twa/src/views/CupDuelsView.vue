@@ -269,8 +269,6 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <MascotArt pose="hello" :height="112" class="short:hidden" />
         <p class="t-body-m text-muted" data-testid="duels-empty">{{ t('cup.duel.empty') }}</p>
       </div>
-
-      <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-plain btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
     </div>
 
     <PaywallSheet v-if="limitHit" reason="practice_limit" :limit-hit="limitHit" @close="duels.dismissPaywall()" @review="reviewFromPaywall" />
