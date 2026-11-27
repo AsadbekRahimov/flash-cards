@@ -62,6 +62,7 @@ export const onboardingUz: OnboardingTranslations = {
   'onboarding.placement.title': 'Daraja testi',
   'onboarding.placement.progress_label': '{n}-savol, jami {total}',
   'onboarding.placement.prompt': 'Tarjimasini tanlang',
+  'onboarding.placement.skip': 'Bilmayman',
   'onboarding.placement.loading': 'Savollar tayyorlanmoqda…',
   'onboarding.placement.checking': 'Javoblar tekshirilmoqda…',
   'onboarding.placement.result_title': 'Darajangiz: {level}',

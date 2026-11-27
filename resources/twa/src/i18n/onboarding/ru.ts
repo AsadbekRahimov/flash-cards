@@ -68,6 +68,7 @@ export const onboardingRu = {
   'onboarding.placement.title': 'Тест уровня',
   'onboarding.placement.progress_label': 'Вопрос {n} из {total}',
   'onboarding.placement.prompt': 'Выберите перевод',
+  'onboarding.placement.skip': 'Не знаю',
   'onboarding.placement.loading': 'Готовим вопросы…',
   'onboarding.placement.checking': 'Проверяем ответы…',
   'onboarding.placement.result_title': 'Ваш уровень: {level}',

@@ -5489,6 +5489,7 @@ Mini App: экран `/share/story` (свой словарь ленивого э
 | `onboarding.placement.title` | Daraja testi | Тест уровня |
 | `onboarding.placement.progress_label` | {n}-savol, jami {total} | Вопрос {n} из {total} |
 | `onboarding.placement.prompt` | Tarjimasini tanlang | Выберите перевод |
+| `onboarding.placement.skip` | Bilmayman | Не знаю |
 | `onboarding.placement.loading` | Savollar tayyorlanmoqda… | Готовим вопросы… |
 | `onboarding.placement.checking` | Javoblar tekshirilmoqda… | Проверяем ответы… |
 | `onboarding.placement.result_title` | Darajangiz: {level} | Ваш уровень: {level} |

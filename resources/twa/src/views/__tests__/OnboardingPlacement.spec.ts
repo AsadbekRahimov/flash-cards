@@ -243,11 +243,49 @@ describe('the placement test of O5', () => {
 
     expect(r.wrapper.get('[data-testid=onboarding-title]').text()).toBe('Время теста вышло')
     expect(r.wrapper.get('[data-testid=onboarding-continue]').text()).toBe('Начать заново')
+    expect(r.wrapper.get('[data-testid=onboarding-secondary]').text()).toBe('Выбрать уровень')
     await tap(r, '[data-testid=onboarding-continue]')
 
     expect(word(r)).toBe('w1')
     expect(r.wrapper.get('[data-testid=placement-counter]').text()).toBe('1 / 10')
     expect(apiCalls()).toEqual({ get: 1, placement: 2, answers: 1 })
+  })
+
+  it('«Не знаю» skips a question (null), and a shorter set with 2-3 options is answered the same way: one request with the answers', async () => {
+    vi.mocked(api.onboarding.placement).mockResolvedValueOnce({
+      questions: [
+        { id: 1, word: 'apple', options: ['яблоко', 'груша'] },
+        { id: 2, word: 'water', options: ['вода', 'огонь', 'земля'] },
+        { id: 3, word: 'borrow', options: ['занять', 'дать', 'взять', 'купить'] },
+        { id: 4, word: 'thorough', options: ['тщательный', 'быстрый', 'новый', 'старый'] },
+      ],
+      expires_at: new Date(Date.now() + 60_000).toISOString(),
+    })
+    const r = await render('/onboarding/placement')
+
+    expect(r.wrapper.findAll('[data-testid=placement-options] [role=radio]')).toHaveLength(2)
+    expect(r.wrapper.get('[data-testid=placement-skip]').text()).toBe('Не знаю')
+    await answer(r, 1, 0)
+    expect(r.wrapper.findAll('[data-testid=placement-options] [role=radio]')).toHaveLength(3)
+    await tap(r, '[data-testid=placement-skip]')
+    expect(r.wrapper.get('[data-testid=placement-counter]').text()).toBe('3 / 4')
+    await answer(r, 1, 2)
+    await tap(r, '[data-testid=placement-skip]')
+
+    expect(vi.mocked(api.onboarding.placementAnswers).mock.calls).toEqual([[[0, null, 2, null]]])
+    expect(r.wrapper.get('[data-testid=placement-correct]').text()).toBe('Верных ответов: 4 из 4')
+    expect(apiCalls()).toEqual({ get: 1, placement: 1, answers: 1 })
+  })
+
+  it('410: "Выбрать уровень" leads back to O5 without a new set', async () => {
+    vi.mocked(api.onboarding.placementAnswers).mockRejectedValueOnce(new ApiClientError('gone', 410, 'placement_expired', 'expired'))
+    const r = await render('/onboarding/level')
+    await tap(r, '[data-testid=onboarding-secondary]')
+    await answer(r, 10)
+    await tap(r, '[data-testid=onboarding-secondary]')
+
+    expect(r.router.currentRoute.value.fullPath).toBe('/onboarding/level')
+    expect(apiCalls()).toEqual({ get: 1, placement: 1, answers: 1 })
   })
 
   it('a failed send keeps the answers: the error and "Повторить" sends them again', async () => {

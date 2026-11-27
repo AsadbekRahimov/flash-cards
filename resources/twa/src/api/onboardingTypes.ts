@@ -109,25 +109,25 @@ export interface LearnerOnboarding {
 }
 
 /**
- * The placement test of O5 (docs/40 §2.1a, docs/04 A.24a): 10 questions "word -> 4 translations", 2 for each level. The key of the answers
+ * The placement test of O5 (docs/40 §2.1a, docs/04 A.27): up to 10 questions "word -> 2-4 translations", 2 for each level asked. The key of the answers
  * stays on the server; the client knows only the words and the options. Nothing of it is written into the progress of the learner.
  */
 export interface PlacementQuestion {
   id: number | string
   word: string
-  /** Four translations; the answer is the index of the chosen one (0-3). */
+  /** Two to four translations; the answer is the index of the chosen one, or null - skipped ("I don't know"). */
   options: string[]
 }
 
-/** 201 of `POST /onboarding/placement`: a new set every time; it expires (`expires_at`, ISO 8601; 20 min) - then 410 `placement_expired`. */
+/** 201 of `POST /onboarding/placement`: a new set every time (4-10 questions); it expires (`expires_at`, ISO 8601; 20 min) - then 410. */
 export interface PlacementTest {
   questions: PlacementQuestion[]
   expires_at: string
 }
 
-/** `POST /onboarding/placement/answers`: the index of the chosen option of every question, in their order. */
+/** `POST /onboarding/placement/answers`: the index of the chosen option of every question in the order of `id`; null - skipped. */
 export interface PlacementAnswersRequest {
-  answers: number[]
+  answers: (number | null)[]
 }
 
 /** The result: the level found and the course it leads to (a row of `options.levels`); the right answers of each level. */

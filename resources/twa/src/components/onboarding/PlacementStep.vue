@@ -15,14 +15,15 @@ import { useI18n } from '@/i18n'
 import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
- * The placement test of O5, "Take the 2-minute test" (docs/40 §2.1a, T15): 10 questions "English word -> 4 translations", the segments of
- * the questions above, no timer. The key of the answers is the server's: a pick is marked as chosen (the ink frame) and the next question
+ * The placement test of O5, "Take the 2-minute test" (docs/40 §2.1a, docs/04 A.27, T15): up to 10 questions "English word -> 2-4
+ * translations", the segments of the questions above, no timer; "I don't know" skips a question (null). The key of the answers is the server's: a pick is marked as chosen (the ink frame) and the next question
  * comes; the answers go to the server all at once after the last one, and it says the level. The result - «Ваш уровень: B1», the course
  * it leads to, «верных ответов: N из 10» - is put into the choice of O5 at once (the learner can change it there); "Continue with B1" and
  * Telegram's Back lead to O5.
  *
  * - Leaving in the middle (Back) keeps the set: coming back before it expires resumes at the next question without a request; later, or
- *   after a closed app, a new set is asked. 410 `placement_expired` on the answers - «Время теста вышло» and "Start again" (a new set).
+ *   after a closed app, a new set is asked. 410 `placement_expired` on the answers - «Время теста вышло», "Start again" (a new set) or
+ *   "Choose the level" (back to O5).
  * - A failed request: the start - the error with "Retry"; the answers - `InlineAlert` with "Retry" (the answers are kept).
  * - 422 `placement_unavailable` (the catalog cannot give a test now) - says so and leads back to O5 to choose by hand.
  * - 409 `onboarding_completed` - the onboarding is over elsewhere: "Today" (`exit`).
@@ -41,6 +42,9 @@ const total = computed(() => questions.value.length)
 const index = computed(() => Math.min(placement.value.answers.length, Math.max(0, total.value - 1)))
 const question = computed(() => questions.value[index.value] ?? null)
 
+/** `picked` of "I don't know": no option is marked. */
+const SKIP = -1
+
 /** The option just picked: marked as chosen for a moment before the next question comes. */
 const picked = ref<number | null>(null)
 let timer: ReturnType<typeof setTimeout> | null = null
@@ -56,9 +60,9 @@ function stateOf(option: number): OptionState {
   return 'idle'
 }
 
-function pick(option: number): void {
+function pick(option: number | null): void {
   if (picked.value !== null || sending.value || answered.value || placement.value.phase !== 'question') return
-  picked.value = option
+  picked.value = option ?? SKIP
   selectionHaptic()
   const go = (): void => {
     timer = null
@@ -124,7 +128,13 @@ onBeforeUnmount(() => {
       <StepIntro :title="t('onboarding.placement.expired_title')" :lead="t('onboarding.placement.expired_text')">
         <MascotArt pose="thinking" :height="120" loading="eager" />
       </StepIntro>
-      <OnboardingActions :label="t('onboarding.placement.restart')" :arrow="false" @primary="start" />
+      <OnboardingActions
+        :label="t('onboarding.placement.restart')"
+        :arrow="false"
+        :secondary="t('onboarding.placement.back')"
+        @primary="start"
+        @secondary="emit('back')"
+      />
     </template>
 
     <template v-else-if="placement.phase === 'unavailable'">
@@ -177,6 +187,15 @@ onBeforeUnmount(() => {
           @pick="pick"
         />
       </div>
+      <button
+        type="button"
+        class="btn btn-plain btn-block mt-2"
+        :aria-disabled="picked !== null || sending || answered ? 'true' : undefined"
+        data-testid="placement-skip"
+        @click="pick(null)"
+      >
+        {{ t('onboarding.placement.skip') }}
+      </button>
 
       <div class="mt-auto pt-4 pb-4">
         <InlineAlert v-if="placement.error && answered && !sending" tone="danger" data-testid="placement-send-error">

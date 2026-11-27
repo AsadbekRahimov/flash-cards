@@ -176,10 +176,10 @@ export const api = {
       client().put<OnboardingState>(`/onboarding/steps/${step}`, { ...body }),
     /** Finishes the onboarding (idempotent); 422 `onboarding_incomplete {missing}`. */
     complete: () => client().post<OnboardingCompleteResponse>('/onboarding/complete'),
-    /** The placement test of O5 (docs/04 A.24a): a new set of 10 questions; 409 `onboarding_completed`. */
+    /** The placement test of O5 (docs/04 A.27): a new set of questions; 409 `onboarding_completed`, 422 `placement_unavailable`. */
     placement: () => client().post<PlacementTest>('/onboarding/placement'),
-    /** The answers of the test, all at once; 410 `placement_expired` (20 min), 409 `onboarding_completed`, 422. */
-    placementAnswers: (answers: number[]) => client().post<PlacementResult>('/onboarding/placement/answers', { answers }),
+    /** The answers of the test, all at once (null - skipped); 410 `placement_expired` (20 min or not started), 409, 422. A repeat answers the same. */
+    placementAnswers: (answers: (number | null)[]) => client().post<PlacementResult>('/onboarding/placement/answers', { answers }),
   },
   vocabulary: {
     /**

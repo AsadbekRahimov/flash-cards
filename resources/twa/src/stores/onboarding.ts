@@ -51,7 +51,8 @@ export type CompleteOutcome = 'ok' | 'incomplete' | 'error'
 export interface PlacementState {
   phase: 'idle' | 'loading' | 'question' | 'submitting' | 'result' | 'expired' | 'unavailable'
   test: PlacementTest | null
-  answers: number[]
+  /** The index of the option chosen for each question answered so far; null - "I don't know". */
+  answers: (number | null)[]
   result: PlacementResult | null
   error: string
   /** `level` of the row of O5 the result put into the draft; O5 says "by the test" while that row is still chosen. */
@@ -365,8 +366,8 @@ export const useOnboardingStore = defineStore('onboarding', {
       else placement.error = ''
     },
 
-    /** The learner chose the option `index` of the current question; after the last one the answers go to the server. */
-    async answerPlacement(index: number): Promise<PlacementOutcome> {
+    /** The learner chose the option `index` of the current question (null - "I don't know"); after the last one the answers go to the server. */
+    async answerPlacement(index: number | null): Promise<PlacementOutcome> {
       const placement = this.placement
       const test = placement.test
       if (placement.phase !== 'question' || test === null || placement.answers.length >= test.questions.length) return 'ok'
