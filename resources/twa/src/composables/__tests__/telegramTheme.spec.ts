@@ -17,6 +17,7 @@ interface StubHost extends ThemeHost {
   isVersionAtLeast: Mock<(version: string) => boolean>
   setHeaderColor: Mock<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>
   setBackgroundColor: Mock<(color: `#${string}`) => void>
+  setBottomBarColor: Mock<(color: `#${string}`) => void>
   onEvent: Mock<(event: 'themeChanged', handler: () => void) => void>
 }
 
@@ -27,6 +28,7 @@ function stubHost(overrides: Partial<ThemeHost> = {}): StubHost {
     isVersionAtLeast: vi.fn<(version: string) => boolean>(() => true),
     setHeaderColor: vi.fn<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>(),
     setBackgroundColor: vi.fn<(color: `#${string}`) => void>(),
+    setBottomBarColor: vi.fn<(color: `#${string}`) => void>(),
     onEvent: vi.fn<(event: 'themeChanged', handler: () => void) => void>(),
     ...overrides,
   } as StubHost
@@ -109,8 +111,28 @@ describe('telegramTheme', () => {
 
       paintTelegramChrome(host, 'light')
 
-      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f4f6fb')
+      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f6f2ea')
       expect(host.setHeaderColor).toHaveBeenCalledWith('secondary_bg_color')
+      expect(host.setBottomBarColor).not.toHaveBeenCalled()
+    })
+
+    it('paints the bottom bar in the canvas colour too on Bot API 7.10+ (kit TELEGRAM.md), and lives without the method', () => {
+      const modern = stubHost()
+      paintTelegramChrome(modern, 'light')
+      expect(modern.setBottomBarColor).toHaveBeenCalledWith('#f6f2ea')
+
+      const dark = stubHost()
+      paintTelegramChrome(dark, 'dark')
+      expect(dark.setBottomBarColor).toHaveBeenCalledWith('#121117')
+
+      const older = stubHost({ isVersionAtLeast: vi.fn((version: string) => version !== '7.10') })
+      paintTelegramChrome(older, 'light')
+      expect(older.setBottomBarColor).not.toHaveBeenCalled()
+      expect(older.setHeaderColor).toHaveBeenCalledWith('#f6f2ea')
+
+      const noMethod = { ...stubHost(), setBottomBarColor: undefined }
+      expect(() => paintTelegramChrome(noMethod, 'light')).not.toThrow()
+      expect(noMethod.setHeaderColor).toHaveBeenCalledWith('#f6f2ea')
     })
 
     it('leaves the chrome alone on a client older than 6.1', () => {
@@ -134,12 +156,12 @@ describe('telegramTheme', () => {
     it('paints the surface tone: hex since 6.9, the keyword of Telegram\'s own card colour on 6.1-6.8', () => {
       const modern = stubHost()
       paintTelegramChrome(modern, 'dark', 'surface')
-      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#181d2a')
-      expect(modern.setHeaderColor).toHaveBeenCalledWith('#181d2a')
+      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#1c1b22')
+      expect(modern.setHeaderColor).toHaveBeenCalledWith('#1c1b22')
 
       const old = stubHost({ isVersionAtLeast: vi.fn((version: string) => version === '6.1') })
       paintTelegramChrome(old, 'light', 'surface')
-      expect(old.setBackgroundColor).toHaveBeenCalledWith('#ffffff')
+      expect(old.setBackgroundColor).toHaveBeenCalledWith('#fffdf8')
       expect(old.setHeaderColor).toHaveBeenCalledWith('bg_color')
     })
   })
@@ -150,7 +172,7 @@ describe('telegramTheme', () => {
     it('takes the page colour of the scheme, and follows a change', () => {
       const meta = document.createElement('meta')
       meta.name = 'theme-color'
-      meta.content = '#f4f6fb'
+      meta.content = '#f6f2ea'
       document.head.append(meta)
 
       const host = stubHost({ colorScheme: 'dark' })

@@ -2,11 +2,12 @@
 import { computed } from 'vue'
 
 /**
- * A thin progress line (docs/design Main / Path / Question / League): a 4 px track with the fill in a colour of the palette —
+ * A thin progress line (kit Muhrla ProgressLine): a 4 px sunken track with the fill in a colour of the palette —
  * the `.progress` / `.progress-fill` pair of `style.css`, with the share clamped and the accessibility settled in one place.
  *
  * - `value` — the share in per cent; clamped to 0..100 and rounded.
- * - `tone` — `accent` (default: the daily goal, the league), `primary` (the header of a lesson), `success` (words mastered).
+ * - `tone` — `accent` (default: the daily goal, the league, the course - the fill in ink, as in the kit), `primary` (the header of a
+ *   lesson, ink as well), `success` (words mastered), `muhr` (the progress of an achievement, a current segment).
  * - `label` — what the line measures, already localized. With it the line is a `role="progressbar"` with its value; without it
  *   the line is decoration (`aria-hidden`), for when the same number is written next to it in words.
  *
@@ -15,7 +16,7 @@ import { computed } from 'vue'
  * @example <ProgressLine :value="goalPercent" :label="t('today.goal.title')" />
  * @example <ProgressLine :value="percent" tone="primary" class="h-[3px] flex-1" />
  */
-const props = withDefaults(defineProps<{ value: number; tone?: 'accent' | 'primary' | 'success'; label?: string }>(), {
+const props = withDefaults(defineProps<{ value: number; tone?: 'accent' | 'primary' | 'success' | 'muhr'; label?: string }>(), {
   tone: 'accent',
   label: undefined,
 })

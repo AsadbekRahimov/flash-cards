@@ -72,7 +72,7 @@ const pinnedMe = computed(() => {
       :data-testid="row.is_me ? 'row-me' : 'row'"
     >
       <span
-        class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
+        class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm text-[15px] font-bold text-accent tabular-nums"
         :class="{ 'bg-surface': row.is_me, 'bg-accent-soft': !row.is_me }"
         data-testid="rank"
       >{{ row.rank }}</span>
@@ -103,23 +103,23 @@ const pinnedMe = computed(() => {
     <div v-if="neighbours && me" :aria-label="t('month.neighbours')" role="group" data-testid="neighbours">
       <div class="px-2.5 py-1 text-[13px] leading-4 text-muted" aria-hidden="true" data-testid="gap">…</div>
       <div v-for="(row, index) in neighbours.above" :key="`above-${index}`" class="flex items-center gap-3.5 border-b border-divider px-2.5 py-[9px]" data-testid="row-near">
-        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ row.rank }}</span>
+        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-accent-soft text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ row.rank }}</span>
         <PlayerName :name="rowName(row.name)" :emoji="row.pro_emoji" class="flex-1 text-base leading-[22px] font-bold" />
         <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ row.points }}</span>
       </div>
       <div class="my-1 flex items-center gap-3.5 rounded-control bg-nav-active px-2.5 py-[9px]" data-testid="row-near-me">
-        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-surface text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ me.rank }}</span>
+        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-surface text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ me.rank }}</span>
         <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ t('league.you') }}</span>
         <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ me.points }}</span>
       </div>
       <div v-for="(row, index) in neighbours.below" :key="`below-${index}`" class="flex items-center gap-3.5 border-b border-divider px-2.5 py-[9px]" data-testid="row-near">
-        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ row.rank }}</span>
+        <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-accent-soft text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ row.rank }}</span>
         <PlayerName :name="rowName(row.name)" :emoji="row.pro_emoji" class="flex-1 text-base leading-[22px] font-bold" />
         <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ row.points }}</span>
       </div>
     </div>
     <div v-if="pinnedMe" class="mt-1 flex items-center gap-3.5 rounded-control bg-nav-active px-2.5 py-[9px]" data-testid="row-pinned">
-      <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-surface text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ pinnedMe.rank }}</span>
+      <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-surface text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ pinnedMe.rank }}</span>
       <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ t('league.you') }}</span>
       <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ pinnedMe.points }}</span>
     </div>

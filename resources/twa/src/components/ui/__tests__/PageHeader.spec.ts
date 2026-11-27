@@ -19,22 +19,21 @@ const stubs = { LanguageSheet: LanguageSheetStub }
 describe('PageHeader', () => {
   afterEach(() => setLocale('ru'))
 
-  it('renders the title as the screen heading, 22px bold by default', () => {
+  it('renders the title as the screen heading, 22px Unbounded semibold by default', () => {
     const w = mount(PageHeader, { props: { title: 'Настройки' }, global: { stubs } })
 
     const h1 = w.get('h1')
     expect(h1.text()).toBe('Настройки')
-    expect(h1.classes()).toEqual(expect.arrayContaining(['text-[22px]', 'font-bold']))
-    expect(h1.classes()).not.toContain('text-[30px]')
-    expect(h1.classes()).not.toContain('font-extrabold')
+    expect(h1.classes()).toEqual(expect.arrayContaining(['font-display', 'text-[22px]', 'font-semibold']))
+    expect(h1.classes()).not.toContain('t-display-l')
     expect(w.find('p').exists()).toBe(false)
     expect(w.text()).toBe('Настройки')
   })
 
-  it('is 30px extra bold, tight-tracked, for a tab root (`large`)', () => {
+  it('is Display/L of the kit (Unbounded 600, 30 / 36, -2 %) for a tab root (`large`)', () => {
     const w = mount(PageHeader, { props: { title: 'Курсы', large: true }, global: { stubs } })
 
-    expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[30px]', 'leading-9', 'font-extrabold', 'tracking-[-0.5px]']))
+    expect(w.get('h1').classes()).toEqual(['t-display-l'])
     expect(w.get('h1').classes()).not.toContain('text-[22px]')
   })
 
@@ -120,7 +119,7 @@ describe('PageHeader', () => {
       expect(pill.attributes('aria-label')).toBe('Til · Язык')
       expect(pill.attributes('aria-haspopup')).toBe('dialog')
       // a 36 px pill with a 44 px touch area
-      expect(pill.classes()).toEqual(expect.arrayContaining(['tap-target', 'h-9', 'rounded-full', 'bg-fill']))
+      expect(pill.classes()).toEqual(expect.arrayContaining(['tap-target', 'h-9', 'rounded-full', 'bg-sunken']))
     })
 
     it('opens the language sheet on the pill, and lets it close', async () => {

@@ -317,7 +317,7 @@ onMounted(() => {
           <template v-for="group in winnerGroups" :key="group.key">
             <p v-if="group.label" class="px-3.5 pt-3 pb-1 text-[13px] leading-[18px] font-bold text-muted" data-testid="winners-category">{{ group.label }}</p>
             <div v-for="(winner, index) in group.winners" :key="`${group.key}-${index}`" class="list-row" data-testid="winner">
-              <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[15px] font-bold text-accent tabular-nums">{{ winner.place }}</span>
+              <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-accent-soft text-[15px] font-bold text-accent tabular-nums">{{ winner.place }}</span>
               <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ rowName(winner.name) }}</span>
               <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums">{{ winner.points }}</span>
             </div>

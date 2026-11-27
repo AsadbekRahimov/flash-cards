@@ -29,13 +29,13 @@ const { t } = useI18n()
 
     <span
       v-if="variant === 'center'"
-      class="size-8 animate-spin rounded-full border-[3px] border-track border-t-accent motion-reduce:animate-none"
+      class="size-8 animate-spin rounded-full border-[3px] border-track border-t-inverse motion-reduce:animate-none"
       aria-hidden="true"
     />
 
     <div v-else-if="variant === 'list'" class="list" aria-hidden="true">
       <div v-for="row in 5" :key="row" class="list-row list-row-icon">
-        <span class="skeleton size-[30px] shrink-0 rounded-[9px]" />
+        <span class="skeleton size-10 shrink-0 rounded-sm" />
         <span class="flex-1 space-y-2">
           <span class="skeleton block h-4 w-2/3" />
           <span v-if="row % 2 === 1" class="skeleton block h-3 w-1/3" />

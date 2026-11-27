@@ -90,7 +90,7 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
-              class="mx-0.5 inline-block min-w-[4.5rem] rounded-lg border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold"
+              class="mx-0.5 inline-block min-w-[4.5rem] rounded-sm border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold"
               :class="pickedText !== null ? 'border-accent bg-accent-soft text-accent-ink' : 'border-dashed border-accent bg-accent-soft'"
               :data-tone="pickedText !== null ? 'picked' : 'empty'"
               data-testid="collocation-blank"

@@ -18,6 +18,8 @@ startTimingMarks()
 try {
   WebApp.ready()
   WebApp.expand()
+  // A swipe down must not close the app in the middle of a lesson (kit TELEGRAM.md); Bot API 7.7+.
+  if (WebApp.isVersionAtLeast('7.7')) WebApp.disableVerticalSwipes()
 } catch {
   // running outside Telegram (dev, Playwright) — ignore
 }

@@ -9,10 +9,10 @@ import AppIcon from './AppIcon.vue'
  * Screen heading (docs/14 §4.2, docs/design/2026-11-25-redesign): the title, an optional line above it and an optional line under
  * it, with room on the right for a badge or a button; on a tab root, the brand row of the mock-ups above it all.
  *
- * - `title` — the screen name; Inter, bold (extra bold when `large`).
+ * - `title` — the screen name; Unbounded (Display/L of the kit when `large`, Display/M - 22 px - otherwise).
  * - `eyebrow` — a short line ABOVE the title (13 px, secondary colour): the date and the course, the week of the league.
  * - `subtitle` — a line UNDER the title (13 px, secondary colour): a count, a hint.
- * - `large` — 30 px extra bold for a tab root; without it 22 px bold for an inner screen.
+ * - `large` — 30 px (Display/L) for a tab root; without it 22 px for an inner screen.
  * - `brand` — the row of the tab roots: the logo and the product name (`BRAND`, src/brand.ts) on the left, the language pill
  *   ("RU" / "UZ") on the right, which opens the language sheet (`LanguageSheet`). Off by default: a screen turns it on when it
  *   drops its own language button.
@@ -55,12 +55,12 @@ const languageOpen = ref(false)
           <path d="M17 7C13 4 8 3 3 3v19c5 0 10 1 14 4 4-3 9-4 14-4V3c-5 0-10 1-14 4zM17 7v19" />
           <path d="M7 9c2 0 4 .5 6 1.5M7 14c2 0 4 .5 6 1.5M27 9c-2 0-4 .5-6 1.5M27 14c-2 0-4 .5-6 1.5" stroke-width="1.5" />
         </svg>
-        <span class="truncate text-[22px] leading-7 font-bold tracking-[-0.3px]" data-testid="brand-name">{{ BRAND }}</span>
+        <span class="truncate font-display text-[20px] leading-7 font-semibold tracking-[-0.02em]" data-testid="brand-name">{{ BRAND }}</span>
       </div>
       <!-- A 36 px pill; the invisible layer of .tap-target makes the touch area 44 px. -->
       <button
         type="button"
-        class="tap-target flex h-9 shrink-0 items-center gap-1 rounded-full bg-fill px-3 text-sm font-bold text-body"
+        class="tap-target flex h-9 shrink-0 items-center gap-1 rounded-full bg-sunken px-3 text-sm font-semibold text-body"
         :aria-label="LANGUAGE_TITLE"
         aria-haspopup="dialog"
         data-testid="lang-btn"
@@ -74,7 +74,7 @@ const languageOpen = ref(false)
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <p v-if="eyebrow" class="mb-1 text-[13px] leading-[18px] text-muted" data-testid="eyebrow">{{ eyebrow }}</p>
-        <h1 :class="large ? 'text-[30px] leading-9 font-extrabold tracking-[-0.5px]' : 'text-[22px] leading-7 font-bold'">
+        <h1 :class="large ? 't-display-l' : 'font-display text-[22px] leading-7 font-semibold tracking-[-0.02em]'">
           {{ title }}
         </h1>
         <p v-if="subtitle" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="subtitle">{{ subtitle }}</p>

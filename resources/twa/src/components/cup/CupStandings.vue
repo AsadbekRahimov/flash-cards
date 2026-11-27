@@ -55,7 +55,7 @@ function rowLabel(row: CupStandingRow): string {
         :data-testid="row.me ? 'row-me' : 'row'"
       >
         <span
-          class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
+          class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm text-[15px] font-bold text-accent tabular-nums"
           :class="row.me ? 'bg-surface' : 'bg-accent-soft'"
           aria-hidden="true"
           data-testid="rank"

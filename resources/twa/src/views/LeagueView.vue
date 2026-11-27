@@ -401,7 +401,7 @@ onMounted(() => {
               :data-testid="line.row.is_me ? 'row-me' : 'row'"
             >
               <span
-                class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
+                class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm text-[15px] font-bold text-accent tabular-nums"
                 :class="{ 'bg-surface': line.row.is_me, 'bg-accent-soft': !line.row.is_me }"
                 :data-zone="zoneOf(line.row.rank)"
                 data-testid="rank"

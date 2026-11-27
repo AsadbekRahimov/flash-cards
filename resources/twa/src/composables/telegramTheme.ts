@@ -1,9 +1,10 @@
 import WebApp from '@twa-dev/sdk'
 
 /**
- * The app has its own palette (docs/14 §4.1, redesign 2026-11-25): light and dark, both in `style.css`. Telegram only says which
+ * The app has its own palette (docs/14 §4.1, kit Muhrla 2026-11-27): light and dark, both in `style.css`. Telegram only says which
  * of the two (`colorScheme`); its theme colours (`themeParams`) paint nothing. This module sets `<html data-theme>` and paints the
- * window chrome Telegram draws itself (the header above the app and the window background) in the colours of the palette.
+ * window chrome Telegram draws itself (the header above the app, the window background and the bottom bar) in the colours of the
+ * palette: `bg/canvas` of the kit (docs/design/2026-11-27-muhrla-kit/docs/TELEGRAM.md).
  */
 export type ColorScheme = 'light' | 'dark'
 
@@ -20,8 +21,8 @@ export type ChromeTone = 'page' | 'surface'
  * script `src/boot/theme-boot.js` (`<meta name="theme-color">` before the bundle) uses the same page colours.
  */
 export const CHROME_COLORS: Readonly<Record<ColorScheme, Readonly<Record<ChromeTone, `#${string}`>>>> = {
-  light: { page: '#f4f6fb', surface: '#ffffff' },
-  dark: { page: '#0f1420', surface: '#181d2a' },
+  light: { page: '#f6f2ea', surface: '#fffdf8' },
+  dark: { page: '#121117', surface: '#1c1b22' },
 }
 
 /**
@@ -41,6 +42,8 @@ export interface ThemeHost {
   isVersionAtLeast(version: string): boolean
   setHeaderColor(color: 'bg_color' | 'secondary_bg_color' | `#${string}`): void
   setBackgroundColor(color: `#${string}`): void
+  /** Bot API 7.10+; optional, so an older stub or SDK satisfies the type. */
+  setBottomBarColor?(color: `#${string}`): void
   onEvent(event: 'themeChanged', handler: () => void): void
 }
 
@@ -79,10 +82,10 @@ export function resolveColorScheme(host: ThemeHost = WebApp, query: SchemeQuery 
 }
 
 /**
- * Header and window background take the colour of the scheme and tone (the page colour unless a white screen holds the
- * surface tone), so the Mini App has no seam under Telegram's header. The window background takes a hex colour since Bot
- * API 6.1, the header since 6.9; a 6.1-6.8 client gets the keyword of its own page / card colour for the header (the closest
- * it can do). Never throws: outside Telegram it is a no-op.
+ * Header, window background and bottom bar take the colour of the scheme and tone (the page colour unless a white screen holds the
+ * surface tone), so the Mini App has no seam under Telegram's header or above its bottom bar. The window background takes a hex colour
+ * since Bot API 6.1, the header since 6.9, the bottom bar since 7.10; a 6.1-6.8 client gets the keyword of its own page / card colour
+ * for the header (the closest it can do). Never throws: outside Telegram it is a no-op.
  */
 export function paintTelegramChrome(host: ThemeHost = WebApp, scheme: ColorScheme = resolveColorScheme(host), tone: ChromeTone = chromeTone()): void {
   try {
@@ -90,6 +93,7 @@ export function paintTelegramChrome(host: ThemeHost = WebApp, scheme: ColorSchem
     const color = CHROME_COLORS[scheme][tone]
     host.setBackgroundColor(color)
     host.setHeaderColor(host.isVersionAtLeast('6.9') ? color : HEADER_KEYWORDS[tone])
+    if (host.isVersionAtLeast('7.10')) host.setBottomBarColor?.(color)
   } catch {
     // outside Telegram — nothing to paint
   }

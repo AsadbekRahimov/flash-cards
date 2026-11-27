@@ -64,7 +64,7 @@ function select(value: string | number): void {
       :aria-disabled="option.locked ? 'true' : undefined"
       :disabled="disabled"
       :data-testid="option.testid"
-      class="tap-target min-h-9 min-w-0 flex-1 rounded-lg px-3 text-sm leading-5 transition-colors duration-150"
+      class="tap-target min-h-9 min-w-0 flex-1 rounded-sm px-3 text-sm leading-5 transition-colors duration-150"
       :class="
         option.value === modelValue
           ? 'bg-accent-soft font-semibold text-body shadow-[inset_0_0_0_1px_var(--app-primary)]'

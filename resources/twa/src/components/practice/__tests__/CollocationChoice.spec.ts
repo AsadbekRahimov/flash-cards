@@ -26,7 +26,7 @@ describe('CollocationChoice — the phrase and the options', () => {
     expect(text.text()).not.toContain('___')
     expect(text.text()).not.toContain('_')
     expect(blank.element.tagName).toBe('SPAN')
-    expect(blank.classes()).toEqual(expect.arrayContaining(['inline-block', 'border-2', 'border-dashed', 'rounded-lg']))
+    expect(blank.classes()).toEqual(expect.arrayContaining(['inline-block', 'border-2', 'border-dashed', 'rounded-sm']))
     expect(blank.attributes('data-tone')).toBe('empty')
     expect(text.element.children).toHaveLength(3) // the words before, the box, the words after
     expect(text.element.children[0]?.textContent).toBe("Let's ")

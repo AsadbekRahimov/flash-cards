@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
-              class="mx-0.5 inline-block min-w-[4.5rem] max-w-full rounded-lg border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold break-words"
+              class="mx-0.5 inline-block min-w-[4.5rem] max-w-full rounded-sm border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold break-words"
               :class="trimmed !== '' ? 'border-accent bg-accent-soft text-accent-ink' : 'border-dashed border-accent bg-accent-soft'"
               :data-tone="trimmed !== '' ? 'typed' : 'empty'"
               data-testid="word-form-blank"
