@@ -4,7 +4,7 @@ import { ApiClientError } from '@/api/client'
 import type { ShareEventRequest, ShareKind, StoryFallbackReason, StoryShare, StoryShareKind } from '@/api/shareTypes'
 import { errorMessage } from '@/i18n/errors'
 import { useShare, type ShareFallback } from './useShare'
-import { useTelegram } from './useTelegram'
+import { canShareToStory, shareToStory } from './telegramStory'
 
 /** The plain share a story falls back to (docs/40 §2.4): the message through the bot (`useShare`), then `t.me/share/url`. */
 export interface StoryFallbackTarget extends ShareFallback {
@@ -43,7 +43,6 @@ export function useStoryShare(
   fallbackOf: (story: StoryShare | null) => Promise<StoryFallbackTarget | null>,
   messages: { noLink: () => string },
 ) {
-  const { canShareToStory, shareToStory } = useTelegram()
   const plain = useShare()
   const pending = ref(false)
   const error = ref('')

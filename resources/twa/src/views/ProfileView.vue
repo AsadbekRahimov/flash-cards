@@ -91,7 +91,7 @@ async function load(): Promise<void> {
   // The three achievements of the screen: best effort, the profile works without them (no row of badges then). Read once: what the
   // store already has (an earlier visit, the "Achievements" screen) is shown as is, no request on every opening of the tab.
   void achievements.ensureLoaded()
-  await billing.load()
+  await billing.load({ main: true })
   attempted.value = true
 }
 

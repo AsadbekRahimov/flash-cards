@@ -20,7 +20,9 @@ Mini App (coder): подсказка на «Сегодня» при незаве
 
 **Не проверено.** Настоящий Telegram: `shareToStory`, `requestWriteAccess`, поведение сети в WebView, хаптики. Узбекские тексты — носитель (`docs/I18N_UZ_REVIEW.md`). Шрифт картинок сторис и карточек — Noto Sans: нужны TTF Unbounded / Onest.
 
-**Проверки (исполнитель, 2026-11-27).** pint — passed; phpstan level 8 — No errors; pest полный (sqlite, `--parallel`) — 10242 passed, 285 skipped, 12 risky, 1 failed: известный `ProductionImageConfigTest > keeps max_accelerated_files` (лимит opcache окружения). PostgreSQL 16: онбординг, тест уровня, приглашения и их fork-тесты — 127 passed; гонки теста уровня и онбординга × 3 прогона — по 10 passed. vitest — см. отчёт координатора.
+**Проверки (исполнитель, 2026-11-27).** pint — passed; phpstan level 8 — No errors; pest полный (sqlite, `--parallel`) — 10242 passed, 285 skipped, 12 risky, 1 failed: известный `ProductionImageConfigTest > keeps max_accelerated_files` (лимит opcache окружения). PostgreSQL 16: онбординг, тест уровня, приглашения и их fork-тесты — 127 passed; гонки теста уровня и онбординга × 3 прогона — по 10 passed. Mini App — см. ниже.
+
+**Проверки (координатор, 2026-11-27, на итоговом коде).** pint — passed; phpstan level 8 — No errors; pest полный (sqlite, `--parallel`) — 10243 passed, 285 skipped, 12 risky, 1 failed: `ProductionImageConfigTest > keeps max_accelerated_files` (лимит opcache окружения). Mini App — vitest 5992 passed (278 файлов), vue-tsc чисто, build проходит, главный чанк 512,56 кБ.
 
 **Шаги для сервера** — docs/39 §10 (Redeploy; миграции применит `lf-migrate`; команд artisan не нужно).
 

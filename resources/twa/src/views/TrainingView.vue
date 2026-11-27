@@ -30,6 +30,7 @@ import { useOfflineContext } from '@/composables/useOnline'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
+import { useMemoryI18n } from '@/i18n/memory'
 import type { CardMemory, Quality } from '@/api/types'
 
 /**
@@ -45,6 +46,7 @@ const auth = useAuthStore()
 const training = useTrainingStore()
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
+const { t: mt, tn: mtn } = useMemoryI18n()
 
 const {
   status,
@@ -260,8 +262,8 @@ const memoryCaption = computed((): string => {
   if (value === null) return ''
   const days = value.next_in_days
   const next =
-    days === null ? t('card.memory.this_session') : days <= 0 ? t('card.memory.today') : tn('card.memory.next_days', days)
-  return `${t('card.memory.label', { strength: value.strength })} · ${next}`
+    days === null ? mt('card.memory.this_session') : days <= 0 ? mt('card.memory.today') : mtn('card.memory.next_days', days)
+  return `${mt('card.memory.label', { strength: value.strength })} · ${next}`
 })
 
 /** A flash card: the grade is the learner's own. */

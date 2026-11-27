@@ -242,7 +242,7 @@ function retry(): void {
         data-testid="story-card"
       >
         <div class="story-stamp relative flex shrink-0 items-center justify-center" data-testid="story-stamp">
-          <svg class="absolute inset-0 size-full" viewBox="0 0 600 600" aria-hidden="true">
+          <svg class="absolute inset-0 size-full overflow-visible" viewBox="0 0 600 600" aria-hidden="true">
             <circle class="story-ring" cx="300" cy="300" r="300" />
             <circle class="story-paper" cx="300" cy="300" r="282" />
             <!-- 44 dots of 9 px on a circle of 256 px, as the server draws them. -->
@@ -320,7 +320,7 @@ function retry(): void {
  * The card of the story, the composition of StoryCardRenderer in its own pixels (`--u` - one of the 1080 of the picture): ink in both
  * themes, as the picture. Light: the inverse pair; dark: the surface (the ink of the dark palette) in a hairline, so it stands off the
  * darker page. The stamp: Ø 600 centred at 700 (its top at 400), a ring of 18, the paper disc, 44 dots; the title 84 pt bold (about 112 px,
- * lines of 104), the description 44 pt (59 px, lines of 62), the footer 40 pt (53 px); the texts wrap in 900 px.
+ * lines of 104 - here 134, see below), the description 44 pt (59 px, lines of 62), the footer 40 pt (53 px); the texts wrap in 900 px.
  */
 .story-card {
   aspect-ratio: 9 / 16;
@@ -362,14 +362,15 @@ function retry(): void {
   letter-spacing: -0.01em;
 }
 .story-title {
-  margin-top: calc(34 * var(--u));
+  margin-top: calc(18 * var(--u));
   width: 100%;
   font-size: calc(112 * var(--u));
-  line-height: calc(104 * var(--u));
+  /* The server's lines are 104 apart, but a clamped line of that height would cut the descenders («g'olibi»): 1.2 of the size. */
+  line-height: calc(134 * var(--u));
   overflow-wrap: anywhere;
 }
 .story-text {
-  margin-top: calc(34 * var(--u));
+  margin-top: calc(18 * var(--u));
   width: 100%;
   color: var(--story-muted);
   font-size: calc(59 * var(--u));

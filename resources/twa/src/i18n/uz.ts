@@ -314,13 +314,6 @@ export const uz: Translations = {
   'card.note.hint': "Faqat Siz ko'rasiz. {max} belgigacha.",
   'card.confused_with': 'Adashtirmang',
   'card.say_aloud': "So'zni ovoz chiqarib ayting",
-  'card.memory.label': 'Xotira: 5 dan {strength}',
-  'card.memory.next_days': {
-    one: '{count} kundan keyin takrorlanadi',
-    other: '{count} kundan keyin takrorlanadi',
-  },
-  'card.memory.today': 'bugun takrorlanadi',
-  'card.memory.this_session': "shu mashg'ulotda takrorlanadi",
 
   // ---- training ----
   'training.lesson_header': '{stage}-modul · {lesson}-dars',

@@ -200,7 +200,7 @@ async function load(): Promise<void> {
     return
   }
   // The learner comes here to see the plan as it is now (a payment or a promo may have just changed it): always ask.
-  await Promise.all([billing.load({ force: true }), billing.loadCatalog()])
+  await Promise.all([billing.load({ force: true, main: true }), billing.loadCatalog()])
   attempted.value = true
 }
 

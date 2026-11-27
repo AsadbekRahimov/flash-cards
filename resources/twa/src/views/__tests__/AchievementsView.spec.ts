@@ -31,10 +31,11 @@ vi.mock('@/composables/useShare', async () => {
   return { useShare: () => ({ pending, share: state.share }) }
 })
 
+vi.mock('@/composables/telegramStory', () => ({ canShareToStory: () => state.canStory }))
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     haptic: state.haptic,
-    canShareToStory: () => state.canStory,
     showBackButton: (handler: () => void) => {
       state.back = handler
       return state.hideBack

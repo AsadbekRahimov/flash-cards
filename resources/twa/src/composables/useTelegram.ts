@@ -149,37 +149,6 @@ export function useTelegram() {
     })
   }
 
-  /**
-   * Whether this client can open Telegram's story editor (`shareToStory`, Mini Apps 7.8+, docs/40 §2.4): a Telegram client of 7.8 or
-   * newer and the method of the SDK.
-   */
-  function canShareToStory(): boolean {
-    try {
-      return Boolean(webApp)
-        && typeof webApp?.isVersionAtLeast === 'function'
-        && webApp.isVersionAtLeast('7.8')
-        && typeof webApp.shareToStory === 'function'
-    } catch {
-      return false
-    }
-  }
-
-  /**
-   * Opens Telegram's story editor with a picture (a public `http(s)` URL, 9:16), a caption and the link of the widget (Premium only).
-   * Telegram calls nothing back - not even whether the story was posted - so `opened` means only "the editor was asked to open".
-   * `unsupported` - below 7.8 or outside Telegram (nothing was called); `failed` - the SDK refused the call (`WebAppMethodUnsupported`,
-   * `WebAppMediaUrlInvalid`, a caption too long). Call it only from a tap.
-   */
-  function shareToStory(mediaUrl: string, params: { text: string; widget_link: { url: string; name: string } | null }): 'opened' | 'unsupported' | 'failed' {
-    if (!canShareToStory() || !webApp) return 'unsupported'
-    try {
-      webApp.shareToStory(mediaUrl, params.widget_link === null ? { text: params.text } : { text: params.text, widget_link: params.widget_link })
-      return 'opened'
-    } catch {
-      return 'failed'
-    }
-  }
-
   function showBackButton(handler: () => void): () => void {
     try {
       webApp?.BackButton?.show()
@@ -208,8 +177,6 @@ export function useTelegram() {
     shareUrl,
     canShareMessage,
     shareMessage,
-    canShareToStory,
-    shareToStory,
     showBackButton,
   }
 }

@@ -31,12 +31,12 @@ const tg = vi.hoisted(() => ({
   back: undefined as undefined | (() => void),
 }))
 
+vi.mock('@/composables/telegramStory', () => ({ canShareToStory: () => tg.canStory, shareToStory: tg.shareToStory }))
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     webApp: null,
     haptic: tg.haptic,
-    canShareToStory: () => tg.canStory,
-    shareToStory: tg.shareToStory,
     canShareMessage: () => tg.canMessage,
     shareMessage: tg.shareMessage,
     shareUrl: tg.shareUrl,

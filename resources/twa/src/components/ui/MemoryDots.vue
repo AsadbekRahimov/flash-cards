@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from '@/i18n'
+import { useMemoryI18n } from '@/i18n/memory'
 
 /**
  * The "memory strength" of a word as five dots of the kit Muhrla (F1-povtorenie, F2-moy-slovar; docs/40 §2.2): `strength` of them are
@@ -14,7 +14,7 @@ import { useI18n } from '@/i18n'
  */
 const props = withDefaults(defineProps<{ strength: number; size?: 'md' | 'sm' }>(), { size: 'md' })
 
-const { t } = useI18n()
+const { t } = useMemoryI18n()
 
 /** The dots there are: the scale of the server (docs/06 §13.3a). */
 const DOTS = 5

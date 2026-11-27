@@ -13,6 +13,7 @@ import { ACHIEVEMENT_ART_BY_KEY } from '@/composables/illustrations'
 import { prefersReducedMotion } from '@/composables/motion'
 import { useBackButton } from '@/composables/useBackButton'
 import { useShare } from '@/composables/useShare'
+import { canShareToStory } from '@/composables/telegramStory'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useAchievementsStore } from '@/stores/achievements'
@@ -34,7 +35,7 @@ import type { AchievementItem } from '@/api/types'
 const auth = useAuthStore()
 const achievements = useAchievementsStore()
 const router = useRouter()
-const { haptic, canShareToStory } = useTelegram()
+const { haptic } = useTelegram()
 const { pending: sharing, share: shareThroughBot } = useShare()
 const { t, locale } = useI18n()
 const { t: st } = useStoryI18n()

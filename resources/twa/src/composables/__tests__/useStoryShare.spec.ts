@@ -12,9 +12,7 @@ const tg = vi.hoisted(() => ({
 
 vi.mock('@/api', () => ({ api: { share: { story: vi.fn(), event: vi.fn() } } }))
 
-vi.mock('../useTelegram', () => ({
-  useTelegram: () => ({ canShareToStory: tg.canShareToStory, shareToStory: tg.shareToStory }),
-}))
+vi.mock('../telegramStory', () => ({ canShareToStory: tg.canShareToStory, shareToStory: tg.shareToStory }))
 
 vi.mock('../useShare', async () => {
   const { ref } = await import('vue')
