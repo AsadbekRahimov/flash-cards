@@ -7,8 +7,8 @@ import StepIntro from './StepIntro.vue'
 import { ONBOARDING_GOALS, type OnboardingGoal } from '@/api/onboardingTypes'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
-import type { StringKey } from '@/i18n/ru'
+import { useOnboardingI18n } from '@/i18n/onboarding'
+import type { OnboardingStringKey } from '@/i18n/onboarding'
 
 /**
  * O4 "Why English" (kit 02-onboarding/O4): six tiles with the pictures of topics, several may be chosen (a frame and an ink check);
@@ -17,7 +17,7 @@ import type { StringKey } from '@/i18n/ru'
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
 const { selectionHaptic } = useTelegram()
-const { t, tn } = useI18n()
+const { t, tn } = useOnboardingI18n()
 
 /** The picture of each goal: a module of a platform course whose topic tells it (kit O4). */
 const ART: Readonly<Record<OnboardingGoal, { course: string; stage: number }>> = {
@@ -69,7 +69,7 @@ async function onContinue(): Promise<void> {
         <span
           class="t-body-m-strong text-center"
           :class="store.draft.goals.includes(goal) ? 'text-body' : 'text-muted'"
-        >{{ t(`onboarding.goals.${goal}` as StringKey) }}</span>
+        >{{ t(`onboarding.goals.${goal}` as OnboardingStringKey) }}</span>
       </SelectableTile>
     </div>
     <OnboardingActions

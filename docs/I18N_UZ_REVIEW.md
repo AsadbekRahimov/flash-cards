@@ -5298,3 +5298,112 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Кнопка — существующ�
 | `offline.chip_lesson` | {lesson}-dars · {total} tadan {done} tasi saqlandi | Урок {lesson} · сохранено {done} из {total} |
 | `offline.chip_session` | {total} tadan {done} tasi saqlandi | Сохранено {done} из {total} |
 | `offline.chip_server` | Progress serverda saqlangan | Прогресс сохранён на сервере |
+
+## Выпуск 1 · онбординг Mini App O1–O8 (docs/40 §2.1, T4, 27.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/onboarding/uz.ts` — словарь онбординга лежит отдельно от `uz.ts` (ленивый чанк экранов онбординга). «Muhrcha» — имя маскота, не переводится. Цель дня — «kartochka» (как в настройках: «kuniga nechta kartochka»), замок — «Pro'da». Носителю проверить: «{level} darajasidan boshlash» (кнопка O5 с «A1–A2» / «B1»), «har kuni {time} da», «{n}-qadam, jami {total}» (подпись прогресса для экранного диктора), «Ko'chib o'tish» для «Переезд», «Xotirjam / Jiddiy / Jadal» для «Спокойно / Серьёзно / Интенсив».
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `onboarding.progress_label` | {n}-qadam, jami {total} | Шаг {n} из {total} |
+| `onboarding.continue` | Davom etish | Продолжить |
+| `onboarding.continue_selected.one/other` | Davom etish · {count} ta tanlandi | Продолжить · выбрано {count} / Продолжить · выбрано {count} / Продолжить · выбрано {count} |
+| `onboarding.saving` | Saqlanmoqda… | Сохраняем… |
+| `onboarding.welcome.lead` | Har kuni ingliz so'zlari — va har biri daftardagi muhrdek esda qoladi. | Английские слова каждый день — и каждое запоминается, как печать в тетради. |
+| `onboarding.welcome.start` | Boshlash | Начать |
+| `onboarding.welcome.note` | Telegram orqali kirish — parolsiz va ro'yxatdan o'tmasdan | Вход через Telegram — без паролей и регистрации |
+| `onboarding.name.title` | Ismingiz nima? | Как вас зовут? |
+| `onboarding.name.lead` | Muhrcha darslarda sizga shunday murojaat qiladi. | Так Muhrcha будет обращаться к вам в уроках. |
+| `onboarding.name.label` | Ism | Имя |
+| `onboarding.name.placeholder` | Ismingiz | Ваше имя |
+| `onboarding.name.from_telegram` | Telegramdan olindi — o'zgartirish mumkin | Взяли из Telegram — можно изменить |
+| `onboarding.name.error.empty` | Ismingizni kiriting. | Введите имя. |
+| `onboarding.name.error.too_long` | Ism juda uzun: {max} ta belgidan oshmasin. | Имя слишком длинное: не больше {max} символов. |
+| `onboarding.name.error.link` | Ism havola yoki sayt manziliga o'xshamasligi kerak. | Имя не должно быть похоже на ссылку или адрес сайта. |
+| `onboarding.name.error.symbols` | So'z boshidagi @, / va # belgilarini olib tashlang. | Уберите @, / и # в начале слов. |
+| `onboarding.name.error.marks` | Ismda harf ustidagi belgilar juda ko'p. | В имени слишком много значков над буквами. |
+| `onboarding.name.error.invalid` | Ism — 1 dan 32 tagacha belgi, xizmat belgilarisiz. | Имя — от 1 до 32 символов, без служебных знаков. |
+| `onboarding.age.title` | Yoshingiz nechada? | Сколько вам лет? |
+| `onboarding.age.lead` | So'z va misollarni yoshingizga moslab tanlaymiz. | Подберём слова и примеры под ваш возраст. |
+| `onboarding.age.note` | Yoshingizni hech kim ko'rmaydi — u faqat mavzularni tanlash uchun kerak. | Возраст никто не увидит — он нужен только для подбора тем. |
+| `onboarding.age.lt14` | 14 gacha | до 14 |
+| `onboarding.age.14_17` | 14–17 | 14–17 |
+| `onboarding.age.18_24` | 18–24 | 18–24 |
+| `onboarding.age.25_34` | 25–34 | 25–34 |
+| `onboarding.age.35_44` | 35–44 | 35–44 |
+| `onboarding.age.45p` | 45+ | 45+ |
+| `onboarding.goals.title` | Ingliz tili nima uchun kerak? | Зачем вам английский? |
+| `onboarding.goals.lead` | Bir nechtasini tanlash mumkin — reja hammasini hisobga oladi. | Можно выбрать несколько — план учтёт всё. |
+| `onboarding.goals.career` | Ish va karyera | Работа и карьера |
+| `onboarding.goals.study` | O'qish va imtihonlar | Учёба и экзамены |
+| `onboarding.goals.travel` | Sayohat | Путешествия |
+| `onboarding.goals.relocation` | Ko'chib o'tish | Переезд |
+| `onboarding.goals.communication` | Muloqot | Общение |
+| `onboarding.goals.media` | Filmlar va musiqa | Фильмы и музыка |
+| `onboarding.goals.short.career` | ish | работа |
+| `onboarding.goals.short.study` | o'qish | учёба |
+| `onboarding.goals.short.travel` | sayohat | путешествия |
+| `onboarding.goals.short.relocation` | ko'chib o'tish | переезд |
+| `onboarding.goals.short.communication` | muloqot | общение |
+| `onboarding.goals.short.media` | filmlar va musiqa | фильмы и музыка |
+| `onboarding.level.title` | Qaysi darajadan boshlaymiz? | С какого уровня начнём? |
+| `onboarding.level.lead` | Kursni tanlang — uni istalgan vaqtda o'zgartirish mumkin. | Выберите курс — сменить его можно в любой момент. |
+| `onboarding.level.desc.A1` | Noldan boshlayman | Начинаю с нуля |
+| `onboarding.level.desc.A2` | Asoslarni bilaman | Знаю основы |
+| `onboarding.level.desc.B1` | Oddiy matnlarni tushunaman | Понимаю простые тексты |
+| `onboarding.level.desc.B2` | Kundalik mavzularda gaplashaman | Говорю на бытовые темы |
+| `onboarding.level.desc.C1` | Maqola va kitoblarni o'qiyman | Читаю статьи и книги |
+| `onboarding.level.desc.C2` | Nozik ma'no va uslubni xohlayman | Хочу оттенки и стиль |
+| `onboarding.level.start` | {level} darajasidan boshlash | Начать с {level} |
+| `onboarding.level.empty` | Kurslar hozir mavjud emas. Keyinroq urinib ko'ring. | Курсы сейчас недоступны. Попробуйте позже. |
+| `onboarding.daily_goal.title` | Kuniga nechta kartochka? | Сколько карточек в день? |
+| `onboarding.daily_goal.lead` | Muntazamlik hajmdan muhimroq. Keyin o'zgartirish mumkin. | Регулярность важнее объёма. Можно поменять позже. |
+| `onboarding.daily_goal.label.10` | Xotirjam | Спокойно |
+| `onboarding.daily_goal.label.20` | Jiddiy | Серьёзно |
+| `onboarding.daily_goal.label.40` | Jadal | Интенсив |
+| `onboarding.daily_goal.unit.one/other` | kuniga kartochka · ~{minutes} daqiqa | карточка в день · ~{minutes} мин / карточки в день · ~{minutes} мин / карточек в день · ~{minutes} мин |
+| `onboarding.daily_goal.recommended` | tavsiya etamiz | рекомендуем |
+| `onboarding.daily_goal.locked` | {value} — Pro'da | {value} — в Pro |
+| `onboarding.daily_goal.pro_required` | {max} dan katta maqsad — Pro'da. Kuniga {max} ta tanlandi. | Цель больше {max} — в Pro. Выбрали {max} в день. |
+| `onboarding.reminder.title` | Qachon eslatamiz? | Когда напомнить? |
+| `onboarding.reminder.lead` | Seriya uzilmasligi uchun Muhrcha Telegramda yozadi. | Muhrcha напишет в Telegram, чтобы серия не прервалась. |
+| `onboarding.reminder.custom` | O'zim | Своё |
+| `onboarding.reminder.custom_label` | O'zingiz tanlagan vaqt | Своё время |
+| `onboarding.reminder.custom_hint` | {step} daqiqalik qadam bilan | Время — с шагом {step} минут |
+| `onboarding.reminder.bot_title` | Botdan xabarlar | Сообщения от бота |
+| `onboarding.reminder.bot_caption` | Telegramda xabar yuborishga ruxsat | Разрешение Telegram на сообщения |
+| `onboarding.reminder.denied` | Ruxsatsiz bot eslata olmaydi. Ruxsat berish uchun tugmani yoqing. | Без разрешения бот не сможет напомнить. Включите переключатель, чтобы разрешить. |
+| `onboarding.reminder.skip` | Eslatma kerak emas | Не напоминать |
+| `onboarding.plan.title` | {name}, rejangiz tayyor | {name}, ваш план готов |
+| `onboarding.plan.title_plain` | Rejangiz tayyor | Ваш план готов |
+| `onboarding.plan.lead` | Birinchi mashg'ulot — bugunoq. | Первое занятие — уже сегодня. |
+| `onboarding.plan.course` | Kurs | Курс |
+| `onboarding.plan.goal` | Maqsad | Цель |
+| `onboarding.plan.reminder` | Eslatma | Напоминание |
+| `onboarding.plan.why` | Nima uchun | Зачем |
+| `onboarding.plan.course_modules.one/other` | {title} · {count} ta modul | {title} · {count} модуль / {title} · {count} модуля / {title} · {count} модулей |
+| `onboarding.plan.goal_value.one/other` | kuniga {count} ta kartochka | {count} карточка в день / {count} карточки в день / {count} карточек в день |
+| `onboarding.plan.reminder_at` | har kuni {time} da | каждый день в {time} |
+| `onboarding.plan.reminder_off` | o'chirilgan | выключено |
+| `onboarding.plan.start` | Birinchi darsni boshlash | Начать первый урок |
+
+## Кит Muhrla 27.11.2026: подписи печати, статистика профиля, курс и достижения — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`: строки перерисовки экранов по киту (27.11.2026), которых не было в этом документе; дописаны при выпуске онбординга, чтобы список был полным.
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `today.streak.unit.one/other` | kun | день / дня / дней |
+| `profile.stats` | Statistika | Статистика |
+| `profile.stats.streak.one/other` | kun ketma-ket | день подряд / дня подряд / дней подряд |
+| `profile.stats.words.one/other` | so'z o'rganildi | слово выучено / слова выучено / слов выучено |
+| `profile.stats.league` | ligadagi o'rin | место в лиге |
+| `catalog.tile_active` | o'qilmoqda · {percent}% | идёт · {percent}% |
+| `course.lessons_passed.one/other` | {total} ta darsdan {done} tasi tugallangan | Пройдено {done} из {total} урока / Пройдено {done} из {total} уроков / Пройдено {done} из {total} уроков |
+| `course.lesson_of` | {total} ta darsdan {number}-dars | урок {number} из {total} |
+| `course.after_module` | {number}-moduldan keyin | после модуля {number} |
+| `achievements.received` | Olinganlar | Получены |
+| `achievements.ahead` | Oldinda | Впереди |
+| `battle.result.stamp_unit.one/other` | ochko | очко / очка / очков |
+| `gameRun.summary.stamp_unit.one/other` | ochko | очко / очка / очков |
+| `cup.final_stamp_unit` | o'rin | место |

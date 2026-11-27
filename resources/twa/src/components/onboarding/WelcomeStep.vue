@@ -3,7 +3,7 @@ import MascotArt from '@/components/ui/MascotArt.vue'
 import TopicArt from '@/components/ui/TopicArt.vue'
 import OnboardingActions from './OnboardingActions.vue'
 import { BRAND } from '@/brand'
-import { useI18n } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
  * O1 "Welcome" (kit 02-onboarding/O1): the mascot `hello` on a paper circle inside a dashed ring in the muhr colour, six pictures of
@@ -11,7 +11,7 @@ import { useI18n } from '@/i18n'
  * "Close" is the way out.
  */
 const emit = defineEmits<{ next: [] }>()
-const { t } = useI18n()
+const { t } = useOnboardingI18n()
 
 /** The pictures around the ring: the course and module of the picture, and its centre in % of the box (as in the kit). */
 const AROUND: readonly { course: string; stage: number; x: number; y: number }[] = [

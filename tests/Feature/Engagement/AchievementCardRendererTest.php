@@ -73,7 +73,8 @@ function cardInk(GdImage $image, int $x1, int $y1, int $x2, int $y2): int
     for ($x = $x1; $x < $x2; $x += 3) {
         for ($y = $y1; $y < $y2; $y += 3) {
             [$r, $g, $b] = cardPixel($image, $x, $y);
-            $ink += $r < 150 && $g < 150 ? 1 : 0;
+            // Any channel well below the paper: the ink, the muted grey and the reddish accent of the kit (the bot's address) alike.
+            $ink += min($r, $g, $b) < 150 ? 1 : 0;
         }
     }
 
@@ -86,7 +87,8 @@ function cardRed(GdImage $image, int $x1, int $y1, int $x2, int $y2): int
     for ($x = $x1; $x < $x2; $x += 2) {
         for ($y = $y1; $y < $y2; $y += 2) {
             [$r, $g, $b] = cardPixel($image, $x, $y);
-            $red += $r > 170 && $g < 80 && $b < 80 ? 1 : 0;
+            // The red of the fixture (200, 30, 30), not the muhr (228, 87, 46) or the accent (181, 58, 24) the card itself is drawn in.
+            $red += $r > 170 && $g < 45 && $b < 60 ? 1 : 0;
         }
     }
 

@@ -32,8 +32,8 @@ vi.mock('@/stores/auth', () => ({
   }),
 }))
 
-vi.mock('@/composables/useTelegram', () => ({
-  useTelegram: () => ({ firstName: () => state.telegramName }),
+vi.mock('@/composables/telegramOnboarding', () => ({
+  telegramFirstName: () => state.telegramName,
 }))
 
 const network = () => new ApiClientError('network', 0, 'network', 'Failed to fetch')
@@ -72,7 +72,7 @@ describe('onboarding store', () => {
 
   it('resumes with what was saved: the chosen name, the row of the course, a custom time', async () => {
     vi.mocked(api.onboarding.get).mockResolvedValue(onboardingFixture({
-      step: 'daily_goal',
+      step: 'plan',
       values: {
         display_name: 'Азиз',
         age_range: '18_24',
@@ -98,6 +98,18 @@ describe('onboarding store', () => {
       reminderCustom: true,
     })
     expect(state.learner?.display_name).toBe('Азиз')
+  })
+
+  it('takes the goal and the reminder the server sends by default only once their steps were saved', async () => {
+    vi.mocked(api.onboarding.get).mockResolvedValue(onboardingFixture({
+      step: 'level',
+      values: { daily_goal: 10, reminder: { enabled: false, time: null } },
+    }))
+    const store = useOnboardingStore()
+
+    await store.load()
+
+    expect(store.draft).toMatchObject({ dailyGoal: 20, reminderTime: '20:00', reminderCustom: false })
   })
 
   it('starts the goal at the plan limit when the recommended one is behind Pro; no Telegram name - an empty field', async () => {

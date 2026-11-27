@@ -14,8 +14,6 @@ interface ShareMessageFailed {
   error?: string
 }
 
-/** The write-access request waiting for Telegram's answer: the SDK takes one at a time. */
-let pendingWriteAccess: Promise<'granted' | 'denied' | 'unsupported'> | null = null
 
 /**
  * Thin wrapper around @twa-dev/sdk with safe fallbacks when the TWA is
@@ -152,50 +150,6 @@ export function useTelegram() {
     })
   }
 
-  /**
-   * The first name of the user as Telegram gives it to the page (`initDataUnsafe.user.first_name`): only a hint to prefill a field
-   * (the onboarding's O2), never trusted - the server takes nothing from it. Null outside Telegram.
-   */
-  function firstName(): string | null {
-    const name = webApp?.initDataUnsafe?.user?.first_name
-    return typeof name === 'string' && name.trim() !== '' ? name : null
-  }
-
-  /** Whether this client can ask for the permission to receive messages from the bot (`requestWriteAccess`, Bot API 6.9+). */
-  function canRequestWriteAccess(): boolean {
-    try {
-      return Boolean(webApp)
-        && typeof webApp?.isVersionAtLeast === 'function'
-        && webApp.isVersionAtLeast('6.9')
-        && typeof webApp.requestWriteAccess === 'function'
-    } catch {
-      return false
-    }
-  }
-
-  /**
-   * Asks Telegram to let the bot write to the user (the onboarding's O7): `granted` / `denied` by the user's answer (a user who already
-   * started the bot is answered `granted` at once), `unsupported` where the client cannot ask. A request still waiting for its answer
-   * (`WebAppWriteAccessRequested`) is answered by that one. Call it only from a tap.
-   */
-  function requestWriteAccess(): Promise<'granted' | 'denied' | 'unsupported'> {
-    if (pendingWriteAccess !== null) return pendingWriteAccess
-    if (!canRequestWriteAccess() || !webApp) return Promise.resolve('unsupported')
-    const app = webApp
-    const pending = new Promise<'granted' | 'denied' | 'unsupported'>((resolve) => {
-      try {
-        app.requestWriteAccess((granted) => resolve(granted === true ? 'granted' : 'denied'))
-      } catch {
-        // `WebAppMethodUnsupported` (an older client than it said) or `WebAppWriteAccessRequested` (asked outside this wrapper).
-        resolve('unsupported')
-      }
-    }).finally(() => {
-      pendingWriteAccess = null
-    })
-    pendingWriteAccess = pending
-    return pending
-  }
-
   function showBackButton(handler: () => void): () => void {
     try {
       webApp?.BackButton?.show()
@@ -224,9 +178,6 @@ export function useTelegram() {
     shareUrl,
     canShareMessage,
     shareMessage,
-    firstName,
-    canRequestWriteAccess,
-    requestWriteAccess,
     showBackButton,
   }
 }

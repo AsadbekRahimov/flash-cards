@@ -28,8 +28,10 @@ export interface OnboardingLevelOption {
   level: string
   levels: string[]
   course_slug: string
-  /** The label of the row's chip ("A1–A2", "B1"). */
+  /** The name of the course in the learner's language ("Английский B1"). */
   title: string
+  /** The levels of the row as the chip shows them ("A1–A2", "B1"; "A1, C1" for levels that are not neighbours). */
+  level_label: string
   stages_count: number | null
 }
 

@@ -1,3 +1,11 @@
+import type { Message, PluralForms } from '../ru'
+
+/**
+ * The texts of the onboarding of the Mini App, O1-O8 (docs/40 §2.1), in Russian - the source of truth for its keys. A dictionary of its
+ * own, loaded with the screens of the onboarding (their lazy chunk), so the main chunk does not carry them for every open; read through
+ * `useOnboardingI18n` (`./index.ts`), in the language of the app (`getLocale()`). `uz.ts` is typed against this file.
+ */
+export const onboardingRu = {
   'onboarding.progress_label': 'Шаг {n} из {total}',
   'onboarding.continue': 'Продолжить',
   'onboarding.continue_selected': {
@@ -99,3 +107,18 @@
   'onboarding.plan.reminder_at': 'каждый день в {time}',
   'onboarding.plan.reminder_off': 'выключено',
   'onboarding.plan.start': 'Начать первый урок',
+} satisfies Record<string, Message>
+
+export type OnboardingDictionary = typeof onboardingRu
+export type OnboardingMessageKey = keyof OnboardingDictionary
+
+/** Keys whose value is a set of plural forms (use with `tn`). */
+export type OnboardingPluralKey = { [K in OnboardingMessageKey]: OnboardingDictionary[K] extends string ? never : K }[OnboardingMessageKey]
+
+/** Keys whose value is a plain string (use with `t`). */
+export type OnboardingStringKey = Exclude<OnboardingMessageKey, OnboardingPluralKey>
+
+/** Shape the Uzbek dictionary must have: same keys, same string/plural kind. */
+export type OnboardingTranslations = {
+  [K in OnboardingMessageKey]: OnboardingDictionary[K] extends string ? string : PluralForms
+}

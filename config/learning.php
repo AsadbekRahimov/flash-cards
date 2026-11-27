@@ -233,8 +233,11 @@ return [
      *   known    — interval from `known_from_interval_days` on;
      *   mastered — interval from `mastered_from_interval_days` on.
      * The session summary counts the words that climbed a stage during the session.
+     * `fresh_review_days` splits the `learning` stage for the "memory strength" 0–5 of the Mini App (docs/40 §2.2, docs/06 §13.3a,
+     * MemoryStrength): a graduated card below it is strength 2, from it up to `known_from_interval_days` strength 3.
      */
     'stages' => [
+        'fresh_review_days' => (int) env('LEARNING_STAGE_FRESH_REVIEW_DAYS', 3),
         'known_from_interval_days' => (int) env('LEARNING_STAGE_KNOWN_FROM_INTERVAL_DAYS', 7),
         'mastered_from_interval_days' => (int) env('LEARNING_STAGE_MASTERED_FROM_INTERVAL_DAYS', 21),
     ],

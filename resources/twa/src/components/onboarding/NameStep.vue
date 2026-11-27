@@ -6,7 +6,7 @@ import OnboardingActions from './OnboardingActions.vue'
 import StepIntro from './StepIntro.vue'
 import { nameProblem, nameProblemText, NAME_MAX } from './nameRules'
 import { useOnboardingStore } from '@/stores/onboarding'
-import { useI18n } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
  * O2 "Name" (kit 02-onboarding/O2): the field, prefilled with the first name Telegram gives the page ("Taken from Telegram - you can
@@ -15,7 +15,7 @@ import { useI18n } from '@/i18n'
  */
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
-const { t } = useI18n()
+const { t } = useOnboardingI18n()
 
 const name = computed({
   get: () => store.draft.name,

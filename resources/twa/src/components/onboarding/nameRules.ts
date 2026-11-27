@@ -1,4 +1,4 @@
-import { t } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 import { graphemeCount } from '@/composables/cupInfo'
 
 /**
@@ -34,6 +34,7 @@ export function nameProblem(text: string): string | null {
 
 /** A refused name in the learner's words; an unknown reason (or none) - the general words. */
 export function nameProblemText(reason: string | null): string {
+  const { t } = useOnboardingI18n()
   switch (reason) {
     case 'empty':
       return t('onboarding.name.error.empty')

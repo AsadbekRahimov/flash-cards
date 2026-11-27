@@ -7,7 +7,8 @@ import SelectableTile from './SelectableTile.vue'
 import StepIntro from './StepIntro.vue'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
+import { canRequestWriteAccess, requestWriteAccess } from '@/composables/telegramOnboarding'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
  * O7 "Reminder" (kit 02-onboarding/O7): the five times of the server and "Custom" (a time field, a quarter of an hour), the switch
@@ -20,8 +21,8 @@ import { useI18n } from '@/i18n'
  */
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
-const { canRequestWriteAccess, requestWriteAccess, selectionHaptic } = useTelegram()
-const { t } = useI18n()
+const { selectionHaptic } = useTelegram()
+const { t } = useOnboardingI18n()
 
 const canAsk = ref(canRequestWriteAccess())
 /** The permission was refused on this screen: the line under the switch says what that means. */

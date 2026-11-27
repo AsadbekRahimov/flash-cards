@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\ShareController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
+use App\Http\Controllers\Api\Twa\VocabularyController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
 use App\Http\Middleware\EnsureCupAccess;
 use App\Http\Middleware\EnsureCupDuels;
@@ -172,6 +173,9 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/decks/{slug}/words', [DeckController::class, 'addWords'])
             ->middleware('throttle:twa-deck-import')
             ->name('twa.decks.words.add');
+
+        // "My vocabulary" (docs/40 §2.3, docs/04 A.25): the learner's graded words, a page at a time; a read under `twa-api`.
+        Route::get('/vocabulary', VocabularyController::class)->name('twa.vocabulary');
 
         // The learner's own memory hook of a word (docs/06 §12.3): one row of theirs, a write cap of its own.
         Route::put('/words/{word}/note', [WordNoteController::class, 'update'])

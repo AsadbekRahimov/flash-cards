@@ -6,8 +6,8 @@ import SelectableTile from './SelectableTile.vue'
 import StepIntro from './StepIntro.vue'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
-import type { StringKey } from '@/i18n/ru'
+import { useOnboardingI18n } from '@/i18n/onboarding'
+import type { OnboardingStringKey } from '@/i18n/onboarding'
 import type { OnboardingLevelOption } from '@/api/onboardingTypes'
 
 /**
@@ -18,7 +18,7 @@ import type { OnboardingLevelOption } from '@/api/onboardingTypes'
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
 const { selectionHaptic } = useTelegram()
-const { t } = useI18n()
+const { t } = useOnboardingI18n()
 
 /** The levels that have words of their own. */
 const DESCRIBED = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
@@ -29,7 +29,7 @@ const busy = computed(() => store.saving === 'level')
 
 /** What the level of a row means ("Starting from zero"); a level without words - none. */
 function describe(row: OnboardingLevelOption): string {
-  return DESCRIBED.includes(row.level) ? t(`onboarding.level.desc.${row.level}` as StringKey) : ''
+  return DESCRIBED.includes(row.level) ? t(`onboarding.level.desc.${row.level}` as OnboardingStringKey) : ''
 }
 
 function pick(row: OnboardingLevelOption): void {
@@ -62,7 +62,7 @@ async function onContinue(): Promise<void> {
           class="t-label-s inline-flex h-8 min-w-16 shrink-0 items-center justify-center rounded-sm px-2 transition-colors duration-200"
           :class="store.draft.level === row.level ? 'bg-inverse text-on-inverse' : 'bg-sunken text-body'"
           data-testid="level-chip"
-        >{{ row.title }}</span>
+        >{{ row.level_label }}</span>
         <span
           class="t-body-m-strong min-w-0 flex-1"
           :class="store.draft.level === row.level ? 'text-body' : 'text-muted'"
@@ -76,7 +76,7 @@ async function onContinue(): Promise<void> {
     </div>
     <InlineAlert v-else-if="store.data !== null" tone="info" :message="t('onboarding.level.empty')" class="mt-5" data-testid="level-empty" />
     <OnboardingActions
-      :label="chosen ? t('onboarding.level.start', { level: chosen.title }) : t('onboarding.continue')"
+      :label="chosen ? t('onboarding.level.start', { level: chosen.level_label }) : t('onboarding.continue')"
       :disabled="chosen === null"
       :busy="busy"
       :error="store.saveErrorStep === 'level' ? store.saveError : ''"

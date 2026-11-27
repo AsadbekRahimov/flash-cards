@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useTelegram } from '../useTelegram'
+import { canRequestWriteAccess, requestWriteAccess, telegramFirstName } from '../telegramOnboarding'
 
 /**
  * `requestWriteAccess` of the onboarding's O7 (docs/40 §2.1): the SDK 8.x method (Bot API 6.9) asks Telegram and calls back with
@@ -21,7 +21,7 @@ function versionAtLeast(version: string): boolean {
   return a > c || (a === c && b >= d)
 }
 
-describe('useTelegram: write access and the first name', () => {
+describe('telegramOnboarding: write access and the first name', () => {
   beforeEach(() => {
     sdk.version = '7.0'
     sdk.pending = null
@@ -47,7 +47,7 @@ describe('useTelegram: write access and the first name', () => {
   }
 
   it('asks Telegram on 6.9+ and resolves granted / denied by the answer', async () => {
-    const tg = useTelegram()
+    const tg = { canRequestWriteAccess, requestWriteAccess }
     expect(tg.canRequestWriteAccess()).toBe(true)
 
     const first = tg.requestWriteAccess()
@@ -61,7 +61,7 @@ describe('useTelegram: write access and the first name', () => {
   })
 
   it('shares one request while Telegram has not answered yet', async () => {
-    const tg = useTelegram()
+    const tg = { canRequestWriteAccess, requestWriteAccess }
 
     const a = tg.requestWriteAccess()
     const b = tg.requestWriteAccess()
@@ -74,13 +74,13 @@ describe('useTelegram: write access and the first name', () => {
 
   it('cannot ask below 6.9 and outside Telegram: unsupported, the SDK is not called', async () => {
     sdk.version = '6.4'
-    const tg = useTelegram()
+    const tg = { canRequestWriteAccess, requestWriteAccess }
     expect(tg.canRequestWriteAccess()).toBe(false)
     await expect(tg.requestWriteAccess()).resolves.toBe('unsupported')
 
     delete (window as unknown as { Telegram?: unknown }).Telegram
-    expect(useTelegram().canRequestWriteAccess()).toBe(false)
-    await expect(useTelegram().requestWriteAccess()).resolves.toBe('unsupported')
+    expect(canRequestWriteAccess()).toBe(false)
+    await expect(requestWriteAccess()).resolves.toBe('unsupported')
     expect(sdk.requestWriteAccess).not.toHaveBeenCalled()
   })
 
@@ -89,14 +89,14 @@ describe('useTelegram: write access and the first name', () => {
       throw new Error('WebAppWriteAccessRequested')
     })
 
-    await expect(useTelegram().requestWriteAccess()).resolves.toBe('unsupported')
+    await expect(requestWriteAccess()).resolves.toBe('unsupported')
   })
 
   it('gives the first name of the page as a hint, null when there is none', () => {
-    expect(useTelegram().firstName()).toBe('Aziz')
+    expect(telegramFirstName()).toBe('Aziz')
     sdk.initDataUnsafe = { user: { first_name: '  ' } }
-    expect(useTelegram().firstName()).toBeNull()
+    expect(telegramFirstName()).toBeNull()
     delete (window as unknown as { Telegram?: unknown }).Telegram
-    expect(useTelegram().firstName()).toBeNull()
+    expect(telegramFirstName()).toBeNull()
   })
 })

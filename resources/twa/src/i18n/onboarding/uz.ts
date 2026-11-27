@@ -1,3 +1,7 @@
+import type { OnboardingTranslations } from './ru'
+
+/** The texts of the onboarding of the Mini App in Uzbek (Latin script, the ASCII apostrophe); exactly the keys of `ru.ts`. */
+export const onboardingUz: OnboardingTranslations = {
   'onboarding.progress_label': '{n}-qadam, jami {total}',
   'onboarding.continue': 'Davom etish',
   'onboarding.continue_selected': {
@@ -91,3 +95,4 @@
   'onboarding.plan.reminder_at': 'har kuni {time} da',
   'onboarding.plan.reminder_off': "o'chirilgan",
   'onboarding.plan.start': 'Birinchi darsni boshlash',
+}

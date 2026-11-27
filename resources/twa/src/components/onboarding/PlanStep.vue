@@ -7,9 +7,9 @@ import StepIntro from './StepIntro.vue'
 import { ONBOARDING_GOALS } from '@/api/onboardingTypes'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 import type { IconName } from '@/components/ui/icons'
-import type { StringKey } from '@/i18n/ru'
+import type { OnboardingStringKey } from '@/i18n/onboarding'
 
 /**
  * O8 "The plan is ready" (kit 02-onboarding/O8): the mascot `celebrate` (with the imprint of the check stamp), "<name>, your plan is ready" - the name
@@ -20,7 +20,7 @@ import type { StringKey } from '@/i18n/ru'
 const emit = defineEmits<{ done: []; exit: []; missing: [step: string] }>()
 const store = useOnboardingStore()
 const { haptic } = useTelegram()
-const { t, tn } = useI18n()
+const { t, tn } = useOnboardingI18n()
 
 const values = computed(() => store.data?.values ?? null)
 const name = computed((): string | null => values.value?.display_name ?? null)
@@ -40,8 +40,8 @@ const rows = computed((): Row[] => {
   const courseValue = course === null
     ? (v.level ?? '—')
     : course.stages_count !== null && course.stages_count > 0
-      ? tn('onboarding.plan.course_modules', course.stages_count, { title: course.title })
-      : course.title
+      ? tn('onboarding.plan.course_modules', course.stages_count, { title: course.level_label ?? course.title })
+      : (course.level_label ?? course.title)
   const reminder = v.reminder
   const goals = (v.goals ?? []).filter((goal) => ONBOARDING_GOALS.includes(goal))
   const list: Row[] = [
@@ -66,7 +66,7 @@ const rows = computed((): Row[] => {
       key: 'why',
       icon: 'award',
       label: t('onboarding.plan.why'),
-      value: goals.map((goal) => t(`onboarding.goals.short.${goal}` as StringKey)).join(', '),
+      value: goals.map((goal) => t(`onboarding.goals.short.${goal}` as OnboardingStringKey)).join(', '),
     })
   }
   return list
@@ -97,8 +97,11 @@ async function onStart(): Promise<void> {
         :data-testid="`plan-${row.key}`"
       >
         <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-sm bg-sunken"><AppIcon :name="row.icon" :size="20" /></span>
-        <span class="t-body-m shrink-0 text-muted">{{ row.label }}</span>
-        <span class="t-body-m-strong min-w-0 flex-1 text-right" data-testid="plan-value">{{ row.value }}</span>
+        <!-- A value that does not fit beside its label (a narrow screen) moves under it, to the right. -->
+        <span class="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-3">
+          <span class="t-body-m text-muted">{{ row.label }}</span>
+          <span class="t-body-m-strong ml-auto text-right" data-testid="plan-value">{{ row.value }}</span>
+        </span>
       </li>
     </ul>
     <OnboardingActions

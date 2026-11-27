@@ -31,6 +31,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Learning\Support\MemoryStrength;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\SprintLimits;
 use App\Domain\Learning\Support\SprintPolicy;
@@ -285,6 +286,8 @@ final class TrainingFlowService
             hook: $showsHook ? $this->hooks->for($pick->word, $translation->locale) : null,
             note: $this->ladder->hooksEnabled ? self::text($pick->repetition->note) : null,
             confusedWith: $isLeech ? $this->leeches->confusedWith($pick->repetition, $pick->word) : null,
+            // The dots of F1 (docs/40 §2.2): from the row the picker already holds - no query.
+            memory: MemoryStrength::reading($pick->repetition, $now),
         );
     }
 

@@ -3,6 +3,7 @@ import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useI18n } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
  * The bottom of a step of the onboarding (docs/40 §2.1): the one Primary in ink with the arrow; `aria-disabled` until there is an
@@ -21,6 +22,7 @@ withDefaults(
 
 const emit = defineEmits<{ primary: []; secondary: [] }>()
 const { t } = useI18n()
+const { t: ot } = useOnboardingI18n()
 </script>
 
 <template>
@@ -37,7 +39,7 @@ const { t } = useI18n()
       class="btn btn-primary btn-block"
       :aria-disabled="disabled ? 'true' : undefined"
       :aria-busy="busy ? 'true' : undefined"
-      :aria-label="busy ? t('onboarding.saving') : undefined"
+      :aria-label="busy ? ot('onboarding.saving') : undefined"
       data-testid="onboarding-continue"
       @click="!disabled && !busy && emit('primary')"
     >

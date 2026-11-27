@@ -17,8 +17,8 @@ use Throwable;
 
 /**
  * The share card (docs/13 §7.4, docs/36 §2б): a 1080×1080 JPEG drawn with GD and Noto Sans (SIL OFL, `resources/fonts/`,
- * Latin with the Uzbek letters + Cyrillic) in the colours of the Mini App ({@see CardPalette}). A white rounded panel on the
- * soft blue field: the brand (`config('app.brand')`, with the logo of `app.brand_logo` when there is one) on top, the
+ * Latin with the Uzbek letters + Cyrillic) in the colours of the Mini App ({@see CardPalette}). A paper rounded panel on the
+ * canvas of the kit: the brand (`config('app.brand')`, with the logo of `app.brand_logo` when there is one) on top, the
  * illustration of the family - or the medal with the badge while the designer's file is not there - then the label, the title
  * (≤ 2 lines), the description (≤ 3 lines) and the footer: the tagline and `t.me/<bot>` (a picture forwarded without the button
  * still leads to the bot).
@@ -34,7 +34,7 @@ final class AchievementCardRenderer
     public const SIZE = 1080;
 
     /** Bump to invalidate every cached card after a change of the drawing code. */
-    public const TEMPLATE_VERSION = '2';
+    public const TEMPLATE_VERSION = '3';
 
     /** Lines the title and the description may take; longer texts are cut with "…" (a test keeps every key within them). */
     public const TITLE_LINES = 2;
@@ -80,6 +80,9 @@ final class AchievementCardRenderer
     private const ART_TOP = 185;
 
     private const MEDAL_DIAMETER = 320;
+
+    /** The ring of the medal - the stamp of the kit (docs/14 §4.0): a muhr band around the paper disc. */
+    private const STAMP_RING = 10;
 
     /**
      * The card of an achievement: its texts in the language, drawn by {@see renderSpec()}.
@@ -335,7 +338,7 @@ final class AchievementCardRenderer
         $background = $this->color($image, CardPalette::BACKGROUND);
         $panel = $this->color($image, CardPalette::PANEL);
         $line = $this->color($image, CardPalette::LINE);
-        $primary = $this->color($image, CardPalette::PRIMARY);
+        $muhr = $this->color($image, CardPalette::MUHR);
         $accent = $this->color($image, CardPalette::ACCENT);
         $text = $this->color($image, CardPalette::TEXT);
         $muted = $this->color($image, CardPalette::MUTED);
@@ -345,7 +348,7 @@ final class AchievementCardRenderer
         $this->roundedRectangle($image, self::MARGIN, self::MARGIN, $size - 1 - self::MARGIN, $size - 1 - self::MARGIN, self::RADIUS, $line);
         $this->roundedRectangle($image, self::MARGIN + self::BORDER, self::MARGIN + self::BORDER, $size - 1 - self::MARGIN - self::BORDER, $size - 1 - self::MARGIN - self::BORDER, self::RADIUS - self::BORDER, $panel);
 
-        $this->header($image, $content['brand'], $content['logo'], $bold, $primary);
+        $this->header($image, $content['brand'], $content['logo'], $bold, $muhr);
 
         // The text block sits on the bottom of its zone, so the illustration gets whatever the texts leave.
         $title = $this->fit($this->wrap($content['title'], $bold, self::TITLE_SIZE, self::TEXT_WIDTH), self::TITLE_LINES, $bold, self::TITLE_SIZE);
@@ -359,7 +362,7 @@ final class AchievementCardRenderer
         $labelBaseline = $titleFirst - 92;
         $artBottom = ($label === '' ? $titleFirst - 50 : $labelBaseline - 26) - 30;
 
-        $this->art($image, $content['art'], $content['badge'], $artBottom, $bold, $line, $background, $accent);
+        $this->art($image, $content['art'], $content['badge'], $artBottom, $bold, $muhr, $background, $accent);
 
         if ($label !== '') {
             $this->spaced($image, $label, $bold, 28, $labelBaseline, $muted, 5);
@@ -403,9 +406,9 @@ final class AchievementCardRenderer
 
     /**
      * The illustration of the family fitted into its box, centred in the zone between the header and `$bottom`; without one the
-     * medal: a soft disc in the frame colour with the badge.
+     * medal: the stamp of the kit - a soft disc in a muhr ring - with the badge.
      */
-    private function art(GdImage $image, ?string $artPath, string $badge, int $bottom, string $font, int $line, int $soft, int $ink): void
+    private function art(GdImage $image, ?string $artPath, string $badge, int $bottom, string $font, int $ring, int $soft, int $ink): void
     {
         $zone = max(120, $bottom - self::ART_TOP);
         $art = $artPath === null ? null : $this->loadPng($artPath);
@@ -424,7 +427,7 @@ final class AchievementCardRenderer
         $diameter = min(self::MEDAL_DIAMETER, $zone - 20);
         $cx = (int) round(self::SIZE / 2);
         $cy = self::ART_TOP + (int) round($zone / 2);
-        imagefilledellipse($image, $cx, $cy, $diameter + 2 * self::BORDER, $diameter + 2 * self::BORDER, $line);
+        imagefilledellipse($image, $cx, $cy, $diameter + 2 * self::STAMP_RING, $diameter + 2 * self::STAMP_RING, $ring);
         imagefilledellipse($image, $cx, $cy, $diameter, $diameter, $soft);
 
         $badge = trim($badge);

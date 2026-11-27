@@ -2307,5 +2307,4 @@ export const uz: Translations = {
   'cup.duel.new.confirm_personal_text': "Raqib chaqiruvni kubokda ko'radi, bot unga shaxsiy xabar yozadi. Chaqiruv javobni cheklangan vaqt kutadi — ekranda taymer bo'ladi.",
   'cup.duel.new.send': 'Chaqiruvni yuborish',
   'cup.duel.new.back': 'Orqaga',
-
 }

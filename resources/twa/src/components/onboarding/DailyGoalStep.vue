@@ -9,8 +9,8 @@ import SelectableTile from './SelectableTile.vue'
 import StepIntro from './StepIntro.vue'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
-import type { StringKey } from '@/i18n/ru'
+import { useOnboardingI18n } from '@/i18n/onboarding'
+import type { OnboardingStringKey } from '@/i18n/onboarding'
 
 /**
  * O6 "Goal of the day" (kit 02-onboarding/O6): the goals of the settings, 10 / 20 / 40 CARDS a day (docs/40 §3, В3 - not the kit's
@@ -21,7 +21,7 @@ import type { StringKey } from '@/i18n/ru'
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
 const { selectionHaptic } = useTelegram()
-const { t, tn } = useI18n()
+const { t, tn } = useOnboardingI18n()
 
 /** About 0.6 minute a card (the kit: 10 words - 6 minutes). */
 const MINUTES_PER_CARD = 0.6
@@ -36,7 +36,7 @@ const locked = (goal: number): boolean => store.goalMax !== null && goal > store
 const paywallOpen = ref(false)
 
 function label(goal: number): string {
-  return LABELLED.includes(goal) ? t(`onboarding.daily_goal.label.${goal}` as StringKey) : ''
+  return LABELLED.includes(goal) ? t(`onboarding.daily_goal.label.${goal}` as OnboardingStringKey) : ''
 }
 
 function pick(goal: number): void {

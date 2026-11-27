@@ -2479,7 +2479,6 @@ export const ru = {
   'cup.duel.new.confirm_personal_text': 'Соперник увидит вызов в кубке, бот напишет ему в личные сообщения. Вызов ждёт ответа ограниченное время — на экране будет таймер.',
   'cup.duel.new.send': 'Отправить вызов',
   'cup.duel.new.back': 'Назад',
-
 } satisfies Record<string, Message>
 
 export type Dictionary = typeof ru

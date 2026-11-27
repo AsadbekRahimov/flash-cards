@@ -45,14 +45,14 @@ function snapIs(GdImage $image, int $x, int $y, string $hex, int $tolerance = 6)
     return true;
 }
 
-/** Dark pixels (text) in a box. */
+/** Drawn pixels (text) in a box: far from the paper and the canvas. */
 function snapInk(GdImage $image, int $x1, int $y1, int $x2, int $y2): int
 {
     $ink = 0;
     for ($x = $x1; $x < $x2; $x += 3) {
         for ($y = $y1; $y < $y2; $y += 3) {
-            [$r, $g] = snapPixel($image, $x, $y);
-            $ink += $r < 150 && $g < 150 ? 1 : 0;
+            // Any channel well below the paper: the ink, the muted grey, the muhr brand and the accent of the bot's address alike.
+            $ink += min(snapPixel($image, $x, $y)) < 150 ? 1 : 0;
         }
     }
 

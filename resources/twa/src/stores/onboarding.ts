@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
-import { useTelegram } from '@/composables/useTelegram'
+import { telegramFirstName } from '@/composables/telegramOnboarding'
 import { markSeen } from '@/composables/seenFlag'
 import { errorMessage } from '@/i18n/errors'
 import {
@@ -93,6 +93,12 @@ const emptyDraft = (): OnboardingDraft => ({
   writeAccess: 'not_asked',
 })
 
+/** Whether the learner has saved this step: the step to show next (the server's `step`) is after it, or the onboarding is done. */
+function answered(state: OnboardingState, step: OnboardingStep): boolean {
+  if (state.completed) return true
+  return state.step !== null && ONBOARDING_STEPS.indexOf(state.step) > ONBOARDING_STEPS.indexOf(step)
+}
+
 function isStep(value: unknown): value is OnboardingStep {
   return typeof value === 'string' && (ONBOARDING_STEPS as readonly string[]).includes(value)
 }
@@ -152,7 +158,7 @@ export const useOnboardingStore = defineStore('onboarding', {
     fillDraft(state: OnboardingState): void {
       const { values, options } = state
       const draft = emptyDraft()
-      const telegramName = useTelegram().firstName()
+      const telegramName = telegramFirstName()
       if (values.display_name !== null) {
         draft.name = values.display_name
       } else if (telegramName !== null) {
@@ -164,8 +170,13 @@ export const useOnboardingStore = defineStore('onboarding', {
       const levelRow = options.levels.find((row) => row.course_slug === values.course?.slug)
         ?? options.levels.find((row) => values.level !== null && row.levels.includes(values.level))
       draft.level = levelRow?.level ?? null
-      draft.dailyGoal = values.daily_goal ?? this.defaultGoal(state)
-      if (values.reminder !== null) {
+      // The server always sends a goal and a reminder (the defaults of a new learner): they are the learner's answer only once the step
+      // was saved - the step to show next is after it. Before that O6 / O7 start with the kit's defaults.
+      const saved = values.daily_goal
+      draft.dailyGoal = answered(state, 'daily_goal') && saved !== null && (options.daily_goal_max === null || saved <= options.daily_goal_max)
+        ? saved
+        : this.defaultGoal(state)
+      if (answered(state, 'reminder') && values.reminder !== null) {
         const time = values.reminder.time ?? DEFAULT_REMINDER_TIME
         draft.reminderTime = time
         draft.reminderCustom = !options.reminder_times.includes(time)

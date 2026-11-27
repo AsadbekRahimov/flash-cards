@@ -40,14 +40,17 @@ vi.mock('@/stores/auth', () => ({
   }),
 }))
 
+vi.mock('@/composables/telegramOnboarding', () => ({
+  telegramFirstName: () => tg.firstName,
+  canRequestWriteAccess: () => tg.canAsk,
+  requestWriteAccess: () => tg.requestWriteAccess(),
+}))
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     webApp: { BackButton: { hide: tg.hide } },
-    firstName: () => tg.firstName,
     selectionHaptic: () => {},
     haptic: () => {},
-    canRequestWriteAccess: () => tg.canAsk,
-    requestWriteAccess: tg.requestWriteAccess,
     showBackButton: (handler: () => void) => {
       tg.back = handler
       return () => {

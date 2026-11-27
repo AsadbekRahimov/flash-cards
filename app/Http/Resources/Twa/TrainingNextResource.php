@@ -20,7 +20,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, example_translation: string|null, example_audio_url: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null, phrase: array{kind: string|null, register: string|null, variant: string, literal: string|null}|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, example_translation: string|null, example_audio_url: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null, phrase: array{kind: string|null, register: string|null, variant: string, literal: string|null}|null, memory: array{strength: int, stage: string, next_in_days: int|null}|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null,
      *   can_continue: bool,
@@ -83,6 +83,9 @@ final class TrainingNextResource extends TwaResource
                 // A phrase card (docs/35 §3.3 d, docs/06 §16): kind, register, UK / US always; the literal translation is hidden with
                 // the example (it would give the answer of a choice or typed card away) and comes back in `revealed.phrase`. Null for a word.
                 'phrase' => Phrase::forCard($word, $translation->locale ?? 'ru', ! $hidden),
+                // "Memory strength" BEFORE this grade (docs/40 §2.2): 0–5 dots, the stage, whole days to the next review (null - in the
+                // minute steps). Never gives an answer away, so not hidden.
+                'memory' => $this->resource->memory,
             ] : null,
             'progress' => [
                 'done' => $this->resource->progress['done'],

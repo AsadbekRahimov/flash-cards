@@ -14,7 +14,7 @@ import SegmentProgress from '@/components/ui/SegmentProgress.vue'
 import { ONBOARDING_STEPS, type OnboardingStep } from '@/api/onboardingTypes'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
-import { useI18n } from '@/i18n'
+import { useOnboardingI18n } from '@/i18n/onboarding'
 
 /**
  * The onboarding of the Mini App, O1-O8 (docs/40 §2.1, kit Muhrla 02-onboarding): one screen, the step is the parameter of the route
@@ -33,7 +33,7 @@ const props = defineProps<{ step: string | null }>()
 const router = useRouter()
 const store = useOnboardingStore()
 const { showBackButton, webApp } = useTelegram()
-const { t } = useI18n()
+const { t } = useOnboardingI18n()
 
 type Screen = 'welcome' | OnboardingStep
 
