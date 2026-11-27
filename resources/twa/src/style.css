@@ -868,6 +868,15 @@ body {
     background: var(--app-accent-soft);
   }
 
+  /* The mascot enters once: 8 px from below and a fade, 300 ms (ANIMATIONS.md §8). */
+  .mascot-enter {
+    animation: mascot-enter 300ms var(--ease-out) both;
+  }
+  @keyframes mascot-enter {
+    0% { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
   /* ---- the stamp (signature, ANIMATIONS.md §3): ui/StampMark ---- */
 
   @keyframes stamp-press {
@@ -943,7 +952,8 @@ body {
     .combo-pop,
     .btn-dots > span,
     .option-mark,
-    .option[data-state='incorrect'] {
+    .option[data-state='incorrect'],
+    .mascot-enter {
       animation: none;
     }
     /* The stamp only fades in (ANIMATIONS.md §9: transforms become a 120 ms crossfade). */

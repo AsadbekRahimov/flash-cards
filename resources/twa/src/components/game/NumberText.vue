@@ -4,7 +4,8 @@ import { NUMBER_MARK } from '@/components/game/numberMark'
 
 /**
  * A localized line with numbers in it ("У вас 40", "Лучший счёт: 120", "12 / 40 · до пт 18:00"), where only the numbers are set in
- * `font-mono` (docs/14 §4.2: Plex Mono has no Cyrillic, so the words next to a number stay in the text face). The caller localizes the
+ * `font-mono` (docs/14 §4.0: the numbers of the kit are Unbounded with tabular figures; the words next to a number stay in the text
+ * face, Onest). The caller localizes the
  * line with `NUMBER_MARK` in place of each number and passes the numbers themselves, in the order of the marks: the order of the words
  * stays the dictionary's, in either language. A line without a mark is written as it is.
  *

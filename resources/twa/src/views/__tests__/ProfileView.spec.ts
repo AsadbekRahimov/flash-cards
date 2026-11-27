@@ -334,7 +334,7 @@ describe('ProfileView', () => {
       for (const group of ['group-results', 'group-account', 'group-more']) {
         const plate = w.get(`[data-testid=${group}]`)
         expect(plate.classes(), group).toContain('bg-highlight')
-        expect(plate.get('h2').classes(), group).toEqual(expect.arrayContaining(['text-lg', 'font-extrabold']))
+        expect(plate.get('h2').classes(), group).toContain('t-title-m')
       }
     })
 

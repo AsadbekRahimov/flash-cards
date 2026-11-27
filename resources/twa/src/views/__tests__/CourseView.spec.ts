@@ -138,7 +138,7 @@ describe('CourseView', () => {
       expect(wrapper.findAll('[data-testid=lang-btn]')).toHaveLength(1)
       const heading = wrapper.get('[data-testid=title] h1')
       expect(heading.text()).toBe('Английский A1')
-      expect(heading.classes()).toContain('text-[30px]')
+      expect(heading.classes()).toContain('t-display-l')
       // Another course: the heading is its name, the card says its level and goal.
       const card = wrapper.get('[data-testid=course-card]')
       expect(card.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))

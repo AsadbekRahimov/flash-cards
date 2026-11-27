@@ -4,7 +4,7 @@ import NumberText from '../NumberText.vue'
 import { NUMBER_MARK } from '../numberMark'
 
 describe('NumberText', () => {
-  it('sets only the number in Plex Mono, the words around it stay as they are', () => {
+  it('sets only the number in the face of numbers (font-mono), the words around it stay as they are', () => {
     const wrapper = mount(NumberText, { props: { text: `Лучший счёт: ${NUMBER_MARK}`, value: 120 } })
 
     expect(wrapper.text()).toBe('Лучший счёт: 120')

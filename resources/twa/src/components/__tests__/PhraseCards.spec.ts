@@ -127,12 +127,12 @@ describe('MeaningCard of a phrase', () => {
     for (const option of options) {
       expect(option.attributes('data-long')).toBe('true')
       expect(option.attributes('aria-checked')).toBe('false')
-      expect(option.classes()).toContain('min-h-[58px]')
-      expect(option.classes()).not.toContain('text-[18px]')
+      expect(option.classes()).toContain('min-h-[60px]')
+      expect(option.classes()).toContain('text-base')
     }
     expect(w.get('[data-testid=option-0] [data-testid=option-label]').text()).toBe(LONG_RU)
-    // The indicator stays on the right, in the middle of the box (`.option` centres its row).
-    expect(w.get('[data-testid=option-indicator-0]').classes()).toContain('shrink-0')
+    // The key stays on the left, in the middle of the box, however many lines the phrase takes.
+    expect(w.get('[data-testid=option-key-0]').classes()).toEqual(expect.arrayContaining(['shrink-0', 'self-center']))
     // «Буквально» is not on the question: the server has not sent it.
     expect(w.find('[data-testid=phrase-literal]').exists()).toBe(false)
   })
@@ -174,7 +174,8 @@ describe('MeaningCard of a phrase', () => {
     const w = mount(MeaningCard, { props: { card: word } })
     expect(w.get('[data-testid=word]').classes()).toContain('text-[52px]')
     expect(w.find('[data-testid=phrase-labels]').exists()).toBe(false)
-    expect(w.get('[data-testid=option-0]').classes()).toContain('text-[18px]')
+    // the Body/L of `.option` (17 px), not the smaller text of a long option
+    expect(w.get('[data-testid=option-0]').classes()).not.toContain('text-base')
     expect(w.get('[data-testid=option-0]').attributes('data-long')).toBeUndefined()
     expect(w.get('[data-testid=exercise-title]').text()).toBe('Выберите перевод слова')
     await w.get('[data-testid=option-0]').trigger('click')
@@ -305,13 +306,13 @@ describe('GapFillCard of a phrase', () => {
 })
 
 describe('QuizOption long', () => {
-  it('a radio with its text, the caption under it, at least 58 px high', () => {
+  it('a radio with its text, the caption under it, at least 60 px high', () => {
     const w = mount(QuizOption, { props: { label: LONG, index: 2, state: 'incorrect', long: true, disabled: true, lang: 'en' } })
     const button = w.get('button')
     expect(button.attributes('role')).toBe('radio')
     expect(button.attributes('aria-checked')).toBe('true')
     expect(button.attributes('aria-disabled')).toBe('true')
-    expect(button.classes()).toContain('min-h-[58px]')
+    expect(button.classes()).toContain('min-h-[60px]')
     expect(button.text()).toContain(LONG)
     expect(w.get('[data-testid=option-label]').attributes('lang')).toBe('en')
     expect(w.get('span.flex-1 [data-testid=option-caption-2]').text()).toBe('ваш ответ')

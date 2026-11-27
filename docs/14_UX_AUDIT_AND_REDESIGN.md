@@ -109,6 +109,80 @@
 
 ## 4. Дизайн-система TWA
 
+### 4.0 Действует: кит Muhrla «Дафтар и мухр» (27.11.2026)
+
+С 27.11.2026 эталон Mini App — кит [`docs/design/2026-11-27-muhrla-kit/`](design/2026-11-27-muhrla-kit/) (`docs/DESIGN.md`,
+`COMPONENTS.md`, `ANIMATIONS.md`, `TELEGRAM.md`, `ASSETS.md`, PNG экранов и компонентов). Где §4.1–§4.4 ниже расходятся с этим
+разделом — прав этот раздел (они описывают редизайн 25.11.2026 и остаются как история решений). Этап 1 (фундамент) — токены,
+шрифты, иконки, картинки, базовые компоненты; экраны целиком перерисовываются следующими этапами.
+
+**Главное правило: CTA — чернила.** Главная кнопка экрана — `bg/inverse` (`btn-primary`, `bg-primary` = `bg-inverse`), никогда не
+акцент. `accent/muhr` (`bg-muhr`, `text-muhr`) — только печать (`StampMark`), серия, текущий сегмент прогресса, метка активной
+вкладки. `text/accent` (`text-accent`) — акцент в тексте («Все курсы», «повторить», ссылки). Выбранное — рамка 2 px `border/strong`
+или чернила (`bg-inverse`); теней нет, глубина — граница 1 px `hairline` и разница `surface` ↔ `page`.
+
+Роли (имена `--app-*` и Tailwind-классы прежние; новые роли кита добавлены):
+
+| Роль кита | Токен (Tailwind) | Светлая | Тёмная |
+|---|---|---|---|
+| bg/canvas | `--app-page` (`page`) | `#F6F2EA` | `#121117` |
+| bg/surface | `--app-surface` (`surface`); `--app-highlight` (`highlight`: поверхность + рамка `hairline`, правило `.bg-highlight`) | `#FFFDF8` | `#1C1B22` |
+| bg/sunken | `--app-sunken` (`sunken`); `--app-fill` (`fill`), `--app-track` (`track`) | `#EEE8DC` | `#25232B` |
+| bg/accent-soft | `--app-accent-soft` (`accent-soft`); `--app-nav-active` (`nav-active`: строка «вы» в таблицах) | `#FBE3D9` | `#3A221B` |
+| bg/inverse | `--app-inverse` (`inverse`); `--app-primary` (`primary`) | `#1A1A1F` | `#F3EEE4` |
+| text/primary | `--app-text` (`body`) | `#1A1A1F` | `#F3EEE4` |
+| text/secondary | `--app-muted` (`muted`) | `#5E5A52` | `#B4AEA3` |
+| text/tertiary | `--app-text-tertiary` (`tertiary`) — только на `page`/`surface` | `#736C60` | `#8C867B` |
+| text/on-inverse | `--app-on-inverse` (`on-inverse`); `--app-on-primary` (`on-primary`) | `#FFFDF8` | `#1A1A1F` |
+| text/accent | `--app-accent` (`accent`), `--app-accent-ink` (`accent-ink`) | `#B53A18` | `#FF8A65` |
+| border/default | `--app-hairline` (`hairline`), `--app-divider` (`divider`) | `#E6DFD2` | `#302E37` |
+| border/strong | `--app-border-strong` (`strong`: `border-strong`) | `#1A1A1F` | `#F3EEE4` |
+| accent/muhr | `--app-muhr` (`muhr`); подпись на нём — `--app-on-muhr` (`on-muhr`) | `#E4572E` / `#1A1A1F` | `#FF6B42` / `#1A1A1F` |
+| status/success (+soft) | `--app-success`, `--app-success-soft`; текст — `--app-success-ink` | `#2F8F5B` / `#E3F1E8` / `#1F6B43` | `#4CC38A` / `#173323` / `#4CC38A` |
+| status/error (+soft) | `--app-danger`, `--app-danger-soft`; текст — `--app-danger-ink` | `#B3261E` / `#F8E1DE` / `#B3261E` | `#FF7A70` / `#3B1816` / `#FF7A70` |
+| warning (в ките нет) | `--app-warning` / `-soft` / `-ink` / `-line` — тёплый янтарь | `#B7791F` / `#F7EBD3` / `#7A4E0E` / `#E8D2A6` | `#E0A84E` / `#33281A` / `#EBC27F` / `#5A4524` |
+| — | `--app-knob` (`knob`): ручка включённого переключателя | `#FFFFFF` | `#FFFFFF` |
+
+Отступления от кита ради контраста 4,5:1 (тест `designSystem.spec.ts`): зелёный текст светлой палитры — `success-ink` `#1F6B43`
+(`#2F8F5B` кита на `success-soft` — 3,46:1); подпись на `muhr` — чернила `#1A1A1F` (белый на `#E4572E` — 3,6:1); у `StampMark` мелкая
+подпись единицы — `text-accent`, число (крупный текст) и кольца — `muhr`; `text/tertiary` на `sunken` — 4,3:1, поэтому `tertiary` —
+только на `page`/`surface` (на `sunken` — текст отключённой кнопки, он из правила исключён).
+
+**Шрифты.** Onest (`font-sans`, текст; 400/500/600, `@font-face` объявлен как 400–600 — `font-bold`/`font-extrabold` ещё не
+перерисованных экранов сжимаются до 600) и Unbounded (`font-display`: заголовки, английское слово, числа; 500/600). Переменные
+woff2 из fontsource (`@fontsource-variable/onest` 5.3.1, `/unbounded` 5.3.0, OFL — `OFL-Onest.txt`, `OFL-Unbounded.txt`), latin +
+latin-ext + cyrillic, `font-display: swap`; ʻ U+02BB и ʼ U+02BC — в latin-файлах обоих (тест читает cmap). `font-mono` (числа и
+счётчики экранов) теперь Unbounded, `.font-mono` добавляет `tabular-nums` — разметку 80+ мест менять не пришлось. Транскрипция —
+по-прежнему `font-ipa`. `index.html` предзагружает Onest latin, стартовый скрипт — Onest cyrillic для русского интерфейса; Unbounded
+не предзагружается. Стили кита — утилиты `t-display-l`, `t-display-m`, `t-title-m`, `t-word-xl`, `t-numeric-l`, `t-body-l`, `t-body-m`,
+`t-body-m-strong`, `t-button`, `t-label-s`, `t-caption`.
+
+**Радиусы** (заменяют шкалу Tailwind): `rounded-xs` 6, `sm` 10, `md` 14, `lg` 20, `xl` 28, `full`. Прежние имена — на значениях кита:
+`rounded-hero` 28, `rounded-card` 20, `rounded-option` / `rounded-control` 14, `rounded-badge` 6.
+
+**Движение.** `--dur-press` 120 ms, `--dur-state` 200 ms, `--dur-enter` 260 ms, `ease-out` / `ease-stamp` (Tailwind `ease-*`);
+`.pressable`; `@keyframes stamp-press` (`.stamp--enter`); `prefers-reduced-motion` — печать только проявляется, тряска, пульс точек и
+вход маскота выключены.
+
+**Telegram.** Шапка, фон окна и нижняя панель (`setBottomBarColor`, Bot API ≥ 7.10) — цвет `page` текущей палитры (белые экраны
+занятия — по-прежнему `surface`, §4.1); `disableVerticalSwipes()` (≥ 7.7) в `main.ts`.
+
+**Иконки** — Lucide из `08-icons` кита (stroke 1.75, активная вкладка 2), вендорятся в `ui/icons.ts` под прежними именами
+(`home` = `house`, `x-mark` = `x`…); иконки, которых в ките нет, — прежние рисунки Heroicons с той же толщиной линии.
+
+**Картинки** — `resources/twa/public/assets/img/m1/` (WebP q85): темы модулей `topics/<slug курса>/<NN>-120|240.webp` (6 курсов × 20),
+маскот `mascot/<поза>.webp` (440 px высотой), достижения `achievements/<имя>[-locked].webp` (256). Vite копирует их как есть в
+`/twa/assets/img/…` — отдаются nginx с кэшем на год (`immutable`), в JS не попадают. Имена без хеша: новая версия картинок — новая
+папка (`ILLUSTRATIONS_VERSION` в `composables/illustrations.ts`). API: `topicImage(slug, stage, size)`, `TopicArt`, `MascotArt`,
+`achievementImage(key)`.
+
+**Новые базовые компоненты** (`src/components/ui/`): `AppButton`, `IconButton`, `AppChip`, `StampMark`, `PlanStep`,
+`SegmentProgress`, `AchievementBadge`, `TopicArt`, `MascotArt`; обновлены `QuizOption` (клавиша 28×28 слева, check/x справа),
+`TabBar` (метка 16×3 `muhr`), `ListRow`/`ListGroup`, `ToggleSwitch` (48×28, вкл — `success`), `ProgressLine` (заливка — чернила,
+тон `muhr`), `SegmentedControl`/`SegmentedNav` (выбранное — чернила), `PageHeader` (Unbounded), CSS `.btn*` (52 px, `btn-ghost`,
+`btn-dots`), `.chip*` (без рамки, `chip-ink`), `.option`, `.field` (56 px), `.segments`, `.league-row`, `.icon-tile` (40×40 на
+`sunken`), `.skeleton`.
+
 ### 4.1 Токены (`resources/twa/src/style.css`)
 
 **Редизайн 2026-11 (решение владельца), палитра обновлена 25.11.2026.** У приложения своя палитра, не зависящая от цветов темы
@@ -119,8 +193,8 @@ Telegram (`platform === 'unknown'`: браузер, Playwright) — по `prefer
 (`composables/telegramTheme.ts`). `themeParams` больше не копируются в CSS: цвета Telegram интерфейс не красят.
 Шапка и фон окна Telegram — в цвет страницы текущей палитры: `setBackgroundColor('#rrggbb')` (Bot API ≥ 6.1),
 `setHeaderColor('#rrggbb')` (≥ 6.9; на 6.1–6.8 — ключ `secondary_bg_color`). Значения для этих вызовов — `CHROME_COLORS` в
-`telegramTheme.ts`, тест сверяет их с `--app-page` / `--app-surface` из `style.css`. `setBottomBarColor` не вызываем: нижняя панель
-Telegram (MainButton) в приложении не используется.
+`telegramTheme.ts`, тест сверяет их с `--app-page` / `--app-surface` из `style.css`. С 27.11.2026 (§4.0) тем же цветом красится и
+нижняя панель — `setBottomBarColor` (Bot API ≥ 7.10).
 
 **Белые экраны занятия (20.11.2026).** Экраны, у которых весь фон `bg-surface` (тренировка, экзамен, баттл, задание практики, задание
 забега «Каравана»), красят шапку и фон окна Telegram в `surface` текущей палитры (`#FFFFFF` / `#191D28`) — иначе под серой шапкой
@@ -191,6 +265,8 @@ var(--app-divider)`…), чтобы ещё не переделанные экр�
 `body { overflow-x: clip }`; фон `body` — `--app-page`.
 
 ### 4.2 Типографика
+
+> До 27.11.2026. Сейчас — Onest и Unbounded, см. §4.0; правила предзагрузки и `font-ipa` ниже остаются в силе.
 
 Шрифты — файлами в репозитории (`resources/twa/src/assets/fonts`, SIL OFL 1.1, лицензии рядом), без CDN и npm-зависимостей:
 

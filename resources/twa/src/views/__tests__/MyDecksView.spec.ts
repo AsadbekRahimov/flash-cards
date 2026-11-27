@@ -107,7 +107,7 @@ describe('MyDecksView', () => {
 
       const heading = wrapper.get('h1')
       expect(heading.text()).toBe('Курсы')
-      expect(heading.classes()).toContain('text-[30px]')
+      expect(heading.classes()).toContain('t-display-l')
 
       const decks = wrapper.get('[data-testid=seg-decks]')
       expect(decks.text()).toBe('Мои колоды')

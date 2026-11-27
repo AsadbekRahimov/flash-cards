@@ -86,7 +86,7 @@ describe('CoursesView', () => {
 
       const heading = wrapper.get('h1')
       expect(heading.text()).toBe('Курсы')
-      expect(heading.classes()).toContain('text-[30px]')
+      expect(heading.classes()).toContain('t-display-l')
 
       const courses = wrapper.get('[data-testid=seg-courses]')
       const decks = wrapper.get('[data-testid=seg-decks]')

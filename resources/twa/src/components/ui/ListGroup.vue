@@ -5,8 +5,8 @@
  *
  * - `header` — the group label (`.section-label`: 13 px, secondary colour, normal case).
  * - `footer` — a hint under the group.
- * - `highlight` — the group with its title inside a plate (`bg-highlight`: the surface with a hairline, radius xl 28), the title in
- *   Title/M of the kit (Unbounded 500, 18 / 24). Off by default: the plain group above.
+ * - `highlight` — the group with its title inside one plate (`bg-highlight`: the surface with a hairline, radius xl 28; the rows
+ *   lie in it without a frame of their own), the title in Title/M of the kit (Unbounded 500, 18 / 24). Off by default: the plain group.
  *
  * @example
  * <ListGroup :header="t('settings.title')" :footer="t('settings.reminder.hint')">
@@ -22,9 +22,10 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="highlight" class="rounded-hero bg-highlight" data-variant="highlight">
-    <h2 v-if="header" class="t-title-m px-4 pt-3.5 pb-2.5">{{ header }}</h2>
-    <div class="list">
+  <section v-if="highlight" class="overflow-hidden rounded-hero bg-highlight" data-variant="highlight">
+    <h2 v-if="header" class="t-title-m px-4 pt-3.5 pb-1">{{ header }}</h2>
+    <!-- One frame: the plate's hairline; the rows lie on the same surface without a second card. -->
+    <div class="list rounded-none border-0">
       <slot />
     </div>
     <p v-if="footer" class="px-4 py-2.5 text-[13px] leading-[18px] text-muted">{{ footer }}</p>
