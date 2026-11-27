@@ -70,22 +70,25 @@ async function onContinue(): Promise<void> {
         :key="goal"
         :selected="store.draft.dailyGoal === goal"
         :locked="locked(goal)"
-        class="flex min-h-[56px] items-center gap-4 rounded-md py-2.5 pr-4 pl-4 text-left"
+        class="flex min-h-[56px] items-center gap-3 rounded-md py-2.5 pr-4 pl-4 text-left"
         :aria-label="locked(goal) ? t('onboarding.daily_goal.locked', { value: goal }) : undefined"
         :data-testid="`daily-goal-${goal}`"
         @click="pick(goal)"
       >
         <span class="t-display-m font-mono w-12 shrink-0">{{ goal }}</span>
         <span class="flex min-w-0 flex-1 flex-col">
-          <span v-if="label(goal)" class="t-body-m-strong">{{ label(goal) }}</span>
+          <!-- "We recommend" stands next to the words, not at the right edge: "N cards a day · ~M min" needs the width of the row. -->
+          <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span v-if="label(goal)" class="t-body-m-strong">{{ label(goal) }}</span>
+            <span v-if="goal === recommended && !locked(goal)" class="chip chip-accent" data-testid="daily-goal-recommended">
+              {{ t('onboarding.daily_goal.recommended') }}
+            </span>
+          </span>
           <span class="t-label-s" :class="locked(goal) ? '' : 'text-muted'">
             {{ tn('onboarding.daily_goal.unit', goal, { minutes: Math.round(goal * MINUTES_PER_CARD) }) }}
           </span>
         </span>
         <AppIcon v-if="locked(goal)" name="lock-closed" :size="20" class="shrink-0" data-testid="daily-goal-lock" />
-        <span v-else-if="goal === recommended" class="chip chip-accent shrink-0" data-testid="daily-goal-recommended">
-          {{ t('onboarding.daily_goal.recommended') }}
-        </span>
       </SelectableTile>
     </div>
     <InlineAlert

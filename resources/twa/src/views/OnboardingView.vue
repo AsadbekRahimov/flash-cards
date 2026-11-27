@@ -134,7 +134,8 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="flex flex-1 flex-col bg-page" data-testid="onboarding" :data-step="screen">
-    <div class="page">
+    <!-- The column of `.page` without its bottom padding: the sticky buttons of a step stand on the bottom edge with the safe zone. -->
+    <div class="mx-auto flex w-full max-w-xl flex-1 flex-col px-5 pt-2">
       <div v-if="screen !== 'welcome'" class="flex items-center gap-3 pt-2 pb-4" data-testid="onboarding-progress">
         <SegmentProgress
           :total="TOTAL"

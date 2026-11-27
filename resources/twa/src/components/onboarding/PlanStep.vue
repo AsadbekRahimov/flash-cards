@@ -12,7 +12,7 @@ import type { IconName } from '@/components/ui/icons'
 import type { StringKey } from '@/i18n/ru'
 
 /**
- * O8 "The plan is ready" (kit 02-onboarding/O8): the mascot `celebrate` with the check stamp, "<name>, your plan is ready" - the name
+ * O8 "The plan is ready" (kit 02-onboarding/O8): the mascot `celebrate` (with the imprint of the check stamp), "<name>, your plan is ready" - the name
  * the learner chose on O2 (`display_name`), never Telegram's `first_name` (docs/40 §5, п. 2) - and the summary of what was saved: the
  * course with its modules, the goal of the day, the reminder, the goals. "Start the first lesson" finishes the onboarding on the server
  * (`POST /onboarding/complete`: the course is set there) and leads to "Today".
@@ -86,12 +86,8 @@ async function onStart(): Promise<void> {
       :title="name !== null ? t('onboarding.plan.title', { name }) : t('onboarding.plan.title_plain')"
       :lead="t('onboarding.plan.lead')"
     >
-      <div class="flex flex-col items-center gap-2">
-        <MascotArt pose="celebrate" :height="96" loading="eager" />
-        <span class="plan-stamp stamp--enter inline-flex size-11 items-center justify-center rounded-full text-muhr" aria-hidden="true" data-testid="plan-stamp">
-          <AppIcon name="check" :size="24" />
-        </span>
-      </div>
+      <!-- The pose `celebrate` carries the imprint of the stamp with the check under the mascot (ASSETS.md), as O8 of the kit. -->
+      <MascotArt pose="celebrate" :height="148" loading="eager" />
     </StepIntro>
     <ul class="card mt-5 flex flex-col px-4 py-1" data-testid="plan-summary">
       <li
@@ -100,7 +96,7 @@ async function onStart(): Promise<void> {
         class="plan-row flex min-h-14 items-center gap-3 py-2"
         :data-testid="`plan-${row.key}`"
       >
-        <span class="icon-tile shrink-0"><AppIcon :name="row.icon" :size="20" /></span>
+        <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-sm bg-sunken"><AppIcon :name="row.icon" :size="20" /></span>
         <span class="t-body-m shrink-0 text-muted">{{ row.label }}</span>
         <span class="t-body-m-strong min-w-0 flex-1 text-right" data-testid="plan-value">{{ row.value }}</span>
       </li>
@@ -115,19 +111,6 @@ async function onStart(): Promise<void> {
 </template>
 
 <style scoped>
-/* The check stamp of the kit: a muhr ring with a dashed inner ring, turned like the stamp (-8deg). */
-.plan-stamp {
-  position: relative;
-  border: 2.5px solid var(--app-muhr);
-  transform: rotate(-8deg);
-}
-.plan-stamp::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border: 1px dashed var(--app-muhr);
-  border-radius: 9999px;
-}
 .plan-row {
   position: relative;
 }
@@ -135,7 +118,7 @@ async function onStart(): Promise<void> {
   content: '';
   position: absolute;
   top: 0;
-  left: 52px;
+  left: 48px;
   right: -16px;
   border-top: 1px solid var(--app-divider);
 }

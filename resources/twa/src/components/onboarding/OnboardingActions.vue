@@ -24,7 +24,8 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <StickyActions>
+  <!-- Full width of the screen: the column of the step has 20 px at the sides, the block its own 20 px. -->
+  <StickyActions class="-mx-5">
     <InlineAlert v-if="error" tone="danger" class="mb-1.5" data-testid="onboarding-error">
       {{ error }}
       <button type="button" class="ml-1 font-semibold underline underline-offset-2" data-testid="onboarding-retry" @click="emit('primary')">
