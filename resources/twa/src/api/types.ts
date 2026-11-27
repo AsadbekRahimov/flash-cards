@@ -764,6 +764,27 @@ export interface Streak {
    * Absent on an older server.
    */
   held_by?: 'goal' | 'game' | 'freeze' | null
+  /**
+   * The local week of the learner, Monday to Sunday (docs/04 A.2a, docs/40 §2.5): what held each day; the days after today are `null`.
+   * Absent on an older server - then the screens of a saved / lost streak are never shown.
+   */
+  week?: StreakWeekDay[]
+  /** The streak burnt at the last loss, until the new one gets its first day (docs/40 §2.5); null - nothing to tell; absent - an older server. */
+  lost?: StreakLost | null
+}
+
+/** One day of `streak.week`. */
+export interface StreakWeekDay {
+  /** `Y-m-d`, the learner's local day. */
+  date: string
+  held_by: 'goal' | 'game' | 'freeze' | null
+  is_today: boolean
+}
+
+/** `streak.lost`: how long the burnt streak was and the local day the loss was noticed (`Y-m-d`). */
+export interface StreakLost {
+  days: number
+  on: string
 }
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
@@ -1136,6 +1157,21 @@ export interface Card {
   confused_with?: { word: string; translation: string | null } | null
   /** A phrase card (docs/35 §3.3 d, docs/06 §16); null for a word, absent on an older server. */
   phrase?: PhraseInfo | null
+  /** The "memory strength" of the word BEFORE this grade (docs/40 §2.2, docs/04 A.3); absent on an older server - then no dots. */
+  memory?: CardMemory | null
+}
+
+/** The stage of a word (docs/06 §13.3): the same thresholds as the memory strength, so the two never disagree. */
+export type WordStageName = 'new' | 'learning' | 'known' | 'mastered'
+
+/**
+ * The "memory strength" of a word (docs/40 §2.2): `strength` 0..5 (a derivative of its repetition, the dots of the kit), its stage and the
+ * whole days to its next review - null while it is in the minute steps ("again in this session"), 0 when it is due today.
+ */
+export interface CardMemory {
+  strength: number
+  stage: WordStageName
+  next_in_days: number | null
 }
 
 /** The labels of a phrase card: kind, register, UK / US and «Буквально: …» (null while the card hides its answer). */

@@ -1241,3 +1241,34 @@ describe('CourseView', () => {
     expect(row.attributes('href')).toBe('/courses/english-a1/readiness?source=course')
   })
 })
+
+describe('CourseView — "My dictionary" (docs/40 §2.3)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    tg.showBack.mockImplementation(() => tg.release)
+  })
+
+  it('links the learner own course to the dictionary (no number, no request of its own); "Back" from there returns to the course', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true }))
+
+    const { wrapper } = await render()
+
+    const link = wrapper.get('[data-testid=vocabulary-link]')
+    expect(link.text()).toBe('Мой словарь')
+    expect(link.attributes('href')).toBe('/vocabulary?from=english-a1')
+    expect(link.classes()).toContain('text-accent')
+    expect(link.text()).not.toMatch(/\d/)
+    // The screen of the course asks for what it always did: its course, nothing of the dictionary.
+    expect(api.courses.get).toHaveBeenCalledTimes(1)
+    expect('vocabulary' in api).toBe(false)
+  })
+
+  it('shows no link in a course that is not the learner own', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: false }))
+
+    const { wrapper } = await render()
+
+    expect(wrapper.find('[data-testid=vocabulary-link]').exists()).toBe(false)
+  })
+})

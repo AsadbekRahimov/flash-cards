@@ -17,6 +17,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { ACHIEVEMENT_ART_BY_KEY, type AchievementArt as KitArt } from '@/composables/illustrations'
+import { shownName } from '@/composables/learnerName'
 import { trialEndsAt } from '@/composables/trial'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
@@ -45,7 +46,7 @@ import type { AchievementItem } from '@/api/types'
  * stays, below it in the same style (owner's decision): invitations and "How it works", the caravan card, the Pro card of Free, the
  * support contact.
  * The data is `GET /me` through the billing store (the plan and the support contact; the settings and the emoji are handed on to the
- * settings store), the learner's name from the auth store (`/auth` and `/me` carry the same `first_name`) and `GET /achievements` (best
+ * settings store), the learner's name from the auth store (`display_name ?? first_name`, `shownName`; `/auth` and `/me` carry the same fields) and `GET /achievements` (best
  * effort). A tab root: no system "Back" button.
  */
 const { t, tn, locale } = useI18n()
@@ -94,7 +95,7 @@ async function load(): Promise<void> {
   attempted.value = true
 }
 
-const name = computed(() => (auth.learner?.first_name ?? '').trim())
+const name = computed(() => shownName(auth.learner))
 /** First letter of the name (a whole code point, so an emoji is not cut in half). */
 const initial = computed(() => (Array.from(name.value)[0] ?? '').toUpperCase())
 

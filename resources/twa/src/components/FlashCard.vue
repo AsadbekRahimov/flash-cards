@@ -38,6 +38,8 @@ import { useI18n } from '@/i18n'
  *
  * A phrase card (`card.phrase`, docs/35 §3.3 d): the phrase takes a size by its length and wraps by words, its labels (register, UK / US,
  * kind) are under it, and «Буквально: …» comes with the translation.
+ *
+ * Slot `below`: right under the card, above the hooks - the training screen puts the "memory strength" there (docs/40 §2.2).
  */
 /**
  * The answer is acknowledged on the spot (docs/14 §6.2): the pressed grade is lit while the answer is on its way, and the
@@ -184,6 +186,9 @@ function onGrade(q: Quality): void {
           </div>
         </template>
       </article>
+
+      <!-- Under the card (F1 of the kit): what the screen puts there - the dots of the memory strength in a lesson and the daily review. -->
+      <slot name="below" />
 
       <CardHooks v-if="hooksOpen" :card="card" :editable="revealed" @edit-note="emit('edit-note')" />
     </div>

@@ -10,6 +10,7 @@ use App\Domain\Learning\DTO\VocabularyCursor;
 use App\Domain\Learning\DTO\VocabularyPage;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Learning\Exceptions\InvalidVocabularyCursor;
+use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Domain\Learning\Support\MemoryStrength;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
@@ -26,9 +27,14 @@ use stdClass;
  * (`last_reviewed_at IS NOT NULL`) over active words, in the alphabetical order of the word, with the memory strength of each
  * ({@see MemoryStrength}). Filters `all | weak (≤ 2) | strong (≥ 4)`, a search by the word and by the translation, keyset pages.
  *
- * Every statement starts from the learner's own rows (`word_repetitions` by `learner_id`, then `words` by its key, the translation row
- * by its unique `(word_id, locale)`): the search and the filter only narrow rows already picked, so no index of `words` is needed and
- * none is added (`LIKE '%q%'` could not use one anyway). Statements: the page; on the first page also the counts of the chips; the
+ * Every statement starts from the learner's own rows (`word_repetitions` by `learner_id`, an index of the learner), then `words` by its
+ * key and, for a search, the translation row by its unique `(word_id, locale)` - a nested loop over the learner's rows. On PostgreSQL `words` is a
+ * `LATERAL` subquery with `OFFSET 0`, the fence that keeps that order: without it the planner joined the other way on volume (a
+ * parallel seq scan of all `words`, or a merge join along its whole key with the default `random_page_cost`, docs/40 "Замеры"). sqlite
+ * (the tests) has no LATERAL and always loops over the learner's rows. The search and the filter only narrow rows already picked, so
+ * no index of `words` is needed and none is added (`LIKE '%q%'` could not use one anyway). The counts need no word text: an anti-join
+ * on the partial index of inactive words
+ * ({@see counts()}). Statements: the page; on the first page also the counts of the chips; the
  * translations of the page through {@see WordTranslationResolver} (cached per word). No cache of the list: personal, changed by every
  * grade, and cheap (docs/19 §3).
  */
@@ -81,9 +87,13 @@ final class VocabularyService
 
         if ($search !== null && $search !== '') {
             $like = '%'.self::escapeLike(mb_strtolower($search)).'%';
-            // The translation of the learner's language is only a FILTER here: the text shown comes from the resolver (docs/03 §2.21).
-            $query->leftJoin('word_translations as wt', fn (JoinClause $join) => $join->on('wt.word_id', '=', 'w.id')->where('wt.locale', $locale))
-                ->whereRaw("(lower(w.word) LIKE ? ESCAPE '\\' OR lower(w.translation) LIKE ? ESCAPE '\\' OR lower(wt.translation) LIKE ? ESCAPE '\\')", [$like, $like, $like]);
+            // The translation of the learner's language is only a FILTER here: the text shown comes from the resolver (docs/03 §2.21). An
+            // EXISTS under OR stays a per-row probe of the unique `(word_id, locale)` - never a join of the whole table (docs/40 "Замеры").
+            $query->whereRaw(
+                "(lower(w.word) LIKE ? ESCAPE '\\' OR lower(w.translation) LIKE ? ESCAPE '\\'"
+                ." OR EXISTS (SELECT 1 FROM word_translations wt WHERE wt.word_id = w.id AND wt.locale = ? AND lower(wt.translation) LIKE ? ESCAPE '\\'))",
+                [$like, $like, $locale, $like],
+            );
         }
 
         if ($cursor !== null) {
@@ -103,17 +113,33 @@ final class VocabularyService
         return new VocabularyPage($this->items($rows, $locale, $now), $next, $cursor === null ? $this->counts($learner) : null);
     }
 
-    /** The learner's graded rows over active words: what every statement of the list starts from. */
+    /**
+     * The learner's graded rows `wr` over active words `w`: what the page starts from. `words` is joined per row of the learner - on
+     * PostgreSQL as `LATERAL (… OFFSET 0)`, which the planner can neither pull up nor turn around (see the class docblock).
+     */
     private function rows(Learner $learner): Builder
     {
-        return DB::table('word_repetitions as wr')
-            ->join('words as w', fn (JoinClause $join) => $join->on('w.id', '=', 'wr.word_id')->where('w.is_active', true))
+        $query = DB::table('word_repetitions as wr')
             ->where('wr.learner_id', $learner->id)
             ->whereNotNull('wr.last_reviewed_at');
+
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return $query->join('words as w', fn (JoinClause $join) => $join->on('w.id', '=', 'wr.word_id')->where('w.is_active', true));
+        }
+
+        $word = DB::table('words')
+            ->select(['id', 'word', 'translation', 'transcription', 'audio_path'])
+            ->whereColumn('words.id', 'wr.word_id')
+            ->where('words.is_active', true)
+            ->offset(0);
+
+        return $query->joinLateral($word, 'w');
     }
 
     /**
-     * The chips: every graded word, the weak ones, the strong ones - one statement, independent of the search (as in the kit).
+     * The chips: every graded word, the weak ones, the strong ones - one statement, independent of the search (as in the kit). No word
+     * text is needed here, so inactive words are dropped with the anti-join of {@see DueRepetitionCriteria} (`NOT EXISTS … is_active =
+     * false`, the small partial index `words_inactive_idx`) instead of a probe of `words` per row: the learner's rows and nothing else.
      *
      * @return array{all: int, weak: int, strong: int}
      */
@@ -123,10 +149,13 @@ final class VocabularyService
         $strong = MemoryStrength::strongCondition();
 
         /** @var stdClass|null $row */
-        $row = $this->rows($learner)
+        $row = DB::table('word_repetitions as wr')
             ->selectRaw('count(*) as all_count')
             ->selectRaw('sum(case when '.$weak['sql'].' then 1 else 0 end) as weak_count', $weak['bindings'])
             ->selectRaw('sum(case when '.$strong['sql'].' then 1 else 0 end) as strong_count', $strong['bindings'])
+            ->where('wr.learner_id', $learner->id)
+            ->whereNotNull('wr.last_reviewed_at')
+            ->whereNotExists(fn (Builder $inactive) => $inactive->selectRaw('1')->from('words as w')->whereColumn('w.id', 'wr.word_id')->where('w.is_active', false))
             ->first();
 
         return [

@@ -16,7 +16,7 @@ import type { AchievementItem, AchievementsResponse, Entitlement, LearnerSetting
 
 const mocks = vi.hoisted(() => ({
   ensure: vi.fn(),
-  learner: null as { id: number; first_name: string | null } | null,
+  learner: null as { id: number; first_name: string | null; display_name?: string | null } | null,
   hideBack: vi.fn(),
   showBack: vi.fn(),
 }))
@@ -372,6 +372,17 @@ describe('ProfileView', () => {
 
       expect(w.get('[data-testid=profile-name]').text()).toBe('дилноза')
       expect(w.get('[data-testid=profile-avatar]').text()).toBe('Д')
+    })
+
+    it('shows the name chosen in the onboarding, else the Telegram one (docs/40 §3, В1)', async () => {
+      mocks.learner = { id: 1, first_name: 'Dilnoza', display_name: 'Дилноза' }
+      const chosen = await render()
+      expect(chosen.get('[data-testid=profile-name]').text()).toBe('Дилноза')
+      expect(chosen.get('[data-testid=profile-avatar]').text()).toBe('Д')
+      chosen.unmount()
+
+      mocks.learner = { id: 1, first_name: 'Dilnoza', display_name: null }
+      expect((await render()).get('[data-testid=profile-name]').text()).toBe('Dilnoza')
     })
 
     it('keeps an emoji initial whole', async () => {

@@ -63,7 +63,16 @@ export interface RequestOptions {
    * has no limit of its own - the solo practice and the rest of the app are not touched; the battle names its limits in `api/index.ts`.
    */
   timeoutMs?: number
+  /**
+   * Drops the request when it fires (a newer search has replaced it, the screen was left): it ends as a `network` error with the code
+   * `aborted`, which says nothing about the connection - the screen "Нет соединения" is not told (`onNetworkSignal`), no token is
+   * refreshed, and the caller, which dropped it itself, ignores it. A signal that has fired already sends nothing.
+   */
+  signal?: AbortSignal
 }
+
+/** The code of the `network` error of a request the caller dropped (`RequestOptions.signal`). */
+export const REQUEST_ABORTED = 'aborted'
 
 /**
  * What a JSON request says about the connection (docs/40 §2.6, F5 "Нет сети"): `failed` - it ended as a `network` error (fetch threw, the
@@ -131,12 +140,16 @@ export function createApiClient(opts: ClientOptions) {
     const sentToken = withAuth ? opts.getToken() : ''
     if (sentToken) headers.Authorization = `Bearer ${sentToken}`
 
+    // A request the caller has dropped already is not sent at all.
+    const callerSignal = init.signal
+    if (callerSignal?.aborted) throw aborted()
+
     // A request with a limit is stopped by a timer of its own: `ofetch` has a `timeout` option, but it lets go of the timer as soon as the
     // headers are in, and a body that hangs would hang the caller (the poll of a battle waits for its reply before it asks again).
-    const controller = init.timeoutMs !== undefined ? new AbortController() : null
+    const controller = init.timeoutMs !== undefined || callerSignal !== undefined ? new AbortController() : null
     let timedOut = false
     const timer =
-      controller !== null
+      controller !== null && init.timeoutMs !== undefined
         ? setTimeout(() => {
             timedOut = true
             controller.abort()
@@ -144,6 +157,8 @@ export function createApiClient(opts: ClientOptions) {
         : null
 
     const method = init.method ?? 'GET'
+    const drop = (): void => controller?.abort()
+    callerSignal?.addEventListener('abort', drop, { once: true })
     try {
       const result = await ofetch<T>(path, {
         baseURL,
@@ -158,6 +173,8 @@ export function createApiClient(opts: ClientOptions) {
     } catch (err) {
       // The limit has done its work: a refresh of the token (below) must not be counted against it.
       if (timer !== null) clearTimeout(timer)
+      // Dropped by the caller: not a word about the connection, nothing to refresh.
+      if (callerSignal?.aborted && !timedOut) throw aborted(err)
       const apiErr = timedOut ? new ApiClientError('network', 0, 'timeout', 'The request timed out', err) : mapError(err)
       signal(apiErr.kind === 'network' ? 'failed' : 'reached', method)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
@@ -169,6 +186,7 @@ export function createApiClient(opts: ClientOptions) {
       throw apiErr
     } finally {
       if (timer !== null) clearTimeout(timer)
+      callerSignal?.removeEventListener('abort', drop)
     }
   }
 
@@ -297,6 +315,10 @@ export function createApiClient(opts: ClientOptions) {
     /** Fire-and-forget POST that survives the closing of the page (`keepalive`); no token refresh, no retry. */
     postKeepalive: (path: string, body: Record<string, unknown>) => postKeepalive(path, body),
   }
+}
+
+function aborted(raw?: unknown): ApiClientError {
+  return new ApiClientError('network', 0, REQUEST_ABORTED, 'The request was cancelled', raw)
 }
 
 function mapError(err: unknown): ApiClientError {

@@ -5,6 +5,9 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { createPinia } from 'pinia'
 import App from '../App.vue'
 import { useToast } from '@/composables/useToast'
+import { resetSeenSession } from '@/composables/seenFlag'
+import { useTodayStore } from '@/stores/today'
+import type { TodayResponse } from '@/api/types'
 
 vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ selectionHaptic: vi.fn() }) }))
 
@@ -21,6 +24,7 @@ async function mountApp(start: string) {
       { path: '/league', name: 'league', component: screen('league'), meta: { tab: 'rating' } },
       { path: '/profile', name: 'profile', component: screen('profile'), meta: { tab: 'profile' } },
       { path: '/training/:id', name: 'training', component: screen('training') },
+      { path: '/streak/saved', name: 'streak-saved', component: screen('streak') },
     ],
   })
   await router.push(start)
@@ -127,6 +131,41 @@ describe('App shell', () => {
       } finally {
         vi.unstubAllGlobals()
       }
+    })
+  })
+
+  describe('the screen of the streak (F4, docs/40 §2.5)', () => {
+    afterEach(() => {
+      window.localStorage.clear()
+      resetSeenSession()
+    })
+
+    it('opens it by itself from the /today "Today" has loaded, once', async () => {
+      const { router } = await mountApp('/today')
+      const data = {
+        due_count: 0,
+        new_words_remaining: null,
+        goal: { target: 20, done: 0, met: false },
+        streak: {
+          current: 12, best: 12, met_today: false, at_risk: true, freezes: 1, frozen_yesterday: true, held_by: null, lost: null,
+          week: ['goal', 'goal', 'goal', 'goal', 'freeze', null, null].map((heldBy, index) => ({ date: `2026-11-${23 + index}`, held_by: heldBy, is_today: index === 5 })),
+        },
+        active_course: null,
+        open_session_id: null,
+        entitlement: { plan: 'pro', source: 'subscription', until: null, lapsed: null },
+        onboarding_completed: true,
+        league: null,
+        timezone: 'Asia/Tashkent',
+      } as TodayResponse
+
+      useTodayStore().data = data
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('streak-saved')
+
+      await router.push('/today')
+      useTodayStore().data = { ...data }
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('today')
     })
   })
 })

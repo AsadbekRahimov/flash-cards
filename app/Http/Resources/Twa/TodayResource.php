@@ -19,7 +19,7 @@ final class TodayResource extends TwaResource
      *   due_count: int,
      *   new_words_remaining: int|null,
      *   goal: array{target: int, done: int, met: bool},
-     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null},
+     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null, week: list<array{date: string, held_by: string|null, is_today: bool}>, lost: array{days: int, on: string}|null},
      *   active_course: array{
      *     id: int, slug: string, title: string, section: string,
      *     progress: array{learned: int, total: int},
@@ -58,7 +58,8 @@ final class TodayResource extends TwaResource
             'due_count' => $summary->dueCount,
             'new_words_remaining' => $summary->newWordsRemaining,
             'goal' => $summary->progress->goal->toArray(),
-            'streak' => $summary->progress->streak->toArray(),
+            // With the week and the last loss of the series (docs/40 §2.5): from the rows and the learner the summary read already.
+            'streak' => $summary->progress->streak->toTodayArray(),
             'active_course' => $course === null ? null : [
                 'id' => $course->id,
                 'slug' => $course->slug,

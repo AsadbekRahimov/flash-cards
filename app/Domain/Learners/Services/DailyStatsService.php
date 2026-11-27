@@ -208,6 +208,24 @@ class DailyStatsService
     }
 
     /**
+     * The rows of the local days `$from` … `$through` (`Y-m-d`, inclusive) of the learner in ONE statement on the unique
+     * `(learner_id, date)`, keyed by `Y-m-d` (a day without a row is absent) - the Today screen reads its week with yesterday
+     * (docs/40 §2.5: ≤ 8 rows).
+     *
+     * @return array<string, LearnerDailyStats>
+     */
+    public function forRange(Learner $learner, string $from, string $through): array
+    {
+        $rows = [];
+        /** @var LearnerDailyStats $row */
+        foreach (LearnerDailyStats::query()->where('learner_id', $learner->id)->where('date', '>=', StoredDate::of($from))->where('date', '<=', StoredDate::of($through))->get() as $row) {
+            $rows[$row->date->toDateString()] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
      * The learner's row of the day, locked, together with the goal in force — created first when the day has no row yet.
      *
      * @return array{0: LearnerDailyStats, 1: int} the locked row and `max(1, daily_goal)`

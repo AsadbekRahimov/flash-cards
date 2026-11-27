@@ -41,8 +41,8 @@ final readonly class TrainingStep
      * @param  string|null  $note  the learner's own hook for the word
      * @param  array{word: string, translation: string|null}|null  $confusedWith  the word a leech is mixed up with
      * @param  array{strength: int<0, 5>, stage: string, next_in_days: int|null}|null  $memory  the "memory strength" of the card
-     *                                                                                        BEFORE the grade (docs/40 §2.2, MemoryStrength);
-     *                                                                                        null exactly when $word is null
+     *                                                                                          BEFORE the grade (docs/40 §2.2, MemoryStrength);
+     *                                                                                          null exactly when $word is null
      */
     public function __construct(
         public ?Word $word,

@@ -99,3 +99,31 @@ export function achievementImage(key: string, locked = false): string | null {
   const art = ACHIEVEMENT_ART_BY_KEY[key]
   return art === undefined ? null : achievementArtImage(art, locked)
 }
+
+/** The pictures already asked for in this open (`prefetchImage`): each is fetched once. */
+const prefetched = new Set<string>()
+
+/** How long to wait for an idle moment before the fetch goes anyway (and the wait where there is no `requestIdleCallback`: Safari). */
+const PREFETCH_IDLE_TIMEOUT_MS = 3000
+
+/**
+ * Fetches a picture into the cache of the browser in an idle moment after the start, once per open, so that a screen that needs it
+ * later has it even without the network: the mascot `thinking` of F5 "Нет сети" (docs/40 §2.6) is shown exactly when nothing can be
+ * loaded. `new Image()` asks for the very URL the `<img>` will ask for (the files are cached as `immutable`); a failed fetch costs nothing.
+ */
+export function prefetchImage(url: string): void {
+  if (typeof window === 'undefined' || prefetched.has(url)) return
+  prefetched.add(url)
+  const load = (): void => {
+    const image = new Image()
+    image.decoding = 'async'
+    image.src = url
+  }
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(load, { timeout: PREFETCH_IDLE_TIMEOUT_MS })
+  else window.setTimeout(load, PREFETCH_IDLE_TIMEOUT_MS)
+}
+
+/** For tests: forgets what was prefetched. */
+export function resetPrefetched(): void {
+  prefetched.clear()
+}

@@ -16,6 +16,7 @@ import WordNoteSheet from '@/components/WordNoteSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import MemoryDots from '@/components/ui/MemoryDots.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
 import SegmentProgress from '@/components/ui/SegmentProgress.vue'
 import MeaningCard from '@/components/MeaningCard.vue'
@@ -29,7 +30,7 @@ import { useOfflineContext } from '@/composables/useOnline'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
-import type { Quality } from '@/api/types'
+import type { CardMemory, Quality } from '@/api/types'
 
 /**
  * The training screen (docs/14 §6.2, kit Muhrla 04-urok-vopros / 05-urok-oshibka): an immersive column on the canvas, without the tab
@@ -244,6 +245,24 @@ watch(
     if (comboMilestone.value && !['meaning', 'reverse', 'audio'].includes(lastExercise.value ?? '')) notificationHaptic('success')
   },
 )
+
+/**
+ * The "memory strength" under a flash card (F1 of the kit, docs/40 §2.2): in a lesson and in the daily review - the repetition - only; the
+ * round of hard words and the review of a lesson are no repetition, they show none. A server that does not send `card.memory` - no dots.
+ */
+const memory = computed((): CardMemory | null =>
+  mode.value === 'lesson' || mode.value === 'daily_review' ? (card.value?.memory ?? null) : null,
+)
+
+/** «Память: 3 из 5 · повтор через 4 дня»; «…повтор сегодня» for a due word, «…повтор в этой сессии» in the minute steps. */
+const memoryCaption = computed((): string => {
+  const value = memory.value
+  if (value === null) return ''
+  const days = value.next_in_days
+  const next =
+    days === null ? t('card.memory.this_session') : days <= 0 ? t('card.memory.today') : tn('card.memory.next_days', days)
+  return `${t('card.memory.label', { strength: value.strength })} · ${next}`
+})
 
 /** A flash card: the grade is the learner's own. */
 function onGrade(q: Quality): void {
@@ -508,7 +527,15 @@ async function onRestart(): Promise<void> {
         @reveal="training.reveal()"
         @grade="onGrade"
         @edit-note="noteOpen = true"
-      />
+      >
+        <template v-if="memory" #below>
+          <div class="flex flex-col items-center gap-2 pt-1" data-testid="memory">
+            <!-- The caption says the same in words: the dots are not read twice. -->
+            <MemoryDots :strength="memory.strength" aria-hidden="true" />
+            <p class="t-caption text-center text-muted" data-testid="memory-caption">{{ memoryCaption }}</p>
+          </div>
+        </template>
+      </FlashCard>
     </Transition>
     </div>
 

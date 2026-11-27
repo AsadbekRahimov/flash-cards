@@ -105,7 +105,7 @@ it('answers the second /today within a pinned number of statements, the caches w
     // series does not run (a concurrent freeze may have changed the stock) - not a read of K10's.
     expect(count($queries))->toBe($budget)
         ->and(QueryLog::matching($queries, '/from ["`]learners["`] where ["`]learners["`].["`]id["`] = \? and ["`]learners["`].["`]deleted_at["`]/'))->toHaveCount(1)
-        ->and(QueryLog::matching($queries, '/from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] >= \? and ["`]date["`] <= \?/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]training_sessions["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, TODAY_SCALARS))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]word_repetitions["`] inner join ["`]words["`]/'))->toHaveCount(1) // the progress over the lessons

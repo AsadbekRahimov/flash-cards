@@ -25,7 +25,10 @@ import StampMark from '@/components/ui/StampMark.vue'
 import { isPhraseCourse } from '@/composables/courseLabels'
 import { dayPlanSteps, gameStepExpected, type DayPlanStepKey } from '@/composables/dayPlan'
 import { formatDate } from '@/composables/format'
+import { INTRO_KEY } from '@/composables/introSheet'
+import { greetingFit } from '@/composables/greetingFit'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
+import { shownName } from '@/composables/learnerName'
 import { GAMES_CARD_MODES, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { STREAK_LINE_EVERY_MS, STREAK_LINE_KEY } from '@/composables/proReminders'
@@ -35,7 +38,6 @@ import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { takeTrialWelcome } from '@/composables/trialWelcome'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
-import { useTelegram } from '@/composables/useTelegram'
 import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
@@ -68,7 +70,6 @@ const assignments = useAssignmentsStore()
 const billing = useBillingStore()
 const cups = useCupsStore()
 const catalog = useCoursesStore()
-const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
 
@@ -149,7 +150,6 @@ function learnNext(lessonId: number): Promise<void> {
 /** Whether the learner is past the first day (docs/14 §3): a newcomer's Home keeps only the greeting, the goal, the counters and the button. */
 const hasProgress = computed(() => data.value !== null && hasLearnerProgress(data.value))
 
-const INTRO_KEY = 'lexiflow:intro-seen'
 const introOpen = ref(false)
 /** The language pill of the header: every learner switches the language here, on the first screen (Profile has the row too). */
 const languageOpen = ref(false)
@@ -183,8 +183,10 @@ const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
   paywallOpen.value = false
 })
 
-const name = computed(() => auth.learner?.first_name?.trim() ?? '')
+const name = computed(() => shownName(auth.learner))
 const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name: name.value }) : t('today.title')))
+/** A long name gets a smaller greeting, so the heading next to the stamp wraps between words only (`greetingFit`). */
+const greetingSize = computed(() => greetingFit(greeting.value))
 /**
  * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone that
  * `/today` names (the zone of the settings). The device's zone is only the fallback, for a zone this browser does not know.
@@ -743,7 +745,11 @@ onBeforeUnmount(() => {
           </button>
         </p>
         <div class="mt-1 flex items-center justify-between gap-3">
-          <h1 class="t-display-l min-w-0 [overflow-wrap:anywhere]" data-testid="greeting">{{ greeting }}</h1>
+          <h1
+            class="t-display-l min-w-0 break-words"
+            :class="[`greeting-n-${greetingSize.narrow}`, `greeting-w-${greetingSize.wide}`]"
+            data-testid="greeting"
+          >{{ greeting }}</h1>
           <StampMark v-if="streakStamp" :value="streakStamp.value" :unit="streakStamp.unit" class="-my-2 shrink-0" />
         </div>
       </header>
@@ -766,28 +772,6 @@ onBeforeUnmount(() => {
             <AppIcon name="arrow-right" :size="20" />
           </RouterLink>
         </LessonHero>
-
-        <!-- Under the start card the reminder to finish the setup in the bot is a quiet line, not a second card. -->
-        <div v-if="showStart && !data.onboarding_completed" class="-mt-3 flex items-start gap-2 px-1" data-testid="onboarding-hint">
-          <AppIcon name="information-circle" :size="18" class="shrink-0 text-muted" />
-          <div class="min-w-0 flex-1">
-            <p class="t-label-s text-muted">{{ t('today.onboarding_hint') }}</p>
-            <!-- Under the text, not beside it: on a 320 px screen the two would squeeze each other into a column of words. -->
-            <button type="button" class="btn btn-plain btn-sm -ml-3 mt-1" data-testid="onboarding-btn" @click="close()">
-              {{ t('today.onboarding_btn') }}
-            </button>
-          </div>
-        </div>
-
-        <div v-else-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
-          <span class="icon-tile"><AppIcon name="information-circle" :size="20" /></span>
-          <div class="min-w-0 flex-1 space-y-3">
-            <p class="t-body-m">{{ t('today.onboarding_hint') }}</p>
-            <button type="button" class="btn btn-secondary btn-block" data-testid="onboarding-btn" @click="close()">
-              {{ t('today.onboarding_btn') }}
-            </button>
-          </div>
-        </div>
 
         <!-- A line, not a card: it says how long the welcome Pro lasts and leads to the subscription. Under the start card on the first visit. -->
         <RouterLink
@@ -1338,3 +1322,35 @@ onBeforeUnmount(() => {
     />
   </div>
 </template>
+
+<style scoped>
+/* The steps of the greeting (`greetingFit`): narrow windows (320 px phones) and the rest; `l` is the kit's t-display-l as it is. */
+@media (max-width: 359.98px) {
+  .greeting-n-m {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .greeting-n-s {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .greeting-n-xs {
+    font-size: 17px;
+    line-height: 22px;
+  }
+}
+@media (min-width: 360px) {
+  .greeting-w-m {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .greeting-w-s {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .greeting-w-xs {
+    font-size: 17px;
+    line-height: 22px;
+  }
+}
+</style>

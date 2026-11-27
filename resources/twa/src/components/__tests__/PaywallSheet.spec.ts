@@ -32,7 +32,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
   }
 }
 
-async function render(response: MeResponse = me(), props: { reason?: PaywallReason; deckLimits?: DeckLimits | null } = {}) {
+async function render(response: MeResponse = me(), props: { reason?: PaywallReason; deckLimits?: DeckLimits | null; goalMax?: number | null } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const wrapper = mount(PaywallSheet, { props })
   await flushPromises()
@@ -52,6 +52,23 @@ describe('PaywallSheet', () => {
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата откроется позже — мы сообщим в боте.')
     expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас бесплатный тариф: 20 новых слов в день, повторения — без лимита.')
+  })
+
+  describe('a goal above the Free limit (daily_goal)', () => {
+    it('quotes the limit the screen hands over when the settings do not know it (onboarding O6: GET /onboarding has it, /me not yet)', async () => {
+      const w = await render(me(), { reason: 'daily_goal', goalMax: 10 })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Цель больше 10 — в Pro')
+      expect(w.get('[data-testid=paywall-lead]').text()).toContain('10')
+    })
+
+    it('reads the settings of /me without the prop, as the Settings screen opens it', async () => {
+      const response = me()
+      response.settings = settingsFixture({ options: { ...settingsFixture().options, daily_goal_max: 10 } })
+      const w = await render(response, { reason: 'daily_goal' })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Цель больше 10 — в Pro')
+    })
   })
 
   describe('what Free gives', () => {

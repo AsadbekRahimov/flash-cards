@@ -314,6 +314,13 @@ export const uz: Translations = {
   'card.note.hint': "Faqat Siz ko'rasiz. {max} belgigacha.",
   'card.confused_with': 'Adashtirmang',
   'card.say_aloud': "So'zni ovoz chiqarib ayting",
+  'card.memory.label': 'Xotira: 5 dan {strength}',
+  'card.memory.next_days': {
+    one: '{count} kundan keyin takrorlanadi',
+    other: '{count} kundan keyin takrorlanadi',
+  },
+  'card.memory.today': 'bugun takrorlanadi',
+  'card.memory.this_session': "shu mashg'ulotda takrorlanadi",
 
   // ---- training ----
   'training.lesson_header': '{stage}-modul · {lesson}-dars',
@@ -462,6 +469,7 @@ export const uz: Translations = {
   'profile.readiness': 'Darajaga tayyorlik',
   'profile.readiness.hint': "O'zlashtirilgan so'zlar ulushi va hafta testi",
   'course.readiness': 'Tayyorlik va hafta testi',
+  'course.vocabulary': "Mening lug'atim",
   'error.code.level_quiz_disabled': 'Hafta testi hozir mavjud emas.',
   'error.code.readiness_disabled': 'Darajaga tayyorlik hozir mavjud emas.',
 

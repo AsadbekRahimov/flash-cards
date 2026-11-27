@@ -6,7 +6,6 @@ import TodayView from '../TodayView.vue'
 import StampMark from '@/components/ui/StampMark.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
 import { useTodayStore } from '@/stores/today'
@@ -17,7 +16,7 @@ import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({
   ensure: vi.fn(),
-  learner: null as { first_name: string | null } | null,
+  learner: null as { first_name: string | null; display_name?: string | null } | null,
   useBackButton: vi.fn(),
 }))
 
@@ -302,6 +301,28 @@ describe('TodayView', () => {
 
       state.learner = { first_name: '   ' }
       expect((await render()).get('h1').text()).toBe('Сегодня')
+    })
+
+    it('greets by the name chosen in the onboarding, else by the Telegram one (docs/40 §3, В1: own screens)', async () => {
+      state.learner = { first_name: 'Aziz', display_name: 'Азиз' }
+      expect((await render()).get('h1').text()).toBe('Привет, Азиз!')
+
+      state.learner = { first_name: 'Aziz', display_name: null }
+      expect((await render()).get('h1').text()).toBe('Привет, Aziz!')
+    })
+
+    it('makes the greeting smaller for a long name instead of cutting a word: steps by the longest word, wrapping between words only', async () => {
+      state.learner = { first_name: 'Ali' }
+      const short = (await render()).get('h1')
+      expect(short.classes()).toEqual(expect.arrayContaining(['t-display-l', 'break-words', 'greeting-n-l', 'greeting-w-l']))
+      expect(short.classes()).not.toContain('[overflow-wrap:anywhere]')
+
+      state.learner = { first_name: 'Мухаммадали' }
+      const long = (await render()).get('h1')
+      expect(long.classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-m']))
+
+      state.learner = { first_name: 'Абдурахмонбек Мухаммадалиевич' }
+      expect((await render()).get('h1').classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-xs']))
     })
 
     it('badges the plan with a chip that leads to the subscription', async () => {
@@ -620,14 +641,14 @@ describe('TodayView', () => {
       expect(w.text()).not.toContain('Пока нечего повторять')
     })
 
-    it('keeps the "finish the setup in the bot" banner under the start card, compact', async () => {
+    it('has no "finish the setup in the bot" line under the start card: the onboarding is in the Mini App now (docs/40 T16)', async () => {
       const w = await render(today({ active_course: null, due_count: 0, onboarding_completed: false }))
 
-      const html = w.html()
-      expect(html.indexOf('data-testid="start-card"')).toBeLessThan(html.indexOf('data-testid="onboarding-hint"'))
-      expect(w.get('[data-testid=onboarding-hint]').classes()).not.toContain('card')
-      await w.get('[data-testid=onboarding-btn]').trigger('click')
-      expect(telegram.close).toHaveBeenCalledTimes(1)
+      expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+      expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
+      expect(w.find('[data-testid=onboarding-btn]').exists()).toBe(false)
+      expect(w.text()).not.toContain('/start')
+      expect(telegram.close).not.toHaveBeenCalled()
     })
 
     it('has no start card when there is something to review, a session is open or the group gave an assignment', async () => {
@@ -1074,25 +1095,13 @@ describe('TodayView', () => {
       })
     })
 
-    it('hints at finishing the onboarding in the bot', async () => {
-      expect((await render()).find('[data-testid=onboarding-hint]').exists()).toBe(false)
-
+    it('sends nobody to the bot to finish the onboarding: the guard of the Mini App leads to it (docs/40 T16)', async () => {
       const w = await render(today({ onboarding_completed: false }))
-      expect(text(w, 'onboarding-hint')).toContain('Чтобы завершить настройку, отправьте боту /start')
-      expect(w.get('[data-testid=onboarding-hint] path').attributes('d')).toBe(ICONS['information-circle'].outline[0]?.d)
-    })
 
-    it('offers a button that closes the Mini App to finish the onboarding in the bot', async () => {
-      expect((await render()).find('[data-testid=onboarding-btn]').exists()).toBe(false)
-
-      const w = await render(today({ onboarding_completed: false }))
-      const button = w.get('[data-testid=onboarding-btn]')
-      expect(button.text()).toBe('Закончить настройку в боте')
-      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
-
-      await button.trigger('click')
-
-      expect(telegram.close).toHaveBeenCalledTimes(1)
+      expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
+      expect(w.find('[data-testid=onboarding-btn]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Чтобы завершить настройку, отправьте боту /start')
+      expect(w.text()).not.toContain('Закончить настройку в боте')
     })
 
     it('keeps the screen and announces a failed reload as an alert with an icon', async () => {

@@ -94,6 +94,7 @@ import type {
 import type { GameClass, GameClassList } from './gameClassTypes'
 import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
 import type { OnboardingCompleteResponse, OnboardingSavedStep, OnboardingState, OnboardingStepBodies } from './onboardingTypes'
+import type { VocabularyPage, VocabularyQuery } from './vocabularyTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
@@ -168,6 +169,14 @@ export const api = {
       client().put<OnboardingState>(`/onboarding/steps/${step}`, { ...body }),
     /** Finishes the onboarding (idempotent); 422 `onboarding_incomplete {missing}`. */
     complete: () => client().post<OnboardingCompleteResponse>('/onboarding/complete'),
+  },
+  vocabulary: {
+    /**
+     * "My dictionary" (docs/04 A.25): one page; `signal` drops a request a newer search has replaced. 422 `invalid_cursor` for a bad
+     * `after`, `validation` for `q` / `limit` out of range.
+     */
+    list: (query: VocabularyQuery, signal?: AbortSignal) =>
+      client().get<VocabularyPage>('/vocabulary', { ...query }, signal !== undefined ? { signal } : undefined),
   },
   words: {
     /** The learner's own memory hook of a word they study (docs/06 §12.3); `null` clears it. */

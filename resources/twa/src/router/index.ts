@@ -45,6 +45,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/OnboardingView.vue'),
     props: (route) => ({ step: typeof route.params.step === 'string' && route.params.step !== '' ? route.params.step : null }),
   },
+  // F4 "Серия спасена" / "Серия прервалась" (docs/40 §2.5): opened by itself from "Today" (`useStreakMoments`), `?kind=lost`; no tab bar.
+  {
+    path: '/streak/saved',
+    name: 'streak-saved',
+    component: () => import('@/views/StreakSavedView.vue'),
+    props: (route) => ({ kind: route.query.kind === 'lost' ? 'lost' : 'saved' }),
+  },
   {
     path: '/training/:sessionId(\\d+)',
     name: 'training',
@@ -94,6 +101,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CourseView.vue'),
     meta: { tab: 'courses' },
     props: (route) => ({ slug: String(route.params.slug) }),
+  },
+  // "My dictionary" (docs/40 §2.3, kit F2): the words the learner has graded. `?from=` is the course it was opened from (the system "Back" returns there).
+  {
+    path: '/vocabulary',
+    name: 'vocabulary',
+    component: () => import('@/views/VocabularyView.vue'),
+    meta: { tab: 'courses' },
   },
   // Readiness for the level and the test of the week (docs/05 §5); `?source=` is where the learner came from (the server's analytics, the Back button).
   {

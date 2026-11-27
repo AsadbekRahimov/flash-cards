@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, ref, watch, type WatchStopHandle } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import AccountRestoredSheet from '@/components/AccountRestoredSheet.vue'
 import OfflineScreen from '@/components/OfflineScreen.vue'
 import AppToast from '@/components/ui/AppToast.vue'
 import TabBar from '@/components/ui/TabBar.vue'
+import { mascotImage, prefetchImage } from '@/composables/illustrations'
 import { offlineContext, useOnline } from '@/composables/useOnline'
 import { useI18n } from '@/i18n'
 
@@ -85,6 +86,25 @@ watch(isOnline, (online, was) => {
 
 // A new screen starts clean: a load lost on the previous one says nothing about this one.
 watch(() => route.fullPath, () => clearLoadFailed())
+
+const router = useRouter()
+let stopStreakMoments: WatchStopHandle | null = null
+let unmounted = false
+
+onMounted(() => {
+  // The mascot of F5 is needed exactly when nothing can be loaded: it is fetched into the cache once, in an idle moment after the start.
+  prefetchImage(mascotImage('thinking'))
+  // F4 "Серия спасена / прервалась" (docs/40 §2.5): opened by itself once per event, from the `/today` the screen "Today" has loaded.
+  // A lazy module: the watch and the store of "Today" stay out of the main chunk; it starts with what the store already holds.
+  void import('@/composables/useStreakMoments').then(({ watchStreakMoments }) => {
+    if (!unmounted) stopStreakMoments = watchStreakMoments(router)
+  })
+})
+
+onBeforeUnmount(() => {
+  unmounted = true
+  stopStreakMoments?.()
+})
 </script>
 
 <template>

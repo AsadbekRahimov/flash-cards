@@ -105,6 +105,6 @@ async function onContinue(): Promise<void> {
       :error="store.saveErrorStep === 'daily_goal' ? store.saveError : ''"
       @primary="onContinue"
     />
-    <PaywallSheet v-if="paywallOpen" reason="daily_goal" @close="paywallOpen = false" @review="paywallOpen = false" />
+    <PaywallSheet v-if="paywallOpen" reason="daily_goal" :goal-max="store.goalMax" @close="paywallOpen = false" @review="paywallOpen = false" />
   </div>
 </template>

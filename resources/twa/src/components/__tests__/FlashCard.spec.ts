@@ -398,3 +398,17 @@ describe('FlashCard', () => {
     })
   })
 })
+
+describe('FlashCard — the slot under the card (F1, docs/40 §2.2)', () => {
+  it('puts what the screen gives right under the card, before and after the reveal; nothing without it', async () => {
+    const below = { below: '<p data-testid="below">dots</p>' }
+    const closed = mount(FlashCard, { props: { card, showTranslation: false }, slots: below })
+    expect(closed.get('[data-testid=word-card]').element.nextElementSibling?.getAttribute('data-testid')).toBe('below')
+
+    const open = mount(FlashCard, { props: { card, showTranslation: true }, slots: below })
+    expect(open.find('[data-testid=below]').exists()).toBe(true)
+    expect(open.findAll('button[data-testid^=grade-]')).toHaveLength(3)
+
+    expect(mount(FlashCard, { props: { card, showTranslation: true } }).find('[data-testid=below]').exists()).toBe(false)
+  })
+})

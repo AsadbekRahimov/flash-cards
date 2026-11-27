@@ -360,6 +360,18 @@ onBeforeUnmount(() => {
         </RouterLink>
       </section>
 
+      <!-- "My dictionary" (docs/40 §2.3, kit F2) from the learner's own course: a link only, no number and no request (`?from`: "Back" returns here). -->
+      <RouterLink
+        v-if="detail.is_active"
+        :to="`/vocabulary?from=${encodeURIComponent(props.slug)}`"
+        class="t-body-m mt-3 flex min-h-11 w-fit items-center gap-1.5 font-semibold text-accent"
+        data-testid="vocabulary-link"
+      >
+        <AppIcon name="book-open" :size="18" />
+        {{ t('course.vocabulary') }}
+        <AppIcon name="chevron-right" :size="16" />
+      </RouterLink>
+
       <p v-if="!detail.is_active && detail.description" class="t-body-m mt-3 text-muted" data-testid="description">
         {{ detail.description }}
       </p>

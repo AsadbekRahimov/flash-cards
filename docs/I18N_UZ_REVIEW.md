@@ -5407,3 +5407,56 @@ Mini App, `resources/twa/src/i18n/uz.ts`: строки перерисовки э
 | `battle.result.stamp_unit.one/other` | ochko | очко / очка / очков |
 | `gameRun.summary.stamp_unit.one/other` | ochko | очко / очка / очков |
 | `cup.final_stamp_unit` | o'rin | место |
+
+## F4 «Серия спасена / прервалась» (27.11.2026, docs/40 §2.5) — не проверено носителем
+
+Mini App, `resources/twa/src/i18n/streak/uz.ts` (свой словарь ленивого экрана `/streak/saved`). Серия — «ketma-ketlik», заморозка — «zaxira kun», как в существующих строках «Сегодня» и пейвола. Носителю проверить: «Ketma-ketlik saqlandi!», «Davom ettirish» (короче «Ketma-ketlikni davom ettirish», чтобы кнопка была в одну строку на 320 px), «{count} kunlik ketma-ketlikni», «shug'ullangan edingiz», сокращения дней недели (Du, Se, Ch, Pa, Ju, Sh, Ya).
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `streak.saved.title` | Ketma-ketlik saqlandi! | Серия спасена! |
+| `streak.saved.lead.one/other` | Kecha bir kunni o'tkazib yubordingiz, lekin zaxira kun {count} kunlik ketma-ketlikni saqlab qoldi. | Вчера вы пропустили день, но заморозка сохранила серию — {count} день / все {count} дня / все {count} дней. |
+| `streak.saved.lead_missed.one/other` | {count} kunni o'tkazib yubordingiz, lekin zaxira kunlar ketma-ketlikni saqlab qoldi. | Вы пропустили {count} день / дня / дней, но заморозки сохранили серию. |
+| `streak.saved.freezes_left` | Qolgan zaxira kunlar: {count} | Осталось заморозок: {count} |
+| `streak.saved.continue` | Davom ettirish | Продолжить серию |
+| `streak.lost.title` | Ketma-ketlik uzildi | Серия прервалась |
+| `streak.lost.lead.one/other` | {count} kun ketma-ket shug'ullangan edingiz. | Было {count} день / дня / дней подряд. |
+| `streak.lost.text` | Yangi ketma-ketlik bugun boshlanadi: kunlik maqsadni bajaring — birinchi muhr o'z joyida. | Новая серия начинается сегодня: выполните цель дня — и первая печать на месте. |
+| `streak.lost.pro_offer` | Zaxira kun ketma-ketlikni saqlab qolgan bo'lardi — Pro'da | Заморозка сохранила бы серию — в Pro |
+| `streak.lost.pro_more` | Batafsil | Подробнее |
+| `streak.lost.pro_note` | Zaxira kunlar yetmadi: o'tkazib yuborilgan kunlar zaxira kunlardan ko'p edi. | Заморозок не хватило: пропущено дней больше, чем было заморозок. |
+| `streak.lost.restart` | Qaytadan boshlash | Начать заново |
+| `streak.week.label` | Shu hafta | Эта неделя |
+| `streak.week.day.1…7` | Du, Se, Ch, Pa, Ju, Sh, Ya | Пн, Вт, Ср, Чт, Пт, Сб, Вс |
+| `streak.week.state.done` | {day}: kun hisoblandi | {day}: день засчитан |
+| `streak.week.state.freeze` | {day}: zaxira kun | {day}: заморозка |
+| `streak.week.state.today` | {day}: bugun | {day}: сегодня |
+| `streak.week.state.future` | {day}: oldinda | {day}: впереди |
+| `streak.week.state.missed` | {day}: o'tkazib yuborilgan | {day}: пропущен |
+
+## Выпуск 2 · F1 «Повторение» и F2 «Мой словарь» в Mini App (docs/40 §2.2–2.3, T7–T8, 27.11.2026) — на проверку носителю
+
+Mini App: точки силы памяти под карточкой (`resources/twa/src/i18n/uz.ts`) и экран «Мой словарь» (свой ленивый словарь
+`resources/twa/src/i18n/vocabulary/uz.ts`). Носителю проверить: «5 dan 3» как «3 из 5»; «takrorlanadi» в подписи под карточкой; «Zaif / Kuchli» для фильтров.
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `card.memory.label` | Xotira: 5 dan {strength} | Память: {strength} из 5 |
+| `card.memory.next_days.one/other` | {count} kundan keyin takrorlanadi | повтор через {count} день / дня / дней |
+| `card.memory.today` | bugun takrorlanadi | повтор сегодня |
+| `card.memory.this_session` | shu mashg'ulotda takrorlanadi | повтор в этой сессии |
+| `course.vocabulary` | Mening lug'atim | Мой словарь |
+| `vocabulary.title` | Mening lug'atim | Мой словарь |
+| `vocabulary.total.one/other` | {count} ta so'z | {count} слово / слова / слов |
+| `vocabulary.search` | So'z yoki tarjimani qidiring | Найти слово или перевод |
+| `vocabulary.filters` | Qaysi so'zlarni ko'rsatish | Какие слова показать |
+| `vocabulary.filter.all` | Hammasi | Все |
+| `vocabulary.filter.weak` | Zaif | Слабые |
+| `vocabulary.filter.strong` | Kuchli | Сильные |
+| `vocabulary.filter_count` | {label} · {count} | {label} · {count} |
+| `vocabulary.listen` | Tinglash: {word} | Прослушать: {word} |
+| `vocabulary.more` | Yana ko'rsatish | Показать ещё |
+| `vocabulary.empty` | Birinchi darsni o'ting — so'zlar shu yerda paydo bo'ladi | Пройдите первый урок — слова появятся здесь |
+| `vocabulary.not_found` | Hech narsa topilmadi | Ничего не нашли |
+| `vocabulary.not_found_text` | Yozilishini tekshiring yoki tarjima bo'yicha qidiring. | Проверьте написание или поищите по переводу. |
+| `vocabulary.filter_empty` | Bu yerda hozircha so'z yo'q | Здесь пока нет слов |

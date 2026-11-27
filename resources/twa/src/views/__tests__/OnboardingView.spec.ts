@@ -61,7 +61,10 @@ vi.mock('@/composables/useTelegram', () => ({
 }))
 
 /** The paywall is its own component with its own tests: here only whether it opens. */
-const PaywallStub = defineComponent({ props: { reason: String }, setup: (props) => () => h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }) })
+const PaywallStub = defineComponent({
+  props: { reason: String, goalMax: { type: Number, default: undefined } },
+  setup: (props) => () => h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-goal-max': props.goalMax }),
+})
 
 const network = () => new ApiClientError('network', 0, 'network', 'Failed to fetch')
 
@@ -332,6 +335,8 @@ describe('OnboardingView', () => {
       await tap(r, '[data-testid=daily-goal-40]')
 
       expect(r.wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('daily_goal')
+      // the limit of GET /onboarding, so the title says «Цель больше 10 — в Pro» as in the settings (the settings store is empty here)
+      expect(r.wrapper.get('[data-testid=paywall]').attributes('data-goal-max')).toBe('10')
       expect(r.wrapper.get('[data-testid=daily-goal-10]').attributes('aria-checked')).toBe('true')
       expect(api.onboarding.saveStep).not.toHaveBeenCalled()
     })

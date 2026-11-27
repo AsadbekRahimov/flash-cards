@@ -3,6 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { telegramFirstName } from '@/composables/telegramOnboarding'
+import { INTRO_KEY } from '@/composables/introSheet'
 import { markSeen } from '@/composables/seenFlag'
 import { errorMessage } from '@/i18n/errors'
 import {
@@ -16,11 +17,8 @@ import {
   type WriteAccess,
 } from '@/api/onboardingTypes'
 
-/**
- * The flag of the intro slides of "Today" (`TodayView`, `IntroSheet`): a learner who went through the onboarding of the Mini App has
- * already been told what the app is (docs/40 §2.1), so it is set when the onboarding is finished. The same key as in `TodayView.vue`.
- */
-export const INTRO_KEY = 'lexiflow:intro-seen'
+/** The flag of the intro slides of "Today": set when the onboarding is finished (docs/40 §2.1). Kept in `composables/introSheet.ts`. */
+export { INTRO_KEY }
 
 /** The reminder of O7 when nothing was saved yet (ONBOARDING.md: 20:00, the switch on). */
 export const DEFAULT_REMINDER_TIME = '20:00'

@@ -66,6 +66,23 @@ function todayStreakStored(Learner $learner): array
     ];
 }
 
+/**
+ * The `week` of `/today.streak` (docs/40 §2.5) on Wednesday 2026-10-21: Monday 19 … Sunday 25, `held_by` of the given days.
+ *
+ * @param  array<string, string>  $held  `Y-m-d` => goal | game | freeze
+ * @return list<array{date: string, held_by: string|null, is_today: bool}>
+ */
+function todayStreakWeek(array $held = []): array
+{
+    $week = [];
+    for ($day = 19; $day <= 25; $day++) {
+        $date = "2026-10-{$day}";
+        $week[] = ['date' => $date, 'held_by' => $held[$date] ?? null, 'is_today' => $date === '2026-10-21'];
+    }
+
+    return $week;
+}
+
 beforeEach(function (): void {
     CarbonImmutable::setTestNow(TODAY_STREAK_NOW);
     config(['game.access' => 'off']); // the tests below pin nothing about the game; the budget tests choose it with `todayStreakShipped()`
@@ -85,7 +102,7 @@ it('shows a Free learner who never studied an empty streak and stores nothing', 
     $learner = todayStreakLearner(0, null);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayStreakWeek(), 'lost' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 0, 'best' => 0, 'last' => null, 'freezes' => 0, 'refilled_on' => null]);
 });
@@ -94,7 +111,7 @@ it('shows a Free learner a living series as at risk, and changes nothing in the 
     $learner = todayStreakLearner(3, '2026-10-20', best: 5);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 5, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 5, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayStreakWeek(), 'lost' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 5, 'last' => '2026-10-20', 'freezes' => 0, 'refilled_on' => null]);
 });
@@ -103,7 +120,7 @@ it('burns the series of a Free learner who skipped days and keeps the idle stock
     $learner = todayStreakLearner(4, '2026-10-17', freezes: 2);
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 4, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 4, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayStreakWeek(), 'lost' => ['days' => 4, 'on' => '2026-10-21']]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 0, 'best' => 4, 'last' => '2026-10-17', 'freezes' => 2, 'refilled_on' => null])
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(0);
@@ -120,7 +137,7 @@ it('repairs on read a day whose goal was met but never credited to the streak', 
 
     todayStreakGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 2, 'met' => true])
-        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal']);
+        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal', 'week' => todayStreakWeek(['2026-10-21' => 'goal']), 'lost' => null]);
 
     expect(todayStreakStored($learner))->toMatchArray(['current' => 1, 'last' => '2026-10-21']);
 });
@@ -129,7 +146,7 @@ it('leaves a Pro learner whose week was already handled exactly as it is', funct
     $learner = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayStreakWeek(), 'lost' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 3, 'last' => '2026-10-20', 'freezes' => 1, 'refilled_on' => '2026-10-19']);
 });
@@ -148,7 +165,7 @@ it('spends a Pro learner\'s old stock on the missed day first and only then hand
     $learner = todayStreakLearner(3, '2026-10-19', freezes: 1, pro: true, refilledOn: '2026-10-12');
 
     todayStreakGet($this, $learner)->assertOk()
-        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null, 'week' => todayStreakWeek(['2026-10-20' => 'freeze']), 'lost' => null]);
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 3, 'last' => '2026-10-20', 'freezes' => 1, 'refilled_on' => '2026-10-19'])
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(1);
@@ -185,14 +202,15 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
     // then read the same rows again for the goal / streak block. The `lapsed` figure is the burnt series' steady
     // state (its range read of held days stays). R12i: 11 / 11 / 12 -> 5 / 5 / 6 - the plan is read once (from the cache),
     // today and yesterday in one statement, the due cards and the quota in one statement.
-    // R12i: today and yesterday come in ONE statement (`date in (?, ?)`); yesterday is not read on its own any more.
+    // R12i: today and yesterday come in ONE statement; yesterday is not read on its own any more. Since docs/40 §2.5 (T9) the same statement
+    // is the range of the local week with yesterday (`date >= ? and date <= ?`, ≤ 8 rows): the week of the streak costs nothing.
     // K10 (docs/19): the lapse banner comes from the Today snapshot of the pure cache (no `subscriptions` read), and the candidates of
     // the round of hard words ride in the statement of the due cards and the quota. What is left for a learner without a course: the
     // learner, the day rows, the open sessions, ONE statement of scalars, the league week (not placed - never cached).
     expect(count($queries))->toBe($budget)
         ->and(QueryLog::matching($queries, '/from ["`]subscriptions["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]due["`], .*hard_candidates/s'))->toHaveCount(1)
-        ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] >= \? and ["`]date["`] <= \?/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);

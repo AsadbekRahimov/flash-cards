@@ -59,6 +59,8 @@ uses(RefreshDatabase::class);
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday', 'held_by'];
+// `/today` only (docs/40 §2.5): the local week, Monday to Sunday, and the last loss of the series; `/finish` keeps CONTRACT_STREAK.
+const CONTRACT_STREAK_TODAY = [...CONTRACT_STREAK, 'week' => ['*' => ['date', 'held_by', 'is_today']], 'lost'];
 
 /** The practice card of «Today» (docs/04 A.2a): the flags of `/me.practice` without its limits. */
 /** The round of hard words (docs/06 §14): the block of `GET /today.hard_round` and of `/finish.hard_round_offer`. */
@@ -246,7 +248,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'due_count',
             'new_words_remaining',
             'goal' => CONTRACT_GOAL,
-            'streak' => CONTRACT_STREAK,
+            'streak' => CONTRACT_STREAK_TODAY,
             'active_course' => [
                 'id', 'slug', 'title', 'section',
                 'progress' => ['learned', 'total'],
@@ -287,7 +289,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->getJson('/api/twa/today')
         ->assertOk()
         ->assertExactJsonStructure([
-            'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
+            'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK_TODAY,
             'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
             'hard_round' => CONTRACT_HARD_ROUND,

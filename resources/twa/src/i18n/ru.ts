@@ -360,6 +360,15 @@ export const ru = {
   'card.note.hint': 'Видите только вы. До {max} символов.',
   'card.confused_with': 'Не путайте с',
   'card.say_aloud': 'Произнесите слово вслух',
+  'card.memory.label': 'Память: {strength} из 5',
+  'card.memory.next_days': {
+    one: 'повтор через {count} день',
+    few: 'повтор через {count} дня',
+    many: 'повтор через {count} дней',
+    other: 'повтор через {count} дня',
+  },
+  'card.memory.today': 'повтор сегодня',
+  'card.memory.this_session': 'повтор в этой сессии',
 
   // ---- training ----
   'training.lesson_header': 'Модуль {stage} · Урок {lesson}',
@@ -519,6 +528,7 @@ export const ru = {
   'profile.readiness': 'Готовность к уровню',
   'profile.readiness.hint': 'Доля освоенных слов и тест недели',
   'course.readiness': 'Готовность и тест недели',
+  'course.vocabulary': 'Мой словарь',
   'error.code.level_quiz_disabled': 'Тест недели сейчас недоступен.',
   'error.code.readiness_disabled': 'Готовность к уровню сейчас недоступна.',
 

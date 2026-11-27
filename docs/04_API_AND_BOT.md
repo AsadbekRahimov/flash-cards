@@ -158,7 +158,9 @@
   "due_count": 23,
   "new_words_remaining": null,
   "goal": { "target": 20, "done": 8, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null,
+              "week": [{ "date": "2026-10-19", "held_by": "goal", "is_today": false }, { "date": "2026-10-20", "held_by": "freeze", "is_today": false }, { "date": "2026-10-21", "held_by": null, "is_today": true }, "… до воскресенья"],
+              "lost": null },
   "active_course": {
     "id": 3, "slug": "english-a1", "title": "English A1", "section": "courses",
     "progress": { "learned": 120, "total": 900 },
@@ -192,6 +194,16 @@
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **личных** сессиях за **локальный** день (`word_repetitions.created_at` в окне `LearnerClock::limitWindowUtc` по `learners.timezone` с переносом дня при смене пояса, `introduced_mode <> 'group_lesson'`), не меньше 0; слова групповых уроков не считаются (docs/12 §5.3). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
 - `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
+- **`streak.week`, `streak.lost` (docs/40 §2.5, F4; T9 ✅ 27.11.2026)** — только в `/today` (в итоге `/finish` поля `streak` прежние). `week` — 7 дней
+  локальной недели ученика (понедельник — воскресенье, `LearnerClock`): `date` (`Y-m-d`), `held_by` — чем удержан день (`goal` / `game` / `freeze`, правило
+  то же, что у `held_by` сегодня: цель важнее забега) или `null` (не удержан; будущие дни — всегда `null`), `is_today`. `lost` — серия, сгоревшая при последнем
+  сгорании, пока у новой нет ни одного засчитанного дня: `{days, on}` — сколько дней было и локальный день, когда сгорание заметили; иначе `null`
+  (никогда — у ученика без серии и при спасении заморозкой). Источник — `learners.streak_lost_days` / `streak_lost_on`: пишет `StreakService::burn()` в том же
+  условном `UPDATE`, что обнуляет серию (`streak_lost_days = streak_current` строки до обновления), очищает `project()` в своём `UPDATE` с первым засчитанным
+  днём; проигравший гонку сгорания перечитывает строку и отдаёт то же значение. Строки недели читаются **тем же** оператором, что и раньше «сегодня + вчера»:
+  диапазон `date >= понедельник-или-вчера AND date <= сегодня` по unique `(learner_id, date)`, ≤ 8 строк — бюджет `/today` не изменился
+  (`TodayStreakQueriesTest`, `TwaTodayMeQueryBudgetTest`). Единственное исключение — запрос, который **сам** только что потратил заморозку(и) на вчера (и
+  дни перед ним): строки недели перечитываются ещё одним оператором (раз; уже следующий запрос читает их в общем операторе).
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `active_course.readiness` **(с 18.11.2026, docs/13 §8.5)** — готовность к уровню курса: `percent` = **пол** от `100 · learned / total`, где `learned` — активные слова курса в стадии «известно» или выше (`state = review` и `interval_days >= learning.stages.known_from_interval_days`, docs/06 §13.3), `mastered` — из них от порога «закреплено», `in_progress` = встреченные − `learned`, `not_started` = `total` − встреченные (не меньше 0). `level_label` — `courses.meta.level_label`, иначе `courses.level` (может быть `null` — клиент пишет «слов курса»). Это оценка словаря, а не прогноз экзамена: поля ничего не обещают. `quiz` — тест недели: `{enabled: false}`, если `READINESS_QUIZ_ENABLED=false`; иначе `week_start` (понедельник ISO-недели в поясе learner'а) и `this_week` — **зачётный** результат этой недели `{correct, total, percent}` или `null` (ещё не пройден). `readiness: null` при `READINESS_ENABLED=false`. **Бюджет запросов `/today`: 7 → 8** — готовность считается двумя суммами в уже существующем запросе строк learner'а по курсу (`CourseCatalogService::lessonsStarted`), 8-й — одно индексное чтение `level_quiz_results` (его нет при выключенных фиче/тесте); закреплено `TwaTodayMeQueryBudgetTest`. Кэша готовности нет.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
@@ -413,6 +425,15 @@ Learner присоединяется к открытой тренировке. �
 ```
 
 Для `prompt.type` = `meaning` / `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null`; `meaning` и `audio` — `translation` = `""`, `example`, `example_translation`, `example_audio_url` = `null` (у `meaning` слово, транскрипция и `audio_url` на месте — это вопрос); у всех `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
+
+**Сила памяти** (docs/40 §2.2, F1; T6 ✅ 27.11.2026): `card.memory` = `{ "strength": 3, "stage": "learning", "next_in_days": 4 }` у каждой карточки (у `card: null` поля нет).
+Это вид строки `word_repetitions` **до** оценки (`App\Domain\Learning\Support\MemoryStrength`; алгоритм не меняется): `strength` 0 — `new` без оценки
+(`last_quality IS NULL`); 1 — в минутных шагах (`new`/`learning` с оценкой) или `relearning`; 2 — `review` с `interval_days` < `learning.stages.fresh_review_days`
+(3, env `LEARNING_STAGE_FRESH_REVIEW_DAYS`); 3 — до `known_from_interval_days` (7); 4 — до `mastered_from_interval_days` (21); 5 — дальше. `stage` — `new` /
+`learning` / `known` / `mastered` (`WordStage`, те же пороги — сила и стадия не противоречат друг другу). `next_in_days` — у `review`-карточки
+`max(0, ceil((next_review_at − now) / сутки))`, у карточки в шагах `null` («повтор в этой сессии»). Ответ не выдаёт — не прячется ни на одном упражнении;
+у `lesson_review` поле есть (строка не меняется), Mini App его там не показывает. Считается из строки, которая уже у пикера, — **0 операторов**
+(`TrainingCycleQueryBudgetTest` без изменений).
 
 Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
 
@@ -2198,6 +2219,42 @@ daily_goal → reminder → plan`). Ученику со статусом `done` 
 `PUT level|daily_goal|reminder` — 5 (+ повторное чтение строки `LearnerSettingsService::update`), смена цели дня — 6 (+ `reconcileGoal`);
 `POST /complete` — 7 (ученик, блокировка, `Course::find` рекомендации, `UPDATE`, дерево курса холодное, прогресс по урокам, события), повтор — 3.
 `/auth` и `/me` новых операторов не получили.
+
+### A.25 «Мой словарь» `GET /api/twa/vocabulary` (docs/40 §2.3, F2; T6 ✅ 27.11.2026)
+
+Слова ученика, оценённые хотя бы раз (`word_repetitions.last_reviewed_at IS NOT NULL`), только активные слова (`words.is_active`), по алфавиту
+(`lower(word)`, затем id строки), с силой памяти (A.3 `card.memory`). Сервис — `VocabularyService`. Под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api`; только свои строки
+(ученик — из JWT). Кэша нет (личные данные, меняются каждой оценкой).
+
+| Параметр | Значение |
+|---|---|
+| `q` | поиск по слову и переводу, до 50 символов после `trim` (пустой — без поиска); `%`, `_`, `\` — обычные символы; регистр не важен (`lower()` с обеих сторон; на PostgreSQL — юникодный). Перевод ищется в `words.translation` (ru) и в `word_translations` языка ученика |
+| `filter` | `all` (по умолчанию) · `weak` (сила ≤ 2) · `strong` (сила ≥ 4) |
+| `after` | курсор `next_cursor` прошлой страницы (base64url `{"w": "<lower слова>", "id": <id строки>}`), не длиннее 600 символов |
+| `limit` | 1–50, по умолчанию 50 |
+
+**Ответ (200):**
+```json
+{
+  "total": 120, "counts": {"all": 120, "weak": 18, "strong": 64},
+  "items": [{"word_id": 7, "word": "tea", "translation": "чай", "translation_fallback": false, "transcription": "/tiː/",
+             "audio_url": "https://…/audio/…", "strength": 5, "stage": "mastered", "next_in_days": 12, "is_hard": false}],
+  "next_cursor": "eyJ3IjoidGVhIiwiaWQiOjcwfQ"
+}
+```
+
+- `total` и `counts` — только на первой странице (без `after`), дальше `null`. Счётчики не зависят от `q` и `filter` (как в макете); `total` = `counts.all`.
+- `translation` — через `WordTranslationResolver` на языке ученика; нет перевода — ru и `translation_fallback: true`. `audio_url` — как у карточки тренировки (`null` — нет файла).
+- `next_in_days` и `stage` — как в `card.memory`; `is_hard` — `word_repetitions.is_hard`.
+- `next_cursor` — `null` на последней странице. Курсор не зависит от фильтра и поиска: со сменой `q`/`filter` клиент начинает с первой страницы.
+
+**Ошибки:** 401; 422 валидации (`{message, errors}`: `limit` вне 1–50, `filter` вне списка, `q` > 50, `after` > 600); 422 `invalid_cursor` — курсор не того вида; 429.
+
+**Операторы SQL** (`TwaVocabularyQueryBudgetTest`, 120 слов): первая страница — 4 (ученик; страница; счётчики; переводы страницы одной пачкой — 0, если все в кэше
+резолвера: тогда 3); поиск и фильтр — столько же (сужают оператор страницы); поиск без совпадений — 3; следующая страница — 3 (2 с тёплым кэшем переводов);
+битый курсор — 1. Каждый оператор идёт от строк ученика: страница — `word_repetitions` по `learner_id`, `words` по ключу на каждую строку (на PostgreSQL —
+`JOIN LATERAL (… OFFSET 0)`), перевод для поиска — `EXISTS` по unique `(word_id, locale)`; счётчики — anti-join по частичному индексу неактивных слов.
+Новых индексов нет. Замеры — docs/40, приложение «Замеры».
 
 ## Часть B — Telegram Bot
 
