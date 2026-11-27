@@ -4,7 +4,7 @@ import { useI18n } from '@/i18n'
 
 /**
  * The flasks of a run: `max` of them, the first `flasks` full, the rest empty (an outline). A flask is a state, so it is told by shape
- * (filled / outline) and, for a screen reader, by one sentence on the whole row ("Flasks: 2 of 3"); the icons are decorative.
+ * (filled in ink / an outline in the tertiary colour - one accent on the screen of the kit, the muhr is the current segment) and, for a screen reader, by one sentence on the whole row ("Flasks: 2 of 3"); the icons are decorative.
  * The beaker is the Heroicons v2.2.0 `beaker` (MIT, see `components/ui/icons.ts`), drawn here so that the shared icon set stays as it is.
  */
 const props = defineProps<{ flasks: number; max: number }>()
@@ -29,7 +29,7 @@ const SOLID =
       width="22"
       height="22"
       class="shrink-0"
-      :class="full ? 'text-accent' : 'text-muted'"
+      :class="full ? 'text-body' : 'text-tertiary'"
       aria-hidden="true"
       focusable="false"
       :data-full="full ? 'true' : 'false'"

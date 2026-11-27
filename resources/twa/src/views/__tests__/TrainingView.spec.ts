@@ -376,7 +376,7 @@ describe('TrainingView — header and states', () => {
     progress: { done: 7, total: 20 },
   })
 
-  it('has a 44 px ✕, a line of progress for a long session and the counter «7 из 20» (docs/design/2026-11-25-redesign Question)', async () => {
+  it('has a 44 px ✕, a line of progress for a long session and the counter «7 из 20» (kit 04-urok-vopros)', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 2, lesson: 4, title: null }))
     const { wrapper } = await render(1)
 
@@ -386,28 +386,26 @@ describe('TrainingView — header and states', () => {
     expect(close.findComponent(AppIcon).props('name')).toBe('x-mark')
     const counter = wrapper.get('[data-testid=progress]')
     expect(counter.text()).toBe('7 из 20')
-    expect(counter.classes()).toEqual(expect.arrayContaining(['text-sm', 'font-semibold', 'text-muted', 'tabular-nums']))
+    expect(counter.classes()).toEqual(expect.arrayContaining(['text-[15px]', 'text-muted', 'tabular-nums']))
     // 20 cards are too many for segments at 320 px: the line, 6 px.
-    expect(wrapper.find('[data-testid=progress-segment]').exists()).toBe(false)
+    expect(wrapper.find('.segment').exists()).toBe(false)
     const bar = wrapper.get('[data-testid=progress-bar]')
     expect(bar.classes()).toEqual(expect.arrayContaining(['progress', 'h-1.5']))
     expect(bar.get('.progress-fill').classes()).toContain('progress-primary')
     expect(bar.get('.progress-fill').attributes('style')).toContain('width: 35%')
   })
 
-  it('draws a short session as segments, one per card, the done ones filled (the mock-up: 3 of 8)', async () => {
+  it('draws a short session as segments, one per card: the passed in ink, the current in the muhr colour, the rest sunken (kit: 3 of 8)', async () => {
     vi.mocked(api.training.start).mockResolvedValue({ ...withLesson({ stage: null, lesson: 3, title: 'Напитки' }), total_words: 8, progress: { done: 3, total: 8 } })
     const { wrapper } = await render(1)
 
     expect(wrapper.get('[data-testid=progress]').text()).toBe('3 из 8')
     const bar = wrapper.get('[data-testid=progress-bar]')
     expect(bar.attributes('aria-hidden')).toBe('true')
-    expect(bar.attributes('style')).toContain('repeat(8, minmax(0, 1fr))')
-    const segments = bar.findAll('[data-testid=progress-segment]')
+    expect(bar.classes()).toEqual(expect.arrayContaining(['segments', 'flex-1']))
+    const segments = bar.findAll('.segment')
     expect(segments).toHaveLength(8)
-    expect(segments.map((s) => s.attributes('data-done') === 'true')).toEqual([true, true, true, false, false, false, false, false])
-    expect(segments[2]!.classes()).toEqual(expect.arrayContaining(['bg-primary', 'h-1.5', 'rounded-full']))
-    expect(segments[3]!.classes()).toContain('bg-track')
+    expect(segments.map((s) => s.attributes('data-state'))).toEqual(['done', 'done', 'done', 'current', 'todo', 'todo', 'todo', 'todo'])
     expect(bar.find('.progress').exists()).toBe(false)
   })
 
@@ -419,13 +417,13 @@ describe('TrainingView — header and states', () => {
     expect(wrapper.get('[data-testid=progress]').text()).toBe('8 tadan 3 ta')
   })
 
-  it('puts the lesson in a pill under the header (docs/design Question «Урок 3 · Напитки»)', async () => {
+  it('puts the lesson in a quiet chip under the header («Урок 3 · Напитки»)', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: null, lesson: 3, title: 'Напитки' }))
     const { wrapper } = await render(1)
 
     const pill = wrapper.get('[data-testid=lesson-header] span')
     expect(pill.text()).toBe('Урок 3 · Напитки')
-    expect(pill.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent-ink', 'font-bold', 'truncate']))
+    expect(pill.classes()).toEqual(expect.arrayContaining(['chip', 'chip-neutral', 'truncate']))
   })
 
   it('names the review of a lesson in its own pill, with the lesson when the session has one', async () => {
@@ -455,11 +453,15 @@ describe('TrainingView — header and states', () => {
     }
   })
 
-  it('is a white screen: the lesson stands on the card colour, not on the grey page', async () => {
+  it('stands on the canvas of the kit (the page colour; the options and the cards are the surface on it)', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson(null))
     const { wrapper } = await render(1)
 
-    expect(wrapper.get('[data-testid=training-view]').classes()).toContain('bg-surface')
+    const root = wrapper.get('[data-testid=training-view]')
+    expect(root.classes()).toContain('bg-page')
+    expect(root.classes()).not.toContain('bg-surface')
+    // The boards that a white screen shares take the canvas here too.
+    expect(root.attributes('style')).toContain('--app-screen: var(--app-page)')
   })
 
   it('names the lesson: «Module 2 · Lesson 4 · Title»', async () => {

@@ -77,6 +77,9 @@ describe('GameDailyView: the states', () => {
 
     expect(state(r)).toBe('ready')
     expect(tid(r, 'ready-text').text()).toBe('К повторению 14 слов — разминка на 8–10 заданий.')
+    // the hero of the kit: the mascot greets, "Go" is the one main action
+    expect(tid(r, 'ready').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
+    expect(r.wrapper.findAll('button.btn-primary')).toHaveLength(1)
     expect(tid(r, 'start-btn').text()).toBe('В путь')
     expect(api.game.map).toHaveBeenCalledWith('english-a1')
     expect(api.me.get).not.toHaveBeenCalled()

@@ -128,8 +128,8 @@ describe('the speaker of the example', () => {
       // Next to the sentence, on its row; the sentence wraps beside it.
       expect(w.get('[data-testid=example]').element.parentElement).toBe(btn.element.parentElement)
       expect(w.get('[data-testid=example]').classes()).toEqual(expect.arrayContaining(['min-w-0', 'break-words']))
-      // The look of the word's speaker: a 44 px round button with the accent icon.
-      expect(btn.classes()).toEqual(expect.arrayContaining(['size-11', 'rounded-full', 'text-accent']))
+      // The look of the word's speaker: the IconButton of the kit (a 44 px circle of the sunken paper).
+      expect(btn.classes()).toContain('icon-btn')
 
       for (const without of [{ ...card, example_audio_url: null }, { ...card, example_audio_url: '' }, { ...card, example_audio_url: undefined }]) {
         const plain = mount(FlashCard, { props: { card: without, showTranslation: true } })
@@ -159,7 +159,7 @@ describe('the speaker of the example', () => {
       expect(players.map((p) => p.src)).toEqual([EXAMPLE_URL])
       expect(btn.attributes('data-playing')).toBe('true')
       expect(btn.attributes('aria-pressed')).toBe('true')
-      expect(btn.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'text-accent-ink']))
+      expect(btn.classes()).toContain('shadow-[inset_0_0_0_2px_var(--app-border-strong)]')
       expect(fetchSpy).not.toHaveBeenCalled()
       expect(utterances).toEqual([])
 
@@ -251,7 +251,7 @@ describe('the speaker of the example', () => {
       const btn = w.get('[data-testid=example-speak-btn]')
       // docs/design/2026-11-25-redesign Feedback: the sentence and its translation in a column, the speaker beside them.
       expect(w.get('[data-testid=example]').element.parentElement?.nextElementSibling).toBe(btn.element)
-      expect(btn.classes()).toEqual(expect.arrayContaining(['size-11', 'rounded-full', 'bg-accent-soft']))
+      expect(btn.classes()).toContain('icon-btn')
 
       const before = players.length
       await btn.trigger('click')

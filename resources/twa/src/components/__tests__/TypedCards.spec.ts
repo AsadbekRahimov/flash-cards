@@ -101,18 +101,19 @@ describe('SpellingCard', () => {
     expect(w.emitted('answer')).toBeUndefined()
   })
 
-  it('has a big centered field, a primary "Check" and a plain "I don\'t know"', () => {
+  it('has the centered TextField of the kit, a primary "Check" and a ghost "I don\'t know"', () => {
     const w = mount(SpellingCard, { props: { card: spelling } })
     const input = w.get('[data-testid=answer-input]')
 
-    expect(input.classes()).toEqual(expect.arrayContaining(['field', 'field-surface', 'text-center']))
+    expect(input.classes()).toEqual(expect.arrayContaining(['field', 'text-center']))
+    expect(input.attributes('aria-label')).toBe('Ваш ответ')
     expect(input.attributes('placeholder')).toBe('Ваш ответ')
     const check = w.get('[data-testid=check-btn]')
     expect(check.attributes('type')).toBe('submit')
-    expect(check.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-lg', 'flex-1']))
+    expect(check.classes()).toEqual(expect.arrayContaining(['btn-primary', 'flex-1']))
     const skip = w.get('[data-testid=skip-btn]')
     expect(skip.attributes('type')).toBe('button')
-    expect(skip.classes()).toEqual(expect.arrayContaining(['btn-plain', 'text-muted']))
+    expect(skip.classes()).toEqual(expect.arrayContaining(['btn-ghost', 'text-muted']))
     // docs/design Question: one row, the quiet "I don't know" on the left of the main button.
     expect(check.element.parentElement).toBe(skip.element.parentElement)
     expect(skip.element.nextElementSibling).toBe(check.element)
@@ -152,7 +153,7 @@ describe('GapFillCard', () => {
 })
 
 describe('AnswerVerdict', () => {
-  it('says "right" for an exact answer, with a check in a success circle', async () => {
+  it('says "right" for an exact answer, with a check in a success circle on the success sheet', async () => {
     const w = mount(AnswerVerdict, { props: { verdict: { quality: 5, correct: true, expected: 'walked' }, answer: 'walked' } })
     expect(w.attributes('data-kind')).toBe('correct')
     expect(w.get('[data-testid=verdict-text]').text()).toBe('Верно!')
@@ -161,7 +162,9 @@ describe('AnswerVerdict', () => {
     expect(w.text()).not.toContain('верный ответ')
 
     const icon = w.get('[data-testid=verdict-icon]')
-    expect(icon.classes()).toEqual(expect.arrayContaining(['bg-success-soft', 'text-success-ink']))
+    expect(icon.classes()).toEqual(expect.arrayContaining(['bg-success', 'rounded-full']))
+    expect(w.get('[data-testid=actions]').classes()).toContain('bg-success-soft')
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
     expect(icon.findComponent(AppIcon).props()).toMatchObject({ name: 'check', solid: true })
 
     await w.get('[data-testid=continue-btn]').trigger('click')
@@ -180,7 +183,8 @@ describe('AnswerVerdict', () => {
     expect(close.get('[data-testid=own-answer-box]').attributes('data-state')).toBe('dimmed')
     expect(close.get('[data-testid=expected-box]').text()).toContain('верный ответ')
     expect(close.get('[data-testid=expected-box]').attributes('data-state')).toBe('reveal')
-    expect(close.get('[data-testid=verdict-icon]').classes()).toEqual(expect.arrayContaining(['bg-warning-soft', 'text-warning-ink']))
+    expect(close.get('[data-testid=verdict-icon]').classes()).toContain('bg-warning')
+    expect(close.get('[data-testid=actions]').classes()).toContain('bg-success-soft')
     expect(close.get('[data-testid=verdict-icon]').findComponent(AppIcon).props('name')).toBe('exclamation-circle')
 
     const wrong = mount(AnswerVerdict, { props: { verdict: { quality: 1, correct: false, expected: 'resilient' }, answer: '' } })
@@ -190,7 +194,9 @@ describe('AnswerVerdict', () => {
     expect(wrong.find('[data-testid=own-answer]').exists()).toBe(false)
     const typed = mount(AnswerVerdict, { props: { verdict: { quality: 1, correct: false, expected: 'resilient' }, answer: 'resolute' } })
     expect(typed.get('[data-testid=own-answer-box]').attributes('data-state')).toBe('incorrect')
-    expect(wrong.get('[data-testid=verdict-icon]').classes()).toEqual(expect.arrayContaining(['bg-danger-soft', 'text-danger-ink']))
+    expect(wrong.get('[data-testid=verdict-icon]').classes()).toContain('bg-danger')
+    expect(wrong.get('[data-testid=actions]').classes()).toContain('bg-danger-soft')
+    expect(wrong.get('[data-testid=verdict-text]').classes()).toContain('text-danger-ink')
     expect(wrong.get('[data-testid=verdict-icon]').findComponent(AppIcon).props('name')).toBe('x-mark')
   })
 
@@ -199,7 +205,7 @@ describe('AnswerVerdict', () => {
     const next = w.get('[data-testid=continue-btn]')
 
     expect(next.text()).toBe('Дальше')
-    expect(next.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-lg', 'btn-block']))
+    expect(next.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-block']))
     expect(w.get('[data-testid=actions]').find('[data-testid=continue-btn]').exists()).toBe(true)
   })
 

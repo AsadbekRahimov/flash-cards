@@ -51,8 +51,15 @@ describe('LanguageSheet', () => {
 
     expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
     expect(w.get('[role=dialog]').attributes('aria-label')).toBe('Til · Язык')
-    expect(w.get('[data-testid=language-ru]').text()).toBe('🇷🇺 Русский')
-    expect(w.get('[data-testid=language-uz]').text()).toBe("🇺🇿 O'zbekcha")
+    expect(w.get('[data-testid=language-ru] [data-testid=language-label]').text()).toBe('🇷🇺 Русский')
+    expect(w.get('[data-testid=language-uz] [data-testid=language-label]').text()).toBe("🇺🇿 O'zbekcha")
+    // F6 of the kit: the reading mascot, the code on a plate, a sample of the translations, the chosen card framed 2 px in border/strong
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('reading')
+    expect(w.get('[data-testid=language-ru]').text()).toContain('ru')
+    expect(w.get('[data-testid=language-ru] [data-testid=language-sample]').text()).toBe('tea — чай')
+    expect(w.get('[data-testid=language-uz] [data-testid=language-sample]').text()).toBe('tea — choy')
+    expect(w.get('[data-testid=language-ru]').classes()).toContain('shadow-[inset_0_0_0_2px_var(--app-border-strong)]')
+    expect(w.get('[data-testid=language-uz]').classes()).toContain('shadow-[inset_0_0_0_1.5px_var(--app-hairline)]')
     expect(w.get('[data-testid=language-ru]').attributes('aria-checked')).toBe('true')
     expect(w.get('[data-testid=language-uz]').attributes('aria-checked')).toBe('false')
     expect(w.findAll('[data-testid=language-check]')).toHaveLength(1)

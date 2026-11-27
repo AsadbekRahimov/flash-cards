@@ -209,7 +209,9 @@ describe('GameMapView: states', () => {
     const icons = stars.findAll('svg')
     expect(icons).toHaveLength(3)
     expect(icons.every((icon) => icon.attributes('width') === '12')).toBe(true)
-    expect(icons.map((icon) => icon.classes().includes('text-warning'))).toEqual([true, true, false])
+    // filled in ink, the rest an outline in the tertiary colour (kit Muhrla: one accent; the shape tells the state)
+    expect(icons.map((icon) => icon.classes().includes('text-body'))).toEqual([true, true, false])
+    expect(icons[2]?.classes()).toContain('text-tertiary')
   })
 
   it('shows a closed stop grey, with "start the lesson", and does not open it', async () => {

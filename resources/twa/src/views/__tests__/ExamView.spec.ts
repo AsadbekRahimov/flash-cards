@@ -135,18 +135,20 @@ describe('ExamView', () => {
     expect(score.text()).toBe('0')
     expect(score.classes()).toEqual(expect.arrayContaining(['chip', 'chip-neutral', 'font-mono']))
     expect(timer.classes()).toContain('font-mono')
-    expect(wrapper.get('[data-testid=progress]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=progress]').classes()).toContain('tabular-nums')
     expect(score.findComponent(AppIcon).props()).toMatchObject({ name: 'star', solid: true })
     expect(wrapper.find('[data-testid=mock-header]').exists()).toBe(false)
   })
 
-  it('shows the word large on the white screen, with no card, and the four options below it', async () => {
+  it('shows the word in Word/XL on the canvas, with no card, the mascot thinking and the four options below it', async () => {
     const { wrapper } = await render()
 
-    expect(wrapper.get('[data-testid=exam-view]').classes()).toContain('bg-surface')
+    expect(wrapper.get('[data-testid=exam-view]').classes()).toContain('bg-page')
     const word = wrapper.get('[data-testid=word]')
     expect(word.text()).toBe('environment')
-    expect(word.classes()).toEqual(expect.arrayContaining(['text-[40px]', 'font-semibold']))
+    // 11 letters: one step under the 44 px of a short word, so that it stays on one line at 320 px.
+    expect(word.classes()).toEqual(expect.arrayContaining(['text-[36px]', 'font-display', 'font-semibold']))
+    expect(wrapper.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('thinking')
     expect(wrapper.find('.card').exists()).toBe(false)
     expect(wrapper.findAll('button[data-testid^=option-]')).toHaveLength(4)
     expect(word.element.parentElement?.contains(wrapper.get('[data-testid=option-0]').element)).toBe(false)

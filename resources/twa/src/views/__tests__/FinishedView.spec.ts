@@ -198,15 +198,15 @@ describe('FinishedView', () => {
   })
 
   describe('look and buttons', () => {
-    it('is calm (docs/design Finish): an eyebrow and an extra-bold title, no icon of success, and an immersive screen of its own', () => {
+    it('is the result of the kit (06): the mascot celebrating, an eyebrow and the title in Display/L, and an immersive screen of its own', () => {
       const w = render(5, 1)
 
       const eyebrow = w.get('[data-testid=eyebrow]')
       expect(eyebrow.text()).toBe('Занятие завершено')
       expect(eyebrow.classes()).toContain('text-success-ink')
       expect(w.get('h1').text()).toBe('Отлично!')
-      // Redesign 2026-11-25: headings are 700-800 (docs/14 §4.5).
-      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[30px]', 'font-extrabold']))
+      expect(w.get('h1').classes()).toContain('t-display-l')
+      expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
       expect(w.find('[data-testid=finished-icon]').exists()).toBe(false)
       expect(w.find('[data-testid=plan-header]').exists()).toBe(false)
       expect(w.find('[data-testid=tab-bar]').exists()).toBe(false)
@@ -230,7 +230,7 @@ describe('FinishedView', () => {
       const home = w.get('[data-testid=home-btn]')
 
       expect(home.text()).toBe('Готово')
-      expect(home.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
+      expect(home.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
       expect(w.findAll('.btn-primary')).toHaveLength(1)
 
       const closeButton = w.get('[data-testid=close-btn]')
@@ -582,14 +582,16 @@ describe('FinishedView', () => {
         const w = render(8, 1, 'lesson_complete')
 
         expect(w.get('[data-testid=plan-header] h1').text()).toBe('Урок пройден!')
-        expect(w.get('[data-testid=plan-header] h1').classes()).toContain('font-extrabold')
+        expect(w.get('[data-testid=plan-header] h1').classes()).toContain('t-display-l')
         expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Напитки · 5 новых слов')
         // "Lesson done!" says it already: no reason line.
         expect(w.find('[data-testid=reason]').exists()).toBe(false)
         expect(w.find('[data-testid=eyebrow]').exists()).toBe(false)
 
         const stats = w.get('[data-testid=stats]')
-        expect(stats.classes()).toContain('grid-cols-3')
+        expect(stats.attributes('data-columns')).toBe('3')
+        expect(stats.findAll(':scope > div.flex-1')).toHaveLength(3)
+        expect(w.get('[data-testid=stat-correct]').classes()).toContain('t-numeric-l')
         expect(w.get('[data-testid=stat-correct]').text()).toBe('7 из 8')
         expect(w.get('[data-testid=stat-new]').text()).toBe('+5')
         expect(w.get('[data-testid=points-earned]').text()).toBe('+56')
@@ -603,7 +605,7 @@ describe('FinishedView', () => {
         afterLesson({ league_points: 0 })
         const w = render(8, 1)
 
-        expect(w.get('[data-testid=stats]').classes()).toContain('grid-cols-2')
+        expect(w.get('[data-testid=stats]').attributes('data-columns')).toBe('2')
         expect(w.find('[data-testid=points-earned]').exists()).toBe(false)
         expect(w.get('[data-testid=stats]').text()).not.toContain('баллов')
       })
@@ -614,7 +616,7 @@ describe('FinishedView', () => {
         const w = render(8, 1)
 
         const card = w.get('[data-testid=training-card]')
-        expect(card.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+        expect(card.classes()).toEqual(expect.arrayContaining(['bg-surface', 'rounded-lg', 'border-hairline']))
         expect(card.text()).toContain('Шаг 2 из 3 · советуем сейчас')
         expect(card.text()).toContain('Закрепите слова в тренировке')
         expect(card.text()).toContain('5 новых слов')
@@ -789,7 +791,7 @@ describe('FinishedView', () => {
         expect(w.get('[data-testid=plan-header] h1').text()).toBe('Слова закреплены')
         // the mode by its one name, as in the header of the training screen
         expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Тренировка · Напитки')
-        expect(w.get('[data-testid=stats]').classes()).toContain('grid-cols-2')
+        expect(w.get('[data-testid=stats]').attributes('data-columns')).toBe('2')
         expect(w.get('[data-testid=stat-won]').text()).toBe('5 из 6')
         expect(w.get('[data-testid=stat-first-try]').text()).toBe('4')
         expect(w.get('[data-testid=stats]').text()).toContain('слов закреплено')
@@ -896,8 +898,9 @@ describe('FinishedView', () => {
       const w = render(20, 1)
 
       const stats = w.get('[data-testid=stats]')
-      // docs/design Finish: one card, three columns, lines between them.
-      expect(stats.classes()).toEqual(expect.arrayContaining(['grid-cols-3', 'border', 'border-hairline', 'bg-surface']))
+      // Kit 06: one card, three columns of `flex: 1`, 1 px lines between them.
+      expect(stats.classes()).toEqual(expect.arrayContaining(['flex', 'border', 'border-hairline', 'bg-surface', 'rounded-lg']))
+      expect(stats.findAll(':scope > div.flex-1')).toHaveLength(3)
       expect(stats.findAll('.card')).toHaveLength(0)
       expect(stats.findAll(':scope > div')).toHaveLength(3)
       expect(stats.findAll(':scope > div.border-l.border-divider')).toHaveLength(2)
@@ -1037,6 +1040,33 @@ describe('FinishedView', () => {
       expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
       expect(w.find('[data-testid=promo]').exists()).toBe(false)
       expect(api.me.get).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('the hero of the kit (06): the mascot and the one stamp', () => {
+    it('presses the stamp of the streak beside the celebrating mascot', () => {
+      useTrainingStore().summary = summary()
+      const w = render(5, 1)
+
+      const stamp = w.get('[data-testid=stamp]')
+      expect(stamp.attributes('aria-label')).toBe('3 дня')
+      expect(stamp.classes()).toContain('stamp--enter')
+      expect(w.findAll('[data-testid=stamp]')).toHaveLength(1)
+      expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
+      expect(w.get('[data-testid=mascot-art]').classes()).toContain('short:hidden')
+    })
+
+    it('has no stamp without a streak, and a calm mascot for an empty session or a lost round of hard words', () => {
+      useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } })
+      expect(render(5, 1).find('[data-testid=stamp]').exists()).toBe(false)
+
+      useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0 })
+      const empty = render(0, 0, 'nothing_due')
+      expect(empty.find('[data-testid=stamp]').exists()).toBe(false)
+      expect(empty.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('reading')
+
+      useTrainingStore().summary = summary({ hard_round: { won: 1, total: 6 } })
+      expect(render(6, 1, 'hard_round_complete').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('thinking')
     })
   })
 

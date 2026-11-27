@@ -263,6 +263,9 @@ describe('SettingsView: the emoji of Pro', () => {
 
     expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ pro_emoji: 'fire' }]])
     expect(w.get('[data-testid=pro-emoji-fire]').attributes('aria-checked')).toBe('true')
+    // the chosen one of the kit: framed 2 px in border/strong; the others on the sunken paper
+    expect(w.get('[data-testid=pro-emoji-fire]').classes()).toContain('shadow-[inset_0_0_0_2px_var(--app-border-strong)]')
+    expect(w.get('[data-testid=pro-emoji-star]').classes()).toContain('bg-sunken')
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
     w.unmount()
   })

@@ -111,8 +111,8 @@ describe('MeaningCard of a phrase', () => {
     const w = mount(MeaningCard, { props: { card: meaning } })
     const heading = w.get('[data-testid=word]')
     expect(heading.text()).toBe(LONG)
-    expect(heading.classes()).toEqual(expect.arrayContaining(['break-words', 'text-[22px]']))
-    expect(heading.classes()).not.toContain('text-[52px]')
+    expect(heading.classes()).toEqual(expect.arrayContaining(['break-words', 'text-balance', 'text-[18px]']))
+    expect(heading.classes()).not.toContain('text-[44px]')
     expect(heading.classes()).not.toContain('truncate')
     expect(w.get('[data-testid=exercise-title]').text()).toBe('Выберите перевод фразы')
 
@@ -147,7 +147,7 @@ describe('MeaningCard of a phrase', () => {
     expect(w.get('[data-testid=feedback-meaning]').text()).toBe(LONG_RU)
     expect(w.get('[data-testid=feedback-title]').text()).not.toContain(' — ')
     expect(w.get('[data-testid=phrase-literal]').text()).toBe('Буквально: я бы скорее остался дома')
-    expect(w.get('[data-testid=word]').classes()).toContain('text-[20px]')
+    expect(w.get('[data-testid=word]').classes()).toContain('text-[17px]')
 
     // The caption of the verdict is inside the text column, so a long option keeps its width at 320 px.
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('reveal')
@@ -169,10 +169,10 @@ describe('MeaningCard of a phrase', () => {
     expect(w.text()).not.toContain('UK')
   })
 
-  it('a word card stays as it was: 52 px, no labels, short options, «word — meaning»', async () => {
+  it('a word card stays as it was: Word/XL 44 px, no labels, short options, «word — meaning»', async () => {
     const word: Card = { ...meaning, word: 'Resilient', phrase: null, prompt: { ...meaning.prompt!, front: 'Resilient', options: ['a', 'b', 'c', 'd'] } }
     const w = mount(MeaningCard, { props: { card: word } })
-    expect(w.get('[data-testid=word]').classes()).toContain('text-[52px]')
+    expect(w.get('[data-testid=word]').classes()).toContain('text-[44px]')
     expect(w.find('[data-testid=phrase-labels]').exists()).toBe(false)
     // the Body/L of `.option` (17 px), not the smaller text of a long option
     expect(w.get('[data-testid=option-0]').classes()).not.toContain('text-base')
@@ -202,7 +202,7 @@ describe('ReverseCard of a phrase', () => {
 
   it('the translation is the question, the options are English phrases on several lines; the answer brings the phrase and the literal', async () => {
     const w = mount(ReverseCard, { props: { card: reverse } })
-    expect(w.get('[data-testid=front]').classes()).not.toContain('text-[40px]')
+    expect(w.get('[data-testid=front]').classes()).not.toContain('text-[44px]')
     expect(w.get('[data-testid=exercise-title]').text()).toBe('Выберите английскую фразу')
     expect(w.findAll('[data-testid=phrase-label]')).toHaveLength(3)
     const label = w.get('[data-testid=option-0] [data-testid=option-label]')
@@ -225,7 +225,7 @@ describe('AudioCard of a phrase', () => {
     expect(w.get('[data-testid=option-0]').attributes('data-long')).toBe('true')
     await w.get('[data-testid=option-0]').trigger('click')
     await w.setProps({ result: result(true) })
-    expect(w.get('[data-testid=word]').classes()).not.toContain('text-[32px]')
+    expect(w.get('[data-testid=word]').classes()).not.toContain('text-[36px]')
     expect(w.find('[data-testid=phrase-literal]').exists()).toBe(true)
   })
 })
@@ -235,14 +235,14 @@ describe('PretestCard and PretestReveal of a phrase', () => {
 
   it('the phrase smaller with its labels, long options, the lines say «фраза»', () => {
     const w = mount(PretestCard, { props: { card: pretest } })
-    expect(w.get('[data-testid=word]').classes()).not.toContain('text-[52px]')
+    expect(w.get('[data-testid=word]').classes()).not.toContain('text-[44px]')
     expect(w.get('[data-testid=exercise-title]').text()).toBe('Выберите перевод, если знаете фразу')
     expect(w.get('[data-testid=option-3]').attributes('data-long')).toBe('true')
     expect(w.findAll('[data-testid=phrase-label]')).toHaveLength(3)
 
     const reveal = mount(PretestReveal, { props: { card: pretest, verdict: { quality: 1, correct: false, expected: LONG_RU } } })
     expect(reveal.get('[data-testid=reveal-text]').text()).toBe('Новая фраза. Запомните её')
-    expect(reveal.get('[data-testid=word]').classes()).not.toContain('text-[52px]')
+    expect(reveal.get('[data-testid=word]').classes()).not.toContain('text-[44px]')
   })
 })
 
@@ -251,7 +251,7 @@ describe('FlashCard of a phrase', () => {
 
   it('«Буквально» only with the translation, the labels from the start', async () => {
     const w = mount(FlashCard, { props: { card: flash, showTranslation: false } })
-    expect(w.get('[data-testid=word]').classes()).toContain('text-[22px]')
+    expect(w.get('[data-testid=word]').classes()).toContain('text-[18px]')
     expect(w.findAll('[data-testid=phrase-label]').map((l) => l.text())).toEqual(['разговорное', 'UK', 'идиома'])
     expect(w.find('[data-testid=phrase-literal]').exists()).toBe(false)
 

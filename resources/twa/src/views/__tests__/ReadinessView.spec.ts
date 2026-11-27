@@ -75,7 +75,8 @@ describe('ReadinessView', () => {
     const { wrapper } = await render(readiness())
 
     expect(wrapper.get('[data-testid=readiness-percent]').classes()).toContain('font-mono')
-    expect(wrapper.get('[data-testid=readiness-learned] dd').classes()).toContain('font-mono')
+    // Numeric/L of the kit: Unbounded with figures of one width
+    expect(wrapper.get('[data-testid=readiness-learned] dd').classes()).toContain('t-numeric-l')
     expect(wrapper.get('[data-testid=readiness-learned]').classes()).not.toContain('border-l')
     for (const id of ['readiness-in-progress', 'readiness-not-started']) {
       expect(wrapper.get(`[data-testid=${id}]`).classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))

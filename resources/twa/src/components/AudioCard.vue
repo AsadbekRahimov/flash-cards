@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
 import ChoiceFeedback from '@/components/ChoiceFeedback.vue'
 import PhraseLabels from '@/components/PhraseLabels.vue'
+import LessonWord from '@/components/LessonWord.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useChoice } from '@/composables/useChoice'
-import { phraseHeadingClass } from '@/composables/phraseText'
+import { useRevealInView } from '@/composables/useRevealInView'
 import { useSayAloudHint } from '@/composables/useSayAloudHint'
 import { useTelegram } from '@/composables/useTelegram'
 import { useTts } from '@/composables/useTts'
@@ -75,6 +76,10 @@ const shown = computed((): Card => {
   }
 })
 
+/** The card: a miss scrolls the right option into view above the feedback sheet. */
+const root = ref<HTMLElement | null>(null)
+useRevealInView(root, isCorrect)
+
 /** The server has answered: the screen of the answer (Feedback) is on. */
 const answered = computed((): boolean => isCorrect.value !== null)
 
@@ -111,42 +116,35 @@ onMounted(play)
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col" data-testid="audio-card">
+  <div ref="root" class="flex flex-1 flex-col" data-testid="audio-card">
     <div class="flex flex-col px-5 pb-4">
       <!--
-        The question (docs/design/2026-11-25-redesign Question): the task in words and only the sound — a big round speaker; the word
-        takes the place of the hint once the answer is in.
+        The question (kit Muhrla 04-urok-vopros, the language of the lesson): the task in words and only the sound - a big round speaker of
+        the sunken paper; the word takes the place of the hint once the answer is in.
       -->
-      <div class="flex flex-col items-center gap-2 text-center" :class="answered ? 'mt-[22px] short:mt-3' : 'mt-[30px] short:mt-4'">
+      <div class="flex flex-col items-center gap-2 text-center" :class="answered ? 'mt-3 short:mt-2' : 'mt-6 short:mt-3'">
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ t('exercise.audio.title') }}</p>
+        <p class="t-body-m text-muted" data-testid="exercise-title">{{ t('exercise.audio.title') }}</p>
         <button
           type="button"
-          class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent transition-transform duration-150 active:scale-95 short:size-16"
+          class="icon-btn size-[88px] short:size-16"
           :aria-label="t('exercise.audio.play')"
           data-testid="play-btn"
           @click="onPlay"
         >
-          <AppIcon name="speaker-wave" :size="32" />
+          <AppIcon name="speaker-wave" :size="36" />
         </button>
         <!-- The slot keeps its height: the word that replaces the hint after the pick must not push the options down. -->
         <div class="flex min-h-[64px] flex-col items-center justify-center">
           <template v-if="isCorrect !== null">
-            <h2
-              v-if="phrase"
-              class="max-w-full font-extrabold text-balance break-words"
-              :class="phraseHeadingClass(shown.word, true)"
-              lang="en"
-              data-testid="word"
-            >{{ shown.word }}</h2>
-            <h2 v-else class="max-w-full text-[32px] leading-[38px] font-extrabold tracking-[-0.6px] break-words" lang="en" data-testid="word">{{ shown.word }}</h2>
+            <LessonWord :text="shown.word" :phrase="phrase !== null" compact lang="en" data-testid="word" />
             <p v-if="shown.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">
               {{ shown.transcription }}
             </p>
           </template>
-          <p v-else class="text-[13px] leading-[18px] text-muted" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
+          <p v-else class="t-label-s text-muted" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
           <PhraseLabels v-if="phrase" :phrase="phrase" class="mt-1.5" />
-          <p v-if="picked === null && sayAloud" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
+          <p v-if="picked === null && sayAloud" class="t-label-s mt-1 text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
         </div>
       </div>
 

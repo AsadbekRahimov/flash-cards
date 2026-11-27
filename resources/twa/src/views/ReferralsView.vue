@@ -141,7 +141,7 @@ onMounted(() => {
     <div v-else class="space-y-3">
       <!-- The tinted card of the screen (docs/14 §4.1 `highlight`): the offer, the progress, the rule and the link to send. -->
       <section class="rounded-hero bg-highlight px-4 pt-[18px] pb-4" data-testid="hero">
-        <h2 class="text-[22px] leading-7 font-bold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
+        <h2 class="t-display-m" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
 
         <div class="mt-4" data-testid="progress">
           <ol
@@ -201,7 +201,7 @@ onMounted(() => {
             >
               {{ index + 1 }}
             </span>
-            <span class="text-[15px] leading-6">{{ step }}</span>
+            <span class="t-body-m">{{ step }}</span>
           </li>
         </ol>
 
@@ -240,15 +240,19 @@ onMounted(() => {
         </template>
       </section>
 
-      <div class="grid grid-cols-3 gap-2" data-testid="counts">
-        <div v-for="count in COUNTS" :key="count.key" class="card flex flex-col items-center rounded-option px-1.5 py-3 text-center">
-          <div class="font-mono text-2xl leading-8 font-medium" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
-          <div class="mt-0.5 text-xs leading-4 break-words text-muted">{{ t(count.label) }}</div>
-        </div>
+      <!-- The statistics of the kit: equal columns with 1 px lines between them, the numbers in Numeric/L. -->
+      <div class="card flex items-stretch px-2 py-4" data-testid="counts">
+        <template v-for="(count, index) in COUNTS" :key="count.key">
+          <span v-if="index > 0" class="my-1 w-px shrink-0 bg-divider" aria-hidden="true" />
+          <div class="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 text-center">
+            <div class="t-numeric-l" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
+            <div class="text-xs leading-4 break-words text-muted">{{ t(count.label) }}</div>
+          </div>
+        </template>
       </div>
 
       <ListGroup :header="t('referrals.list.title')" :data-testid="data.referrals.length > 0 ? 'list' : undefined">
-        <EmptyState v-if="data.referrals.length === 0" icon="user-plus" :text="t('referrals.list.empty')" data-testid="list-empty" />
+        <EmptyState v-if="data.referrals.length === 0" :text="t('referrals.list.empty')" data-testid="list-empty" />
         <ListRow
           v-for="(item, index) in data.referrals"
           :key="index"
@@ -268,7 +272,7 @@ onMounted(() => {
       </ListGroup>
 
       <ListGroup>
-        <ListRow :to="{ name: 'friends' }" :title="t('friends.open')" data-testid="friends-link" />
+        <ListRow :to="{ name: 'friends' }" icon="users" :title="t('friends.open')" data-testid="friends-link" />
       </ListGroup>
     </div>
   </div>

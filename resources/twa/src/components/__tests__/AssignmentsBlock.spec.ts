@@ -82,7 +82,9 @@ describe('AssignmentsBlock', () => {
 
     expect(first?.element.tagName).toBe('BUTTON')
     expect(first?.attributes('type')).toBe('button')
-    expect(first?.classes()).toContain('min-h-11')
+    // a row of the kit's ListRow: at least 60 px, the plate of a lesson with the dot of the deadline
+    expect(first?.classes()).toContain('min-h-[60px]')
+    expect(first?.find('.icon-tile [data-testid=assignment-dot]').exists()).toBe(true)
     expect(first?.text()).toContain('Food')
 
     await second?.trigger('click')

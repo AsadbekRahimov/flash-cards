@@ -358,7 +358,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
     <LoadingState v-else-if="status === 'idle' || status === 'loading'" variant="center" />
 
     <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="begin">
-      <button type="button" class="btn btn-plain btn-block" data-testid="map-btn" @click="goTo(mapLocation())">{{ t('gameRun.to_map') }}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-testid="map-btn" @click="goTo(mapLocation())">{{ t('gameRun.to_map') }}</button>
     </ErrorState>
 
     <RunSummary
@@ -418,8 +418,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
             @use="onBooster"
           />
           <div v-if="hintOffer" class="flex items-center gap-3" data-testid="hint-offer">
-            <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ hintOffer.price === 0 ? t('gameRun.hint.free') : t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
-            <NumberText v-if="coins !== null" class="text-[15px] leading-5 text-muted" :text="t('gameRun.hint.coins', { coins: NUMBER_MARK })" :value="coins" data-testid="hint-coins" />
+            <button type="button" class="btn btn-secondary" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ hintOffer.price === 0 ? t('gameRun.hint.free') : t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
+            <NumberText v-if="coins !== null" class="t-body-m text-muted" :text="t('gameRun.hint.coins', { coins: NUMBER_MARK })" :value="coins" data-testid="hint-coins" />
           </div>
         </div>
 
@@ -441,8 +441,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 
     <BottomSheet v-if="exitOpen" :label="t('gameRun.exit.title')" @close="exitOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="exit-sheet">
-        <h2 class="text-[22px] leading-7 font-semibold">{{ t('gameRun.exit.title') }}</h2>
-        <p class="text-[15px] leading-5 text-muted">{{ t('gameRun.exit.text') }}</p>
+        <h2 class="t-display-m">{{ t('gameRun.exit.title') }}</h2>
+        <p class="t-body-m text-muted">{{ t('gameRun.exit.text') }}</p>
         <button type="button" class="btn btn-primary btn-block" data-testid="stay-btn" @click="exitOpen = false">{{ t('gameRun.exit.stay') }}</button>
         <button type="button" class="btn btn-danger btn-block" :disabled="game.abandoning" data-testid="leave-btn" @click="confirmLeave">{{ t('gameRun.exit.confirm') }}</button>
       </div>

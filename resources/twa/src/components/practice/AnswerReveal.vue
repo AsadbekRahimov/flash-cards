@@ -22,8 +22,8 @@ import type {
 } from '@/api/types'
 
 /**
- * What the server said about the answer (docs/16 §5, §11.2; the white screen of docs/design Feedback): the verdict in words with a
- * small symbol, both in the ink of the verdict (the colour is never alone), then the explanation in the shape of the task:
+ * What the server said about the answer (docs/16 §5, §11.2; the language of the feedback of a lesson, kit Muhrla 05): the verdict in words
+ * in Title with a round mark, both in the ink of the verdict (the colour is never alone), then the explanation in the shape of the task:
  * - dictation — the phrase as it should be written with a button to listen to it again, what was typed (word by word: every
  *   word has a symbol and a word besides its colour, the wrong ones are underlined), the translation and the explanation;
  * - sentence — the correct sentence, the other accepted orders, what was assembled;
@@ -62,17 +62,19 @@ interface Look {
   icon: IconName
   /** The ink of the verdict: the symbol and the words. */
   tone: string
+  /** The soft fill of the round mark of the verdict (kit Muhrla 05: the mark in a circle, never the colour alone). */
+  soft: string
 }
 
 const LOOKS: Record<PracticeVerdict, Look> = {
-  correct: { icon: 'check', tone: 'text-success-ink' },
-  typo: { icon: 'exclamation-circle', tone: 'text-warning-ink' },
-  wrong: { icon: 'x-mark', tone: 'text-danger-ink' },
-  skipped: { icon: 'light-bulb', tone: 'text-accent-ink' },
+  correct: { icon: 'check', tone: 'text-success-ink', soft: 'bg-success-soft' },
+  typo: { icon: 'exclamation-circle', tone: 'text-warning-ink', soft: 'bg-warning-soft' },
+  wrong: { icon: 'x-mark', tone: 'text-danger-ink', soft: 'bg-danger-soft' },
+  skipped: { icon: 'light-bulb', tone: 'text-accent-ink', soft: 'bg-accent-soft' },
 }
 
 const isRoundEnd = computed(() => props.outcome.element.kind === 'pairs_round')
-const look = computed((): Look => (isRoundEnd.value ? { icon: 'check-circle', tone: LOOKS.correct.tone } : LOOKS[verdict.value]))
+const look = computed((): Look => (isRoundEnd.value ? { ...LOOKS.correct, icon: 'check-circle' } : LOOKS[verdict.value]))
 
 const reveal = computed((): PracticeReveal | null => props.outcome.reveal)
 // The shape of the explanation tells its kind (the reveals of the word form and of the error hunt share field names with older ones).
@@ -257,8 +259,8 @@ function onContinue(): void {
     <div class="flex flex-1 flex-col gap-4 px-5 pt-6 pb-4">
       <article class="flex flex-col items-center gap-3 text-center">
         <template v-if="round">
-          <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold" :class="look.tone" data-testid="reveal-text">
-            <span data-testid="reveal-icon" :class="look.tone"><AppIcon :name="look.icon" :size="20" /></span>
+          <h2 class="t-title-m flex items-center gap-2.5" :class="look.tone" data-testid="reveal-text">
+            <span class="option-mark flex size-8 shrink-0 items-center justify-center rounded-full" :class="[look.soft, look.tone]" data-testid="reveal-icon"><AppIcon :name="look.icon" :size="20" /></span>
             {{ t('practice.session.round_done', { round: round.round, rounds: round.rounds }) }}
           </h2>
           <p class="text-[15px] leading-5 text-muted" data-testid="round-mistakes">
@@ -281,8 +283,8 @@ function onContinue(): void {
         </template>
 
         <template v-else>
-          <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold" :class="look.tone">
-            <span data-testid="reveal-icon" :class="look.tone"><AppIcon :name="look.icon" :size="20" /></span>
+          <h2 class="t-title-m flex items-center gap-2.5" :class="look.tone">
+            <span class="option-mark flex size-8 shrink-0 items-center justify-center rounded-full" :class="[look.soft, look.tone]" data-testid="reveal-icon"><AppIcon :name="look.icon" :size="20" /></span>
             <span data-testid="reveal-text">{{ verdictLabel(outcome.element.kind, verdict) }}</span>
           </h2>
           <p v-if="outcome.earlier" class="text-[15px] leading-5 text-muted" data-testid="reveal-earlier">{{ t('practice.reveal.earlier') }}</p>
@@ -293,7 +295,7 @@ function onContinue(): void {
         <!-- The right answer, as the task wants it written. -->
         <div v-if="dictation || sentence" class="mt-1 w-full">
           <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.verdict.expected') }}</p>
-          <p class="mt-1 text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ dictation?.expected ?? sentence?.correct_text }}</p>
+          <p class="mt-1 font-display text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ dictation?.expected ?? sentence?.correct_text }}</p>
         </div>
         <!-- The whole collocation: the phrase with the right option in the blank, the word the learner needed marked. -->
         <div v-if="collocation" class="mt-1 w-full">
@@ -312,7 +314,7 @@ function onContinue(): void {
         <template v-if="wordForm">
           <div class="mt-1 w-full">
             <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.verdict.expected') }}</p>
-            <p class="mt-1 text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ wordForm.expected }}</p>
+            <p class="mt-1 font-display text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ wordForm.expected }}</p>
           </div>
           <p v-if="wordForm.same_as_base && verdict !== 'correct'" class="flex items-center justify-center gap-1.5 text-[15px] leading-5 font-medium text-warning-ink" data-testid="same-as-base">
             <AppIcon name="exclamation-circle" :size="18" />
@@ -441,8 +443,8 @@ function onContinue(): void {
         </div>
       </div>
 
-      <!-- The meaning and the why: the quiet panel of the Feedback mock-up (the page colour on the white screen). -->
-      <section v-if="translation || explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-page p-[18px]">
+      <!-- The meaning and the why: a card of the surface (radius lg, the hairline), as the hooks of a lesson. -->
+      <section v-if="translation || explanation" class="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4">
         <div v-if="translation" data-testid="translation">
           <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.translation') }}</p>
           <p class="mt-0.5 text-base leading-[22px] italic">{{ translation }}</p>
@@ -455,8 +457,9 @@ function onContinue(): void {
     </div>
 
     <StickyActions surface>
-      <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="onContinue">
+      <button type="button" class="btn btn-primary btn-block" data-testid="continue-btn" @click="onContinue">
         {{ last ? t('practice.session.to_summary') : t('exercise.continue') }}
+        <AppIcon name="arrow-right" :size="20" />
       </button>
     </StickyActions>
   </div>

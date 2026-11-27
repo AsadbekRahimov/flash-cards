@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import { BRAND } from '@/brand'
+import MascotArt from '@/components/ui/MascotArt.vue'
 
 const { isInTelegram } = useTelegram()
 const { t } = useI18n()
@@ -21,10 +22,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- The start of the app (kit Muhrla): the mascot greeting, the brand in Display, on the centre axis. -->
   <section class="flex flex-1 items-center justify-center bg-page px-5 py-6">
-    <div class="max-w-sm space-y-3 text-center">
-      <h1 class="text-[26px] leading-[30px] font-semibold tracking-[-0.2px]" data-testid="landing-brand">{{ BRAND }}</h1>
-      <p v-if="inTelegram === false" class="text-base leading-[22px] text-muted" data-testid="landing-outside">
+    <div class="flex max-w-sm flex-col items-center gap-3 text-center">
+      <MascotArt pose="hello" :height="140" />
+      <h1 class="t-display-l" data-testid="landing-brand">{{ BRAND }}</h1>
+      <p v-if="inTelegram === false" class="t-body-m text-muted" data-testid="landing-outside">
         {{ t('landing.outside_telegram') }}
       </p>
     </div>

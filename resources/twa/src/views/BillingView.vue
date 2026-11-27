@@ -8,6 +8,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '@/composables/billingFormat'
@@ -32,9 +33,10 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * A page of the Profile tab: the system "Back" button leads to the Profile.
  *
  * The tariffs (month → quarter → year, as the catalog sends them) are cards with the price and the saving (the catalog's `saving_pct`,
- * never a number of the mock-up); a tap opens the purchase sheet on that period. The look follows the Pro mock-up
- * (docs/design/2026-11-25-redesign Pro): "Muhrla Pro" (`BRAND_PRO`) above the title, the plan in the big tinted card, the benefits with
- * green ticks, the tariffs as white cards with the saving in green.
+ * never a number of the mock-up); a tap opens the purchase sheet on that period. The look follows the kit Muhrla (10-podpiska-pro):
+ * "Muhrla Pro" (`BRAND_PRO`) above the title, the hero on the centre axis — the mascot in the scarf, the plan and its chip — the benefits
+ * as the list of the kit (the plate of the icon, a check), the tariffs as equal surface cards side by side with the saving in green, one
+ * Primary.
  *
  * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
  * server refuses a payment then — the grace gets a warning instead), not for a perpetual grant and not for the Pro a
@@ -205,6 +207,12 @@ async function load(): Promise<void> {
 onMounted(() => {
   void load()
 })
+
+/** "150 Stars" -> the number in Unbounded and the unit under it, as on the tariff cards of the kit (and of the paywall). */
+function splitPrice(price: string): { amount: string; unit: string } {
+  const match = /^(.*\S)\s+(\S+)$/u.exec(price)
+  return match ? { amount: match[1] ?? price, unit: match[2] ?? '' } : { amount: price, unit: '' }
+}
 </script>
 
 <template>
@@ -224,41 +232,39 @@ onMounted(() => {
         @invite="router.push({ name: 'referrals', query: { from: 'billing' } })"
       />
 
-      <section class="space-y-1 rounded-hero bg-highlight p-4" data-testid="plan-card">
-        <div class="flex items-center gap-2">
-          <h2 class="min-w-0 truncate text-[22px] leading-7 font-extrabold tracking-[-0.3px]" data-testid="plan-name">
+      <!-- The hero of the kit (10-podpiska-pro), on the centre axis: the mascot in the scarf, the plan and its chip, what it gives now. -->
+      <section class="flex flex-col items-center gap-1.5 text-center" data-testid="plan-card">
+        <MascotArt pose="freeze" :height="112" class="mb-1" />
+        <div class="flex max-w-full min-w-0 items-center justify-center gap-2">
+          <h2 class="t-display-m min-w-0 truncate" data-testid="plan-name">
             {{ isPro ? BRAND_PRO : t('billing.plan.free') }}
           </h2>
-          <span
-            class="inline-flex h-[22px] shrink-0 items-center rounded-full border px-[9px] text-[13px] leading-none font-bold"
-            :class="isPro ? 'border-primary bg-primary text-on-primary' : 'border-accent-line bg-surface text-accent'"
-            :data-plan="isPro ? 'pro' : 'free'"
-            data-testid="plan-chip"
-          >
+          <span class="chip shrink-0" :class="isPro ? 'chip-ink' : 'chip-neutral'" :data-plan="isPro ? 'pro' : 'free'" data-testid="plan-chip">
             {{ t(isPro ? 'profile.chip.pro' : 'profile.chip.free') }}
           </span>
         </div>
         <template v-if="isPro">
-          <p v-if="sponsored" class="text-[15px] leading-5 text-muted" data-testid="plan-sponsored">{{ t('billing.sponsored') }}</p>
-          <p class="text-[15px] leading-5 text-muted" data-testid="plan-until">{{ untilText }}</p>
-          <p v-if="providerText" class="text-[15px] leading-5 text-muted" data-testid="plan-provider">{{ providerText }}</p>
+          <p v-if="sponsored" class="t-body-m text-muted" data-testid="plan-sponsored">{{ t('billing.sponsored') }}</p>
+          <p class="t-body-m text-muted" data-testid="plan-until">{{ untilText }}</p>
+          <p v-if="providerText" class="t-body-m text-muted" data-testid="plan-provider">{{ providerText }}</p>
         </template>
-        <p v-else-if="entitlement.new_words_per_day !== null" class="text-[15px] leading-5 text-muted" data-testid="plan-free">
+        <p v-else-if="entitlement.new_words_per_day !== null" class="t-body-m text-muted" data-testid="plan-free">
           {{ tn('billing.plan.free_limit', entitlement.new_words_per_day) }}
         </p>
       </section>
 
       <InlineAlert v-if="grace" tone="warning" :message="graceMessage" data-testid="grace-alert" />
 
-      <section class="card space-y-4" data-testid="benefits-card">
-        <h2 class="text-lg leading-6 font-extrabold" data-testid="benefits-title">
+      <!-- What Pro gives: the list of the kit (the plate of the icon, the name, a check), under its title. -->
+      <section class="space-y-3" data-testid="benefits-card">
+        <h2 class="t-title-m px-1" data-testid="benefits-title">
           {{ isPro ? t('billing.benefits_title_pro') : t('billing.benefits_title') }}
         </h2>
         <ProBenefits />
       </section>
 
       <section v-if="subscription && (subscription.can_cancel || subscription.can_resume)" class="card space-y-3" data-testid="renewal-card">
-        <p class="text-[15px] leading-5" data-testid="renewal-state">
+        <p class="t-body-m" data-testid="renewal-state">
           {{ subscription.can_cancel ? t('billing.auto_on') : t('billing.auto_off') }}
         </p>
         <button
@@ -305,24 +311,26 @@ onMounted(() => {
         </div>
       </section>
 
-      <!-- The tariffs: white cards of the Pro mock-up, the saving in green; a tap opens the purchase sheet on that period. -->
+      <!-- The tariffs of the kit: equal surface cards side by side, the saving in green; a tap opens the purchase sheet on that period. -->
       <section v-if="canBuy && tariffs.length > 0" data-testid="tariffs">
-        <h2 class="px-1 pb-2.5 text-lg leading-6 font-extrabold">{{ t('billing.tariffs') }}</h2>
-        <div class="flex flex-col gap-2.5">
+        <h2 class="t-title-m px-1 pb-3">{{ t('billing.tariffs') }}</h2>
+        <div class="grid gap-2.5" :class="tariffs.length > 2 ? 'grid-cols-3' : tariffs.length === 2 ? 'grid-cols-2' : 'grid-cols-1'">
           <button
             v-for="row in tariffs"
             :key="row.period"
             type="button"
-            class="flex min-h-14 w-full items-center gap-3 rounded-card border border-hairline bg-surface px-3.5 py-3 text-left active:bg-fill"
+            class="pressable flex min-h-[104px] min-w-0 flex-col items-center justify-center gap-1 rounded-card border border-hairline bg-surface px-2 py-3.5 text-center active:bg-fill"
             :data-testid="`tariff-${row.period}`"
             @click="openPaywall(row.period)"
           >
-            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span class="text-sm leading-[18px] text-muted">{{ t(`billing.period.${row.period}`) }}</span>
-              <span v-if="row.saving" class="text-[13px] leading-[18px] font-bold text-success-ink" data-testid="saving">{{ row.saving }}</span>
+            <span class="text-[13px] leading-[18px] text-muted">{{ t(`billing.period.${row.period}`) }}</span>
+            <span class="flex max-w-full flex-col items-center" data-testid="tariff-price">
+              <span
+                class="font-display font-semibold tracking-[-0.02em] whitespace-nowrap tabular-nums"
+                :class="tariffs.length > 2 ? 'text-[18px] leading-[24px]' : 'text-[26px] leading-[30px]'"
+              >{{ splitPrice(row.price).amount }}</span> <span class="text-[13px] leading-[18px] text-muted">{{ splitPrice(row.price).unit }}</span>
             </span>
-            <span class="shrink-0 text-[22px] leading-[26px] font-extrabold whitespace-nowrap" data-testid="tariff-price">{{ row.price }}</span>
-            <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
+            <span v-if="row.saving" class="text-[12px] leading-4 font-semibold text-success-ink" data-testid="saving">{{ row.saving }}</span>
           </button>
         </div>
       </section>
@@ -355,7 +363,7 @@ onMounted(() => {
       </p>
 
       <section class="card space-y-2" data-testid="promo-card">
-        <h2 class="text-lg leading-6 font-extrabold">{{ t('billing.promo_title') }}</h2>
+        <h2 class="t-title-m">{{ t('billing.promo_title') }}</h2>
         <PromoRedeem @redeemed="onRedeemed" />
       </section>
 

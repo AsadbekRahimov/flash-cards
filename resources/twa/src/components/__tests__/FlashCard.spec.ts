@@ -132,19 +132,18 @@ describe('FlashCard', () => {
     })
   })
 
-  it('has a 44 px round speaker of the soft accent after the transcription, as on the mock-up of the question', () => {
+  it('has the IconButton of the kit after the transcription, and the word in Word/XL on the card of F1', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })
     const speaker = w.get('[data-testid=speak-btn]')
 
     expect(speaker.attributes('aria-label')).toBe('Произнести')
-    expect(speaker.classes()).toEqual(expect.arrayContaining(['size-11', 'bg-accent-soft', 'text-accent', 'rounded-full']))
+    expect(speaker.classes()).toContain('icon-btn')
     expect(speaker.classes()).not.toContain('btn-tinted')
     expect(speaker.findComponent(AppIcon).props('name')).toBe('speaker-wave')
     expect(speaker.element.previousElementSibling?.getAttribute('data-testid')).toBe('transcription')
-    // The word stands on the white screen of the lesson, with no box of its own.
-    expect(w.find('.card').exists()).toBe(false)
-    // docs/design/2026-11-25-redesign Question: the word 52 px extrabold.
-    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['text-[52px]', 'font-extrabold', 'break-words']))
+    // The word stands on one card of the surface (kit F1): radius xl, the hairline.
+    expect(w.get('[data-testid=word-card]').classes()).toEqual(expect.arrayContaining(['rounded-xl', 'border-hairline', 'bg-surface']))
+    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['text-[44px]', 'font-display', 'break-words']))
   })
 
   it('shows the word, transcription and hides translation by default', () => {
@@ -163,7 +162,7 @@ describe('FlashCard', () => {
     const reveal = w.get('[data-testid=reveal-btn]')
 
     expect(reveal.text()).toBe('Показать перевод')
-    expect(reveal.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
+    expect(reveal.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
     expect(w.get('[data-testid=actions]').find('[data-testid=reveal-btn]').exists()).toBe(true)
   })
 
@@ -199,14 +198,13 @@ describe('FlashCard', () => {
     expect(w.text()).not.toContain('Средне')
   })
 
-  it('colours the grades danger / accent / success, without emoji', () => {
+  it('draws the grades as the buttons of the kit: "I remember" the one Primary, the others Secondary, without emoji', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: true } })
 
-    expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-danger')
-    expect(w.get('[data-testid=grade-medium]').classes()).toContain('btn-tinted')
-    expect(w.get('[data-testid=grade-easy]').classes()).toEqual(
-      expect.arrayContaining(['bg-success-soft', 'text-success-ink', 'shadow-[inset_0_0_0_1px_var(--app-success-line)]']),
-    )
+    expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-secondary')
+    expect(w.get('[data-testid=grade-medium]').classes()).toContain('btn-primary')
+    expect(w.get('[data-testid=grade-easy]').classes()).toContain('btn-secondary')
+    expect(w.findAll('.btn-primary')).toHaveLength(1)
     for (const id of ['grade-hard', 'grade-medium', 'grade-easy']) {
       expect(w.get(`[data-testid=${id}]`).text()).not.toMatch(/\p{Extended_Pictographic}/u)
     }
@@ -219,8 +217,8 @@ describe('FlashCard', () => {
     expect(hints.map((hint) => hint.text())).toEqual(['повторим сегодня', 'по расписанию', 'покажем реже'])
     for (const hint of hints) {
       expect(hint.classes().filter((name) => name.startsWith('opacity-'))).toEqual([])
-      // The colour of the button mixed with the theme text colour (docs/14 §4.1: 4.5:1 and better on the soft fills).
-      expect(hint.classes().some((name) => name.startsWith('text-[color-mix('))).toBe(true)
+      // The secondary text on a Secondary, the light text mixed with a little ink on the Primary (4.5:1 and better).
+      expect(hint.classes().some((name) => name === 'text-muted' || name.startsWith('text-[color-mix('))).toBe(true)
     }
   })
 
@@ -371,13 +369,13 @@ describe('FlashCard', () => {
 
     it('"Not yet" is acknowledged calmly: no red, no pulse, the "again" arrow', async () => {
       const w = mount(FlashCard, { props: revealedCard })
-      expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-danger')
+      expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-secondary')
 
       await w.get('[data-testid=grade-hard]').trigger('click')
 
       const button = w.get('[data-testid=grade-hard]')
       expect(w.emitted('grade')).toEqual([[2]])
-      expect(button.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'grade-picked']))
+      expect(button.classes()).toEqual(expect.arrayContaining(['btn-secondary', 'grade-picked']))
       expect(button.classes()).not.toContain('btn-danger')
       expect(button.classes()).not.toContain('grade-pulse')
       expect(button.findComponent(AppIcon).props('name')).toBe('arrow-path')

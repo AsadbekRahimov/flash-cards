@@ -50,6 +50,9 @@ describe('ChoiceTask', () => {
 
     expect(wrapper.emitted('answer')).toEqual([[{ option_id: 'o2' }]])
     expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('selected')
+    // the key of the kit's answer option: in ink when picked, a quiet ring once the others step back
+    expect(wrapper.get('[data-testid=option-key-1]').classes()).toContain('bg-inverse')
+    expect(wrapper.get('[data-testid=option-key-0]').classes()).toContain('bg-transparent')
     // the other options step back (`.option[data-state=dimmed]`), as on the screen of a question once it is answered
     expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('dimmed')
     expect(wrapper.get('[data-testid=option-0]').attributes('disabled')).toBeDefined()

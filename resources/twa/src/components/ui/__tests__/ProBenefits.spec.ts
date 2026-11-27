@@ -196,26 +196,37 @@ describe('ProBenefits', () => {
     expect(w.attributes('data-testid')).toBe('pro-benefits')
   })
 
-  it('draws a green tick in a soft circle, the name and the note under it, no lines between the items (docs/design/2026-11-25-redesign Pro)', () => {
+  it('is the list of the kit (10-podpiska-pro): one flat card, a row per benefit with the plate of its icon, the name, the note and a green check', () => {
     const w = mount(ProBenefits)
 
-    expect(w.classes()).not.toContain('border-t')
-    for (const item of w.findAll('[data-testid=benefit]')) {
-      const tick = item.get('span[aria-hidden=true]')
-      expect(tick.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-success-soft', 'text-success-ink']))
-      expect(tick.find('svg').exists()).toBe(true)
-      expect(item.classes()).not.toContain('border-b')
-      expect(item.get('[data-testid=benefit-name]').classes()).toEqual(expect.arrayContaining(['text-base', 'font-bold']))
+    expect(w.classes()).toContain('list')
+    const items = w.findAll('[data-testid=benefit]')
+    expect(items.length).toBeGreaterThan(0)
+    for (const item of items) {
+      expect(item.classes()).toEqual(expect.arrayContaining(['list-row', 'list-row-icon']))
+      const plate = item.get('[data-testid=benefit-icon]')
+      expect(plate.classes()).toContain('icon-tile')
+      expect(plate.attributes('aria-hidden')).toBe('true')
+      expect(plate.find('svg').exists()).toBe(true)
+      expect(item.get('[data-testid=benefit-check]').classes()).toContain('text-success')
+      expect(item.get('[data-testid=benefit-name]').classes()).toContain('t-body-m-strong')
       expect(item.get('[data-testid=benefit-note]').classes()).toContain('text-muted')
     }
+  })
+
+  it('draws a different icon for the new words and for the streak freeze', () => {
+    const w = mount(ProBenefits)
+
+    const icon = (key: string) => w.get(`[data-benefit="${key}"] [data-testid=benefit-icon] svg`).html()
+    expect(icon('benefits.new_words')).not.toBe(icon('benefits.freezes'))
   })
 
   it('compact: tighter rows', () => {
     const regular = mount(ProBenefits)
     const compact = mount(ProBenefits, { props: { compact: true } })
 
-    expect(regular.classes()).toContain('gap-3.5')
-    expect(compact.classes()).toContain('gap-3')
+    expect(regular.get('[data-testid=benefit]').classes()).not.toContain('min-h-[52px]')
+    expect(compact.get('[data-testid=benefit]').classes()).toContain('min-h-[52px]')
   })
 
   describe('the line about the game is the word of the server: game.pro_promise', () => {

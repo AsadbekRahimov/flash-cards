@@ -215,6 +215,13 @@ export const ru = {
     many: 'рекорд серии — {count} дней',
     other: 'рекорд серии — {count} дня',
   },
+  // The unit under the number of the stamp of the streak (kit Muhrla: «12 ДНЕЙ»; the stamp writes it in capitals).
+  'today.streak.unit': {
+    one: 'день',
+    few: 'дня',
+    many: 'дней',
+    other: 'дня',
+  },
   'today.hero.lesson_eyebrow': '{level} · урок {number}',
   'today.hero.lesson_eyebrow_plain': 'Урок {number}',
   'today.hero.new_words': {
@@ -743,12 +750,28 @@ export const ru = {
   'catalog.open_lessons': 'Открыть уроки',
   'profile.learning': 'Мои результаты',
   'profile.account': 'Мой аккаунт',
+  'profile.stats': 'Статистика',
+  'profile.stats.streak': {
+    one: 'день подряд',
+    few: 'дня подряд',
+    many: 'дней подряд',
+    other: 'дня подряд',
+  },
+  'profile.stats.words': {
+    one: 'слово выучено',
+    few: 'слова выучено',
+    many: 'слов выучено',
+    other: 'слова выучено',
+  },
+  'profile.stats.league': 'место в лиге',
   'catalog.title': 'Курсы',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
   'catalog.choose': 'Перейти на этот курс',
   'catalog.start': 'Начать курс',
   'catalog.selected': 'Курс выбран',
   'catalog.active': 'Вы учите этот курс',
+  // The tile of the learner's course in the grid of the catalog (kit Muhrla 12): «идёт · 12%».
+  'catalog.tile_active': 'идёт · {percent}%',
   'catalog.words': {
     one: '{count} слово',
     few: '{count} слова',
@@ -797,6 +820,11 @@ export const ru = {
     many: '{count} новых слов',
     other: '{count} новых слова',
   },
+  // The module path of the course screen (kit Muhrla 03): «Модуль 3 из 20», «урок 3 из 10», «после модуля 3».
+  'course.modules': 'Модули',
+  'course.module_of': 'Модуль {number} из {total}',
+  'course.lesson_of': 'урок {number} из {total}',
+  'course.after_module': 'после модуля {number}',
   'course.repeat': 'повторить',
   'course.after_lesson': 'после урока {number}',
   'course.start_lesson': 'Начать урок',
@@ -937,6 +965,8 @@ export const ru = {
   'achievements.share': 'Поделиться',
   'achievements.shared': 'Вы уже поделились',
   'achievements.empty_hint': 'Занимайтесь каждый день — достижения появятся сами.',
+  'achievements.received': 'Получены',
+  'achievements.ahead': 'Впереди',
 
   // ---- leagues (docs/13 §7.3) ----
   'league.title': 'Лига',
@@ -1602,6 +1632,13 @@ export const ru = {
   'battle.result.rounds': 'Раунды',
   'battle.result.round': 'Раунд {round}',
   'battle.result.rematch': 'Реванш',
+  // The unit under the score on the stamp of a victory (kit Muhrla: the stamp of a result, "320 ОЧКОВ").
+  'battle.result.stamp_unit': {
+    one: 'очко',
+    few: 'очка',
+    many: 'очков',
+    other: 'очка',
+  },
   'battle.result.again': 'Пригласить снова',
   'battle.result.rematch_from': '{name} предлагает реванш',
   'battle.result.rematch_text': 'Тот же режим и та же тема. Примите, и откроется комната.',
@@ -1781,6 +1818,13 @@ export const ru = {
   'gameRun.summary.league': 'Очки лиги',
   'gameRun.summary.new_stars': 'Новые звёзды',
   'gameRun.summary.plus': '+{count}',
+  // The unit under the score on the stamp of a run that is done (kit Muhrla: the stamp of a result).
+  'gameRun.summary.stamp_unit': {
+    one: 'очко',
+    few: 'очка',
+    many: 'очков',
+    other: 'очка',
+  },
   'gameRun.summary.streak_held': 'Серия удержана',
   'gameRun.summary.boss_won': 'Хранитель побеждён',
   'gameRun.summary.boss_lost': 'Хранитель устоял',
@@ -2131,6 +2175,8 @@ export const ru = {
   },
   'cup.my_place': 'Ваше место: {rank}',
   'cup.final_place': 'Итоговое место: {rank}',
+  // The unit under the final place on the stamp of a cup that is over (kit Muhrla: the stamp of a result, "1 МЕСТО").
+  'cup.final_stamp_unit': 'место',
   'cup.status.draft': 'Кубок ещё не опубликован',
   'cup.status.scheduled': 'Ждём старта: {date}, 00:00',
   'cup.status.scheduled_soon': 'Ждём старта',

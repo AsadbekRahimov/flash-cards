@@ -52,8 +52,8 @@ function onClear(): void {
 
 <template>
   <BottomSheet :label="t('card.note.title')" data-testid="note-sheet" @close="emit('close')">
-    <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('card.note.title') }}</h2>
-    <p class="text-base leading-[22px] font-semibold break-words" lang="en" data-testid="note-word">{{ word }}</p>
+    <h2 class="t-display-m pr-10">{{ t('card.note.title') }}</h2>
+    <p class="t-title-m break-words" lang="en" data-testid="note-word">{{ word }}</p>
     <textarea
       v-model="text"
       class="field min-h-[96px] w-full resize-none"
@@ -64,7 +64,7 @@ function onClear(): void {
       rows="3"
       data-testid="note-input"
     />
-    <div class="flex items-start justify-between gap-3 text-[13px] leading-[18px] text-muted">
+    <div class="t-label-s flex items-start justify-between gap-3 text-muted">
       <p id="note-hint">{{ t('card.note.hint', { max }) }}</p>
       <span class="shrink-0 font-mono" data-testid="note-counter" aria-hidden="true">{{ count }} / {{ max }}</span>
     </div>

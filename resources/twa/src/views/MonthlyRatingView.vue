@@ -4,13 +4,16 @@ import { RouterLink } from 'vue-router'
 import RegionPromptCard from '@/components/RegionPromptCard.vue'
 import BoardFilters from '@/components/rating/BoardFilters.vue'
 import BoardRegionState from '@/components/rating/BoardRegionState.vue'
+import BoardSkeleton from '@/components/rating/BoardSkeleton.vue'
 import BoardTable from '@/components/rating/BoardTable.vue'
+import LeagueRow from '@/components/rating/LeagueRow.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { nearestBetterRank, type BoardTableRow } from '@/composables/boardRows'
@@ -213,16 +216,14 @@ onMounted(() => {
     <PageHeader brand :eyebrow="data?.enabled ? daysLine || undefined : undefined" :title="title" large data-testid="month" />
     <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mb-3.5" />
 
-    <LoadingState v-if="!data && !message" />
+    <BoardSkeleton v-if="!data && !message" />
 
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
       <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
 
-      <section v-if="!data.enabled" class="card text-[15px] leading-[22px] text-muted" data-testid="disabled">
-        {{ t('month.disabled') }}
-      </section>
+      <EmptyState v-if="!data.enabled" :text="t('month.disabled')" data-testid="disabled" />
 
       <template v-else>
         <!-- "Choose your region" (docs/35 §2.3): the rating of the region will be a part of this pane. -->
@@ -238,40 +239,37 @@ onMounted(() => {
           @category="onCategory"
           @area="onArea"
         />
-        <p v-if="readOnlyLine" class="card text-[15px] leading-[22px] text-muted" data-testid="read-only">{{ readOnlyLine }}</p>
+        <p v-if="readOnlyLine" class="card t-body-m text-muted" data-testid="read-only">{{ readOnlyLine }}</p>
         <BoardRegionState v-if="v2" :notSet="regionNotSet" :region="shownRegion" :foreign="foreign" :mine="myRegionName" />
 
         <section v-if="hasPrizes" class="list" data-testid="prizes">
-          <h2 class="px-3.5 pt-3.5 pb-1 text-[19px] leading-6 font-extrabold">{{ prizesTitle }}</h2>
+          <h2 class="t-title-m px-4 pt-3.5 pb-1">{{ prizesTitle }}</h2>
           <ul>
-            <li
-              v-for="prize in data.prizes"
-              :key="prize.place"
-              class="border-b border-divider px-3.5 py-2.5 text-[15px] leading-5"
-              data-testid="prize"
-            >
-              {{ t('month.prize_place', { place: prize.place, title: prize.title }) }}
+            <li v-for="prize in data.prizes" :key="prize.place" class="list-row list-row-icon" data-testid="prize">
+              <span class="icon-tile" aria-hidden="true"><AppIcon name="award" :size="20" /></span>
+              <span class="t-body-m min-w-0 flex-1">{{ t('month.prize_place', { place: prize.place, title: prize.title }) }}</span>
             </li>
           </ul>
-          <p class="px-3.5 py-3 text-[13px] leading-[18px] text-muted" data-testid="prizes-note">{{ t('month.prizes_note') }}</p>
+          <p class="px-4 pt-1 pb-3.5 text-[13px] leading-[18px] text-muted" data-testid="prizes-note">{{ t('month.prizes_note') }}</p>
         </section>
 
         <section v-if="optedOut" class="card" data-testid="opted-out">
-          <p class="text-[15px] leading-[22px] text-muted">{{ t('month.opted_out') }}</p>
-          <RouterLink :to="{ name: 'settings' }" class="btn btn-tinted btn-block mt-3" data-testid="settings-link">
+          <p class="t-body-m text-muted">{{ t('month.opted_out') }}</p>
+          <RouterLink :to="{ name: 'settings' }" class="btn btn-secondary btn-block mt-3" data-testid="settings-link">
             {{ t('league.settings.open') }}
           </RouterLink>
         </section>
 
-        <section v-else-if="me === null" class="rounded-hero bg-highlight p-4" data-testid="not-started">
-          <p class="text-base leading-[22px] font-bold">{{ t('month.start_prompt') }}</p>
+        <section v-else-if="me === null" class="flex flex-col items-center rounded-hero bg-highlight p-5 text-center" data-testid="not-started">
+          <MascotArt pose="trophy" :height="96" class="mb-3" />
+          <p class="t-title-m">{{ t('month.start_prompt') }}</p>
           <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-block mt-3" data-testid="start-btn">
             {{ t('league.daily_plan') }}
           </RouterLink>
         </section>
 
-        <section v-else class="flex flex-col gap-1.5 rounded-hero bg-highlight p-4" data-testid="my-card">
-          <p class="text-lg leading-6 font-extrabold tracking-[-0.2px]" data-testid="my-place">
+        <section v-else class="flex flex-col gap-1.5 rounded-hero bg-highlight p-5" data-testid="my-card">
+          <p class="t-title-m" data-testid="my-place">
             {{
               me.rank !== null
                 ? t('month.my_place', { rank: me.rank, points: tn('month.points', me.points) })
@@ -308,32 +306,36 @@ onMounted(() => {
             :me="tableMe"
             @more="store.loadMore()"
           />
-          <section v-else class="card text-[15px] leading-[22px] text-muted" data-testid="empty">
-            {{ t('month.empty') }}
-          </section>
+          <!-- The mascot with the cup is already in the card "Start" above while the learner has no row: one mascot on the screen. -->
+          <EmptyState v-else :mascot="me === null ? false : 'trophy'" :text="t('month.empty')" data-testid="empty" />
         </template>
 
         <ListGroup v-if="lastMonth && lastMonth.status === 'confirmed'" :header="t('month.last_winners', { month: lastTitle })" data-testid="last-month">
           <template v-for="group in winnerGroups" :key="group.key">
-            <p v-if="group.label" class="px-3.5 pt-3 pb-1 text-[13px] leading-[18px] font-bold text-muted" data-testid="winners-category">{{ group.label }}</p>
-            <div v-for="(winner, index) in group.winners" :key="`${group.key}-${index}`" class="list-row" data-testid="winner">
-              <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-sm bg-accent-soft text-[15px] font-bold text-accent tabular-nums">{{ winner.place }}</span>
-              <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ rowName(winner.name) }}</span>
-              <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums">{{ winner.points }}</span>
-            </div>
+            <p v-if="group.label" class="px-4 pt-3 pb-1 text-[13px] leading-[18px] font-semibold text-muted" data-testid="winners-category">{{ group.label }}</p>
+            <LeagueRow
+              v-for="(winner, index) in group.winners"
+              :key="`${group.key}-${index}`"
+              :rank="winner.place"
+              :name="rowName(winner.name)"
+              :points="winner.points"
+              class="rounded-none"
+              data-testid="winner"
+            />
           </template>
           <ListRow v-if="lastMonth.me" :title="t('month.last_me', { rank: lastMonth.me.rank })" data-testid="last-me" />
         </ListGroup>
-        <section v-else-if="lastMonth" class="card text-[15px] leading-[22px] text-muted" data-testid="last-month-pending">
+        <section v-else-if="lastMonth" class="card t-body-m text-muted" data-testid="last-month-pending">
           {{ t('month.last_pending', { month: lastTitle }) }}
         </section>
 
         <details class="list group" data-testid="rules">
-          <summary class="list-row cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-            <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('month.rules_title') }}</span>
-            <AppIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-150 group-open:rotate-180" />
+          <summary class="list-row list-row-icon cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
+            <span class="icon-tile" aria-hidden="true"><AppIcon name="information-circle" :size="20" /></span>
+            <span class="t-body-m-strong min-w-0 flex-1">{{ t('month.rules_title') }}</span>
+            <AppIcon name="chevron-down" :size="18" class="text-muted transition-transform duration-150 group-open:rotate-180" />
           </summary>
-          <div class="space-y-2 px-3.5 pt-1 pb-4 text-[15px] leading-[22px] text-muted">
+          <div class="t-body-m space-y-2 px-4 pt-1 pb-4 text-muted">
             <p data-testid="rules-points">{{ v2 ? t('month.rules_points_v2') : t('month.rules_points', { cap: data.rules.daily_cap }) }}</p>
             <p v-if="hasPrizes" data-testid="rules-prize">
               {{ t('month.rules_prize', { places: data.rules.places, days: data.rules.min_active_days, account: data.rules.min_account_days }) }}

@@ -10,13 +10,15 @@ import { useI18n } from '@/i18n'
 defineProps<{
   rated: boolean
   hint?: boolean
+  /** On the central axis of a hero (the duel screen); left-aligned otherwise. */
+  center?: boolean
 }>()
 
 const { t } = useI18n()
 </script>
 
 <template>
-  <span class="flex flex-col items-start gap-1">
+  <span class="flex flex-col gap-1" :class="center ? 'items-center text-center' : 'items-start'">
     <span class="chip" :class="rated ? 'chip-accent' : 'chip-neutral'" :data-rated="rated ? 'true' : 'false'" data-testid="duel-kind">
       {{ rated ? t('cup.duel.kind.rated') : t('cup.duel.kind.friendly') }}
     </span>

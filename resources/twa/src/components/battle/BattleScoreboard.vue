@@ -5,7 +5,8 @@ import { useI18n } from '@/i18n'
 
 /**
  * The score of a battle, big (docs/16 §11.2): "You 100 : 125 Name". The learner's side is on the left, the opponent's on
- * the right; the names are small above the numbers and cut off with an ellipsis when they are long.
+ * the right; the names are small above the numbers and cut off with an ellipsis when they are long. A flat card of the kit (surface, 1 px
+ * hairline, radius lg); "You" in the accent of text, the figures in Unbounded with tabular digits.
  *
  * - `me` / `opponent` — the points of each (a sum of the rounds that are over: 0..500).
  * - `opponentName` — already localized; `opponentEmoji` — the opponent's emoji of Pro (docs/31 §5а) after it, none for null / absent.
@@ -31,7 +32,8 @@ const props = withDefaults(
 const { t } = useI18n()
 
 const label = computed(() => t('battle.score.aria', { me: props.me, opponent: props.opponent, name: props.opponentName }))
-const digits = computed(() => (props.size === 'lg' ? 'text-[44px] leading-[48px]' : 'text-[32px] leading-9'))
+/** The figures in Unbounded 600 with tabular digits (Numeric of the kit, larger): a score that changes does not move its neighbours. */
+const digits = computed(() => (props.size === 'lg' ? 'text-[40px] leading-[44px]' : 'text-[28px] leading-8'))
 </script>
 
 <template>
@@ -44,13 +46,14 @@ const digits = computed(() => (props.size === 'lg' ? 'text-[44px] leading-[48px]
     data-testid="scoreboard"
   >
     <div class="col-start-1 row-start-1 min-w-0">
-      <p class="truncate text-[13px] leading-[18px] text-muted" data-testid="score-me-name">{{ t('battle.you') }}</p>
-      <p class="font-mono font-medium tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-me">{{ me }}</p>
+      <!-- "You" is the learner's mark (the accent of text, as "· вы" in the league). -->
+      <p class="truncate t-label-s text-accent" data-testid="score-me-name">{{ t('battle.you') }}</p>
+      <p class="font-display font-semibold tracking-[-0.02em] tabular-nums" :class="[digits, { 'short:text-[22px] short:leading-[26px]': $slots.default }]" data-testid="score-me">{{ me }}</p>
     </div>
-    <p class="col-start-2 row-start-1 pb-0.5 font-mono text-muted" :class="[digits, { 'short:hidden': $slots.default }]" aria-hidden="true">:</p>
+    <p class="col-start-2 row-start-1 pb-0.5 font-display font-semibold text-tertiary" :class="[digits, { 'short:hidden': $slots.default }]" aria-hidden="true">:</p>
     <div class="col-start-3 row-start-1 min-w-0 text-right">
-      <PlayerName :name="opponentName" :emoji="opponentEmoji" class="justify-end text-[13px] leading-[18px] text-muted" data-testid="score-opponent-name" />
-      <p class="font-mono font-medium tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-opponent">{{ opponent }}</p>
+      <PlayerName :name="opponentName" :emoji="opponentEmoji" class="justify-end t-label-s text-muted" data-testid="score-opponent-name" />
+      <p class="font-display font-semibold tracking-[-0.02em] tabular-nums" :class="[digits, { 'short:text-[22px] short:leading-[26px]': $slots.default }]" data-testid="score-opponent">{{ opponent }}</p>
     </div>
     <div v-if="$slots.default" class="col-span-3 row-start-2 short:col-span-1 short:col-start-2 short:row-start-1 short:min-w-[5.5rem]" data-testid="scoreboard-timer">
       <slot />

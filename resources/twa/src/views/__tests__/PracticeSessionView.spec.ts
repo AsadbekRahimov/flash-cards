@@ -167,17 +167,29 @@ describe('PracticeSessionView — entering', () => {
     r.wrapper.unmount()
   })
 
-  it('has the header of an immersive screen: ✕, the progress, "2 / 5" and the module and lesson under it', async () => {
+  it('has the header of an immersive screen: ✕, the progress in segments (kit 04), "2 / 5" and the module and lesson under it', async () => {
     const r = await render(session({ progress: { done: 2, total: 5 } }))
 
     expect(r.wrapper.get('[data-testid=close-btn]').attributes('aria-label')).toBe('Закрыть')
     expect(r.wrapper.get('[data-testid=progress]').text()).toBe('2 / 5')
     const bar = r.wrapper.get('[data-testid=progress-bar]')
     expect(bar.attributes('role')).toBe('progressbar')
-    expect(bar.attributes('aria-valuenow')).toBe('40')
+    expect(bar.attributes('aria-valuenow')).toBe('2')
+    expect(bar.attributes('aria-valuemax')).toBe('5')
     expect(bar.attributes('aria-label')).toBe('Выполнено 2 из 5')
-    expect(r.wrapper.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 40%')
+    expect(bar.findAll('.segment').map((segment) => segment.attributes('data-state'))).toEqual(['done', 'done', 'current', 'todo', 'todo'])
     expect(r.wrapper.get('[data-testid=caption]').text()).toBe('Модуль 2 · Урок 4 · Еда')
+    expect(r.wrapper.get('[data-testid=practice-session-view]').classes()).toContain('bg-page')
+    r.wrapper.unmount()
+  })
+
+  it('draws a long session as a line instead of the segments', async () => {
+    const r = await render(session({ progress: { done: 4, total: 20 } }))
+
+    const bar = r.wrapper.get('[data-testid=progress-bar]')
+    expect(bar.find('.segment').exists()).toBe(false)
+    expect(bar.attributes('aria-valuenow')).toBe('20')
+    expect(r.wrapper.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 20%')
     r.wrapper.unmount()
   })
 

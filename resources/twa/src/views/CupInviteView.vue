@@ -2,7 +2,10 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import CupRules from '@/components/cup/CupRules.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import AppChip from '@/components/ui/AppChip.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -158,22 +161,25 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="failure && failure.retry" :title="failureTitle" :message="failure.message" data-testid="failure" @retry="load" />
 
-    <EmptyState v-else-if="failure" icon="lock-closed" :title="failureTitle" :text="failure.message" data-testid="failure" />
+    <ClosedState v-else-if="failure" mascot="thinking" :title="failureTitle" :text="failure.message" data-testid="failure" />
 
     <div v-else-if="invite" class="space-y-3">
       <!-- The cup in the big card: the level, the dates, the state, the participants. -->
-      <section class="flex flex-col gap-1.5 rounded-hero bg-highlight p-4" data-testid="invite-card">
-        <p class="text-sm leading-[18px] font-semibold" data-testid="invite-level">{{ t('cup.level', { level: invite.level }) }}</p>
-        <p v-if="period" class="text-[22px] leading-7 font-extrabold" data-testid="invite-period">{{ period }}</p>
-        <p class="text-[15px] leading-5" data-testid="invite-status">{{ statusLine }}</p>
-        <p class="text-[13px] leading-[18px] text-muted tabular-nums" data-testid="invite-participants">{{ tn('league.members', invite.participants_count) }}</p>
+      <!-- The invitation is the hero of the screen (kit Muhrla, DESIGN.md §8): the mascot greets, then the cup on the central axis. -->
+      <section class="flex flex-col items-center gap-2 rounded-hero bg-highlight p-5 text-center" data-testid="invite-card">
+        <MascotArt pose="hello" :height="112" class="mb-1 short:hidden" />
+        <AppChip data-testid="invite-level">{{ t('cup.level', { level: invite.level }) }}</AppChip>
+        <p v-if="period" class="t-display-m" data-testid="invite-period">{{ period }}</p>
+        <p class="t-body-m text-muted" data-testid="invite-status">{{ statusLine }}</p>
+        <p class="t-label-s text-tertiary tabular-nums" data-testid="invite-participants">{{ tn('league.members', invite.participants_count) }}</p>
       </section>
 
       <details class="list group" :open="rules || undefined" data-testid="invite-rules">
         <summary class="list-row min-h-11 cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('cup.rules.title') }}</span>
+          <span class="t-body-m-strong min-w-0 flex-1">{{ t('cup.rules.title') }}</span>
+          <AppIcon name="chevron-down" :size="20" class="shrink-0 text-muted transition-transform group-open:rotate-180" />
         </summary>
-        <div class="px-[18px] pt-1 pb-4">
+        <div class="px-3 pt-1 pb-4">
           <CupRules :cup="invite" :rules="invite.rules" />
         </div>
       </details>
@@ -181,7 +187,7 @@ onBeforeUnmount(() => {
       <!-- Joining: the name in the tournament (the chat sees it) and "Join". -->
       <section v-if="open" class="card flex flex-col gap-3" data-testid="join-card">
         <label class="flex flex-col gap-1.5">
-          <span class="text-[15px] leading-5 font-semibold">{{ t('cup.invite.name_label') }}</span>
+          <span class="t-label-s text-muted">{{ t('cup.invite.name_label') }}</span>
           <input
             v-model="name"
             type="text"
@@ -205,21 +211,25 @@ onBeforeUnmount(() => {
         </label>
         <InlineAlert v-if="nameError" id="cup-name-error" tone="danger" :message="nameError" data-testid="name-error" />
         <InlineAlert v-if="joinError" tone="danger" :message="joinError" data-testid="join-error" />
-        <button
-          type="button"
-          class="btn btn-primary btn-lg btn-block"
-          :disabled="!canJoin"
-          :aria-busy="joining ? 'true' : undefined"
-          data-testid="join-btn"
-          @click="join"
-        >
-          {{ invite.me.left ? t('cup.invite.rejoin') : t('cup.invite.join') }}
-        </button>
       </section>
 
-      <p v-else class="card text-[15px] leading-[22px] text-muted" data-testid="not-open">
+      <p v-else class="card t-body-m text-muted" data-testid="not-open">
         {{ invite.status === 'draft' ? t('cup.invite.draft') : invite.paused !== null ? statusLine : t('cup.invite.closed') }}
       </p>
+    </div>
+
+    <!-- "Join" at the end, in the flow: the screen has the tab bar (the bottom zone of a button is for the screens without it, DESIGN.md §7). -->
+    <div v-if="!loading && !failure && invite && open" class="mt-3">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg btn-block"
+        :disabled="!canJoin"
+        :aria-busy="joining ? 'true' : undefined"
+        data-testid="join-btn"
+        @click="join"
+      >
+        {{ invite.me.left ? t('cup.invite.rejoin') : t('cup.invite.join') }}
+      </button>
     </div>
   </div>
 </template>

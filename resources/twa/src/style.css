@@ -245,9 +245,10 @@
  * keep their names (140 components stand on them) and take the kit values (docs/14 §4.1, the table there): `primary` is the ink
  * (`bg/inverse`), `accent` the accent in text (`text/accent`), `page` / `surface` / `fill` the canvas, the surface and the sunken
  * paper. The kit has no warning colours: warm amber values in its tone. Where a colour of the kit gives text under 4.5:1 the role
- * takes a darker ink (`success-ink` of the light palette) or a dark label (`on-muhr`). <html data-theme> picks the palette: Telegram's
- * `colorScheme`, outside Telegram the system's `prefers-color-scheme` (composables/telegramTheme.ts). Every text pair reaches 4.5:1
- * in both (designSystem.spec.ts reads the hex values below and checks them).
+ * takes a darker ink (`success-ink` of the light palette). <html data-theme> picks the palette: Telegram's `colorScheme`, outside
+ * Telegram the system's `prefers-color-scheme` (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both
+ * (designSystem.spec.ts reads the hex values below and checks them), but one: the label on muhr (`on-muhr`) is only a big figure-label
+ * (the number of the current step, an initial), light as in the kit, held to the 3:1 of large text.
  */
 :root {
   --app-page: #f6f2ea; /* bg/canvas: the page; the Telegram header and bottom bar take it too */
@@ -266,7 +267,7 @@
   --app-on-inverse: #fffdf8; /* text/on-inverse */
   --app-sunken: #eee8dc; /* bg/sunken: the plate of an icon, the key of an answer, disabled */
   --app-muhr: #e4572e; /* accent/muhr: the stamp, the streak, the current segment, the mark of the active tab */
-  --app-on-muhr: #1a1a1f; /* a label on muhr (white on it is 3.6:1) */
+  --app-on-muhr: #fffdf8; /* a label on muhr: the paper, as in the kit (3.6:1 - a big figure-label only: the number of a step, an initial) */
   --app-border-strong: #1a1a1f; /* border/strong: the selected card or answer */
   --app-knob: #ffffff; /* the knob of a switch */
   --app-success: #2f8f5b; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
@@ -338,7 +339,7 @@
   --app-on-inverse: #1a1a1f;
   --app-sunken: #25232b;
   --app-muhr: #ff6b42;
-  --app-on-muhr: #1a1a1f;
+  --app-on-muhr: #1a1a1f; /* the dark muhr is light: the paper on it is 2.8:1, the ink 6.2:1 */
   --app-border-strong: #f3eee4;
   --app-knob: #ffffff;
   --app-success: #4cc38a;

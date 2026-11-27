@@ -298,8 +298,6 @@ describe('style.css: the palette, light and dark', () => {
     ['on-primary', 'primary'],
     ['on-primary', 'accent'],
     ['on-inverse', 'inverse'],
-    // a label on the muhr colour: the current step of the plan, the avatar of the learner's own row
-    ['on-muhr', 'muhr'],
     // the key of a checked answer: ink of the state with the on-inverse figure
     ['on-inverse', 'success-ink'],
     ['on-inverse', 'danger-ink'],
@@ -335,6 +333,9 @@ describe('style.css: the palette, light and dark', () => {
     ['muhr', 'track'],
     // a step done of the plan, a segment of the goal: white tick on the green
     ['on-primary', 'success'],
+    // крупная цифра-метка, решение по макету кита: the number of the current step of the plan, the initial of the learner's own row
+    // (the paper on muhr in the light palette, 3.6:1; ink in the dark one)
+    ['on-muhr', 'muhr'],
   ]
 
   it('reads the same set of tokens for both palettes, all of them hex', () => {
@@ -620,7 +621,8 @@ describe('the caravan of the day', () => {
 
   it('makes the card on the map and the entry on "Today" 44 px high', () => {
     expect(/<button[^>]*data-testid="daily-card"[^>]*>/s.exec(map)?.[0]).toMatch(/\bmin-h-11\b/)
-    expect(/<RouterLink[^>]*data-testid="game-entry"[^>]*>/s.exec(todayView)?.[0]).toMatch(/\bmin-h-11\b/)
+    // a row of the kit's ListRow on "Today": 60 px
+    expect(/<RouterLink[^>]*data-testid="game-entry"[^>]*>/s.exec(todayView)?.[0]).toMatch(/\bmin-h-(?:11|\[60px\])/)
   })
 
   it('has no fixed width that would break 320 px', () => {

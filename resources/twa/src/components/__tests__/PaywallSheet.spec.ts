@@ -194,7 +194,9 @@ describe('PaywallSheet', () => {
 
       setActivePinia(createPinia()) // a /me younger than 30 s is not asked again: the second sheet needs its own store
       const html = await render(me({ contact: '<img src=x onerror=alert(1)>' }))
-      expect(html.find('img').exists()).toBe(false)
+      // the only picture of the sheet is the mascot: the contact is text
+      expect(html.find('[data-testid=paywall-contact] img').exists()).toBe(false)
+      expect(html.findAll('img').map((img) => img.attributes('data-testid'))).toEqual(['mascot-art'])
       expect(html.get('[data-testid=paywall-contact-text]').text()).toBe('<img src=x onerror=alert(1)>')
     })
   })
@@ -204,12 +206,13 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'quota' })
 
       const header = w.get('[data-testid=paywall] header')
-      // the chip of the Pro mock-up: the crown and the name of the plan (BRAND_PRO)
+      // the hero of the kit (10-podpiska-pro): the mascot in the scarf and the ink chip with the name of the plan (BRAND_PRO), centred
+      expect(header.classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
+      expect(header.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('freeze')
       const chip = header.get('[data-testid=paywall-eyebrow]')
       expect(chip.text()).toBe('Muhrla Pro')
-      expect(chip.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
-      expect(chip.get('svg').attributes('aria-hidden')).toBe('true')
-      expect(header.findAll('svg')).toHaveLength(1)
+      expect(chip.classes()).toEqual(expect.arrayContaining(['chip', 'chip-ink']))
+      expect(header.get('[data-testid=paywall-title]').classes()).toContain('t-display-m')
       expect(header.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
       expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')

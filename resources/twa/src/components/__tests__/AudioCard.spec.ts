@@ -81,7 +81,7 @@ describe('AudioCard', () => {
     expect(w.get('[data-testid=replay-hint]').text()).toBe('Нажмите, чтобы послушать ещё раз')
     const play = w.get('[data-testid=play-btn]')
     expect(play.attributes('aria-label')).toBe('Прослушать ещё раз')
-    expect(play.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
+    expect(play.classes()).toEqual(expect.arrayContaining(['icon-btn', 'size-[88px]']))
     // No box around the question (docs/design Question): the options are the only framed things on the white screen.
     expect(w.find('article').exists()).toBe(false)
     expect(w.find('.card').exists()).toBe(false)

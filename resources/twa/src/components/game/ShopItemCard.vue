@@ -20,11 +20,14 @@ const { t } = useI18n()
 
 <template>
   <li class="card flex items-center gap-3" :data-testid="`item-${item.key}`">
-    <GameItemImage :name="item.asset" :size="56" />
+    <!-- The picture on the game tile of the kit (bg/accent-soft): the item's own drawing is not redrawn, the plate ties it to the page. -->
+    <span class="flex size-16 shrink-0 items-center justify-center self-start rounded-md bg-accent-soft" data-testid="item-tile">
+      <GameItemImage :name="item.asset" :size="52" />
+    </span>
     <div class="min-w-0 flex-1">
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <h3 class="text-[15px] leading-5 font-semibold" data-testid="item-title">{{ item.title }}</h3>
-        <span v-if="item.locked_reason === 'pro'" class="chip chip-accent" data-testid="item-pro">{{ t('gameCaravan.item.pro') }}</span>
+        <h3 class="t-body-m-strong" data-testid="item-title">{{ item.title }}</h3>
+        <span v-if="item.locked_reason === 'pro'" class="chip chip-ink" data-testid="item-pro">{{ t('gameCaravan.item.pro') }}</span>
       </div>
       <p v-if="item.description" class="text-[13px] leading-[18px] text-muted">{{ item.description }}</p>
       <NumberText
@@ -39,22 +42,22 @@ const { t } = useI18n()
       </p>
 
       <div v-if="item.locked_reason !== 'achievement'" class="mt-2">
-        <button v-if="item.locked_reason === 'pro'" type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-pro-btn" @click="emit('pro', props.item)">
+        <button v-if="item.locked_reason === 'pro'" type="button" class="btn btn-secondary btn-sm min-h-11" :disabled="busy" data-testid="item-pro-btn" @click="emit('pro', props.item)">
           {{ t('gameCaravan.item.pro_open') }}
         </button>
         <template v-else-if="item.kind === 'cosmetic' && item.owned">
           <div v-if="item.equipped" class="flex flex-wrap items-center gap-2">
             <span class="chip chip-success" data-testid="item-equipped">{{ t('gameCaravan.item.equipped') }}</span>
-            <button type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-unequip" @click="emit('unequip', props.item)">
+            <button type="button" class="btn btn-secondary btn-sm min-h-11" :disabled="busy" data-testid="item-unequip" @click="emit('unequip', props.item)">
               {{ t('gameShop.item.unequip') }}
             </button>
           </div>
-          <button v-else type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-equip" @click="emit('equip', props.item)">
+          <button v-else type="button" class="btn btn-secondary btn-sm min-h-11" :disabled="busy" data-testid="item-equip" @click="emit('equip', props.item)">
             {{ t('gameCaravan.item.equip') }}
           </button>
         </template>
         <!-- Outlined, not the main button: a list of cards with a dark button each would have a dozen main actions. -->
-        <button v-else type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-buy" @click="emit('buy', props.item)">
+        <button v-else type="button" class="btn btn-secondary btn-sm min-h-11" :disabled="busy" data-testid="item-buy" @click="emit('buy', props.item)">
           {{ t('gameCaravan.item.buy') }} · <span class="font-mono">{{ item.price }}</span>
         </button>
       </div>

@@ -95,7 +95,8 @@ describe('TodayView: the invitation card', () => {
 
     expect(w.get('[data-testid=invite-text]').text()).toBe('Пригласите друзей — получите Pro бесплатно')
     expect(w.get('[data-testid=invite-more]').text()).toBe('Как это работает')
-    expect(w.find('[data-testid=invite-card] .icon-tile').exists()).toBe(false)
+    // a card of the kit with the plate of a gift
+    expect(w.find('[data-testid=invite-card] .icon-tile').exists()).toBe(true)
     expect(w.get('[data-testid=invite-card]').classes()).toContain('card')
     const course = w.get('[data-testid=course-card]').element
     expect(Boolean(course.compareDocumentPosition(w.get('[data-testid=invite-card]').element) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)

@@ -2,10 +2,11 @@
 import { computed, ref } from 'vue'
 import type { Card } from '@/api/types'
 import PhraseLabels from '@/components/PhraseLabels.vue'
+import LessonWord from '@/components/LessonWord.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
-import { phraseHeadingClass } from '@/composables/phraseText'
+import IconButton from '@/components/ui/IconButton.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import { useTelegram } from '@/composables/useTelegram'
 import { useTts } from '@/composables/useTts'
 import { useI18n } from '@/i18n'
@@ -60,44 +61,21 @@ function onSkip(): void {
   <div class="flex flex-1 flex-col" data-testid="pretest-card">
     <div class="flex flex-col px-5 pb-4">
       <!--
-        The question (docs/design/2026-11-25-redesign Question): the task in words, the word large on the white screen, its
-        transcription and the round speaker beside it.
+        The question (kit Muhrla 04-urok-vopros): the mascot thinking (not on a short window), the task in words, the word in Word/XL,
+        its transcription and the speaker beside it.
       -->
-      <div class="mt-[30px] flex flex-col items-center gap-2 text-center short:mt-4 short:gap-1.5">
-        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ title }}</p>
-        <h2
-          v-if="phrase"
-          class="max-w-full font-extrabold text-balance break-words"
-          :class="phraseHeadingClass(card.word)"
-          lang="en"
-          data-testid="word"
-        >
-          {{ card.word }}
-        </h2>
-        <h2
-          v-else
-          class="max-w-full text-[52px] leading-[58px] font-extrabold tracking-[-1px] break-words short:text-[40px] short:leading-[46px]"
-          lang="en"
-          data-testid="word"
-        >
-          {{ card.word }}
-        </h2>
+      <div class="mt-5 flex flex-col items-center gap-2 text-center short:mt-3 short:gap-1.5">
+        <MascotArt pose="thinking" :height="88" class="short:hidden" />
+        <p class="t-body-m text-muted" data-testid="exercise-title">{{ title }}</p>
+        <LessonWord :text="card.word" :phrase="phrase !== null" lang="en" data-testid="word" />
         <PhraseLabels v-if="phrase" :phrase="phrase" />
-        <div class="flex items-center gap-2.5">
-          <span v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</span>
-          <button
-            type="button"
-            class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent active:bg-fill"
-            :aria-label="t('card.speak')"
-            data-testid="speak-btn"
-            @click="onSpeak"
-          >
-            <AppIcon name="speaker-wave" :size="22" />
-          </button>
+        <div class="flex items-center gap-3">
+          <span v-if="card.transcription" class="font-ipa text-[17px] leading-6 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+          <IconButton icon="speaker-wave" :label="t('card.speak')" data-testid="speak-btn" @click="onSpeak" />
         </div>
       </div>
 
-      <div class="mt-[34px] flex flex-col gap-2.5 short:mt-4 short:gap-2" role="radiogroup" :aria-label="title">
+      <div class="mt-6 flex flex-col gap-2.5 short:mt-4 short:gap-2" role="radiogroup" :aria-label="title">
         <QuizOption
           v-for="(label, index) in options"
           :key="index"
@@ -111,11 +89,11 @@ function onSkip(): void {
       </div>
     </div>
 
-    <!-- "I don't know" is a quiet text button (docs/design Question): there is no main button, a pick is the answer. -->
-    <StickyActions surface>
+    <!-- "I don't know" is the Ghost button of the kit: there is no main button, a pick is the answer. -->
+    <StickyActions>
       <button
         type="button"
-        class="btn btn-plain btn-lg btn-block text-base font-semibold text-muted"
+        class="btn btn-ghost btn-block"
         :disabled="disabled || picked !== null"
         data-testid="skip-btn"
         @click="onSkip"

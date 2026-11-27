@@ -136,7 +136,7 @@ describe('TodayView: the active course is a course of phrases', () => {
     expect(text(w, 'hero-eyebrow')).toBe('Урок фраз 3')
     expect(text(w, 'hero-title')).toBe('Напитки')
     expect(text(w, 'hero-text')).toBe('5 новых фраз')
-    expect(w.get('[data-testid=plan-step][data-key=lesson] [data-testid=plan-step-note]').text()).toBe('5 новых фраз')
+    expect(w.get('[data-testid=plan-step][data-key=lesson]').text()).toContain('5 новых фраз')
   })
 
   it('step 1 with the level, from the open course of the catalog', async () => {
@@ -157,7 +157,7 @@ describe('TodayView: the active course is a course of phrases', () => {
     useCoursesStore().courses = [phraseCourse]
     const w = await render(today({ plan: afterLesson() }))
     expect(text(w, 'hero-text')).toBe('Закрепите 5 фраз')
-    expect(w.get('[data-testid=plan-step][data-key=lesson] [data-testid=plan-step-note]').text()).toBe('5 новых фраз')
+    expect(w.get('[data-testid=plan-step][data-key=lesson]').text()).toContain('5 новых фраз')
 
     const played = await render(today({ plan: afterLesson({ step: 3, training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null } }) }))
     expect(text(played, 'hero-text')).toBe('Игра на фразах этого урока')

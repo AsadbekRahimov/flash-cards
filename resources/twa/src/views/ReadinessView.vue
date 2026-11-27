@@ -118,12 +118,12 @@ async function takeQuiz(): Promise<void> {
 
     <ErrorState v-else-if="!data" :message="loadError" @retry="load" />
 
-    <div v-else class="space-y-4">
+    <div v-else class="space-y-6">
       <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
       <section class="card" data-testid="readiness-summary">
-        <p class="font-mono text-[32px] leading-[38px] font-medium" data-testid="readiness-percent">{{ data.percent }}%</p>
-        <p class="mt-0.5 text-[15px] leading-5" data-testid="readiness-heading">{{ heading }}</p>
+        <p class="font-mono text-[44px] leading-[50px] font-semibold tracking-[-0.03em]" data-testid="readiness-percent">{{ data.percent }}%</p>
+        <p class="t-body-m mt-0.5" data-testid="readiness-heading">{{ heading }}</p>
 
         <div
           class="progress mt-3 flex"
@@ -144,26 +144,26 @@ async function takeQuiz(): Promise<void> {
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />{{ t('readiness.learned') }}
             </dt>
-            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.learned }}</dd>
+            <dd class="t-numeric-l">{{ data.words.learned }}</dd>
           </div>
           <div class="flex flex-col-reverse justify-end gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-in-progress">
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />{{ t('readiness.in_progress') }}
             </dt>
-            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.in_progress }}</dd>
+            <dd class="t-numeric-l">{{ data.words.in_progress }}</dd>
           </div>
           <div class="flex flex-col-reverse justify-end gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-not-started">
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-track" aria-hidden="true" />{{ t('readiness.not_started') }}
             </dt>
-            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.not_started }}</dd>
+            <dd class="t-numeric-l">{{ data.words.not_started }}</dd>
           </div>
         </dl>
-        <p v-if="data.words.mastered > 0" class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="readiness-mastered">
+        <p v-if="data.words.mastered > 0" class="t-label-s mt-3 text-muted" data-testid="readiness-mastered">
           {{ t('readiness.mastered', { count: data.words.mastered }) }}
         </p>
 
-        <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="readiness-explain">
+        <p class="t-label-s mt-3 text-muted" data-testid="readiness-explain">
           {{ tn('readiness.explain', data.thresholds.known_days) }}
         </p>
       </section>
@@ -178,12 +178,12 @@ async function takeQuiz(): Promise<void> {
       >
         <div>
           <div class="min-w-0">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('readiness.quiz.title') }}</h2>
-            <p v-if="quiz.this_week" class="mt-0.5 text-[15px] leading-5" data-testid="quiz-this-week">
+            <h2 class="t-title-m">{{ t('readiness.quiz.title') }}</h2>
+            <p v-if="quiz.this_week" class="t-body-m mt-0.5" data-testid="quiz-this-week">
               {{ t('readiness.quiz.result', { correct: quiz.this_week.correct, total: quiz.this_week.total }) }}
               · {{ quiz.this_week.percent }}%
             </p>
-            <p v-if="quiz.best_percent !== null" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="quiz-best">
+            <p v-if="quiz.best_percent !== null" class="t-label-s mt-0.5 text-muted" data-testid="quiz-best">
               {{ t('readiness.quiz.best', { percent: quiz.best_percent }) }}
             </p>
           </div>
@@ -191,7 +191,7 @@ async function takeQuiz(): Promise<void> {
 
         <WeeklyQuizChart :history="quiz.history" :weeks="HISTORY_WEEKS" :current-week="quiz.week_start" />
 
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="quiz-hint">
+        <p class="t-label-s text-muted" data-testid="quiz-hint">
           {{ scoredDone ? t('readiness.quiz.practice_hint') : quizHint }}
         </p>
         <InlineAlert v-if="quizError" tone="danger" :message="quizError" data-testid="quiz-error" />
@@ -209,17 +209,17 @@ async function takeQuiz(): Promise<void> {
       </section>
 
       <section v-if="data.modules.length > 0" data-testid="readiness-modules">
-        <h2 class="section-label">{{ t('readiness.modules') }}</h2>
+        <h2 class="t-title-m mb-3">{{ t('readiness.modules') }}</h2>
         <ol class="list">
           <li
             v-for="item in data.modules"
             :key="item.number"
-            class="border-t border-divider px-[18px] py-3 first:border-t-0"
+            class="border-t border-divider px-4 py-3 first:border-t-0"
             :data-testid="`readiness-module-${item.number}`"
           >
-            <div class="flex items-baseline justify-between gap-3 text-[15px] leading-5">
+            <div class="t-body-m flex items-baseline justify-between gap-3">
               <span class="min-w-0 truncate">{{ item.title ?? t('readiness.module', { number: item.number }) }}</span>
-              <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="readiness-module-count">{{ tn('readiness.module_words', item.total, { learned: item.learned }) }}</span>
+              <span class="t-label-s shrink-0 text-muted" data-testid="readiness-module-count">{{ tn('readiness.module_words', item.total, { learned: item.learned }) }}</span>
             </div>
             <ProgressLine
               :value="item.total > 0 ? Math.floor((item.learned / item.total) * 100) : 0"

@@ -76,8 +76,13 @@ describe('CupView: the table', () => {
     expect(rows[1]?.attributes('data-shared')).toBe('true')
     expect(rows[2]?.attributes('aria-label')).toBe('2 место (общее), Bobur, 20 очков')
     expect(rows[0]?.attributes('data-shared')).toBeUndefined()
-    // My row: tinted, "· вы" (the word of the league).
+    // My row: the "you" of the kit's league - the soft accent (`.league-row[data-me]`), my avatar in muhr, "· вы" (the word of the league).
     expect(rows[1]?.attributes('data-testid')).toBe('row-me')
+    expect(rows[1]?.classes()).toContain('league-row')
+    expect(rows[1]?.attributes('data-me')).toBe('true')
+    expect(rows[1]?.get('[data-testid=avatar]').classes()).toContain('bg-muhr')
+    expect(rows[0]?.get('[data-testid=avatar]').classes()).not.toContain('bg-muhr')
+    expect(rows[0]?.get('[data-testid=avatar]').text()).toBe('A')
     expect(rows[1]?.text()).toContain('· вы')
     // One who left: the mark on its own line.
     expect(rows[3]?.attributes('data-left')).toBe('true')
@@ -140,6 +145,31 @@ describe('CupView: the states of the cup', () => {
     expect(tid(r, 'my-place').text()).toBe('Итоговое место: 2')
     expect(has(r, 'play-btn')).toBe(false)
     expect(has(r, 'rename-btn')).toBe(false)
+    // The result of the kit: the stamp of the final place (pressed in once), the mascot with the cup for the podium.
+    expect(r.wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
+    expect(tid(r, 'stamp').attributes('aria-label')).toBe('2 место')
+    expect(tid(r, 'stamp').classes()).toContain('stamp--enter')
+    expect(tid(r, 'cup-final').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
+  })
+
+  it('finished further down: the stamp of the place, no celebration (no mascot); in Uzbek the unit is Uzbek', async () => {
+    const board = cupBoard()
+    const finished = cupBoard({ cup: { ...cupFields({ status: 'finished', day: null }), rules: cupRules() }, me: { ...board.me!, final_rank: 6, today: { state: 'not_available', day: null, attempt_id: null, points: null, expires_at: null } } })
+    const r = await render(finished)
+
+    expect(tid(r, 'stamp').attributes('aria-label')).toBe('6 место')
+    expect(has(r, 'mascot-art')).toBe(false)
+
+    setLocale('uz')
+    const uz = await render(finished)
+    expect(tid(uz, 'stamp-unit').text()).toBe("o'rin")
+  })
+
+  it('a cup that runs has no stamp: the result comes at the end', async () => {
+    const r = await render()
+
+    expect(has(r, 'cup-final')).toBe(false)
+    expect(has(r, 'stamp')).toBe(false)
   })
 
   it('canceled', async () => {

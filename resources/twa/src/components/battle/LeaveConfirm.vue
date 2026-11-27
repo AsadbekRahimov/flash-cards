@@ -33,8 +33,8 @@ const text = computed(() => {
 <template>
   <BottomSheet :label="title" data-testid="leave-confirm" :data-variant="variant" @close="emit('stay')">
     <header class="flex flex-col gap-1.5 pt-1 pr-10">
-      <h2 class="text-[22px] leading-7 font-semibold" data-testid="leave-title">{{ title }}</h2>
-      <p class="text-[15px] leading-5" data-testid="leave-text">{{ text }}</p>
+      <h2 class="t-display-m" data-testid="leave-title">{{ title }}</h2>
+      <p class="t-body-m text-muted" data-testid="leave-text">{{ text }}</p>
     </header>
 
     <div class="space-y-2 pb-1">

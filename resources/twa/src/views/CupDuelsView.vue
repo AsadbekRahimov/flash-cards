@@ -5,7 +5,8 @@ import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PlayerName from '@/components/PlayerName.vue'
 import CupDuelKind from '@/components/cup/CupDuelKind.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -145,22 +146,20 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
 
     <LoadingState v-if="view === 'loading'" variant="list" />
 
-    <EmptyState v-else-if="view === 'disabled'" icon="lock-closed" :title="t('cup.duel.off_title')" :text="t('cup.duel.failure.disabled')" data-testid="duels-off">
-      <template #action>
-        <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-tinted" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'disabled'" mascot="thinking" :title="t('cup.duel.off_title')" :text="t('cup.duel.failure.disabled')" data-testid="duels-off">
+      <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-secondary btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
+    </ClosedState>
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
+    <ClosedState v-else-if="view === 'unavailable'" mascot="thinking" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
 
-    <EmptyState v-else-if="view === 'off'" icon="lock-closed" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
+    <ClosedState v-else-if="view === 'off'" mascot="thinking" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" :data-kind="failure?.kind" @retry="load" />
 
     <div v-else-if="data" class="space-y-5" :aria-busy="acting !== null ? 'true' : undefined">
       <InlineAlert v-if="notice" tone="warning" :message="notice" data-testid="list-notice" />
       <InlineAlert v-if="actionError" tone="danger" :message="actionError" data-testid="list-error" />
-      <button v-if="busyBattleId !== null" type="button" class="btn btn-tinted btn-block" data-testid="open-busy" @click="openBusy">{{ t('battle.open_current') }}</button>
+      <button v-if="busyBattleId !== null" type="button" class="btn btn-secondary btn-block" data-testid="open-busy" @click="openBusy">{{ t('battle.open_current') }}</button>
 
       <!-- Challenges to me. -->
       <section v-if="data.incoming.length > 0" data-testid="incoming">
@@ -168,14 +167,14 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <ul class="list">
           <li v-for="duel in data.incoming" :key="duel.id" class="list-row flex-col items-stretch gap-2" :data-duel="duel.id" data-testid="incoming-row">
             <div class="flex items-center gap-3">
-              <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="min-w-0 flex-1 font-bold" />
+              <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="t-body-m-strong min-w-0 flex-1" />
               <CupDuelKind :rated="duels.ratedOf(duel)" />
             </div>
-            <p class="text-[13px] leading-[18px] text-muted">{{ until(duel) }}</p>
+            <p class="t-label-s text-muted tabular-nums">{{ until(duel) }}</p>
             <div class="flex gap-2">
               <button
                 type="button"
-                class="btn btn-tinted btn-sm flex-1"
+                class="btn btn-secondary btn-sm flex-1"
                 :disabled="acting !== null"
                 :aria-busy="acting === duel.id ? 'true' : undefined"
                 data-testid="accept-btn"
@@ -183,7 +182,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               >
                 {{ t('cup.duel.accept') }}
               </button>
-              <button type="button" class="btn btn-plain btn-sm flex-1" :disabled="acting !== null" data-testid="decline-btn" @click="decline(duel)">
+              <button type="button" class="btn btn-ghost btn-sm flex-1" :disabled="acting !== null" data-testid="decline-btn" @click="decline(duel)">
                 {{ t('cup.duel.decline') }}
               </button>
             </div>
@@ -197,13 +196,13 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <ul class="list">
           <li v-for="duel in data.open" :key="duel.id" class="list-row" :data-duel="duel.id" data-testid="open-row">
             <span class="flex min-w-0 flex-1 flex-col gap-1">
-              <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="font-bold" />
-              <span class="text-[13px] leading-[18px] text-muted">{{ until(duel) }}</span>
+              <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="t-body-m-strong" />
+              <span class="t-label-s text-muted tabular-nums">{{ until(duel) }}</span>
             </span>
             <CupDuelKind :rated="duels.ratedOf(duel)" />
             <button
               type="button"
-              class="btn btn-tinted btn-sm shrink-0"
+              class="btn btn-secondary btn-sm shrink-0"
               :disabled="acting !== null"
               :aria-busy="acting === duel.id ? 'true' : undefined"
               data-testid="accept-btn"
@@ -221,12 +220,12 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <div class="list">
           <div class="list-row" :data-duel="data.mine.id" data-testid="mine-row">
             <RouterLink :to="{ name: 'cup-duel', params: { id, duelId: data.mine.id } }" class="flex min-w-0 flex-1 flex-col gap-1" data-testid="mine-open">
-              <PlayerName :name="playerName(data.mine.opponent)" :emoji="data.mine.opponent?.pro_emoji" class="font-bold" />
-              <span class="text-[13px] leading-[18px] text-muted">{{ t('cup.duel.state.waiting') }} · {{ until(data.mine) }}</span>
+              <PlayerName :name="playerName(data.mine.opponent)" :emoji="data.mine.opponent?.pro_emoji" class="t-body-m-strong" />
+              <span class="t-label-s text-muted tabular-nums">{{ t('cup.duel.state.waiting') }} · {{ until(data.mine) }}</span>
             </RouterLink>
             <button
               type="button"
-              class="btn btn-plain btn-sm shrink-0"
+              class="btn btn-ghost btn-sm shrink-0"
               :disabled="acting !== null"
               :aria-busy="acting === data.mine.id ? 'true' : undefined"
               data-testid="cancel-btn"
@@ -246,7 +245,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         <p v-if="availability.can_challenge" class="text-center text-[13px] leading-[18px] text-muted" data-testid="challenges-left">
           {{ tn('cup.duel.challenges_left', availability.challenges_left) }}
         </p>
-        <p v-else-if="blockReason" class="text-[15px] leading-5 text-muted" data-testid="cannot-challenge">{{ blockReason }}</p>
+        <p v-else-if="blockReason" class="t-body-m text-muted" data-testid="cannot-challenge">{{ blockReason }}</p>
       </section>
 
       <!-- My duels of today. -->
@@ -256,16 +255,20 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
           <li v-for="duel in data.today" :key="duel.id" :data-duel="duel.id" :data-status="duel.status">
             <RouterLink :to="{ name: 'cup-duel', params: { id, duelId: duel.id } }" class="list-row" data-testid="today-row">
               <span class="flex min-w-0 flex-1 flex-col gap-1">
-                <PlayerName :name="playerName(rival(duel))" :emoji="rival(duel)?.pro_emoji" class="font-bold" />
-                <span class="text-[13px] leading-[18px] text-muted" data-testid="today-outcome">{{ duelOutcomeText(duel) }}</span>
+                <PlayerName :name="playerName(rival(duel))" :emoji="rival(duel)?.pro_emoji" class="t-body-m-strong" />
+                <span class="t-label-s text-muted" data-testid="today-outcome">{{ duelOutcomeText(duel) }}</span>
               </span>
-              <span v-if="duel.points" class="shrink-0 font-mono font-medium" data-testid="today-score">{{ score(duel) }}</span>
+              <span v-if="duel.points" class="t-body-m-strong shrink-0 font-display tabular-nums" data-testid="today-score">{{ score(duel) }}</span>
             </RouterLink>
           </li>
         </ul>
       </section>
 
-      <p v-if="empty" class="px-1 text-[15px] leading-5 text-muted" data-testid="duels-empty">{{ t('cup.duel.empty') }}</p>
+      <!-- No duels yet: the mascot greets above the line (kit: an empty list is a centred hero, not an error). -->
+      <div v-if="empty" class="flex flex-col items-center gap-2 px-4 py-4 text-center">
+        <MascotArt pose="hello" :height="112" class="short:hidden" />
+        <p class="t-body-m text-muted" data-testid="duels-empty">{{ t('cup.duel.empty') }}</p>
+      </div>
 
       <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-plain btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
     </div>

@@ -4,10 +4,11 @@ import { RouterLink, useRouter } from 'vue-router'
 import RegionPromptCard from '@/components/RegionPromptCard.vue'
 import BoardFilters from '@/components/rating/BoardFilters.vue'
 import BoardRegionState from '@/components/rating/BoardRegionState.vue'
+import BoardSkeleton from '@/components/rating/BoardSkeleton.vue'
 import BoardTable from '@/components/rating/BoardTable.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { nearestBetterRank, type BoardTableRow } from '@/composables/boardRows'
@@ -173,7 +174,7 @@ onMounted(() => {
     <PageHeader brand :eyebrow="countedSince || undefined" :title="t('alltime.title')" large data-testid="all-time" />
     <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mb-3.5" />
 
-    <LoadingState v-if="!data && !message && !store.regionNotSet" />
+    <BoardSkeleton v-if="!data && !message && !store.regionNotSet" />
 
     <ErrorState v-else-if="!data && message" :message="message" @retry="load" />
 
@@ -190,17 +191,17 @@ onMounted(() => {
         @category="onCategory"
         @area="onArea"
       />
-      <p v-if="readOnlyLine" class="card text-[15px] leading-[22px] text-muted" data-testid="read-only">{{ readOnlyLine }}</p>
+      <p v-if="readOnlyLine" class="card t-body-m text-muted" data-testid="read-only">{{ readOnlyLine }}</p>
       <BoardRegionState :notSet="store.regionNotSet" :region="shownRegion" :foreign="foreign" :mine="myRegionName" />
 
       <template v-if="data">
-        <section class="flex flex-col gap-1.5 rounded-hero bg-highlight p-4" data-testid="my-card">
+        <section class="flex flex-col gap-1.5 rounded-hero bg-highlight p-5" data-testid="my-card">
           <template v-if="optedOut">
-            <p class="text-[15px] leading-[22px] text-muted" data-testid="opted-out">{{ t('month.opted_out') }}</p>
+            <p class="t-body-m text-muted" data-testid="opted-out">{{ t('month.opted_out') }}</p>
           </template>
-          <p v-else-if="me === null" class="text-base leading-[22px] font-bold" data-testid="no-row">{{ noRowLine }}</p>
+          <p v-else-if="me === null" class="t-title-m" data-testid="no-row">{{ noRowLine }}</p>
           <template v-else>
-            <p class="text-lg leading-6 font-extrabold tracking-[-0.2px]" data-testid="my-place">
+            <p class="t-title-m" data-testid="my-place">
               {{
                 me.rank !== null
                   ? t('month.my_place', { rank: me.rank, points: tn('month.points', me.points) })
@@ -215,7 +216,7 @@ onMounted(() => {
             <p v-if="blocked" class="text-[13px] leading-[18px] text-muted" data-testid="not-counted">{{ t('month.not_counted_blocked') }}</p>
           </template>
           <p v-if="totalLine" class="text-[13px] leading-[18px]" data-testid="my-total">{{ totalLine }}</p>
-          <RouterLink v-if="optedOut" :to="{ name: 'settings' }" class="btn btn-tinted btn-block mt-1.5" data-testid="settings-link">
+          <RouterLink v-if="optedOut" :to="{ name: 'settings' }" class="btn btn-secondary btn-block mt-1.5" data-testid="settings-link">
             {{ t('league.settings.open') }}
           </RouterLink>
           <RouterLink v-else-if="me === null" :to="{ name: 'today' }" class="btn btn-primary btn-block mt-1.5" data-testid="start-btn">
@@ -239,7 +240,7 @@ onMounted(() => {
             :me="tableMe"
             @more="store.loadMore()"
           />
-          <section v-else class="card text-[15px] leading-[22px] text-muted" data-testid="empty">{{ t('alltime.empty') }}</section>
+          <EmptyState v-else mascot="trophy" :text="t('alltime.empty')" data-testid="empty" />
         </template>
       </template>
     </div>

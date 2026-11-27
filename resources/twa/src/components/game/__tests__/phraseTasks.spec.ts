@@ -72,7 +72,7 @@ describe('ChoiceTask with a phrase', () => {
   })
 
   it('a word keeps its size', () => {
-    expect(mount(ChoiceTask, { props: { element: translateFwd() } }).get('[data-testid=task-prompt]').classes()).toContain('text-[40px]')
+    expect(mount(ChoiceTask, { props: { element: translateFwd() } }).get('[data-testid=task-prompt]').classes()).toContain('t-word-xl')
   })
 })
 

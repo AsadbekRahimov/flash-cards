@@ -182,6 +182,10 @@ describe('CupDuelView: over', () => {
     expect(tid(r, 'challenger').attributes('data-winner')).toBe('true')
     expect(tid(r, 'duel-outcome').text()).toBe('Очки за верные ответы пошли в зачёт дня.')
     expect(tid(r, 'duel-my-points').text()).toBe('Вам в зачёт дня: 4 очка')
+    // I won (the challenger): the result of the kit - the mascot with the cup and the stamp of my points, one on the screen.
+    expect(tid(r, 'mascot-art').attributes('data-pose')).toBe('trophy')
+    expect(r.wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
+    expect(tid(r, 'stamp').attributes('aria-label')).toBe('4 очка')
     // A duel over is not asked about again, and does not lead to its match.
     await advance(10_000)
     expect(api.cups.duels.show).toHaveBeenCalledTimes(1)
@@ -193,6 +197,24 @@ describe('CupDuelView: over', () => {
 
     expect(tid(r, 'duel-outcome').text()).toBe('Товарищеский матч: без очков кубка.')
     expect(has(r, 'duel-my-points')).toBe(false)
+    // I won (Aziza challenged me): the stamp has my points, a friendly duel too.
+    expect(tid(r, 'stamp').attributes('aria-label')).toBe('5 очков')
+  })
+
+  it('played and lost: told quietly - no mascot, no stamp', async () => {
+    const r = await render(toMe({ status: 'done', rated: true, points: { challenger: 5, opponent: 2 }, winner_participant_id: 1 }))
+
+    expect(tid(r, 'duel-score').text()).toBe('5 : 2')
+    expect(has(r, 'mascot-art')).toBe(false)
+    expect(has(r, 'stamp')).toBe(false)
+  })
+
+  it('my challenge waits for an answer: the mascot greets on the hero, no stamp', async () => {
+    const r = await render(cupDuel())
+
+    expect(tid(r, 'mascot-art').attributes('data-pose')).toBe('hello')
+    expect(has(r, 'stamp')).toBe(false)
+    expect(tid(r, 'duel-title').classes()).toContain('t-display-m')
   })
 
   it.each([

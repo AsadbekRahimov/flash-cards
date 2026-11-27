@@ -14,7 +14,8 @@ import { useI18n } from '@/i18n'
 
 /**
  * One player and what they are doing now (docs/16 §11.3): the avatar with the first letter, the name, and a chip with a
- * symbol and a word - "answered", "answering…", "ready", "no connection". Used for the opponent while the learner waits
+ * symbol and a word (the chips of the kit: success for "ready" / "answered", neutral for waiting, the soft accent for "no connection" -
+ * the kit has no warning chip) - "answered", "answering…", "ready", "no connection". Used for the opponent while the learner waits
  * for them (an invitation, the room, a round) and for the learner themself in the room.
  *
  * - `name` — already localized ("You", or the name of the opponent).
@@ -46,7 +47,7 @@ const LOOKS: Record<PlayerState, Look> = {
   ready: { icon: 'check', chip: 'chip-success', label: 'battle.player.ready' },
   answering: { icon: 'pencil-square', chip: 'chip-neutral', label: 'battle.player.answering' },
   answered: { icon: 'check', chip: 'chip-success', label: 'battle.player.answered' },
-  absent: { icon: 'exclamation-triangle', chip: 'chip-warning', label: 'battle.player.absent' },
+  absent: { icon: 'exclamation-triangle', chip: 'chip-accent', label: 'battle.player.absent' },
 }
 
 const look = computed(() => (props.state === null ? null : LOOKS[props.state]))
@@ -55,7 +56,7 @@ const look = computed(() => (props.state === null ? null : LOOKS[props.state]))
 <template>
   <div class="flex items-center gap-3" data-testid="player-status" :data-state="state">
     <InitialAvatar :name="name" :accent="accent" />
-    <PlayerName :name="name" :emoji="emoji" class="flex-1 text-[15px] leading-5 font-semibold" data-testid="player-name" />
+    <PlayerName :name="name" :emoji="emoji" class="t-body-m-strong flex-1" data-testid="player-name" />
     <span v-if="look" class="chip shrink-0" :class="look.chip" role="status" data-testid="player-chip">
       <AppIcon :name="look.icon" :size="14" />
       {{ t(look.label) }}

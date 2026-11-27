@@ -171,6 +171,15 @@ describe('AccountDeletedView', () => {
     expect(w.text()).toContain('в течение 30 дней')
   })
 
+  it('says goodbye with the mascot of the kit, the title and the one primary button on the centre axis', () => {
+    const w = mount(AccountDeletedView, { props: { until: null } })
+
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
+    expect(w.get('[data-testid=closed]').classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
+    expect(w.get('h2').classes()).toContain('t-display-m')
+    expect(w.findAll('.btn-primary')).toHaveLength(1)
+  })
+
   it('closes the Mini App by the button and by itself after a while, not before', async () => {
     const w = mount(AccountDeletedView, { props: { until: null } })
 

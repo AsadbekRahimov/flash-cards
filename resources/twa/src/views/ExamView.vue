@@ -3,22 +3,23 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClosedState from '@/components/ClosedState.vue'
+import LessonSkeleton from '@/components/LessonSkeleton.vue'
+import LessonWord from '@/components/LessonWord.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import { useTimer } from '@/composables/useTimer'
 
 /**
- * The exam screen (docs/14 §6.4), group exam and personal mock: an immersive column without the tab bar. The header
- * holds the countdown of the whole exam, the question counter and the score (a mock has the "Mock test" chip instead);
- * under it a group exam shows the bar of the time left for the question, then the word in a card and the four options.
+ * The exam screen (docs/14 §6.4), group exam and personal mock: an immersive column without the tab bar, in the language of a question of
+ * a lesson (kit Muhrla 04). The header holds the countdown of the whole exam, the question counter and the score (a mock has the "Mock
+ * test" chip instead); under it a group exam shows the bar of the time left for the question, then the word and the four options.
  */
 const props = defineProps<{ sessionId: number }>()
 
@@ -99,8 +100,7 @@ function optionState(index: number): 'idle' | 'selected' | 'correct' | 'incorrec
 // "Back" closes the Mini App: an exam is not left halfway for a tab (docs/14 §5.3).
 useBackButton(() => close())
 
-// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
-useChromeSurface()
+// The exam stands on the canvas of the kit (as a lesson): Telegram's header and window background keep the page colour of the app.
 
 let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -176,10 +176,13 @@ function onRetry(): void {
 </script>
 
 <template>
-  <!-- A white immersive screen, as a question of a lesson (docs/design Question.html): no cards, the word large, the options below. -->
+  <!--
+    The language of a lesson question (kit Muhrla 04-urok-vopros) on the canvas: the header (the countdown, «3 / 20», the score or the chip of
+    a mock), the bar of the time of the question, the mascot thinking (not on a short window), the word in Word/XL and the four options.
+  -->
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     data-testid="exam-view"
   >
     <header
@@ -196,19 +199,19 @@ function onRetry(): void {
           <AppIcon name="clock" :size="14" />{{ overallLabel }}
         </span>
       </div>
-      <span class="font-mono text-[13px] leading-[18px] text-muted" data-testid="progress">
+      <span class="text-[15px] leading-5 font-medium text-muted tabular-nums" data-testid="progress">
         {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
       </span>
       <div class="flex justify-end">
         <span v-if="isQuiz" class="chip chip-accent" data-testid="quiz-header">{{ t('exam.quiz_header') }}</span>
         <span v-else-if="isMock" class="chip chip-accent" data-testid="mock-header">{{ t('exam.mock_header') }}</span>
         <span v-else class="chip chip-neutral font-mono" data-testid="score">
-          <AppIcon name="star" solid :size="14" class="text-warning" />{{ totalScore }}
+          <AppIcon name="star" solid :size="14" />{{ totalScore }}
         </span>
       </div>
     </header>
 
-    <LoadingState v-if="status === 'joining' || status === 'loading'" variant="center" />
+    <LessonSkeleton v-if="status === 'joining' || status === 'loading'" />
 
     <ClosedState
       v-else-if="status === 'closed'"
@@ -238,7 +241,7 @@ function onRetry(): void {
       style="padding-bottom: calc(1.5rem + var(--app-safe-b))"
     >
       <!-- The time left for the question (group exams only: a mock has one timer for the whole test). -->
-      <div v-if="!singleTimer" class="progress h-[3px]" aria-hidden="true">
+      <div v-if="!singleTimer" class="progress h-1.5" aria-hidden="true">
         <div
           class="progress-fill duration-1000 ease-linear"
           :class="{ 'bg-danger': questionLow }"
@@ -247,12 +250,13 @@ function onRetry(): void {
         ></div>
       </div>
 
-      <div class="mt-12 text-center short:mt-8">
-        <h2 class="text-[40px] leading-[46px] font-semibold tracking-[-0.6px] break-words" data-testid="word">{{ currentQuestion.word }}</h2>
+      <div class="mt-6 flex flex-col items-center gap-2 text-center short:mt-4">
+        <MascotArt pose="thinking" :height="88" class="short:hidden" />
+        <LessonWord :text="currentQuestion.word" lang="en" data-testid="word" />
       </div>
 
       <!-- The options are radios (QuizOption): the group is named by the word they translate. -->
-      <div class="mt-10 flex flex-col gap-2.5 short:mt-6" role="radiogroup" :aria-label="currentQuestion.word">
+      <div class="mt-8 flex flex-col gap-2.5 short:mt-5 short:gap-2" role="radiogroup" :aria-label="currentQuestion.word">
         <QuizOption
           v-for="(label, i) in currentQuestion.options"
           :key="i"

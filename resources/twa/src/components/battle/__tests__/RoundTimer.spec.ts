@@ -69,15 +69,15 @@ describe('RoundTimer', () => {
     expect(w.get('[data-testid=timer-fill]').attributes('style')).toContain('width: 50%')
   })
 
-  it('turns warm in the last ten seconds: the warning colour with a symbol, never the red of an error', async () => {
+  it('turns to the accent of text in the last ten seconds, with a symbol, never the red of an error; the line stays ink', async () => {
     const w = render({ deadline: at(11) })
     expect(w.get('[role=timer]').attributes('data-state')).toBe('ok')
 
     await pass(1000)
     const timer = w.get('[role=timer]')
     expect(timer.attributes('data-state')).toBe('low')
-    expect(w.get('[data-testid=timer-text]').classes()).toContain('text-warning-ink')
-    expect(w.get('[data-testid=timer-fill]').classes()).toContain('bg-warning')
+    expect(w.get('[data-testid=timer-text]').classes()).toContain('text-accent')
+    expect(w.get('[data-testid=timer-fill]').classes()).not.toContain('bg-muhr')
     expect(timer.find('svg').exists()).toBe(true)
     expect(timer.html()).not.toMatch(/danger|red-/)
   })

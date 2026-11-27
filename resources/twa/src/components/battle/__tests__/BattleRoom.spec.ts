@@ -47,6 +47,23 @@ type Wrapper = ReturnType<typeof render>
 const primaries = (w: Wrapper) => w.findAll('button.btn-primary')
 const chips = (w: Wrapper) => w.findAll('[data-testid=player-chip]').map((chip) => chip.text())
 
+describe('BattleRoom — the hero of the kit', () => {
+  it('an invitation has the mascot over the title (thinking while the learner waits, greeting when it came); the room has none', () => {
+    const pose = (w: Wrapper) => w.find('[data-testid=mascot-art]').attributes('data-pose')
+
+    expect(pose(render(invitedBattle()))).toBe('thinking')
+    expect(pose(render(invitedBattle({ role: 'opponent' })))).toBe('hello')
+    expect(render(roomBattle()).find('[data-testid=mascot-art]').exists()).toBe(false)
+  })
+
+  it('the title is Display/M, the time left is a chip with tabular figures', () => {
+    const w = render(invitedBattle())
+
+    expect(w.get('[data-testid=room-title]').classes()).toContain('t-display-m')
+    expect(w.get('[data-testid=room-expires]').classes()).toEqual(expect.arrayContaining(['chip', 'tabular-nums']))
+  })
+})
+
 describe('BattleRoom — the invitation that was sent', () => {
   const sent = () => invitedBattle({ role: 'challenger' })
 
@@ -88,7 +105,7 @@ describe('BattleRoom — the invitation that was sent', () => {
 
     expect(primaries(w)).toHaveLength(0)
     expect(w.get('[data-testid=cancel-btn]').text()).toBe('Отменить')
-    expect(w.get('[data-testid=cancel-btn]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=cancel-btn]').classes()).toContain('btn-secondary')
     expect(w.find('[data-testid=accept-btn]').exists()).toBe(false)
     await w.get('[data-testid=cancel-btn]').trigger('click')
     expect(w.emitted('cancel')).toHaveLength(1)
@@ -128,7 +145,7 @@ describe('BattleRoom — the invitation that came', () => {
     expect(primaries(w)).toHaveLength(1)
     expect(w.get('[data-testid=accept-btn]').classes()).toContain('btn-primary')
     expect(w.get('[data-testid=accept-btn]').text()).toBe('Принять')
-    expect(w.get('[data-testid=decline-btn]').classes()).toContain('btn-plain')
+    expect(w.get('[data-testid=decline-btn]').classes()).toContain('btn-ghost')
     expect(w.find('[data-testid=cancel-btn]').exists()).toBe(false)
 
     await w.get('[data-testid=accept-btn]').trigger('click')
@@ -187,7 +204,7 @@ describe('BattleRoom — the room', () => {
     expect(w.get('[data-testid=ready-btn]').text()).toBe('Готов')
     expect(w.get('[data-testid=ready-btn]').attributes('disabled')).toBeUndefined()
     expect(w.get('[data-testid=leave-btn]').text()).toBe('Выйти')
-    expect(w.get('[data-testid=leave-btn]').classes()).toContain('btn-plain')
+    expect(w.get('[data-testid=leave-btn]').classes()).toContain('btn-ghost')
 
     await w.get('[data-testid=ready-btn]').trigger('click')
     await w.get('[data-testid=leave-btn]').trigger('click')

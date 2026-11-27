@@ -132,7 +132,7 @@ describe('PaywallSheet in purchase mode', () => {
     // a Stars month is a Telegram subscription: it renews itself, and the line says so instead of "without auto-renewal"
     expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars, продлевается сама каждые 30 дней — отключить можно в «Подписке».')
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Не сейчас')
-    expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-plain')
+    expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-ghost')
     expect(w.get('[data-testid=pay-other]').text()).toContain('Или оплатить по-другому')
   })
 
@@ -200,7 +200,9 @@ describe('PaywallSheet in purchase mode', () => {
       expect(w.get('[data-testid=period-month]').text()).toContain('Месяц')
       // the month saves nothing: the chosen card says "chosen" there, as on the Pro mock-up
       expect(w.get('[data-testid=period-month] [data-testid=period-saving]').text()).toBe('выбрано')
-      expect(w.get('[data-testid=period-month]').classes()).toEqual(expect.arrayContaining(['border-2', 'border-primary', 'bg-accent-soft']))
+      // the tariffs of the kit: equal surface cards, the chosen one in a 2 px frame of border/strong, the other in the 1.5 px hairline
+      expect(w.get('[data-testid=period-month]').classes()).toEqual(expect.arrayContaining(['bg-surface', 'rounded-lg', 'shadow-[inset_0_0_0_2px_var(--app-border-strong)]']))
+      expect(w.get('[data-testid=period-year]').classes()).toContain('shadow-[inset_0_0_0_1.5px_var(--app-hairline)]')
       expect(plain(w.get('[data-testid=period-year] [data-testid=period-price]').text())).toBe('1 300 Stars')
       expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('выгоднее на 28%')
       expect(w.get('[data-testid=period-year] [data-testid=period-saving]').classes()).toContain('text-success-ink')
@@ -854,7 +856,7 @@ describe('PaywallSheet in purchase mode', () => {
       expect(x.attributes('aria-label')).toBe('Закрыть')
       expect(x.find('svg').exists()).toBe(true)
       expect(w.get('[data-testid=paywall-close]').text()).toBe('Не сейчас')
-      expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-plain')
+      expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-ghost')
 
       await x.trigger('click')
       expect(w.emitted('close')).toHaveLength(1)

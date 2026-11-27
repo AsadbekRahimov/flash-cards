@@ -122,7 +122,7 @@ onMounted(() => {
       <PageHeader :title="detail.title" />
 
       <form class="card" data-testid="rename-form" @submit.prevent="rename">
-        <label class="block text-[13px] leading-[18px] text-muted" for="deck-title">{{ t('decks.edit.rename') }}</label>
+        <label class="t-label-s block text-muted" for="deck-title">{{ t('decks.edit.rename') }}</label>
         <div class="mt-2 flex gap-2">
           <input
             id="deck-title"
@@ -159,7 +159,7 @@ onMounted(() => {
           {{ t('decks.choose') }}
         </button>
         <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
-        <p v-if="detail.words_count === 0" class="mt-2 px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">
+        <p v-if="detail.words_count === 0" class="t-label-s mt-2 px-4 text-center text-muted" data-testid="choose-hint">
           {{ t('decks.choose_empty_hint') }}
         </p>
       </template>
@@ -167,8 +167,8 @@ onMounted(() => {
       <!-- The refusal of a Pro learner is under the import button instead (below): that is where the learner looks. -->
       <InlineAlert v-if="errorMessage && !proNotice" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
 
-      <section class="card mt-4 space-y-3" data-testid="import">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('decks.edit.import') }}</h2>
+      <section class="card mt-6 space-y-3" data-testid="import">
+        <h2 class="t-title-m">{{ t('decks.edit.import') }}</h2>
 
         <SegmentedControl
           :model-value="format"
@@ -177,7 +177,7 @@ onMounted(() => {
           @update:model-value="setFormat"
         />
 
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="hint">{{ hint }}</p>
+        <p class="t-label-s text-muted" data-testid="hint">{{ hint }}</p>
 
         <textarea
           v-model="text"
@@ -237,8 +237,8 @@ onMounted(() => {
       <ListGroup v-if="detail.words.length > 0" :header="t('decks.words_title', { count: detail.words_count })" data-testid="words">
         <div v-for="word in detail.words" :key="word.id" class="list-row" :data-testid="`word-${word.id}`">
           <div class="min-w-0 flex-1">
-            <p class="text-[15px] leading-5 font-semibold break-words">{{ word.word }}</p>
-            <p class="mt-0.5 text-[13px] leading-[18px] text-muted break-words">{{ word.translation }}</p>
+            <p class="t-body-m-strong break-words">{{ word.word }}</p>
+            <p class="t-label-s mt-0.5 break-words text-muted">{{ word.translation }}</p>
           </div>
           <button
             type="button"
@@ -270,7 +270,7 @@ onMounted(() => {
         {{ t('decks.edit.delete') }}
       </button>
       <div v-else class="card mt-6 space-y-3" data-testid="delete-confirm">
-        <p class="text-[15px] leading-5">{{ t('decks.edit.delete.confirm', { title: detail.title }) }}</p>
+        <p class="t-body-m">{{ t('decks.edit.delete.confirm', { title: detail.title }) }}</p>
         <div class="flex gap-2">
           <button type="button" class="btn btn-danger flex-1" :disabled="busy" data-testid="delete-yes" @click="archive">
             {{ t('decks.edit.delete.yes') }}

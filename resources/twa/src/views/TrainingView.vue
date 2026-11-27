@@ -7,6 +7,7 @@ import AudioCard from '@/components/AudioCard.vue'
 import ClosedState from '@/components/ClosedState.vue'
 import FlashCard from '@/components/FlashCard.vue'
 import GapFillCard from '@/components/GapFillCard.vue'
+import LessonSkeleton from '@/components/LessonSkeleton.vue'
 import PretestCard from '@/components/PretestCard.vue'
 import PretestReveal from '@/components/PretestReveal.vue'
 import ReverseCard from '@/components/ReverseCard.vue'
@@ -15,8 +16,8 @@ import WordNoteSheet from '@/components/WordNoteSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
+import SegmentProgress from '@/components/ui/SegmentProgress.vue'
 import MeaningCard from '@/components/MeaningCard.vue'
 import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useAuthStore } from '@/stores/auth'
@@ -24,16 +25,15 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, COMBO_STEP, useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { Quality } from '@/api/types'
 
 /**
- * The training screen (docs/14 §6.2, docs/design/2026-11-25-redesign Question / Feedback): an immersive white column without
- * the tab bar — the header (close, the progress in segments, «3 из 8», the pill of the session), the exercise in the body and its
- * actions in the sticky block at the bottom (each exercise component draws its own). `prompt.type` of the served card decides
+ * The training screen (docs/14 §6.2, kit Muhrla 04-urok-vopros / 05-urok-oshibka): an immersive column on the canvas, without the tab
+ * bar — the header (close, the progress in segments, «3 из 8», the chip of the session), the exercise in the body and its actions in the
+ * sticky block at the bottom (each exercise component draws its own; the feedback sheet too). `prompt.type` of the served card decides
  * which exercise it is.
  */
 const props = defineProps<{ sessionId: number }>()
@@ -174,8 +174,8 @@ function leave(): void {
 
 useBackButton(leave)
 
-// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
-useChromeSurface()
+// The lesson stands on the canvas of the kit Muhrla (04-urok-vopros: the page colour, the options on the surface): Telegram's header and
+// window background keep the page colour of the app, no white chrome of its own.
 
 /**
  * Set when the learner leaves the screen. Whatever comes back after that (the login, the reply to the last grade, the
@@ -315,8 +315,8 @@ async function onRestart(): Promise<void> {
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     data-testid="training-view"
   >
     <ClosedState v-if="status === 'closed'" icon="lock-closed" :title="t('training.closed_title')" :text="errorMessage">
@@ -339,36 +339,22 @@ async function onRestart(): Promise<void> {
 
     <template v-else>
       <!--
-        docs/design/2026-11-25-redesign Question: ✕, the progress as segments (one per card of a short session; a line when there
-        are too many for segments) and «3 из 8»; under them a pill that says what this session is (the lesson, the round…).
+        Kit Muhrla 04-urok-vopros: ✕ (back home: Telegram's own "Close" would end the Mini App), the progress as segments (the passed in
+        ink, the current in the muhr colour, the rest on the sunken paper; a line when there are too many for segments) and «3 из 8»;
+        under them a quiet chip that says what this session is (the lesson, the round…).
       -->
-      <header class="px-5 pt-3">
+      <header class="px-5 pt-2">
         <div class="flex items-center gap-3">
           <button
             type="button"
-            class="-ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
+            class="-ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-sunken"
             :aria-label="t('common.close')"
             data-testid="close-btn"
             @click="leave"
           >
             <AppIcon name="x-mark" :size="20" />
           </button>
-          <div
-            v-if="segments > 0"
-            class="grid flex-1 gap-1"
-            :style="{ gridTemplateColumns: `repeat(${segments}, minmax(0, 1fr))` }"
-            aria-hidden="true"
-            data-testid="progress-bar"
-          >
-            <span
-              v-for="n in segments"
-              :key="n"
-              class="h-1.5 rounded-full"
-              :class="n <= progress.done ? 'bg-primary' : 'bg-track'"
-              :data-done="n <= progress.done ? 'true' : undefined"
-              data-testid="progress-segment"
-            />
-          </div>
+          <SegmentProgress v-if="segments > 0" :total="segments" :current="progress.done" class="flex-1" data-testid="progress-bar" />
           <ProgressLine v-else :value="progressPercent" tone="primary" class="h-1.5 flex-1" data-testid="progress-bar" />
           <Transition name="combo">
             <span
@@ -392,31 +378,31 @@ async function onRestart(): Promise<void> {
             data-testid="score-chip"
           >+{{ wordScore.points }}</span>
           <span
-            class="shrink-0 text-right text-sm leading-5 font-semibold text-muted tabular-nums"
+            class="shrink-0 text-right text-[15px] leading-5 font-medium text-muted tabular-nums"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
           >
             {{ t('training.progress.counter', { done: progress.done, total: progress.total }) }}
           </span>
         </div>
-        <!-- What this session is: one pill (docs/design Question «Урок 3 · Напитки»), its text by the mode. -->
-        <div v-if="mode === 'hard_review'" class="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1" data-testid="hard-round-header">
-          <span class="block h-7 max-w-full min-w-0 truncate rounded-full bg-accent-soft px-3 text-[13px] leading-7 font-bold text-accent-ink" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
+        <!-- What this session is: one neutral chip («Урок 3 · Напитки»), its text by the mode. -->
+        <div v-if="mode === 'hard_review'" class="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1" data-testid="hard-round-header">
+          <span class="chip chip-accent max-w-full min-w-0 truncate" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
           <!-- The round of hard words: how many of its words are won (`progress.done`, docs/06 §14). -->
-          <span class="text-[13px] leading-[18px] text-muted" data-testid="hard-round-progress">
+          <span class="t-label-s text-muted" data-testid="hard-round-progress">
             {{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}
           </span>
         </div>
-        <p v-else-if="subtitle" class="mt-4 flex" :data-testid="subtitle.testid">
-          <span class="block h-7 max-w-full min-w-0 truncate rounded-full bg-accent-soft px-3 text-[13px] leading-7 font-bold text-accent-ink">{{ subtitle.text }}</span>
+        <p v-else-if="subtitle" class="mt-2 flex" :data-testid="subtitle.testid">
+          <span class="chip chip-neutral block max-w-full min-w-0 truncate leading-[26px]">{{ subtitle.text }}</span>
         </p>
         <!-- The cap of the rating day, said once a session (docs/32 §3.4): the words go on being learned, the points wait for tomorrow. -->
-        <p v-if="wordScore?.capped" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="score-capped">{{ t('score.today.capped') }}</p>
+        <p v-if="wordScore?.capped" class="t-label-s mt-2 text-muted" data-testid="score-capped">{{ t('score.today.capped') }}</p>
       </header>
 
       <div class="card-stage">
       <Transition name="card-swap">
-      <LoadingState v-if="showSpinner" variant="center" />
+      <LessonSkeleton v-if="showSpinner" />
 
       <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="onRetry" />
 

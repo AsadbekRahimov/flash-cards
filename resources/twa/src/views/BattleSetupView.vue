@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ClosedState from '@/components/ClosedState.vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PlayerName from '@/components/PlayerName.vue'
@@ -136,6 +137,11 @@ function toFriends(): void {
   void router.replace({ name: 'friends' })
 }
 
+/** The form is on screen (the friend, the course, the lesson, the format): the sticky block of "Invite" goes with it. */
+const showForm = computed(
+  () => props.friendshipId !== null && !catalogLoading.value && !catalogFailed.value && !blocked.value && setup.courses.length > 0,
+)
+
 const blockedKey = computed(() => {
   if (blocked.value === 'friend') return 'friend'
   return blocked.value === 'off' ? 'off' : 'unavailable'
@@ -147,34 +153,30 @@ const blockedKey = computed(() => {
     <PageHeader :title="t('battle.setup.title')" :subtitle="t('battle.setup.subtitle')" />
 
     <!-- No friend in the address: a battle is played by two. -->
-    <EmptyState
+    <ClosedState
       v-if="friendshipId === null"
-      icon="users"
+      mascot="hello"
       :title="t('battle.setup.no_friend_title')"
       :text="t('battle.setup.no_friend_text')"
       data-testid="no-friend"
     >
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-friends" @click="toFriends">{{ t('battle.to_friends') }}</button>
-      </template>
-    </EmptyState>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-friends" @click="toFriends">{{ t('battle.to_friends') }}</button>
+    </ClosedState>
 
     <LoadingState v-else-if="catalogLoading" variant="list" />
 
     <ErrorState v-else-if="catalogFailed" :message="catalogMessage" @retry="load" />
 
-    <EmptyState
+    <ClosedState
       v-else-if="blocked"
-      :icon="blocked === 'friend' ? 'users' : 'lock-closed'"
+      mascot="thinking"
       :title="t(`battle.setup.blocked.${blockedKey}.title`)"
       :text="t(`battle.setup.blocked.${blockedKey}.text`)"
       data-testid="blocked"
       :data-reason="blocked"
     >
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-friends" @click="toFriends">{{ t('battle.to_friends') }}</button>
-      </template>
-    </EmptyState>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-friends" @click="toFriends">{{ t('battle.to_friends') }}</button>
+    </ClosedState>
 
     <EmptyState v-else-if="setup.courses.length === 0" icon="academic-cap" :text="t('battle.setup.no_courses')" data-testid="no-courses" />
 
@@ -182,10 +184,10 @@ const blockedKey = computed(() => {
       <section class="card flex items-center gap-3" data-testid="friend-card">
         <InitialAvatar :name="shownName" />
         <span class="min-w-0 flex-1">
-          <PlayerName :name="shownName" :emoji="setup.friendEmoji" class="text-[15px] leading-5 font-semibold" data-testid="friend-name" />
-          <span class="block text-[13px] leading-[18px] text-muted">{{ t('battle.setup.friend') }}</span>
+          <PlayerName :name="shownName" :emoji="setup.friendEmoji" class="t-body-m-strong" data-testid="friend-name" />
+          <span class="block t-label-s text-muted">{{ t('battle.setup.friend') }}</span>
         </span>
-        <AppIcon v-if="options && !noAccess" name="check-circle" :size="22" class="text-success" />
+        <AppIcon v-if="options && !noAccess" name="check-circle" :size="22" class="text-success-ink" />
       </section>
       <InlineAlert v-if="noAccess" tone="warning" :message="t('battle.setup.friend_no_access', { name: shownName })" data-testid="friend-no-access" />
 
@@ -204,10 +206,14 @@ const blockedKey = computed(() => {
             @click="pickCourse(item.slug)"
           >
             <span class="min-w-0 flex-1">
-              <span class="block text-[15px] leading-5">{{ item.title }}</span>
-              <span v-if="item.level" class="block text-[13px] leading-[18px] text-muted">{{ item.level }}</span>
+              <span class="block t-body-m-strong">{{ item.title }}</span>
+              <span v-if="item.level" class="block t-label-s text-muted">{{ item.level }}</span>
             </span>
-            <AppIcon v-if="item.slug === course" name="check" :size="20" class="text-accent" />
+            <!-- The radio of the kit: the ink circle with a check when chosen, an empty circle otherwise (never the colour alone). -->
+            <span v-if="item.slug === course" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse" data-testid="course-check">
+              <AppIcon name="check" :size="14" />
+            </span>
+            <span v-else class="size-[22px] shrink-0 rounded-full border-[1.5px] border-hairline" aria-hidden="true" />
           </button>
         </div>
       </section>
@@ -228,7 +234,7 @@ const blockedKey = computed(() => {
           </select>
           <div v-if="lessonsFailed" class="mt-3 space-y-2" data-testid="lessons-error">
             <InlineAlert tone="danger" :message="t('battle.setup.lessons_error')" />
-            <button type="button" class="btn btn-tinted btn-sm" data-testid="lessons-retry" @click="setup.reloadLessons()">{{ t('common.retry') }}</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-testid="lessons-retry" @click="setup.reloadLessons()">{{ t('common.retry') }}</button>
           </div>
         </div>
       </section>
@@ -240,7 +246,7 @@ const blockedKey = computed(() => {
 
         <div v-else-if="optionsStatus === 'error'" class="space-y-2" data-testid="options-error">
           <InlineAlert tone="danger" :message="optionsError" />
-          <button type="button" class="btn btn-tinted btn-sm" data-testid="options-retry" @click="setup.loadOptions()">{{ t('common.retry') }}</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-testid="options-retry" @click="setup.loadOptions()">{{ t('common.retry') }}</button>
         </div>
 
         <div v-else-if="options" class="list" role="radiogroup" :aria-label="t('battle.setup.format')" data-testid="formats">
@@ -248,21 +254,26 @@ const blockedKey = computed(() => {
         </div>
       </section>
 
-      <section class="space-y-3" data-testid="invite-section">
-        <InlineAlert v-if="inviteError" tone="danger" :message="inviteError" data-testid="invite-error" />
-        <button v-if="busyBattleId !== null" type="button" class="btn btn-tinted btn-block" data-testid="open-busy" @click="openBusy">
-          {{ t('battle.open_current') }}
-        </button>
-        <!-- Free only: the battles left today. -->
-        <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
-          {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
-        </p>
-        <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="!setup.canInvite" data-testid="invite-btn" @click="invite">
-          {{ inviting ? t('battle.setup.inviting') : t('battle.setup.invite') }}
-        </button>
-        <p class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="invite-hint">{{ t('battle.setup.invite_hint') }}</p>
-      </section>
     </div>
+
+    <!--
+      The one primary button at the end of the form, in the flow: the screen has the tab bar, and the kit keeps the bottom zone of a button
+      for the screens without it (DESIGN.md §7); a sticky block would stand under the bar.
+    -->
+    <section v-if="showForm" class="mt-5 flex flex-col gap-3" data-testid="invite-section">
+      <InlineAlert v-if="inviteError" tone="danger" :message="inviteError" data-testid="invite-error" />
+      <button v-if="busyBattleId !== null" type="button" class="btn btn-secondary btn-block" data-testid="open-busy" @click="openBusy">
+        {{ t('battle.open_current') }}
+      </button>
+      <!-- Free only: the battles left today. -->
+      <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
+        {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
+      </p>
+      <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="!setup.canInvite" data-testid="invite-btn" @click="invite">
+        {{ inviting ? t('battle.setup.inviting') : t('battle.setup.invite') }}
+      </button>
+      <p class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="invite-hint">{{ t('battle.setup.invite_hint') }}</p>
+    </section>
 
     <PaywallSheet
       v-if="paywall || limitHit"

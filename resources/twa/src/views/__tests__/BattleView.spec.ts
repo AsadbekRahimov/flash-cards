@@ -870,6 +870,8 @@ describe('BattleView — a round', () => {
     expect(has(r, 'probe')).toBe(false)
     expect(text(r, 'battle-waiting')).toContain('Ответ принят')
     expect(text(r, 'battle-waiting')).toContain('Ждём соперника…')
+    // waiting for the opponent: the mascot thinks (kit Muhrla)
+    expect(get(r, 'battle-waiting').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('thinking')
     expect(text(r, 'player-chip')).toBe('отвечает…')
     expect(text(r, 'battle-live')).toBe('Ответ принят. Ждём соперника.')
     expect(tg.haptic).toHaveBeenCalledWith('medium')
@@ -2631,6 +2633,12 @@ describe('BattleView — a short window', () => {
     const r = await render(battle())
 
     expect(text(r, 'headline')).toBe('Раунд 2 из 5')
+    // the header of a lesson of the kit: the segments of the rounds (the first one passed, the second the current one) and "2 / 5";
+    // the headline is said to a screen reader only
+    const segments = get(r, 'round-segments').findAll('.segment').map((segment) => segment.attributes('data-state'))
+    expect(segments).toEqual(['done', 'current', 'todo', 'todo', 'todo'])
+    expect(text(r, 'round-count')).toBe('2 / 5')
+    expect(get(r, 'headline').classes()).toContain('sr-only')
     expect(has(r, 'score-me')).toBe(true)
     expect(has(r, 'score-opponent')).toBe(true)
     expect(has(r, 'round-timer')).toBe(true)

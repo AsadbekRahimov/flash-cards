@@ -42,14 +42,15 @@ describe('BattleFormatCard — a format that can be played', () => {
     expect(render(option({ mode: 'dictation', round_seconds: 60 })).get('[data-testid=format-seconds]').text()).toBe('60 с на раунд')
   })
 
-  it('the chosen one has the frame of a selected row and a check mark (not the colour alone), and says so', () => {
+  it('the chosen one has the frame of a selected tile of the kit (2 px border/strong, no fill) and a check mark (not the colour alone), and says so', () => {
     const w = render(option(), true)
     const card = w.get('[data-testid=format-pairs]')
 
     expect(card.attributes('aria-checked')).toBe('true')
     expect(card.attributes('data-state')).toBe('selected')
-    expect(card.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'shadow-[inset_0_0_0_1.5px_var(--app-primary)]']))
-    expect(w.find('[data-testid=format-check]').exists()).toBe(true)
+    expect(card.classes()).toContain('shadow-[inset_0_0_0_2px_var(--app-border-strong)]')
+    expect(card.classes()).not.toContain('bg-accent-soft')
+    expect(w.get('[data-testid=format-check]').classes()).toContain('bg-inverse')
   })
 
   it('a format that is not chosen has an empty circle and no check', () => {
@@ -68,7 +69,7 @@ describe('BattleFormatCard — a format that cannot be played', () => {
     expect(card.element.tagName).toBe('DIV')
     expect(card.attributes('role')).toBeUndefined()
     expect(w.get('[data-testid=format-chip]').text()).toBe('Мало материала')
-    expect(w.get('[data-testid=format-chip]').classes()).toContain('chip-warning')
+    expect(w.get('[data-testid=format-chip]').classes()).toContain('chip-neutral') // the kit has no warning chip: a state is meta
     expect(w.get('[data-testid=format-chip]').find('svg').exists()).toBe(false) // a word in a frame, no icon: the row is text
     expect(w.get('[data-testid=format-reason]').text()).toBe('В этой теме слов меньше, чем нужно для баттла: 14 из 20. Выберите другой урок или весь курс.')
 
@@ -104,6 +105,7 @@ describe('BattleFormatCard — a format that cannot be played', () => {
     const w = render(option({ mode: 'dictation', state: 'pro_required' }))
 
     expect(w.get('[data-testid=format-chip]').text()).toBe('Pro')
+    expect(w.get('[data-testid=format-chip]').classes()).toContain('chip-ink')
     expect(w.get('[data-testid=format-dictation]').element.tagName).toBe('DIV')
   })
 

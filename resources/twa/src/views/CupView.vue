@@ -5,8 +5,12 @@ import { storeToRefs } from 'pinia'
 import CupDuelBlock from '@/components/cup/CupDuelBlock.vue'
 import CupRules from '@/components/cup/CupRules.vue'
 import CupStandings from '@/components/cup/CupStandings.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import AppChip from '@/components/ui/AppChip.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -79,6 +83,8 @@ const data = computed(() => (board.value !== null && board.value.cup.id === prop
 const cup = computed(() => data.value?.cup ?? null)
 const me = computed(() => data.value?.me ?? null)
 const myRow = computed(() => data.value?.standings.find((row) => row.me) ?? null)
+/** My final place in a cup that is over (the stamp of the result); null while the cup runs or without a place. */
+const finalRank = computed((): number | null => (cup.value?.status === 'finished' ? (me.value?.final_rank ?? null) : null))
 
 /**
  * The duels (docs/04 A.23d): while `me.duel` comes and the duels have not answered "off" in this session. The counter of the challenges
@@ -332,25 +338,32 @@ onBeforeUnmount(() => {
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
+    <ClosedState v-else-if="view === 'unavailable'" mascot="thinking" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
 
-    <EmptyState v-else-if="view === 'off'" icon="lock-closed" :title="t('cup.off_title')" :text="t('cup.failure.off')" data-testid="off" />
+    <ClosedState v-else-if="view === 'off'" mascot="thinking" :title="t('cup.off_title')" :text="t('cup.failure.off')" data-testid="off" />
 
     <ErrorState v-else-if="view === 'error'" :title="errorTitle" :message="errorText" :data-kind="failure?.kind" @retry="load" />
 
     <div v-else-if="data && cup" class="space-y-3">
       <!-- The big card: the state, my place and points, my round of the day. -->
-      <section class="flex flex-col gap-3 rounded-hero bg-highlight p-4" :data-status="cup.status" data-testid="cup-card">
-        <div class="flex flex-col gap-1">
-          <p class="text-sm leading-[18px] font-semibold" data-testid="cup-level">{{ t('cup.level', { level: cup.level }) }}</p>
-          <h2 class="text-[22px] leading-7 font-extrabold break-words" data-testid="cup-status">{{ statusLine }}</h2>
+      <section class="flex flex-col gap-3 rounded-hero bg-highlight p-5" :data-status="cup.status" data-testid="cup-card">
+        <!--
+          The result of a cup that is over (kit Muhrla: the stamp of a result, pressed in once): the final place on the stamp; the mascot
+          holds the cup for a place on the podium. A place further down is told by the stamp alone - no celebration.
+        -->
+        <div v-if="finalRank !== null" class="flex flex-col items-center gap-2 pb-1" data-testid="cup-final">
+          <MascotArt v-if="finalRank <= 3" pose="trophy" :height="120" class="short:hidden" />
+          <StampMark :value="finalRank" :unit="t('cup.final_stamp_unit')" />
         </div>
 
-        <div v-if="me && myRow" class="flex items-center gap-3" data-testid="my-result">
-          <span class="flex h-[38px] shrink-0 items-center rounded-control bg-primary px-3.5 text-[15px] leading-5 font-bold text-on-primary tabular-nums" data-testid="my-points">
-            {{ tn('cup.points', me.total) }}
-          </span>
-          <span class="min-w-0 text-[15px] leading-5" data-testid="my-place">
+        <div class="flex flex-col items-start gap-2">
+          <AppChip data-testid="cup-level">{{ t('cup.level', { level: cup.level }) }}</AppChip>
+          <h2 class="t-display-m break-words" data-testid="cup-status">{{ statusLine }}</h2>
+        </div>
+
+        <div v-if="me && myRow" class="flex items-baseline gap-3" data-testid="my-result">
+          <span class="t-numeric-l shrink-0" data-testid="my-points">{{ tn('cup.points', me.total) }}</span>
+          <span class="t-body-m min-w-0 text-muted" data-testid="my-place">
             {{ me.final_rank !== null ? t('cup.final_place', { rank: me.final_rank }) : t('cup.my_place', { rank: myRow.rank }) }}
           </span>
         </div>
@@ -359,17 +372,20 @@ onBeforeUnmount(() => {
           <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="play-btn" @click="play">{{ t('cup.today.play') }}</button>
         </template>
         <template v-else-if="roundState === 'continue'">
-          <p v-if="activeUntil" class="text-[15px] leading-5" data-testid="active-until">{{ activeUntil }}</p>
+          <p v-if="activeUntil" class="t-body-m" data-testid="active-until">{{ activeUntil }}</p>
           <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="play">{{ t('cup.today.continue') }}</button>
         </template>
         <template v-else-if="roundState === 'done'">
-          <p class="text-[15px] leading-5" role="status" :data-next="next?.kind" data-testid="round-done">{{ doneLine }}</p>
-          <button v-if="next?.kind === 'open'" type="button" class="btn btn-tinted btn-block" data-testid="refresh-btn" @click="load">{{ t('cup.today.refresh') }}</button>
+          <p class="t-body-m flex items-start gap-2" role="status" :data-next="next?.kind" data-testid="round-done">
+            <AppIcon name="check-circle" :size="20" class="mt-px shrink-0 text-success-ink" />
+            <span class="min-w-0">{{ doneLine }}</span>
+          </p>
+          <button v-if="next?.kind === 'open'" type="button" class="btn btn-secondary btn-block" data-testid="refresh-btn" @click="load">{{ t('cup.today.refresh') }}</button>
         </template>
-        <p v-else-if="roundState === 'left'" class="text-[15px] leading-5 text-muted" data-testid="me-left">{{ t('cup.me.left') }}</p>
+        <p v-else-if="roundState === 'left'" class="t-body-m text-muted" data-testid="me-left">{{ t('cup.me.left') }}</p>
 
         <template v-if="me === null && open">
-          <p class="text-[15px] leading-5" data-testid="not-joined">{{ t('cup.me.not_joined') }}</p>
+          <p class="t-body-m" data-testid="not-joined">{{ t('cup.me.not_joined') }}</p>
           <InlineAlert v-if="joinError" tone="danger" :message="joinError" data-testid="join-error" />
           <button
             type="button"
@@ -390,20 +406,20 @@ onBeforeUnmount(() => {
 
       <!-- My days 1…7: the points of each, the ones that count in the total marked. -->
       <section v-if="me" class="card flex flex-col gap-2.5" data-testid="my-days">
-        <h2 class="text-base leading-[22px] font-bold">{{ t('cup.days.title') }}</h2>
+        <h2 class="t-title-m">{{ t('cup.days.title') }}</h2>
         <ol class="grid grid-cols-7 gap-1" :aria-label="t('cup.days.title')">
           <li
             v-for="day in me.days"
             :key="day.day"
-            class="flex min-w-0 flex-col items-center rounded-control py-1.5"
-            :class="day.counted ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'bg-fill'"
+            class="flex min-w-0 flex-col items-center rounded-sm py-1.5"
+            :class="day.counted ? 'bg-surface shadow-[inset_0_0_0_2px_var(--app-border-strong)]' : 'bg-sunken'"
             :aria-label="dayLabel(day)"
             :data-counted="day.counted ? 'true' : undefined"
             :data-played="day.played ? 'true' : undefined"
             data-testid="day"
           >
-            <span class="text-[11px] leading-[14px] text-muted" aria-hidden="true">{{ day.day }}</span>
-            <span class="text-[15px] leading-5 font-bold tabular-nums" :class="day.available && day.played ? '' : 'text-muted'" aria-hidden="true">
+            <span class="t-caption text-muted" aria-hidden="true">{{ day.day }}</span>
+            <span class="font-display text-[15px] leading-5 font-semibold tabular-nums" :class="day.available && day.played ? '' : 'text-tertiary'" aria-hidden="true">
               {{ day.available && day.played ? day.points : '–' }}
             </span>
           </li>
@@ -415,8 +431,8 @@ onBeforeUnmount(() => {
       <section v-if="me" class="list" data-testid="my-name">
         <div class="list-row min-h-11">
           <span class="flex min-w-0 flex-1 flex-col">
-            <span class="text-[13px] leading-[18px] text-muted">{{ t('cup.invite.name_label') }}</span>
-            <span class="truncate text-base leading-[22px] font-bold" data-testid="my-name-value">{{ me.display_name }}</span>
+            <span class="t-label-s text-muted">{{ t('cup.invite.name_label') }}</span>
+            <span class="t-body-m-strong truncate" data-testid="my-name-value">{{ me.display_name }}</span>
           </span>
           <button
             v-if="me.renames_left > 0 && open"
@@ -432,27 +448,28 @@ onBeforeUnmount(() => {
 
       <details class="list group" data-testid="rules">
         <summary class="list-row min-h-11 cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('cup.rules.title') }}</span>
+          <span class="t-body-m-strong min-w-0 flex-1">{{ t('cup.rules.title') }}</span>
+          <AppIcon name="chevron-down" :size="20" class="shrink-0 text-muted transition-transform group-open:rotate-180" />
         </summary>
-        <div class="px-[18px] pt-1 pb-4">
+        <div class="px-3 pt-1 pb-4">
           <CupRules :cup="cup" :rules="cup.rules" />
         </div>
       </details>
 
-      <button v-if="data.can_manage && open" type="button" class="btn btn-plain btn-block text-danger-ink" data-testid="cancel-btn" @click="openCancel">
+      <button v-if="data.can_manage && open" type="button" class="btn btn-ghost btn-block text-danger-ink" data-testid="cancel-btn" @click="openCancel">
         {{ t('cup.cancel.open') }}
       </button>
 
       <RouterLink :to="{ name: 'cups' }" class="btn btn-plain btn-block" data-testid="my-cups-link">{{ t('cup.list.title') }}</RouterLink>
 
-      <button v-if="me && open" type="button" class="btn btn-plain btn-block text-danger-ink" data-testid="leave-btn" @click="openLeave">
+      <button v-if="me && open" type="button" class="btn btn-ghost btn-block text-danger-ink" data-testid="leave-btn" @click="openLeave">
         {{ t('cup.leave.open') }}
       </button>
     </div>
 
     <BottomSheet v-if="renameOpen" :label="t('cup.name.title')" @close="renameOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="rename-sheet">
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.name.title') }}</h2>
+        <h2 class="t-display-m">{{ t('cup.name.title') }}</h2>
         <input
           v-model="newName"
           type="text"
@@ -487,7 +504,7 @@ onBeforeUnmount(() => {
 
     <BottomSheet v-if="leaveOpen" :label="t('cup.leave.title')" :dismissible="!leaving" @close="leaveOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="leave-sheet">
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.leave.title') }}</h2>
+        <h2 class="t-display-m">{{ t('cup.leave.title') }}</h2>
         <p class="text-[15px] leading-5 text-muted" data-testid="leave-text">{{ t('cup.leave.text') }}</p>
         <InlineAlert v-if="leaveError" tone="danger" :message="leaveError" data-testid="leave-error" />
         <button type="button" class="btn btn-primary btn-block" :disabled="leaving" data-testid="leave-keep" @click="leaveOpen = false">{{ t('cup.leave.keep') }}</button>
@@ -506,7 +523,7 @@ onBeforeUnmount(() => {
 
     <BottomSheet v-if="cancelOpen" :label="t('cup.cancel.title')" @close="cancelOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="cancel-sheet">
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.cancel.title') }}</h2>
+        <h2 class="t-display-m">{{ t('cup.cancel.title') }}</h2>
         <p class="text-[15px] leading-5 text-muted">{{ t('cup.cancel.text') }}</p>
         <InlineAlert v-if="cancelError" tone="danger" :message="cancelError" data-testid="cancel-error" />
         <button type="button" class="btn btn-primary btn-block" data-testid="cancel-keep" @click="cancelOpen = false">{{ t('cup.cancel.keep') }}</button>

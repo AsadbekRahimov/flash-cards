@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
 import { LANGUAGE_TITLE, useI18n } from '@/i18n'
@@ -51,16 +52,20 @@ function next(): void {
           @update:model-value="change(String($event))"
         />
       </div>
-      <p class="text-[13px] leading-[18px] text-muted">{{ t('intro.title') }}</p>
-      <h2 class="text-[22px] leading-7 font-semibold" data-testid="intro-title">{{ title }}</h2>
-      <p class="text-base leading-[22px] text-muted" data-testid="intro-text">{{ body }}</p>
-      <!-- The steps as a thin line of four parts (not 6 px dots, which were hard to see): done and current in accent, the rest the track. -->
-      <div class="grid grid-cols-4 gap-2 pt-1" aria-hidden="true" data-testid="intro-dots">
+      <!-- On the centre axis of the kit: the mascot greets on the first step, then the title and the line of each step. -->
+      <div class="flex flex-col items-center gap-2 text-center">
+        <MascotArt v-if="step === 0" pose="hello" :height="96" />
+        <p class="t-label-s text-muted">{{ t('intro.title') }}</p>
+        <h2 class="t-display-m" data-testid="intro-title">{{ title }}</h2>
+        <p class="t-body-m text-muted" data-testid="intro-text">{{ body }}</p>
+      </div>
+      <!-- The steps as the progress segments of the kit: done in ink, the current one in muhr, the rest the sunken paper. -->
+      <div class="segments pt-1" aria-hidden="true" data-testid="intro-dots">
         <span
           v-for="(n, i) in STEPS"
           :key="n"
-          class="h-1 rounded-full"
-          :class="i <= step ? 'bg-accent' : 'bg-track'"
+          class="segment"
+          :data-state="i < step ? 'done' : i === step ? 'current' : undefined"
           :data-current="i === step ? 'true' : undefined"
         />
       </div>
@@ -68,7 +73,7 @@ function next(): void {
     <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="intro-next" @click="next">
       {{ t(last ? 'intro.start' : 'intro.next') }}
     </button>
-    <button v-if="!last" type="button" class="btn btn-plain btn-block" data-testid="intro-skip" @click="emit('close')">
+    <button v-if="!last" type="button" class="btn btn-ghost btn-block" data-testid="intro-skip" @click="emit('close')">
       {{ t('intro.skip') }}
     </button>
   </BottomSheet>

@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
   <div class="flex flex-1 flex-col" data-testid="word-form-input" :data-mode="mode">
     <div class="flex flex-1 flex-col gap-3 px-5 pt-4 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
       <article class="flex flex-col items-center gap-3 px-5 py-5 text-center [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:py-3">
-        <p class="text-[13px] leading-[18px] text-muted [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
+        <p class="t-body-m text-muted [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
           {{ t('practice.word_form.instruction') }}
         </p>
 

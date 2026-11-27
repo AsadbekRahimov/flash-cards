@@ -75,4 +75,40 @@ describe('App shell', () => {
 
     expect(w.get('[data-testid=toast]').text()).toBe('Сохранено')
   })
+
+  describe('the move between screens (ANIMATIONS.md §7)', () => {
+    it('does not fade in the first screen of the open', async () => {
+      const { w } = await mountApp('/today')
+
+      expect(w.get('main').attributes('data-enter')).toBeUndefined()
+    })
+
+    it('crossfades a tab root and fades in an inner screen, only the opacity, and drops the class when it has run', async () => {
+      const { w, router } = await mountApp('/today')
+
+      await router.push('/league')
+      await flushPromises()
+      expect(w.get('main').classes()).toContain('screen-enter-tab')
+
+      await w.get('main').trigger('animationend')
+      expect(w.get('main').attributes('data-enter')).toBeUndefined()
+
+      await router.push('/training/5')
+      await flushPromises()
+      expect(w.get('main').classes()).toContain('screen-enter-inner')
+    })
+
+    it('ignores the end of an animation of a child, and a change of the params of the same screen', async () => {
+      const { w, router } = await mountApp('/training/4')
+
+      await router.push('/training/5')
+      await flushPromises()
+      expect(w.get('main').attributes('data-enter')).toBeUndefined()
+
+      await router.push('/today')
+      await flushPromises()
+      await w.get('[data-testid=today]').trigger('animationend')
+      expect(w.get('main').classes()).toContain('screen-enter-tab')
+    })
+  })
 })

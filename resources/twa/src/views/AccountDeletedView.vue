@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from 'vue'
-import ClosedState from '@/components/ClosedState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import { formatDate } from '@/composables/format'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -8,7 +8,8 @@ import { useI18n } from '@/i18n'
 /**
  * "Account deleted" after Settings → Delete account: says that the account is gone, until when `/start` in the bot brings it
  * back (`until`, the date the server named), and closes the Mini App (the "Close" button, or by itself after
- * `CLOSE_AFTER_MS`). A screen with no tab bar and no request: the session is already dropped, and any call with the old
+ * `CLOSE_AFTER_MS`). Drawn as the kit Muhrla draws its quiet screens: the mascot waving, the title and the line on the centre axis. A screen
+ * with no tab bar and no request: the session is already dropped, and any call with the old
  * token would sign the learner in again and bring the account back.
  */
 const props = defineProps<{ until: string | null }>()
@@ -37,10 +38,16 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page flex flex-1 flex-col" data-testid="account-deleted-view">
-    <ClosedState icon="check-circle" :title="t('settings.deleted.title')" :text="text">
-      <button type="button" class="btn btn-primary btn-block" data-testid="account-deleted-close" @click="close()">
-        {{ t('common.exit_app') }}
-      </button>
-    </ClosedState>
+    <!-- The goodbye of the kit: the mascot on the centre axis, the title, the date `/start` brings the account back until, one Primary. -->
+    <div class="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-10 text-center" data-testid="closed">
+      <MascotArt pose="hello" :height="120" class="mb-2" />
+      <h2 class="t-display-m">{{ t('settings.deleted.title') }}</h2>
+      <p class="t-body-m max-w-80 text-muted" data-testid="account-deleted-text">{{ text }}</p>
+      <div class="mt-4 flex w-full max-w-72 flex-col gap-2">
+        <button type="button" class="btn btn-primary btn-block" data-testid="account-deleted-close" @click="close()">
+          {{ t('common.exit_app') }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>

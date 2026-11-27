@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -167,21 +168,19 @@ onBeforeUnmount(() => {
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'no_course'"
-      icon="book-open"
+      mascot="hello"
       :title="t('game.map.no_course_title')"
       :text="t('game.map.no_course_text')"
       data-testid="no-course"
     >
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-courses" @click="toCourses">{{ t('game.map.to_courses') }}</button>
-      </template>
-    </EmptyState>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-courses" @click="toCourses">{{ t('game.map.to_courses') }}</button>
+    </ClosedState>
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'unavailable'"
-      icon="lock-closed"
+      mascot="thinking"
       :title="t('game.map.unavailable_title')"
       :text="t('game.map.unavailable_text')"
       data-testid="unavailable"
@@ -189,12 +188,12 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
 
-    <section v-else-if="view === 'running' && activeRun" class="card flex flex-col gap-4" data-testid="running">
+    <section v-else-if="view === 'running' && activeRun" class="flex flex-col gap-4 rounded-hero bg-highlight p-5" data-testid="running">
       <div class="flex flex-col gap-2.5">
         <div class="flex items-baseline justify-between gap-3">
-          <h2 class="min-w-0 text-[17px] leading-[22px] font-semibold">{{ t('game.daily.running_title') }}</h2>
+          <h2 class="t-title-m min-w-0">{{ t('game.daily.running_title') }}</h2>
           <NumberText
-            class="shrink-0 text-[13px] leading-[18px] text-muted"
+            class="t-label-s shrink-0 text-muted tabular-nums"
             :text="t('game.map.active_progress', { answered: NUMBER_MARK, total: NUMBER_MARK })"
             :value="[activeRun.progress.answered, activeRun.progress.total]"
             data-testid="running-progress"
@@ -207,28 +206,28 @@ onBeforeUnmount(() => {
       </button>
     </section>
 
-    <section v-else-if="view === 'done'" class="card flex flex-col gap-3" data-testid="done" :data-resets-at="(told?.kind === 'done' ? told.resetsAt : daily?.resets_at) ?? ''">
-      <div class="min-w-0">
-        <h2 class="flex items-center gap-2 text-[17px] leading-[22px] font-semibold">
-          <AppIcon name="check" :size="18" class="shrink-0 text-success" />{{ t('game.daily.done_title') }}
-        </h2>
-        <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('game.daily.done_text') }}</p>
+    <!-- Played today: the hero of the kit on the central axis - a check and a word (never the colour alone), the cards to repeat as the main action. -->
+    <section v-else-if="view === 'done'" class="flex flex-col items-center gap-3 rounded-hero bg-highlight p-5 text-center" data-testid="done" :data-resets-at="(told?.kind === 'done' ? told.resetsAt : daily?.resets_at) ?? ''">
+      <div class="flex min-w-0 flex-col items-center gap-2">
+        <span class="flex size-11 items-center justify-center rounded-full bg-success-soft text-success-ink" aria-hidden="true"><AppIcon name="check" :size="22" /></span>
+        <h2 class="t-title-m">{{ t('game.daily.done_title') }}</h2>
+        <p class="t-body-m text-muted">{{ t('game.daily.done_text') }}</p>
       </div>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="review-btn" @click="review">{{ t('game.daily.review') }}</button>
-      <button type="button" class="btn btn-plain btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
     </section>
 
-    <section v-else-if="view === 'ready'" class="card flex flex-col gap-3" data-testid="ready">
-      <p class="text-[15px] leading-5" data-testid="ready-text">{{ tn('game.daily.ready_text', daily?.due_count ?? 0) }}</p>
+    <!-- Something is due: the mascot greets on the hero, "Go" is the one main action. -->
+    <section v-else-if="view === 'ready'" class="flex flex-col items-center gap-3 rounded-hero bg-highlight p-5 text-center" data-testid="ready">
+      <MascotArt pose="hello" :height="112" class="short:hidden" />
+      <p class="t-body-l" data-testid="ready-text">{{ tn('game.daily.ready_text', daily?.due_count ?? 0) }}</p>
       <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="starting" data-testid="start-btn" @click="start">
         {{ t('game.daily.go') }}
       </button>
     </section>
 
-    <EmptyState v-else icon="check-circle" :title="t('game.daily.empty_title')" :text="t('game.daily.empty_text')" data-testid="empty">
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
-      </template>
-    </EmptyState>
+    <ClosedState v-else mascot="hello" :title="t('game.daily.empty_title')" :text="t('game.daily.empty_text')" data-testid="empty">
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
+    </ClosedState>
   </div>
 </template>

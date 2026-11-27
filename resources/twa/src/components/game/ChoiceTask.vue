@@ -57,6 +57,18 @@ function stateOf(option: PracticeChoice): 'idle' | 'selected' | 'dimmed' {
   return locked.value || removed.value.has(option.id) ? 'dimmed' : 'idle'
 }
 
+/** The key of an option, as QuizOption draws it: the sunken paper; in ink when picked; a thin quiet ring once it stepped back. */
+function keyTone(option: PracticeChoice): string {
+  switch (stateOf(option)) {
+    case 'selected':
+      return 'bg-inverse text-on-inverse'
+    case 'dimmed':
+      return 'bg-transparent text-muted shadow-[inset_0_0_0_1px_var(--app-divider)]'
+    default:
+      return 'bg-sunken text-muted'
+  }
+}
+
 function pick(option: PracticeChoice): void {
   if (locked.value || removed.value.has(option.id)) return
   picked.value = option.id
@@ -113,17 +125,17 @@ function listen(): void {
     <!-- The screen of a question (docs/design Question): the task in words, the word big, the options in thin frames under it. -->
     <div class="flex flex-1 flex-col gap-11 px-5 pt-10 pb-4 short:gap-4 short:pt-3">
       <div class="flex flex-col items-center gap-2.5 text-center short:gap-1.5">
-        <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
+        <p class="t-body-m text-muted short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
 
-        <h2 v-if="element.kind !== 'listen' && longPrompt" class="max-w-full text-[24px] leading-[30px] font-semibold text-balance break-words short:text-[20px] short:leading-[26px]" :lang="element.kind === 'translate_fwd' ? 'en' : undefined" data-long="true" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <h2 v-else-if="element.kind === 'translate_fwd'" class="max-w-full text-[40px] leading-[46px] font-semibold tracking-[-0.5px] break-words short:text-[30px] short:leading-9" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <h2 v-else-if="element.kind === 'translate_back'" class="max-w-full text-[32px] leading-[38px] font-semibold tracking-[-0.4px] break-words short:text-[26px] short:leading-8" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <!-- The clip is the question of `listen`: a big round button in a thin frame, framed in the primary colour while it plays. -->
+        <h2 v-if="element.kind !== 'listen' && longPrompt" class="max-w-full font-display text-[24px] leading-[30px] font-semibold tracking-[-0.02em] text-balance break-words short:text-[20px] short:leading-[26px]" :lang="element.kind === 'translate_fwd' ? 'en' : undefined" data-long="true" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-else-if="element.kind === 'translate_fwd'" class="t-word-xl max-w-full break-words short:text-[32px] short:leading-[38px]" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-else-if="element.kind === 'translate_back'" class="max-w-full font-display text-[30px] leading-9 font-semibold tracking-[-0.02em] break-words short:text-[24px] short:leading-[30px]" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <!-- The clip is the question of `listen`: a big round IconButton of the kit (the sunken paper), framed in ink (border/strong) while it plays. -->
         <button
           v-else
           type="button"
-          class="flex size-20 short:size-16 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-150 active:scale-95 disabled:opacity-60"
-          :class="failed ? 'border-warning-line bg-warning-soft text-warning-ink' : playing ? 'border-primary bg-accent-soft text-accent-ink' : 'border-hairline bg-surface text-accent'"
+          class="flex size-20 short:size-16 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,box-shadow] duration-150 active:scale-95 disabled:opacity-60"
+          :class="failed ? 'bg-warning-soft text-warning-ink shadow-[inset_0_0_0_1px_var(--app-warning-line)]' : playing ? 'bg-sunken text-body shadow-[inset_0_0_0_2px_var(--app-border-strong)]' : 'bg-sunken text-body'"
           :disabled="loading"
           :aria-label="listenLabel"
           :aria-busy="loading ? 'true' : undefined"
@@ -134,7 +146,7 @@ function listen(): void {
           <span v-if="loading" class="size-7 animate-spin rounded-full border-[3px] border-current/30 border-t-current motion-reduce:animate-none" aria-hidden="true" />
           <AppIcon v-else :name="failed ? 'arrow-path' : 'speaker-wave'" :size="36" />
         </button>
-        <p v-if="listening" class="text-[13px] leading-[18px]" :class="failed ? 'text-warning-ink' : 'text-muted'" role="status" data-testid="audio-state" :data-state="state">
+        <p v-if="listening" class="t-label-s" :class="failed ? 'text-warning-ink' : 'text-muted'" role="status" data-testid="audio-state" :data-state="state">
           {{ listenLabel }}
         </p>
       </div>
@@ -143,12 +155,15 @@ function listen(): void {
         <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="resend-note" />
 
         <div class="flex flex-col gap-2.5 short:gap-2" role="group" :aria-label="t('gameRun.options')">
-          <!-- `.option` (style.css): picked - `selected`; the others once the answer is gone and the ones a hint took away - `dimmed`. -->
+          <!--
+            AnswerOption of the kit (`.option`, the look of QuizOption): the 28 px key with the number on the left, the label; picked -
+            `selected` (a 2 px ink frame, the key in ink); the others once the answer is gone and the ones a hint took away - `dimmed`.
+          -->
           <button
             v-for="(option, index) in element.options"
             :key="option.id"
             type="button"
-            class="option short:min-h-11"
+            class="option min-h-[60px] short:min-h-12"
             :data-state="stateOf(option)"
             :data-removed="removed.has(option.id) ? 'true' : undefined"
             :data-testid="`option-${index}`"
@@ -156,7 +171,12 @@ function listen(): void {
             :aria-pressed="picked === option.id ? 'true' : undefined"
             @click="pick(option)"
           >
-            <span class="w-3 shrink-0 font-mono text-[13px] leading-[18px] font-normal" :class="stateOf(option) === 'selected' ? 'text-accent-ink' : 'text-muted'" aria-hidden="true">{{ index + 1 }}</span>
+            <span
+              class="flex size-7 shrink-0 items-center justify-center self-center rounded-xs text-[15px] leading-5 font-medium transition-colors duration-200"
+              :class="keyTone(option)"
+              aria-hidden="true"
+              :data-testid="`option-key-${index}`"
+            >{{ index + 1 }}</span>
             <span class="min-w-0 flex-1 break-words">
               <span class="block" :lang="element.kind === 'translate_fwd' ? undefined : 'en'">{{ option.text }}</span>
               <span v-if="removed.has(option.id)" class="mt-0.5 block text-[13px] leading-[18px] font-normal">{{ t('gameRun.option_removed') }}</span>
@@ -170,7 +190,7 @@ function listen(): void {
       <button v-if="retrying" type="button" class="btn btn-primary btn-lg btn-block" :disabled="disabled" data-testid="resend-btn" @click="resend">
         {{ t('common.retry') }}
       </button>
-      <button v-else type="button" class="btn btn-plain btn-block text-muted" :disabled="locked" data-testid="skip-btn" @click="skip">
+      <button v-else type="button" class="btn btn-ghost btn-block text-muted" :disabled="locked" data-testid="skip-btn" @click="skip">
         {{ t('exercise.skip') }}
       </button>
     </StickyActions>

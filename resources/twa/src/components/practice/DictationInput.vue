@@ -158,7 +158,7 @@ function skip(): void {
         class="flex flex-col items-center gap-2 px-5 py-4 text-center [@media(max-height:560px)]:flex-row [@media(max-height:560px)]:gap-4 [@media(max-height:560px)]:py-2 [@media(max-height:560px)]:text-left"
         data-testid="dictation-card"
       >
-        <p class="text-[13px] leading-[18px] text-muted [@media(max-height:560px)]:hidden" data-testid="dictation-title">
+        <p class="t-body-m text-muted [@media(max-height:560px)]:hidden" data-testid="dictation-title">
           {{ modeTitle('dictation') }}
         </p>
 
@@ -170,7 +170,7 @@ function skip(): void {
               ? 'border-warning-line bg-warning-soft text-warning-ink'
               : playing
                 ? 'border-primary bg-accent-soft text-accent-ink'
-                : 'border-hairline bg-surface text-accent'
+                : 'border-transparent bg-sunken text-body'
           "
           :disabled="loading"
           :aria-label="listenLabel"

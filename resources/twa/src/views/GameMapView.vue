@@ -10,7 +10,7 @@ import { NUMBER_MARK } from '@/components/game/numberMark'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -138,7 +138,7 @@ function bossChip(boss: GameMapBoss): { text: string; tone: string; pro: boolean
     case 'defeated':
       return { text: t('game.boss.defeated'), tone: 'chip-neutral', pro: false }
     case 'locked_by_plan':
-      return { text: t('game.boss.pro'), tone: 'chip-accent', pro: true }
+      return { text: t('game.boss.pro'), tone: 'chip-ink', pro: true }
     default: {
       const stops = Math.max(0, boss.required_stops - boss.cleared_stops)
       // Enough stops cleared but too few words met: the words are what is left.
@@ -343,7 +343,7 @@ onBeforeUnmount(() => {
   <div class="page" data-testid="game-map-view">
     <PageHeader :title="t('game.title')" :subtitle="subtitle">
       <template v-if="map !== null && (view === 'ready' || view === 'empty')" #trailing>
-        <button type="button" class="btn btn-tinted btn-sm min-h-11" data-testid="caravan-btn" @click="router.push({ name: 'game-caravan', query: slug ? { course: slug } : {} })">
+        <button type="button" class="btn btn-secondary btn-sm min-h-11" data-testid="caravan-btn" @click="router.push({ name: 'game-caravan', query: slug ? { course: slug } : {} })">
           {{ t('gameCaravan.open') }}
         </button>
       </template>
@@ -351,38 +351,34 @@ onBeforeUnmount(() => {
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'no_course'"
-      icon="book-open"
+      mascot="hello"
       :title="t('game.map.no_course_title')"
       :text="t('game.map.no_course_text')"
       data-testid="no-course"
     >
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-courses" @click="router.push({ name: 'courses' })">
-          {{ t('game.map.to_courses') }}
-        </button>
-      </template>
-    </EmptyState>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-courses" @click="router.push({ name: 'courses' })">
+        {{ t('game.map.to_courses') }}
+      </button>
+    </ClosedState>
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'unavailable'"
-      icon="lock-closed"
+      mascot="thinking"
       :title="t('game.map.unavailable_title')"
       :text="t('game.map.unavailable_text')"
       data-testid="unavailable"
     >
-      <template #action>
-        <button
-          type="button"
-          class="btn btn-tinted"
-          data-testid="to-course"
-          @click="router.push(slug ? { name: 'course', params: { slug } } : { name: 'courses' })"
-        >
-          {{ t('game.map.to_course') }}
-        </button>
-      </template>
-    </EmptyState>
+      <button
+        type="button"
+        class="btn btn-secondary btn-block"
+        data-testid="to-course"
+        @click="router.push(slug ? { name: 'course', params: { slug } } : { name: 'courses' })"
+      >
+        {{ t('game.map.to_course') }}
+      </button>
+    </ClosedState>
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
 
@@ -403,15 +399,15 @@ onBeforeUnmount(() => {
       >
         <span class="flex w-full items-baseline justify-between gap-3">
           <span class="min-w-0">
-            <span class="block text-[15px] leading-5 font-semibold">{{ t('game.map.active_run') }}</span>
+            <span class="t-body-m-strong block">{{ t('game.map.active_run') }}</span>
             <NumberText
-              class="block text-[13px] leading-[18px] text-muted"
+              class="t-label-s block text-muted"
               :text="t('game.map.active_progress', { answered: NUMBER_MARK, total: NUMBER_MARK })"
               :value="[map.active_run.progress.answered, map.active_run.progress.total]"
               data-testid="active-run-progress"
             />
           </span>
-          <span class="shrink-0 text-[15px] leading-5 text-accent">{{ t('game.map.continue') }}</span>
+          <span class="t-body-m-strong shrink-0 text-accent">{{ t('game.map.continue') }}</span>
         </span>
         <ProgressLine :value="map.active_run.progress.total > 0 ? (map.active_run.progress.answered / map.active_run.progress.total) * 100 : 0" class="w-full" />
       </button>
@@ -429,19 +425,18 @@ onBeforeUnmount(() => {
         @click="openDaily"
       >
         <span class="min-w-0 flex-1">
-          <span class="block text-[15px] leading-5 font-semibold">{{ t('game.daily.title') }}</span>
-          <span class="block text-[13px] leading-[18px]" :class="dailyState === 'ready' ? 'text-accent-ink' : 'text-muted'" data-testid="daily-text">{{ dailyText }}</span>
+          <span class="t-body-m-strong block">{{ t('game.daily.title') }}</span>
+          <span class="t-label-s block" :class="dailyState === 'ready' ? 'text-accent-ink' : 'text-muted'" data-testid="daily-text">{{ dailyText }}</span>
         </span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+        <AppIcon name="chevron-right" :size="20" class="shrink-0 text-muted" />
       </button>
 
-      <EmptyState v-if="view === 'empty'" icon="flag" :text="t('game.map.empty_text')" data-testid="empty">
-        <template #action>
-          <button type="button" class="btn btn-primary" data-testid="learn-btn" @click="learn">{{ t('game.map.learn') }}</button>
-        </template>
-      </EmptyState>
+      <!-- No stop open yet: the mascot greets, the one main action is to learn the first lesson. -->
+      <ClosedState v-if="view === 'empty'" mascot="hello" :text="t('game.map.empty_text')" data-testid="empty">
+        <button type="button" class="btn btn-primary btn-block" data-testid="learn-btn" @click="learn">{{ t('game.map.learn') }}</button>
+      </ClosedState>
 
-      <!-- The road (docs/design Path): a city is a card, its stops are rows between thin lines, numbered in Plex Mono. -->
+      <!-- The road (docs/design Path): a city is a card of the kit (surface, 1 px hairline, radius lg), its stops are rows between thin lines, numbered in tabular figures. -->
       <ol v-else class="flex flex-col gap-3" :aria-label="t('game.map.road')" data-testid="road">
         <li
           v-for="city in map.cities"
@@ -453,8 +448,8 @@ onBeforeUnmount(() => {
           <div class="px-[18px] pt-3.5 pb-3">
             <div class="flex items-start gap-3">
               <div class="min-w-0 flex-1">
-                <h2 class="text-[17px] leading-[22px] font-semibold" :class="{ 'text-muted': !cityOpen(city) }" data-testid="city-name">{{ city.city }}</h2>
-                <p class="text-[13px] leading-[18px] text-muted" data-testid="city-title">{{ cityTitle(city) }}</p>
+                <h2 class="t-title-m" :class="{ 'text-muted': !cityOpen(city) }" data-testid="city-name">{{ city.city }}</h2>
+                <p class="t-label-s text-muted" data-testid="city-title">{{ cityTitle(city) }}</p>
               </div>
               <template v-for="chip in [bossChip(city.boss)]" :key="city.boss.state">
                 <button
@@ -473,7 +468,7 @@ onBeforeUnmount(() => {
               </template>
             </div>
             <!-- Friends in the city: their camels (the pictures they wear) and their names, the whole width of the card. -->
-            <p v-if="friendsAt(city)" class="mt-1.5 flex items-center gap-1 text-[13px] leading-[18px] text-muted" data-testid="city-friends">
+            <p v-if="friendsAt(city)" class="t-label-s mt-1.5 flex items-center gap-1 text-muted" data-testid="city-friends">
               <AppIcon name="users" :size="14" class="shrink-0" />
               <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
               <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
@@ -490,12 +485,12 @@ onBeforeUnmount(() => {
                 :data-testid="`stop-${stop.lesson_id}`"
                 @click="openStop(stop)"
               >
-                <span class="w-5 shrink-0 font-mono text-[13px] leading-[18px] text-muted" aria-hidden="true">{{ String(stop.number).padStart(2, '0') }}</span>
+                <span class="w-6 shrink-0 font-display text-[13px] leading-[18px] font-medium text-muted tabular-nums" aria-hidden="true">{{ String(stop.number).padStart(2, '0') }}</span>
                 <span class="min-w-0 flex-1">
                   <span class="block text-[15px] leading-5 break-words" :class="{ 'font-semibold': stop.unlocked }">
                     <span v-if="stop.title" class="sr-only">{{ t('game.map.stop', { number: stop.number }) }} · </span>{{ stop.title || t('game.map.stop', { number: stop.number }) }}
                   </span>
-                  <span v-if="!stop.unlocked" class="block text-[13px] leading-[18px]" data-testid="stop-locked">{{ t('game.map.stop_locked') }}</span>
+                  <span v-if="!stop.unlocked" class="t-label-s block" data-testid="stop-locked">{{ t('game.map.stop_locked') }}</span>
                 </span>
                 <span v-if="stop.unlocked" class="flex shrink-0 gap-0.5" role="img" :aria-label="starsLabel(stop)" data-testid="stars">
                   <AppIcon
@@ -504,7 +499,7 @@ onBeforeUnmount(() => {
                     name="star"
                     :solid="n <= stop.stars"
                     :size="12"
-                    :class="n <= stop.stars ? 'text-warning' : 'text-muted'"
+                    :class="n <= stop.stars ? 'text-body' : 'text-tertiary'"
                   />
                 </span>
               </button>
@@ -516,11 +511,11 @@ onBeforeUnmount(() => {
 
     <!-- The sheet of a stop. -->
     <BottomSheet v-if="sheetStop && !conflict && !material" :label="stopTitle(sheetStop.stop)" data-testid="stop-sheet" @close="closeSheet">
-      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ stopTitle(sheetStop.stop) }}</h2>
-      <p class="text-[15px] leading-5 text-muted" data-testid="stop-text">{{ t('game.stop.text', stopRules) }}</p>
+      <h2 class="t-display-m pr-10">{{ stopTitle(sheetStop.stop) }}</h2>
+      <p class="t-body-m text-muted" data-testid="stop-text">{{ t('game.stop.text', stopRules) }}</p>
       <p v-if="sheetStop.stop.runs > 0" class="flex items-center gap-2 text-[15px] leading-5" data-testid="stop-best">
         <span class="flex gap-0.5" aria-hidden="true">
-          <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= sheetStop.stop.stars" :size="12" :class="n <= sheetStop.stop.stars ? 'text-warning' : 'text-muted'" />
+          <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= sheetStop.stop.stars" :size="12" :class="n <= sheetStop.stop.stars ? 'text-body' : 'text-tertiary'" />
         </span>
         <NumberText :text="t('game.stop.best', { score: NUMBER_MARK })" :value="sheetStop.stop.best_score" />
       </p>
@@ -532,19 +527,19 @@ onBeforeUnmount(() => {
 
     <!-- Another run is on: continue it, or start this one (the old one is not counted). -->
     <BottomSheet v-if="conflict" :label="t('game.conflict.title')" data-testid="conflict-sheet" @close="conflict = null">
-      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.conflict.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('game.conflict.text') }}</p>
+      <h2 class="t-display-m pr-10">{{ t('game.conflict.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('game.conflict.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="conflict-continue" @click="continueRun">
         {{ t('game.conflict.continue') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">
+      <button type="button" class="btn btn-ghost btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">
         {{ t('game.conflict.replace') }}
       </button>
     </BottomSheet>
 
     <BottomSheet v-if="material" :label="t('game.material.title')" data-testid="material-sheet" @close="closeMaterial">
-      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.material.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('game.material.text') }}</p>
+      <h2 class="t-display-m pr-10">{{ t('game.material.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('game.material.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="material-learn" @click="learn">{{ t('game.map.learn') }}</button>
     </BottomSheet>
 

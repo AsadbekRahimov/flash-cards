@@ -22,7 +22,7 @@ const dayLine = computed((): string =>
 </script>
 
 <template>
-  <ul class="flex flex-col gap-2 text-[15px] leading-[22px] text-muted" data-testid="cup-rules">
+  <ul class="t-body-m flex flex-col gap-2 text-muted" data-testid="cup-rules">
     <li data-testid="rule-round">{{ t('cup.rules.round', { tasks: cup.round_tasks, minutes: cup.round_minutes }) }}</li>
     <li data-testid="rule-points">{{ t('cup.rules.points', { points: tn('cup.points', rules.points_per_answer), typo: tn('cup.points', rules.typo_points) }) }}</li>
     <li data-testid="rule-best">{{ tn('cup.rules.best', rules.counted_days, { days: rules.days }) }}</li>

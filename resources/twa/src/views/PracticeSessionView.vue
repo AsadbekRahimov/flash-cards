@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ClosedState from '@/components/ClosedState.vue'
+import LessonSkeleton from '@/components/LessonSkeleton.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AnswerReveal from '@/components/practice/AnswerReveal.vue'
@@ -12,12 +13,12 @@ import TimedBar from '@/components/practice/TimedBar.vue'
 import { modeComponentFor } from '@/components/practice/modeComponents'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import SegmentProgress from '@/components/ui/SegmentProgress.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -27,8 +28,9 @@ import { useI18n } from '@/i18n'
 import type { PracticeAnswerPayload } from '@/api/types'
 
 /**
- * A solo practice session (docs/16 §11.2, docs/14 §6.2): an immersive column without the tab bar — the header (✕, the
- * progress, "3 / 5", and under it the module / lesson), the element in the body and its actions at the bottom.
+ * A solo practice session (docs/16 §11.2, docs/14 §6.2, the frame of a lesson of the kit Muhrla 04): an immersive column on the canvas
+ * without the tab bar — the header (✕, the progress in segments, "3 / 5", and under it the module / lesson), the element in the body and its
+ * actions at the bottom. The summary has no header: it is the result screen of the kit (06).
  *
  * `status` of the store decides what is drawn:
  * - `idle` / `starting` — a spinner; `error` — the message with "Retry" and the way back; `closed` (410) — "Practice is
@@ -78,9 +80,7 @@ function leave(): void {
 
 useBackButton(leave)
 
-// White (`bg-surface`) while a task is on it, the page colour for the summary: Telegram's header and window background follow
-// (docs/14 §4.1).
-useChromeSurface(() => status.value !== 'finished')
+// The session stands on the canvas of the kit, as a lesson: Telegram's header and window background keep the page colour of the app.
 
 /**
  * Set when the learner leaves the screen: whatever comes back after that (the login, the session, a new session of
@@ -134,6 +134,11 @@ onBeforeUnmount(() => {
 // ---- the header ----
 
 const progressWidth = computed((): number => progressPercent(progress.value))
+
+/** Up to this many tasks the progress is drawn as segments (kit 04); a longer session gets the line. */
+const SEGMENTS_MAX = 12
+/** The number of segments; 0 = the line instead (no total yet, or too many tasks for segments at 320 px). */
+const segments = computed((): number => (progress.value.total > 0 && progress.value.total <= SEGMENTS_MAX ? progress.value.total : 0))
 
 /** "Module 2 · Lesson 4 · Food"; the course title when the session is not about one lesson. */
 const caption = computed((): string => {
@@ -291,10 +296,14 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
 </script>
 
 <template>
+  <!--
+    The frame of a lesson (kit Muhrla 04) on the canvas: the header (✕, the progress in segments or a line, «3 / 5», the module / lesson
+    under it), the task in the body and its actions at the bottom (StickyActions of the mode component). The boards that the battle and the
+    game draw on a white screen take the canvas here (`--app-screen`).
+  -->
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
-    :class="status === 'finished' ? 'bg-page' : 'bg-surface'"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     data-testid="practice-session-view"
   >
     <!-- Always there, so that what is put into it is announced. -->
@@ -305,46 +314,56 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
     </ClosedState>
 
     <template v-else>
-      <header class="px-5 pt-3">
-        <div class="flex items-center gap-3.5">
+      <header v-if="status !== 'finished'" class="px-5 pt-2">
+        <div class="flex items-center gap-3">
           <button
             type="button"
-            class="-ml-3 flex size-11 shrink-0 items-center justify-center text-muted"
+            class="-ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-sunken"
             :aria-label="t('common.close')"
             data-testid="close-btn"
             @click="leave"
           >
-            <AppIcon name="x-mark" :size="18" />
+            <AppIcon name="x-mark" :size="20" />
           </button>
           <!-- A timed game has no use for the rounds counter: the clock and the score tell how it goes. -->
-          <div
-            v-if="!isTimed"
-            class="progress progress-primary h-[3px] flex-1"
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :aria-valuenow="progressWidth"
-            :aria-label="t('practice.session.progress', { done: progress.done, total: progress.total })"
-            data-testid="progress-bar"
-          >
-            <div class="progress-fill" :style="{ width: `${progressWidth}%` }" data-testid="progress-fill" />
-          </div>
-          <span
-            v-if="!isTimed"
-            class="min-w-12 text-right font-mono text-[13px] leading-[18px] text-muted tabular-nums"
-            :class="{ invisible: progress.total === 0 }"
-            data-testid="progress"
-          >
-            {{ progress.done }} / {{ progress.total }}
-          </span>
+          <template v-if="!isTimed">
+            <SegmentProgress
+              v-if="segments > 0"
+              :total="segments"
+              :current="progress.done"
+              :label="t('practice.session.progress', { done: progress.done, total: progress.total })"
+              class="flex-1"
+              data-testid="progress-bar"
+            />
+            <div
+              v-else
+              class="progress progress-primary h-1.5 flex-1"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-valuenow="progressWidth"
+              :aria-label="t('practice.session.progress', { done: progress.done, total: progress.total })"
+              data-testid="progress-bar"
+            >
+              <div class="progress-fill" :style="{ width: `${progressWidth}%` }" data-testid="progress-fill" />
+            </div>
+            <span
+              class="min-w-12 shrink-0 text-right text-[15px] leading-5 font-medium text-muted tabular-nums"
+              :class="{ invisible: progress.total === 0 }"
+              data-testid="progress"
+            >
+              {{ progress.done }} / {{ progress.total }}
+            </span>
+          </template>
+          <span v-else class="flex-1" />
         </div>
-        <p v-if="caption" class="mt-1 flex items-center justify-center gap-2 text-center text-[13px] leading-[18px] text-muted" data-testid="caption">
+        <p v-if="caption" class="t-label-s mt-1 flex items-center justify-center gap-2 text-center text-muted" data-testid="caption">
           {{ caption }}
           <span v-if="session?.retry_of" class="chip chip-accent" data-testid="retry-chip">{{ t('practice.session.retry_chip') }}</span>
         </p>
       </header>
 
-      <LoadingState v-if="status === 'idle' || status === 'starting'" variant="center" />
+      <LessonSkeleton v-if="status === 'idle' || status === 'starting'" :options="3" />
 
       <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="begin">
         <button type="button" class="btn btn-plain btn-block" data-testid="hub-btn" @click="leave">{{ t('practice.session.to_hub') }}</button>
@@ -377,11 +396,12 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       <!-- A timed game before its start: a short "Ready?" - the first tap of the learner must not eat the time. -->
       <div v-else-if="waitingStart && timed" class="flex flex-1 flex-col" data-testid="timed-ready">
         <div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <h1 class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px]" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
-          <p class="text-base leading-[22px] text-muted" data-testid="timed-ready-text">{{ t('practice.timed.ready_text', { seconds: timed.seconds }) }}</p>
+          <MascotArt pose="hello" :height="120" class="short:hidden" />
+          <h1 class="t-display-l" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
+          <p class="t-body-m text-muted" data-testid="timed-ready-text">{{ t('practice.timed.ready_text', { seconds: timed.seconds }) }}</p>
         </div>
-        <StickyActions surface>
-          <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="timedStarting" data-testid="timed-start-btn" @click="onStart">
+        <StickyActions>
+          <button type="button" class="btn btn-primary btn-block" :disabled="timedStarting" data-testid="timed-start-btn" @click="onStart">
             {{ timedStarting ? t('practice.timed.starting') : t('practice.timed.go') }}
           </button>
         </StickyActions>
@@ -389,7 +409,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
 
       <template v-else-if="element">
         <TimedBar v-if="timed" :deadline="timedDeadline" :seconds="timed.seconds" :score="timed.score" :penalty="penalty" @expired="practice.expire()" />
-        <p v-if="timed && timeUp" class="px-5 pt-2 text-center text-base leading-[22px] font-semibold text-danger-ink" role="status" data-testid="timed-time-up">
+        <p v-if="timed && timeUp" class="t-body-m-strong px-5 pt-2 text-center text-danger-ink" role="status" data-testid="timed-time-up">
           {{ t('practice.timed.time_up') }}
         </p>
         <!-- The component of the mode (modeComponents.ts); the key makes every element a new one, with no pick left over. -->

@@ -267,12 +267,12 @@ describe('ReferralsView', () => {
       expect(text(wrapper, 'rule')).toContain('Друг проходит настройку в боте и занимается 5 дн. (от 15 карточек в день) в течение 21 дн. после перехода по ссылке')
     })
 
-    it('is the tinted card of the screen with no coloured tile: the title alone, bold', async () => {
+    it('is the tinted card of the screen with no coloured tile: the title alone, in Display/M of the kit', async () => {
       const { wrapper } = await render()
 
       expect(wrapper.get('[data-testid=hero]').classes()).toEqual(expect.arrayContaining(['rounded-hero', 'bg-highlight']))
       expect(wrapper.find('[data-testid=hero] .icon-tile').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('font-bold')
+      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('t-display-m')
     })
   })
 
@@ -374,14 +374,16 @@ describe('ReferralsView', () => {
   })
 
   describe('the counts', () => {
-    it('are three tiles: came, studying, counted', async () => {
+    it('are the statistics of the kit: one card, three equal columns with lines between them — came, studying, counted', async () => {
       const { wrapper } = await render()
 
       const counts = wrapper.get('[data-testid=counts]')
-      expect(counts.classes()).toEqual(expect.arrayContaining(['grid', 'grid-cols-3']))
-      const tiles = counts.findAll('.card')
-      expect(tiles).toHaveLength(3)
-      expect(tiles.map((tile) => tile.text())).toEqual(['3Пришли', '2Занимаются', '1Засчитаны'])
+      expect(counts.classes()).toContain('card')
+      const columns = counts.findAll('.flex-1')
+      expect(columns).toHaveLength(3)
+      expect(columns.map((column) => column.text())).toEqual(['3Пришли', '2Занимаются', '1Засчитаны'])
+      expect(counts.findAll('.w-px')).toHaveLength(2)
+      expect(wrapper.get('[data-testid=count-invited]').classes()).toContain('t-numeric-l')
     })
 
     it('has no block about a reward limit any more', async () => {
@@ -409,11 +411,11 @@ describe('ReferralsView', () => {
       expect(rows[1]?.get('[aria-hidden=true]').text()).toBe('Д')
     })
 
-    it('say so when nobody has come yet, with an icon', async () => {
+    it('say so when nobody has come yet, with the mascot', async () => {
       const { wrapper } = await render(response({ referrals: [], counts: { invited: 0, activated: 0, counted: 0 } }))
 
       expect(text(wrapper, 'list-empty')).toBe('Пока никто не пришёл по вашей ссылке.')
-      expect(wrapper.find('[data-testid=list-empty] svg').exists()).toBe(true)
+      expect(wrapper.get('[data-testid=list-empty] [data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
       expect(wrapper.find('[data-testid=referral-row]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=list]').exists()).toBe(false)
     })
@@ -434,7 +436,7 @@ describe('ReferralsView', () => {
       expect(link.attributes('href')).toBe('/friends')
       expect(link.text()).toBe('Друзья и вызовы')
       expect(link.classes()).toContain('list-row')
-      expect(link.find('.icon-tile').exists()).toBe(false)
+      expect(link.find('.icon-tile').exists()).toBe(true)
       expect(link.classes()).not.toContain('btn')
 
       const after = (other: string) =>

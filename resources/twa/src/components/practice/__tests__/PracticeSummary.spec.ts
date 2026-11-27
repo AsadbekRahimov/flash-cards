@@ -212,11 +212,12 @@ describe('PracticeSummary — timed pairs', () => {
     expect(wrapper.emitted('hub')).toHaveLength(1)
   })
 
-  it('says a new record in words, without celebration: no confetti, no big icon', () => {
+  it('says a new record in words, in a success chip, with the mascot of the trophy and no confetti', () => {
     const wrapper = render({ summary: timedSummary({ is_record: true }) }, 'pairs_timed')
 
     expect(text(wrapper, 'timed-new-record')).toBe('Новый рекорд!')
-    expect(wrapper.get('[data-testid=timed-new-record]').classes()).toContain('text-success-ink')
+    expect(wrapper.get('[data-testid=timed-new-record]').classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
+    expect(wrapper.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
     expect(wrapper.find('[data-testid=timed-best]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=confetti]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=summary-icon]').exists()).toBe(false)

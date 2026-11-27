@@ -127,7 +127,7 @@ describe('ReverseCard', () => {
 
     const next = w.get('[data-testid=continue-btn]')
     expect(next.text()).toBe('Дальше')
-    expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg']))
+    expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
     await next.trigger('click')
     await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)

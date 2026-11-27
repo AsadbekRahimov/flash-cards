@@ -44,8 +44,12 @@ describe('BattleScoreboard', () => {
     const md = mount(BattleScoreboard, { props: { me: 1, opponent: 2, opponentName: 'D' } })
     const lg = mount(BattleScoreboard, { props: { me: 1, opponent: 2, opponentName: 'D', size: 'lg' } })
 
-    expect(md.get('[data-testid=score-me]').classes().join(' ')).toContain('text-[32px]')
-    expect(lg.get('[data-testid=score-me]').classes().join(' ')).toContain('text-[44px]')
+    expect(md.get('[data-testid=score-me]').classes().join(' ')).toContain('text-[28px]')
+    expect(lg.get('[data-testid=score-me]').classes().join(' ')).toContain('text-[40px]')
+    // the figures of the kit: Unbounded with tabular digits
+    expect(md.get('[data-testid=score-me]').classes()).toEqual(expect.arrayContaining(['font-display', 'tabular-nums']))
+    // "You" is the learner's mark, in the accent of text
+    expect(md.get('[data-testid=score-me-name]').classes()).toContain('text-accent')
   })
 
   it('holds what is put under the score (the timer of the round)', () => {
@@ -72,7 +76,7 @@ describe('BattleScoreboard', () => {
       expect(colon.classes()).toContain('short:hidden')
       expect(timer.classes()).toEqual(expect.arrayContaining(['short:col-start-2', 'short:row-start-1', 'short:col-span-1']))
       expect(timer.find('[data-testid=under]').exists()).toBe(true)
-      for (const id of ['score-me', 'score-opponent']) expect(w.get(`[data-testid=${id}]`).classes()).toEqual(expect.arrayContaining(['short:text-[28px]', 'short:leading-8']))
+      for (const id of ['score-me', 'score-opponent']) expect(w.get(`[data-testid=${id}]`).classes()).toEqual(expect.arrayContaining(['short:text-[22px]', 'short:leading-[26px]']))
     })
 
     it('is two rows in a window of the usual height: the timer is under the numbers, the colon is between them', () => {
@@ -98,13 +102,13 @@ describe('BattleScoreboard', () => {
       expect(w.find('[data-testid=scoreboard-timer]').exists()).toBe(false)
       expect(w.get('[data-testid=scoreboard]').classes().filter((name) => name.startsWith('short:'))).toEqual([])
       expect(w.get('[aria-hidden=true]').classes()).not.toContain('short:hidden')
-      expect(w.get('[data-testid=score-me]').classes()).not.toContain('short:text-[28px]')
+      expect(w.get('[data-testid=score-me]').classes()).not.toContain('short:text-[22px]')
     })
 
     it('the result (size lg) is not touched: no timer, the big numbers', () => {
       const w = mount(BattleScoreboard, { props: { me: 450, opponent: 450, opponentName: 'D', size: 'lg' } })
 
-      expect(w.get('[data-testid=score-me]').classes()).toContain('text-[44px]')
+      expect(w.get('[data-testid=score-me]').classes()).toContain('text-[40px]')
       expect(w.html()).not.toContain('short:')
     })
   })

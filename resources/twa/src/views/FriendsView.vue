@@ -368,7 +368,7 @@ onMounted(() => {
           <div class="flex min-w-0 basis-full items-center gap-3">
             <InitialAvatar :name="invitation.from.first_name || t('friends.list.anonymous')" />
             <div class="min-w-0 flex-1">
-              <div class="truncate text-base leading-[22px] font-medium">
+              <div class="t-body-m-strong truncate">
                 {{ t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') }) }}
               </div>
               <div class="truncate text-[13px] leading-[18px] text-muted" data-testid="battle-invite-meta">{{ invitationMeta(invitation) }}</div>
@@ -398,8 +398,8 @@ onMounted(() => {
       </ListGroup>
 
       <section class="card" data-testid="invite">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('friends.invite.title') }}</h2>
-        <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('friends.invite.hint') }}</p>
+        <h2 class="t-title-m">{{ t('friends.invite.title') }}</h2>
+        <p class="t-body-m mt-1 text-muted">{{ t('friends.invite.hint') }}</p>
 
         <template v-if="friends.invite_link">
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
@@ -433,7 +433,7 @@ onMounted(() => {
         <div v-for="request in friends.incoming" :key="request.id" class="list-row flex-wrap gap-y-3" data-testid="incoming-row">
           <div class="flex min-w-0 basis-full items-center gap-3">
             <InitialAvatar :name="personName(request)" />
-            <span class="min-w-0 flex-1 truncate text-base font-medium">{{ personName(request) }}</span>
+            <span class="t-body-m-strong min-w-0 flex-1 truncate">{{ personName(request) }}</span>
           </div>
           <div class="flex w-full gap-2">
             <button
@@ -461,7 +461,7 @@ onMounted(() => {
       <ListGroup v-if="friends.outgoing.length > 0" :header="t('friends.outgoing.title')" data-testid="outgoing">
         <div v-for="request in friends.outgoing" :key="request.id" class="list-row" data-testid="outgoing-row">
           <InitialAvatar :name="personName(request)" />
-          <span class="min-w-0 flex-1 truncate text-base">{{ personName(request) }}</span>
+          <span class="t-body-m min-w-0 flex-1 truncate">{{ personName(request) }}</span>
           <button
             type="button"
             class="btn btn-plain btn-sm shrink-0"
@@ -491,7 +491,7 @@ onMounted(() => {
             <InitialAvatar :name="personName(friend)" />
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <PlayerName :name="personName(friend)" :emoji="friend.pro_emoji" class="text-base leading-[22px] font-medium" data-testid="friend-name" />
+                <PlayerName :name="personName(friend)" :emoji="friend.pro_emoji" class="t-body-m-strong" data-testid="friend-name" />
                 <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
                 <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
               </div>
@@ -595,12 +595,12 @@ onMounted(() => {
               data-testid="challenge-row"
             >
               <div class="min-w-0 flex-1">
-                <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
+                <div class="t-body-m-strong">{{ metricLabel(c.metric) }}</div>
                 <div class="truncate text-[13px] leading-[18px] text-muted">
                   {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
                 </div>
               </div>
-              <span v-if="c.my_score !== null" class="shrink-0 text-[17px] leading-[22px] font-mono font-medium" data-testid="challenge-score">
+              <span v-if="c.my_score !== null" class="shrink-0 font-mono text-[17px] leading-[22px] font-semibold" data-testid="challenge-score">
                 {{ score(c) }}
               </span>
               <!-- My share of the points of both; the score beside it says the same in words. -->
@@ -648,7 +648,7 @@ onMounted(() => {
               data-testid="finished-row"
             >
               <div class="min-w-0 flex-1">
-                <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
+                <div class="t-body-m-strong">{{ metricLabel(c.metric) }}</div>
                 <div class="mt-0.5 flex items-center gap-2">
                   <span class="min-w-0 truncate text-[13px] leading-[18px] text-muted">
                     {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
@@ -658,7 +658,7 @@ onMounted(() => {
                   </span>
                 </div>
               </div>
-              <span class="shrink-0 text-[17px] leading-[22px] font-mono font-medium" data-testid="finished-score">{{ score(c) }}</span>
+              <span class="shrink-0 font-mono text-[17px] leading-[22px] font-semibold" data-testid="finished-score">{{ score(c) }}</span>
             </div>
           </div>
         </template>

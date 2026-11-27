@@ -70,9 +70,9 @@ describe('BattleReveal — a sentence', () => {
 describe('BattleReveal — the verdicts', () => {
   it.each([
     ['correct', 'Верно', 'chip-success'],
-    ['typo', 'Опечатка', 'chip-warning'],
+    ['typo', 'Опечатка', 'chip-accent'],
     ['wrong', 'Неверно', 'chip-danger'],
-    ['skipped', 'Пропущено', 'chip-accent'],
+    ['skipped', 'Пропущено', 'chip-neutral'],
     ['timeout', 'Время вышло', 'chip-neutral'],
   ] as const)('%s: the word “%s”, a symbol and the colour of the chip', (verdict, word, chip) => {
     const w = render(revealRound({ reveal: sentenceReveal({ me: { answer: null, verdict, points: 0 } }) }))

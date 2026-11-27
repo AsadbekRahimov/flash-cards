@@ -13,7 +13,8 @@ import { useI18n } from '@/i18n'
  *
  * - `deadline` — `round.deadline_at`; `null` shows a full bar and no time.
  * - `totalSeconds` — the length of a round, for the bar.
- * - the last ten seconds are warm (the warning colour, never red, nothing blinks).
+ * - the figures are Numeric/L of the kit (Unbounded, tabular) in a box of a fixed width: the timer never changes its width.
+ * - the last ten seconds are told in the accent of text (never red, nothing blinks); the line stays ink (one accent on screen).
  * - in a short window (`short:`, 320 x 568) the time is over the bar, not beside it: the timer stands between the two scores
  *   (`BattleScoreboard`), in a column of its own.
  *
@@ -55,13 +56,13 @@ watch(
     :data-state="over ? 'over' : low ? 'low' : 'ok'"
     data-testid="round-timer"
   >
-    <!-- The thin line of the round (3 px, as the header of a lesson); amber for the last seconds, with the amber digits beside it. -->
-    <div class="progress progress-primary h-[3px] flex-1 short:flex-none" aria-hidden="true">
-      <div class="progress-fill" :class="{ 'bg-warning': low || over }" :style="{ width: `${Math.round(share * 100)}%` }" data-testid="timer-fill" />
+    <!-- The thin line of the round (4 px, the progress line of the kit, in ink); the digits beside it take the accent of text for the last seconds. -->
+    <div class="progress progress-primary flex-1 short:flex-none" aria-hidden="true">
+      <div class="progress-fill" :style="{ width: `${Math.round(share * 100)}%` }" data-testid="timer-fill" />
     </div>
     <span
-      class="flex min-w-[4.5rem] items-center justify-end gap-1 tabular-nums short:justify-center"
-      :class="[over ? 'text-[15px] leading-5' : 'font-mono text-xl leading-7 font-medium', low || over ? 'text-warning-ink' : 'text-body']"
+      class="flex min-w-[5.5rem] items-center justify-end gap-1 tabular-nums short:justify-center"
+      :class="[over ? 't-label-s' : 't-numeric-l', low || over ? 'text-accent' : 'text-body']"
       aria-hidden="true"
       data-testid="timer-text"
     >

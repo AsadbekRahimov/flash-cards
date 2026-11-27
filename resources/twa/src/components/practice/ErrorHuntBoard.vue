@@ -182,7 +182,7 @@ function skip(): void {
   <div class="flex flex-1 flex-col" data-testid="error-hunt-board" :data-mode="mode" :data-step="step">
     <div class="flex flex-1 flex-col gap-4 px-5 pt-4 pb-4 [@media(max-height:560px)]:gap-3 [@media(max-height:560px)]:pt-2">
       <article class="flex flex-col gap-3 px-1 py-5 [@media(max-height:560px)]:py-3">
-        <p class="text-center text-[13px] leading-[18px] text-muted" data-testid="error-hunt-instruction">
+        <p class="t-body-m text-center text-muted" data-testid="error-hunt-instruction">
           {{ step === 'locate' ? t('practice.error_hunt.instruction_locate') : t('practice.error_hunt.instruction_fix') }}
         </p>
 

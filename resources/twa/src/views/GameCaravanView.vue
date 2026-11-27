@@ -8,7 +8,7 @@ import NumberText from '@/components/game/NumberText.vue'
 import ShopItemCard from '@/components/game/ShopItemCard.vue'
 import { NUMBER_MARK } from '@/components/game/numberMark'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -198,29 +198,27 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('gameCaravan.unavailable_title')" :text="t('gameCaravan.unavailable_text')" data-testid="unavailable">
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-map" @click="toMap">{{ t('gameCaravan.to_map') }}</button>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'unavailable'" mascot="thinking" :title="t('gameCaravan.unavailable_title')" :text="t('gameCaravan.unavailable_text')" data-testid="unavailable">
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-map" @click="toMap">{{ t('gameCaravan.to_map') }}</button>
+    </ClosedState>
 
     <ErrorState v-else-if="view === 'error'" :message="error" @retry="load" />
 
     <template v-else>
       <section class="card mb-4" :aria-label="t('gameCaravan.profile.title')" data-testid="profile">
-        <h2 class="section-label !mt-0 !px-0">{{ t('gameCaravan.profile.title') }}</h2>
-        <!-- A worn item is its picture, nothing under it; an empty slot is a dashed frame with a dash, not a dark hole. -->
+        <h2 class="t-title-m mb-3">{{ t('gameCaravan.profile.title') }}</h2>
+        <!-- A worn item is its picture on the game tile of the kit (bg/accent-soft); an empty slot is a dashed frame with a dash, not a dark hole. -->
         <ul class="grid grid-cols-4 gap-2">
           <li v-for="slot in worn" :key="slot.slot" class="flex min-w-0 flex-col items-center gap-1 text-center" :data-testid="`worn-${slot.slot}`">
-            <span class="flex size-14 items-center justify-center rounded-control" :class="slot.item ? '' : 'border border-dashed border-hairline text-muted'">
+            <span class="flex size-14 items-center justify-center rounded-md" :class="slot.item ? 'bg-accent-soft' : 'border border-dashed border-hairline text-tertiary'">
               <GameItemImage v-if="slot.item" :name="slot.item.asset" :size="52" />
               <span v-else aria-hidden="true">—</span>
             </span>
-            <span class="w-full truncate text-[12px] leading-4 text-muted">{{ slot.label }}</span>
+            <span class="t-caption w-full truncate text-muted">{{ slot.label }}</span>
             <span v-if="!slot.item" class="sr-only">{{ t('gameCaravan.profile.none') }}</span>
           </li>
         </ul>
-        <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="profile-stats">
+        <p class="t-label-s mt-3 text-muted" data-testid="profile-stats">
           <NumberText :text="t('gameCaravan.profile.stops', { count: NUMBER_MARK })" :value="profile?.stops_cleared ?? 0" /> ·
           <NumberText :text="t('gameCaravan.profile.cities', { count: NUMBER_MARK })" :value="profile?.cities_cleared ?? 0" />
         </p>
@@ -232,49 +230,49 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
         <!-- The numbers of the wallet in one card split by thin lines (docs/design Finish), the totals in a row under them. -->
         <div class="overflow-hidden rounded-card border border-hairline bg-surface">
           <dl class="grid grid-cols-2">
-            <div class="flex min-w-0 flex-col-reverse gap-1 px-[18px] py-4">
-              <dt class="text-[13px] leading-[18px] text-muted">{{ t('gameCaravan.wallet.balance') }}</dt>
-              <dd class="font-mono text-[24px] leading-[30px] font-medium" data-testid="wallet-balance">{{ wallet.balance }}</dd>
+            <div class="flex min-w-0 flex-col-reverse items-center gap-1 px-4 py-4 text-center">
+              <dt class="t-label-s text-muted">{{ t('gameCaravan.wallet.balance') }}</dt>
+              <dd class="t-numeric-l" data-testid="wallet-balance">{{ wallet.balance }}</dd>
             </div>
-            <div class="flex min-w-0 flex-col-reverse gap-1 border-l border-divider px-[18px] py-4">
-              <dt class="text-[13px] leading-[18px] text-muted">{{ t('gameCaravan.wallet.tickets') }}</dt>
-              <dd class="text-[24px] leading-[30px] font-medium" data-testid="wallet-tickets">
+            <div class="flex min-w-0 flex-col-reverse items-center gap-1 border-l border-divider px-4 py-4 text-center">
+              <dt class="t-label-s text-muted">{{ t('gameCaravan.wallet.tickets') }}</dt>
+              <dd class="t-numeric-l" data-testid="wallet-tickets">
                 <NumberText :text="t('gameCaravan.wallet.tickets_value', { balance: NUMBER_MARK, max: NUMBER_MARK })" :value="[wallet.tickets.balance, wallet.tickets.max]" />
               </dd>
             </div>
           </dl>
-          <dl class="flex items-baseline justify-between gap-3 border-t border-divider px-[18px] py-3 text-[15px] leading-5">
+          <dl class="t-body-m flex items-baseline justify-between gap-3 border-t border-divider px-4 py-3">
             <dt class="min-w-0 text-muted">{{ t('gameCaravan.wallet.earned') }} / {{ t('gameCaravan.wallet.spent') }}</dt>
-            <dd class="shrink-0 font-mono" data-testid="wallet-totals">{{ wallet.earned_total }} / {{ wallet.spent_total }}</dd>
+            <dd class="shrink-0 font-display font-semibold tabular-nums" data-testid="wallet-totals">{{ wallet.earned_total }} / {{ wallet.spent_total }}</dd>
           </dl>
         </div>
         <p class="mt-3 px-[18px] text-[13px] leading-[18px] text-muted" data-testid="wallet-tickets-hint">{{ t('gameShop.wallet.tickets_hint') }}</p>
         <p class="mt-1 px-[18px] text-[13px] leading-[18px] text-muted">{{ t('gameCaravan.wallet.hint') }}</p>
 
         <h2 class="section-label">{{ t('gameCaravan.wallet.ledger') }}</h2>
-        <p v-if="entries.length === 0" class="px-[18px] text-[15px] leading-5 text-muted" data-testid="ledger-empty">{{ t('gameCaravan.wallet.ledger_empty') }}</p>
+        <p v-if="entries.length === 0" class="t-body-m px-4 text-muted" data-testid="ledger-empty">{{ t('gameCaravan.wallet.ledger_empty') }}</p>
         <ul v-else class="list" data-testid="ledger">
           <li v-for="entry in entries" :key="entry.key" class="list-row flex min-h-11 items-center justify-between gap-3" data-testid="ledger-entry">
             <span class="min-w-0">
-              <span class="block truncate text-[15px] leading-5" data-testid="ledger-title">{{ entry.title }}</span>
-              <span class="block text-[13px] leading-[18px] text-muted">{{ entry.date }}</span>
+              <span class="t-body-m-strong block truncate" data-testid="ledger-title">{{ entry.title }}</span>
+              <span class="t-label-s block text-tertiary">{{ entry.date }}</span>
             </span>
-            <span class="shrink-0 font-mono text-[15px] leading-5 font-medium" :class="entry.amount >= 0 ? 'text-success-ink' : 'text-body'" data-testid="ledger-amount">{{ entry.amountText }}</span>
+            <span class="shrink-0 font-display text-[15px] leading-5 font-semibold tabular-nums" :class="entry.amount >= 0 ? 'text-success-ink' : 'text-body'" data-testid="ledger-amount">{{ entry.amountText }}</span>
           </li>
         </ul>
       </section>
 
       <section v-else-if="tab === 'shop'" data-testid="shop">
-        <!-- The categories: white boxes in a thin frame; the chosen one in the soft accent with the primary frame (no filled tab). -->
-        <div class="-mx-5 mb-3 flex gap-2 overflow-x-auto px-5 py-0.5" role="tablist" :aria-label="t('gameCaravan.cats_aria')" data-testid="categories">
+        <!-- The categories: the chips of the kit as a filter (32 px, a 44 px touch area): the chosen one in ink, the others on the sunken paper. -->
+        <div class="-mx-5 mb-3 flex gap-2 overflow-x-auto px-5 py-1.5" role="tablist" :aria-label="t('gameCaravan.cats_aria')" data-testid="categories">
           <button
             v-for="option in categoryOptions"
             :key="option.value"
             type="button"
             role="tab"
             :aria-selected="option.value === category"
-            class="min-h-11 shrink-0 rounded-control px-4 text-[15px] leading-5"
-            :class="option.value === category ? 'bg-accent-soft font-semibold shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'bg-surface text-muted shadow-[inset_0_0_0_1px_var(--app-hairline)]'"
+            class="tap-target t-label-s h-8 shrink-0 rounded-full px-3.5 transition-colors duration-200"
+            :class="option.value === category ? 'bg-inverse text-on-inverse' : 'bg-sunken text-muted'"
             :data-testid="`cat-${option.value}`"
             @click="category = option.value"
           >
@@ -282,7 +280,7 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
           </button>
         </div>
 
-        <p v-if="inCategory.length === 0" class="px-4 py-6 text-center text-[15px] leading-5 text-muted" data-testid="cat-empty">{{ t('gameCaravan.cat_empty') }}</p>
+        <p v-if="inCategory.length === 0" class="t-body-m px-4 py-6 text-center text-muted" data-testid="cat-empty">{{ t('gameCaravan.cat_empty') }}</p>
         <ul v-else class="flex flex-col gap-3" data-testid="items">
           <ShopItemCard
             v-for="item in inCategory"
@@ -303,14 +301,14 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
         <div class="flex items-center gap-3">
           <GameItemImage :name="confirming.asset" :size="64" />
           <div class="min-w-0">
-            <p class="text-[15px] leading-5 text-muted">{{ confirming.title }}</p>
-            <h2 class="text-[22px] leading-7 font-semibold"><NumberText :text="t('gameCaravan.buy.title', { price: NUMBER_MARK })" :value="confirming.price" /></h2>
+            <p class="t-body-m text-muted">{{ confirming.title }}</p>
+            <h2 class="t-display-m"><NumberText :text="t('gameCaravan.buy.title', { price: NUMBER_MARK })" :value="confirming.price" /></h2>
           </div>
         </div>
-        <NumberText class="block text-[15px] leading-5 text-muted" :text="t('gameCaravan.buy.balance', { balance: NUMBER_MARK })" :value="store.balance" data-testid="buy-balance" />
+        <NumberText class="t-body-m block text-muted" :text="t('gameCaravan.buy.balance', { balance: NUMBER_MARK })" :value="store.balance" data-testid="buy-balance" />
         <InlineAlert v-if="sheetError || shortOfCoins" tone="warning" :message="t('gameCaravan.buy.coins_insufficient')" data-testid="buy-short" />
         <button type="button" class="btn btn-primary btn-block" :disabled="buying !== null" data-testid="buy-confirm" @click="confirmBuy">{{ t('gameCaravan.buy.confirm') }}</button>
-        <button type="button" class="btn btn-plain btn-block" data-testid="buy-cancel" @click="closeSheet">{{ t('gameCaravan.buy.cancel') }}</button>
+        <button type="button" class="btn btn-ghost btn-block" data-testid="buy-cancel" @click="closeSheet">{{ t('gameCaravan.buy.cancel') }}</button>
       </div>
     </BottomSheet>
 

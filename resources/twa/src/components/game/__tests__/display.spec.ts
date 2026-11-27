@@ -59,6 +59,20 @@ describe('RunHeader', () => {
     expect(wrapper.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Задание 3 из 10')
   })
 
+  it('draws the segments of a lesson of the kit: the passed ones in ink, this task in muhr, the rest sunken', () => {
+    const states = header().get('[data-testid=progress-bar]').findAll('.segment').map((segment) => segment.attributes('data-state'))
+
+    expect(states).toEqual(['done', 'done', 'current', 'todo', 'todo', 'todo', 'todo', 'todo', 'todo', 'todo'])
+    expect(header().get('[data-testid=progress-bar]').attributes('aria-valuenow')).toBe('20')
+  })
+
+  it('a run longer than the segments can show is a thin line', () => {
+    const wrapper = header({ position: 12, total: 30 })
+
+    expect(wrapper.find('.segment').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=progress-bar] .progress-fill').attributes('style')).toContain('width: 37%')
+  })
+
   it('shows the combo from the third answer in a row, not before', () => {
     expect(header({ combo: 2 }).find('[data-testid=combo]').exists()).toBe(false)
     expect(header({ combo: 3 }).get('[data-testid=combo]').text()).toBe('Комбо ×3')
@@ -115,6 +129,9 @@ describe('GameReveal — a task made of a word', () => {
     expect(wrapper.get('[data-testid=chip-points]').text()).toBe('+10')
     expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=chip-flask]').exists()).toBe(false)
+    // the feedback sheet of the kit: the soft success colour; the verdict has its check (never the colour alone)
+    expect(wrapper.get('[data-testid=actions]').classes()).toContain('!bg-success-soft')
+    expect(wrapper.get('[data-testid=verdict-label]').find('svg').exists()).toBe(true)
   })
 
   it('a miss: "Wrong", the flask lost, what the learner picked - told by its option, as on the screen of an answer', () => {
@@ -129,6 +146,10 @@ describe('GameReveal — a task made of a word', () => {
     expect(wrapper.get('[data-testid=reveal-option-reveal]').text()).toContain('яблоко')
     expect(wrapper.get('[data-testid=reveal-option-reveal]').text()).toContain('верный ответ')
     expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
+    // a cross on the miss, a check on the right option; the sheet in the soft error colour of the kit
+    expect(wrapper.get('[data-testid=reveal-option-incorrect] [data-testid=reveal-mark]').classes()).toContain('text-danger-ink')
+    expect(wrapper.get('[data-testid=reveal-option-reveal] [data-testid=reveal-mark]').classes()).toContain('text-success-ink')
+    expect(wrapper.get('[data-testid=actions]').classes()).toContain('!bg-danger-soft')
   })
 
   it('draws the options of a choice in their states (docs/design Feedback): the right pick, the rest dimmed; the question again', () => {
@@ -235,6 +256,17 @@ describe('RunSummary', () => {
     expect(wrapper.findAll('[data-testid=star]').map((star) => star.attributes('data-full'))).toEqual(['true', 'true', 'false'])
     expect(wrapper.get('[data-testid=stars]').attributes('aria-label')).toBe('Звёзды: 2 из 3')
     expect(wrapper.get('[data-testid=summary-score]').text()).toBe('320')
+    // the result of the kit (06-urok-proyden): the "celebrate" mascot, whose picture holds its own stamp - no second stamp
+    expect(wrapper.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
+    expect(wrapper.find('[data-testid=stamp]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=summary-title]').classes()).toContain('t-display-l')
+  })
+
+  it('a lost run is told quietly: no mascot, no stamp', () => {
+    const wrapper = render(summary({ stars: 0, score: 40 }), true)
+
+    expect(wrapper.find('[data-testid=mascot-art]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=stamp]').exists()).toBe(false)
   })
 
   it('shows no reward the server did not give: zeros and missing fields leave no row', () => {
@@ -270,6 +302,10 @@ describe('RunSummary', () => {
       const wrapper = won()
 
       expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Ворота открыты')
+      expect(wrapper.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
+      // a boss beaten: the stamp of the score, pressed in once
+      expect(wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
+      expect(wrapper.get('[data-testid=stamp]').attributes('aria-label')).toBe('320 очков')
       expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 92%')
       expect(wrapper.get('[data-testid=city-card-title]').text()).toBe('Я дошёл до Самарканда')
       expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Поделиться')
@@ -290,6 +326,8 @@ describe('RunSummary', () => {
       const wrapper = render(summary({ boss: { accuracy: 67, won: false, first: false, share: null }, mistakes: [mistake] }))
 
       expect(wrapper.get('[data-testid=summary-title]').text()).toBe('Хранитель устоял')
+      expect(wrapper.find('[data-testid=mascot-art]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=stamp]').exists()).toBe(false)
       expect(wrapper.get('[data-testid=boss-lost-hint]').text()).toBe('Точность 67% — вернитесь после повторения')
       expect(wrapper.find('[data-testid=review-btn]').exists()).toBe(true)
       await wrapper.get('[data-testid=review-btn]').trigger('click')

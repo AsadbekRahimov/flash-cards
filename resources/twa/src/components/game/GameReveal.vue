@@ -15,6 +15,7 @@ import { computed } from 'vue'
 import { isPracticeElement, practiceOutcomeOf } from '@/components/game/practiceAdapter'
 import AnswerReveal from '@/components/practice/AnswerReveal.vue'
 import StickyActions from '@/components/StickyActions.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { isLongGameText } from '@/composables/phraseText'
 import { gameVerdictLabel } from '@/composables/practiceLabels'
 import { useTelegram } from '@/composables/useTelegram'
@@ -38,12 +39,25 @@ const { t } = useI18n()
 /** The verdict in words takes the ink of its colour (docs/design Feedback: "неверно" in the ink of danger, beside the right answer). */
 const INKS: Record<PracticeVerdict, string> = {
   correct: 'text-success-ink',
-  typo: 'text-warning-ink',
+  typo: 'text-accent-ink',
   wrong: 'text-danger-ink',
   skipped: 'text-muted',
 }
 
 const ink = computed((): string => INKS[props.outcome.verdict])
+
+/** The colour of the feedback sheet: the soft success / error of the kit for a right / wrong answer; the surface for the rest. */
+const sheetTone = computed((): string => {
+  if (props.outcome.verdict === 'correct') return '!border-transparent !bg-success-soft'
+  return props.outcome.verdict === 'wrong' ? '!border-transparent !bg-danger-soft' : ''
+})
+
+/** The key of an option after the check, as QuizOption draws it: the success / error ink of the verdict, a quiet ring for the rest. */
+function keyTone(state: 'correct' | 'reveal' | 'incorrect' | 'dimmed'): string {
+  if (state === 'incorrect') return 'bg-danger-ink text-on-inverse'
+  if (state === 'dimmed') return 'bg-transparent text-muted shadow-[inset_0_0_0_1px_var(--app-divider)]'
+  return 'bg-success-ink text-on-inverse'
+}
 
 /** The practice components' explanation, when the element is one of their kinds. */
 const practiceOutcome = computed(() => {
@@ -141,10 +155,10 @@ function next(): void {
     <template v-else>
       <div class="flex flex-col gap-6 px-5 pt-6 pb-4 short:gap-3 short:pt-2" data-testid="word-reveal">
         <div v-if="prompt" class="flex flex-col items-center gap-1.5 text-center">
-          <p class="text-[13px] leading-[18px] text-muted short:hidden">{{ t(`gameRun.task.${outcome.element.kind}` as StringKey) }}</p>
+          <p class="t-body-m text-muted short:hidden">{{ t(`gameRun.task.${outcome.element.kind}` as StringKey) }}</p>
           <p
-            class="max-w-full font-semibold break-words"
-            :class="longPrompt ? 'text-[20px] leading-[26px] text-balance short:text-[18px] short:leading-6' : 'text-[28px] leading-[34px] tracking-[-0.3px] short:text-[20px] short:leading-[26px]'"
+            class="max-w-full font-display font-semibold tracking-[-0.02em] break-words"
+            :class="longPrompt ? 'text-[20px] leading-[26px] text-balance short:text-[18px] short:leading-6' : 'text-[30px] leading-9 short:text-[22px] short:leading-7'"
             :lang="prompt.lang"
             :data-long="longPrompt ? 'true' : undefined"
             data-testid="reveal-prompt"
@@ -152,26 +166,41 @@ function next(): void {
         </div>
 
         <ul v-if="options.length > 0" class="flex flex-col gap-2.5 short:gap-2" data-testid="reveal-options">
+          <!-- The answer options of the kit after the check: the key, the label, the word of the verdict and its mark (a check / a cross) - never the colour alone. -->
           <li
-            v-for="item in options"
+            v-for="(item, index) in options"
             :key="item.option.id"
-            class="option justify-between active:scale-100 short:min-h-11"
+            class="option min-h-[60px] active:scale-100 short:min-h-12"
             :data-state="item.state"
             :data-testid="`reveal-option-${item.state}`"
           >
-            <span class="min-w-0 break-words" :lang="answerLang">{{ item.option.text }}</span>
-            <span v-if="item.tag" class="shrink-0 text-[13px] leading-[18px] font-normal">{{ item.tag }}</span>
+            <span class="flex size-7 shrink-0 items-center justify-center self-center rounded-xs text-[15px] leading-5 font-medium" :class="keyTone(item.state)" aria-hidden="true">{{ index + 1 }}</span>
+            <span class="min-w-0 flex-1 break-words" :lang="answerLang">{{ item.option.text }}</span>
+            <span v-if="item.tag" class="shrink-0 text-[13px] leading-[18px]" :class="item.state === 'incorrect' ? 'font-normal text-danger-ink' : 'font-medium text-success-ink'">{{ item.tag }}</span>
+            <AppIcon
+              v-if="item.state !== 'dimmed'"
+              :name="item.state === 'incorrect' ? 'x-mark' : 'check'"
+              :size="22"
+              class="option-mark shrink-0"
+              :class="item.state === 'incorrect' ? 'text-danger-ink' : 'text-success-ink'"
+              aria-hidden="true"
+              data-testid="reveal-mark"
+            />
           </li>
         </ul>
       </div>
 
-      <StickyActions class="!gap-3 border-t border-hairline !pt-[18px]">
+      <!-- The feedback sheet of the kit (05-urok-oshibka): the top corners 28, the soft colour of the verdict (a right answer - success, a miss - error). -->
+      <StickyActions class="!gap-3 rounded-t-hero border-t border-hairline !px-5 !pt-5" :class="sheetTone" data-testid="actions" :data-tone="outcome.verdict">
         <div class="flex flex-col gap-1">
           <div class="flex items-baseline justify-between gap-3">
-            <p v-if="word" class="text-[13px] leading-[18px] text-muted">{{ t('gameRun.reveal.right') }}</p>
-            <p class="ml-auto shrink-0 text-[13px] leading-[18px] font-semibold" :class="ink" :data-verdict="outcome.verdict" data-testid="verdict-label">{{ gameVerdictLabel(outcome.verdict) }}</p>
+            <p v-if="word" class="t-label-s text-muted">{{ t('gameRun.reveal.right') }}</p>
+            <p class="t-label-s ml-auto flex shrink-0 items-center gap-1 font-semibold" :class="ink" :data-verdict="outcome.verdict" data-testid="verdict-label">
+              <AppIcon v-if="outcome.verdict === 'correct' || outcome.verdict === 'wrong'" :name="outcome.verdict === 'correct' ? 'check' : 'x-mark'" :size="16" class="shrink-0" />
+              {{ gameVerdictLabel(outcome.verdict) }}
+            </p>
           </div>
-          <p v-if="word" class="text-[18px] leading-6 font-semibold break-words" :lang="answerLang" data-testid="right-answer">{{ word.correct_text }}</p>
+          <p v-if="word" class="t-title-m break-words" :lang="answerLang" data-testid="right-answer">{{ word.correct_text }}</p>
         </div>
 
         <p v-if="outcome.earlier" class="text-[15px] leading-5 text-muted" data-testid="earlier-note">{{ t('practice.reveal.earlier') }}</p>

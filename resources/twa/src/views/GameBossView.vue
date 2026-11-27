@@ -5,7 +5,8 @@ import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -213,21 +214,19 @@ onBeforeUnmount(() => {
 
     <LoadingState v-if="view === 'loading'" variant="cards" />
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'no_course'"
-      icon="book-open"
+      mascot="hello"
       :title="t('game.map.no_course_title')"
       :text="t('game.map.no_course_text')"
       data-testid="no-course"
     >
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-courses" @click="router.push({ name: 'courses' })">{{ t('game.map.to_courses') }}</button>
-      </template>
-    </EmptyState>
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-courses" @click="router.push({ name: 'courses' })">{{ t('game.map.to_courses') }}</button>
+    </ClosedState>
 
-    <EmptyState
+    <ClosedState
       v-else-if="view === 'unavailable'"
-      icon="lock-closed"
+      mascot="thinking"
       :title="t('game.map.unavailable_title')"
       :text="t('game.map.unavailable_text')"
       data-testid="unavailable"
@@ -235,17 +234,16 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
 
-    <EmptyState v-else-if="view === 'missing'" icon="flag" :text="t('game.bossScreen.missing')" data-testid="missing">
-      <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'missing'" mascot="thinking" :text="t('game.bossScreen.missing')" data-testid="missing">
+      <button type="button" class="btn btn-secondary btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
+    </ClosedState>
 
     <!-- The boss is not ready: what is missing. -->
-    <section v-else-if="view === 'not_ready'" class="card flex flex-col gap-4" data-testid="not-ready">
-      <div class="min-w-0">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('game.bossScreen.keeper') }}</h2>
-        <p class="mt-1 text-[15px] leading-5 text-muted" data-testid="not-ready-text">{{ t('game.bossScreen.not_ready', { missing: missingText }) }}</p>
+    <section v-else-if="view === 'not_ready'" class="flex flex-col items-center gap-4 rounded-hero bg-highlight p-5 text-center" data-testid="not-ready">
+      <div class="flex min-w-0 flex-col items-center gap-2">
+        <MascotArt pose="thinking" :height="112" class="short:hidden" />
+        <h2 class="t-title-m">{{ t('game.bossScreen.keeper') }}</h2>
+        <p class="t-body-m text-muted" data-testid="not-ready-text">{{ t('game.bossScreen.not_ready', { missing: missingText }) }}</p>
       </div>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
     </section>
@@ -255,23 +253,23 @@ onBeforeUnmount(() => {
     <section v-else class="flex flex-col overflow-hidden rounded-card border border-hairline bg-surface" data-testid="intro">
       <div class="flex items-start gap-3 px-[18px] pt-4 pb-3.5">
         <div class="min-w-0 flex-1">
-          <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="keeper">{{ t('game.bossScreen.keeper') }}</h2>
-          <p class="text-[13px] leading-[18px] text-muted" data-testid="city-name">{{ cityName }}</p>
+          <h2 class="t-title-m" data-testid="keeper">{{ t('game.bossScreen.keeper') }}</h2>
+          <p class="t-label-s text-muted" data-testid="city-name">{{ cityName }}</p>
         </div>
-        <span v-if="view === 'locked'" class="chip chip-accent shrink-0" data-testid="pro-chip">{{ t('game.boss.pro') }}</span>
+        <span v-if="view === 'locked'" class="chip chip-ink shrink-0" data-testid="pro-chip">{{ t('game.boss.pro') }}</span>
       </div>
 
-      <ul class="flex flex-col text-[15px] leading-5" data-testid="rules">
+      <ul class="t-body-m flex flex-col" data-testid="rules">
         <li class="border-t border-divider px-[18px] py-3">{{ tn('game.bossScreen.words', 12) }}</li>
         <li class="border-t border-divider px-[18px] py-3">{{ t('game.bossScreen.need', { percent: 80 }) }}</li>
       </ul>
 
       <div class="flex flex-col gap-3 border-t border-divider px-[18px] pt-3.5 pb-[18px]">
-        <p v-if="view === 'defeated'" class="flex items-center gap-2 text-[15px] leading-5 text-success-ink" data-testid="beaten">
-          <AppIcon name="check" :size="18" class="shrink-0 text-success" />{{ t('game.bossScreen.beaten') }}
+        <p v-if="view === 'defeated'" class="t-body-m-strong flex items-center gap-2 text-success-ink" data-testid="beaten">
+          <AppIcon name="check" :size="18" class="shrink-0" />{{ t('game.bossScreen.beaten') }}
         </p>
-        <p v-if="view === 'locked'" class="text-[15px] leading-5 text-muted" data-testid="locked-text">{{ t('game.bossScreen.locked') }}</p>
-        <p v-if="limitLine && view !== 'locked'" class="text-[13px] leading-[18px] text-muted" data-testid="limit">{{ limitLine }}</p>
+        <p v-if="view === 'locked'" class="t-body-m text-muted" data-testid="locked-text">{{ t('game.bossScreen.locked') }}</p>
+        <p v-if="limitLine && view !== 'locked'" class="t-label-s text-muted" data-testid="limit">{{ limitLine }}</p>
 
         <button v-if="view === 'locked'" type="button" class="btn btn-primary btn-lg btn-block" data-testid="pro-btn" @click="openPaywall">{{ t('game.bossScreen.pro_btn') }}</button>
         <button v-else type="button" class="btn btn-primary btn-lg btn-block" :disabled="starting" data-testid="start-btn" @click="start(false)">
@@ -282,15 +280,15 @@ onBeforeUnmount(() => {
 
     <!-- Another run is on: continue it, or start this one (the old one is not counted). -->
     <BottomSheet v-if="conflict" :label="t('game.conflict.title')" data-testid="conflict-sheet" @close="conflict = null">
-      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.conflict.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('game.conflict.text') }}</p>
+      <h2 class="t-display-m pr-10">{{ t('game.conflict.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('game.conflict.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="conflict-continue" @click="continueRun">{{ t('game.conflict.continue') }}</button>
-      <button type="button" class="btn btn-plain btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">{{ t('game.conflict.replace') }}</button>
+      <button type="button" class="btn btn-ghost btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">{{ t('game.conflict.replace') }}</button>
     </BottomSheet>
 
     <BottomSheet v-if="material" :label="t('game.material.title')" data-testid="material-sheet" @close="material = false">
-      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.material.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('game.material.text') }}</p>
+      <h2 class="t-display-m pr-10">{{ t('game.material.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('game.material.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="material-learn" @click="learn">{{ t('game.map.learn') }}</button>
     </BottomSheet>
 
