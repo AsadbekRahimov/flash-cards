@@ -57,6 +57,7 @@ async function mountApp(start: string) {
       { path: '/league', name: 'league', component: screen('league'), meta: { tab: 'rating' } },
       { path: '/profile', name: 'profile', component: screen('profile'), meta: { tab: 'profile' } },
       { path: '/finished', name: 'finished', component: screen('finished') },
+      { path: '/settings', name: 'settings', component: { template: '<section data-testid="settings"><h1>Настройки</h1><button>x</button></section>' }, meta: { tab: 'profile' } },
       { path: '/lesson', name: 'lesson', component: Lesson, meta: { immersive: true } },
       { path: '/battle', name: 'battle', component: screen('battle'), meta: { immersive: true } },
     ],
@@ -103,6 +104,31 @@ describe('App — F5 «Нет сети»', () => {
     expect(w.get('main').attributes('inert')).toBeUndefined()
     // Nothing was lost while offline: the screen is not loaded again.
     expect(mounts.today).toBe(1)
+  })
+
+  it('F5 gone: the focus goes back into the content - the first heading of the screen, else <main>', async () => {
+    const { w, router } = await mountApp('/settings')
+    window.dispatchEvent(new Event('offline'))
+    await flushPromises()
+    expect(document.activeElement).toBe(w.get('[data-testid=offline-retry]').element)
+
+    window.dispatchEvent(new Event('online'))
+    await flushPromises()
+
+    const heading = w.get('[data-testid=settings] h1').element
+    expect(document.activeElement).toBe(heading)
+    expect(heading.getAttribute('tabindex')).toBe('-1')
+
+    await router.push('/today')
+    await flushPromises()
+    emit('failed', 'GET')
+    await flushPromises()
+    await w.get('[data-testid=offline-retry]').trigger('click')
+    await flushPromises()
+
+    // No heading on this screen: <main> itself, which can take the focus without entering the order of the Tab key.
+    expect(document.activeElement).toBe(w.get('main').element)
+    expect(w.get('main').attributes('tabindex')).toBe('-1')
   })
 
   it('a screen that opens offline (no event) gets F5 at once', async () => {

@@ -283,7 +283,33 @@ it('turns the reminders off with "Do not remind" and recomputes next_reminder_at
     expect($learner->fresh()?->reminder_time)->toBeNull()
         ->and($learner->fresh()?->next_reminder_at)->toBeNull()
         ->and(collect(obEvents($learner))->firstWhere('name', 'onboarding.step_completed')['props'] ?? null)
-        ->toEqual(['step' => 'reminder', 'channel' => 'mini_app', 'write_access' => 'not_asked']);
+        ->toEqual(['step' => 'reminder', 'channel' => 'mini_app', 'write_access' => 'not_asked'])
+        // A first answer of the onboarding, not a learner turning reminders off: the guardrail of the reminder experiment counts
+        // every `reminders.disabled` whatever its `via`, so none is written here (nor `settings.changed`).
+        ->and(array_column(obEvents($learner), 'name'))->toBe(['onboarding.started', 'onboarding.step_completed']);
+});
+
+it('records only the events of the onboarding for the steps written through the settings: no settings.changed, no reminders.disabled', function (): void {
+    obCatalog();
+    $learner = Learner::factory()->create(['daily_goal' => 20, 'reminder_time' => '19:00', 'level' => null]);
+    Subscription::factory()->create(['subscriber_id' => $learner->id]);
+    app(EntitlementResolver::class)->forget($learner);
+
+    obPut($this, $learner, 'level', ['level' => 'B1', 'course_slug' => 'english-b1'])->assertOk();
+    obPut($this, $learner, 'daily_goal', ['daily_goal' => 40])->assertOk();
+    obPut($this, $learner, 'reminder', ['enabled' => true, 'time' => '08:00', 'write_access' => 'granted'])->assertOk();
+    obPut($this, $learner, 'reminder', ['enabled' => false, 'time' => null, 'write_access' => 'denied'])->assertOk();
+
+    expect($learner->fresh()?->reminder_time)->toBeNull()
+        ->and(array_column(obEvents($learner), 'name'))->toBe(['onboarding.started', ...array_fill(0, 4, 'onboarding.step_completed')]);
+
+    // The same columns changed in the settings afterwards still record both.
+    $learner->update(['onboarding_state' => 'done']);
+    $this->withHeaders(obHeaders($learner))->patchJson('/api/twa/me/settings', ['reminder_time' => '20:00'])->assertOk();
+    $this->withHeaders(obHeaders($learner))->patchJson('/api/twa/me/settings', ['reminder_time' => null])->assertOk();
+    $settings = array_values(array_filter(obEvents($learner), fn (array $e): bool => ! str_starts_with($e['name'], 'onboarding.')));
+    expect(array_column($settings, 'name'))->toBe(['settings.changed', 'settings.changed', 'reminders.disabled'])
+        ->and($settings[2]['props'])->toEqual(['via' => 'settings']);
 });
 
 it('refuses a daily goal above the Free limit with 403 daily_goal_pro_required {max} and lets Pro take 40', function (): void {
@@ -498,4 +524,101 @@ it('gives GET /courses the number of modules from the catalog cache, under the v
         ->and($courses['english-b1']['stages_count'] ?? null)->toBe(1)
         ->and(PureCache::store()->get('catalog:courses:published:v2:ru'))->toBeArray()
         ->and(PureCache::store()->get('catalog:courses:published:v2:ru')[0])->toHaveKey('stages_count');
+});
+
+// --- The course of the summary is the course completion sets (review of 27.11.2026) ---------------------------------------------
+
+it('makes the course of the level screen the active one even when the bot wrote another goal, and falls back when it is gone', function (): void {
+    ['b1' => $b1] = obCatalog();
+    $ielts = Fx::course([1 => [1 => 3]], ['slug' => 'ielts-b1', 'exam_tag' => 'ielts', 'level' => 'B1', 'title' => ['ru' => 'IELTS B1']])['course'];
+
+    // The bot asked the goal (IELTS) and stopped on the level; the Mini App chose the level and its course.
+    $learner = Learner::factory()->create(['onboarding_state' => 'level', 'goal' => 'ielts', 'interface_locale' => 'ru']);
+    obPut($this, $learner, 'level', ['level' => 'B1', 'course_slug' => 'english-b1'])->assertOk()
+        ->assertJsonPath('values.course.slug', 'english-b1');
+
+    $this->withHeaders(obHeaders($learner))->postJson('/api/twa/onboarding/complete')->assertOk()
+        ->assertJsonPath('course', ['slug' => 'english-b1', 'title' => 'Английский B1']);
+    expect($learner->fresh()?->active_course_id)->toBe($b1->id)
+        ->and($learner->fresh()?->goal)->toBe('ielts')
+        ->and(collect(obEvents($learner))->firstWhere('name', 'course.selected')['props'] ?? null)->toEqual(['course_id' => $b1->id, 'via' => 'onboarding']);
+    $this->withHeaders(obHeaders($learner))->getJson('/api/twa/onboarding')->assertOk()->assertJsonPath('values.course.slug', 'english-b1');
+
+    // The chosen course left the catalog between the level screen and the summary: the bot's own choice, recommend(goal, level).
+    $late = Learner::factory()->create(['onboarding_state' => 'level', 'goal' => 'ielts']);
+    obPut($this, $late, 'level', ['level' => 'B1', 'course_slug' => 'english-b1'])->assertOk();
+    $b1->update(['status' => 'archived']);
+    $this->withHeaders(obHeaders($late))->postJson('/api/twa/onboarding/complete')->assertOk()->assertJsonPath('course.slug', 'ielts-b1');
+    expect($late->fresh()?->active_course_id)->toBe($ielts->id);
+});
+
+it('keeps an active course on completion and shows it, not the course of the level screen, on the summary and in the answer', function (): void {
+    obCatalog();
+    $public = Fx::course([1 => [1 => 3]], ['slug' => 'business', 'level' => 'B2', 'title' => ['ru' => 'Деловой английский']])['course'];
+    $unlisted = Fx::course([1 => [1 => 3]], ['slug' => 'by-link', 'visibility' => 'unlisted', 'title' => ['ru' => 'По ссылке']])['course'];
+
+    foreach ([[$public, ['slug' => 'business', 'title' => 'Деловой английский', 'level_label' => 'B2', 'stages_count' => 1]],
+        [$unlisted, ['slug' => 'by-link', 'title' => 'По ссылке', 'level_label' => (string) $unlisted->level, 'stages_count' => null]]] as [$course, $shown]) {
+        $learner = Learner::factory()->create(['active_course_id' => $course->id, 'interface_locale' => 'ru']);
+
+        obPut($this, $learner, 'level', ['level' => 'A1', 'course_slug' => 'english-a1'])->assertOk()->assertJsonPath('values.course', $shown);
+        $this->withHeaders(obHeaders($learner))->getJson('/api/twa/onboarding')->assertOk()->assertJsonPath('values.course', $shown);
+
+        $this->withHeaders(obHeaders($learner))->postJson('/api/twa/onboarding/complete')->assertOk()
+            ->assertJsonPath('course', ['slug' => $shown['slug'], 'title' => $shown['title']]);
+        expect($learner->fresh()?->active_course_id)->toBe($course->id);
+        $this->withHeaders(obHeaders($learner))->getJson('/api/twa/onboarding')->assertOk()
+            ->assertJsonPath('completed', true)->assertJsonPath('values.course', $shown);
+    }
+});
+
+it('drops the draft of the placement test and the lists of the steps from meta on completion, in the same UPDATE', function (): void {
+    obCatalog();
+    $learner = Learner::factory()->create(['level' => 'B1', 'meta' => [
+        'locale_chosen' => true,
+        'twa_onboarding' => [
+            'step' => 'plan', 'started_at' => '2026-11-27T10:00:00+00:00', 'answered' => ['name', 'level'], 'course_slug' => 'english-b1',
+            'placement' => ['set_id' => str_repeat('a', 32), 'items' => [['id' => 1, 'word_id' => 1, 'level' => 'A1', 'correct' => 2, 'n' => 4]], 'issued_at' => '2026-11-27T10:01:00+00:00', 'expires_at' => '2026-11-27T10:21:00+00:00'],
+        ],
+    ]]);
+
+    $this->withHeaders(obHeaders($learner))->postJson('/api/twa/onboarding/complete')->assertOk()->assertJsonPath('course.slug', 'english-b1');
+
+    expect($learner->fresh()?->meta)->toBe([
+        'locale_chosen' => true,
+        'twa_onboarding' => ['started_at' => '2026-11-27T10:00:00+00:00', 'course_slug' => 'english-b1'],
+    ]);
+
+    // A repeated completion, the state and the placement routes of a learner who is done keep working.
+    $this->withHeaders(obHeaders($learner))->postJson('/api/twa/onboarding/complete')->assertOk()->assertJsonPath('course.slug', 'english-b1');
+    $this->withHeaders(obHeaders($learner))->getJson('/api/twa/onboarding')->assertOk()
+        ->assertJsonPath('completed', true)->assertJsonPath('step', null)->assertJsonPath('values.course.slug', 'english-b1');
+    $this->withHeaders(obHeaders($learner))->postJson('/api/twa/onboarding/placement/answers', ['set_id' => str_repeat('a', 32), 'answers' => [2]])
+        ->assertStatus(409);
+
+    // A learner who never opened the onboarding of the Mini App gets no key at all.
+    $plain = Learner::factory()->create(['level' => 'B1', 'meta' => ['locale_chosen' => true]]);
+    $this->withHeaders(obHeaders($plain))->postJson('/api/twa/onboarding/complete')->assertOk();
+    expect($plain->fresh()?->meta)->toBe(['locale_chosen' => true]);
+});
+
+it('offers only the levels with a course of their own when the catalog is incomplete (and the next level in the row of a lower one)', function (): void {
+    $make = fn (string $level): Course => Fx::course([1 => [1 => 3]], [
+        'slug' => 'english-'.strtolower($level), 'exam_tag' => 'general', 'level' => $level, 'title' => ['ru' => 'Английский '.$level],
+    ])['course'];
+    $make('A1');
+    $make('C1');
+    $learner = Learner::factory()->create(['interface_locale' => 'ru']);
+
+    // Without B1, B2 and C2 every one of them falls back to the first course of the catalog (A1): only A2, the next level, joins its row.
+    $this->withHeaders(obHeaders($learner))->getJson('/api/twa/onboarding')->assertOk()
+        ->assertJsonPath('options.levels', [
+            ['level' => 'A1', 'levels' => ['A1', 'A2'], 'course_slug' => 'english-a1', 'title' => 'Английский A1', 'level_label' => 'A1–A2', 'stages_count' => 1],
+            ['level' => 'C1', 'levels' => ['C1'], 'course_slug' => 'english-c1', 'title' => 'Английский C1', 'level_label' => 'C1', 'stages_count' => 1],
+        ]);
+
+    // A level left out cannot be saved with any course.
+    obPut($this, $learner, 'level', ['level' => 'B2', 'course_slug' => 'english-a1'])->assertStatus(422)->assertJsonValidationErrors('course_slug');
+    obPut($this, $learner, 'level', ['level' => 'C2', 'course_slug' => 'english-a1'])->assertStatus(422)->assertJsonValidationErrors('course_slug');
+    obPut($this, $learner, 'level', ['level' => 'A2', 'course_slug' => 'english-a1'])->assertOk()->assertJsonPath('values.course.level_label', 'A1–A2');
 });

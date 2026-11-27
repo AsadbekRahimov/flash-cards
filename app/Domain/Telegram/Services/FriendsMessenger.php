@@ -16,6 +16,8 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramOutboundBusyException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Challenge;
 use App\Models\Friendship;
@@ -115,7 +117,10 @@ final class FriendsMessenger
         }
     }
 
-    /** The end of the onboarding: offers the friendship of the remembered `f_<code>` link, once. */
+    /**
+     * The end of the onboarding: offers the friendship of the remembered `f_<code>` link, once - the code is taken under the row lock
+     * before the send (two runs offer once) and put back when Telegram refused the message with 429 / no slot (rethrown).
+     */
     public function offerPending(Learner $learner, int|string $chatId): void
     {
         $code = $this->onboarding->pullPendingFriendInvite($learner);
@@ -123,7 +128,14 @@ final class FriendsMessenger
             return;
         }
 
-        $this->offer($learner, $chatId, $code, afterOnboarding: true);
+        try {
+            $this->offer($learner, $chatId, $code, afterOnboarding: true);
+        } catch (TelegramRateLimitedException|TelegramOutboundBusyException $e) {
+            // The one message of the offer was not sent: the code goes back for the retry (the job middleware) or the next `/start`.
+            $this->onboarding->restorePendingFriendInvite($learner, $code);
+
+            throw $e;
+        }
     }
 
     /** "Send": `request(learner → owner of the code)`; the owner is told and answers it himself. */

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import { limitHitFrom } from '@/composables/practiceLimits'
@@ -161,7 +162,7 @@ export const useBattleSetupStore = defineStore('battleSetup', {
     /** The decks are asked for only to hide them; a failure leaves them in the list, and the server refuses a deck later. */
     async loadDecks(): Promise<void> {
       try {
-        const res = await api.decks.list()
+        const res = await api.decks.list(BACKGROUND)
         this.deckSlugs = res.decks.map((deck) => deck.slug)
       } catch {
         this.deckSlugs = []

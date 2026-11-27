@@ -130,6 +130,8 @@ describe('training store — an answer lost to the network (F5, docs/40 §2.6)',
     expect(store.status).toBe('ready')
     expect(store.card?.word_id).toBe(8)
     expect(store.progress).toEqual({ done: 5, total: 8 })
+    // The first try was taken by the server: the answer counts, the finish does not say one less.
+    expect(store.reviewedCount).toBe(1)
   })
 
   it('410: the answer is forgotten and the session is closed', async () => {
@@ -256,6 +258,7 @@ describe('training store — a reload of the tab with a waiting answer', () => {
     expect(stored()).toBeNull()
     expect(store.status).toBe('ready')
     expect(store.card?.word_id).toBe(8)
+    expect(store.reviewedCount).toBe(1)
   })
 
   it('still no network: nothing is started, the answer waits, the error state shows', async () => {

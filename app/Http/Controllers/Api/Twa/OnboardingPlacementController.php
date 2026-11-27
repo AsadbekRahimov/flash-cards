@@ -24,7 +24,7 @@ final class OnboardingPlacementController
 {
     public function __construct(private readonly PlacementTestService $placement) {}
 
-    /** POST /api/twa/onboarding/placement - 201 `{questions, expires_at}`. */
+    /** POST /api/twa/onboarding/placement - 201 `{set_id, questions, expires_at}`. */
     public function start(Request $request): JsonResponse
     {
         /** @var Learner $learner */
@@ -37,14 +37,14 @@ final class OnboardingPlacementController
         }
     }
 
-    /** POST /api/twa/onboarding/placement/answers - `{level, course_slug, correct_by_level}`. */
+    /** POST /api/twa/onboarding/placement/answers `{set_id, answers}` - `{level, course_slug, correct_by_level}`. */
     public function answer(PlacementAnswersRequest $request): JsonResponse
     {
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
 
         try {
-            $result = $this->placement->answer($learner, $request->answers());
+            $result = $this->placement->answer($learner, $request->setId(), $request->answers());
         } catch (TwaOnboardingException $e) {
             return ApiErrorResource::respond($e->httpStatus, $e->errorCode, $e->getMessage(), $e->details);
         } catch (InvalidSettingException $e) {

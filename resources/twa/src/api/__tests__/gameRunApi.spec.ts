@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { BACKGROUND } from '@/api/background'
 
 /** The paths and bodies of docs/18 §12.8 for a run: what the store of a run relies on. */
 const http = vi.hoisted(() => ({
@@ -22,7 +23,10 @@ beforeEach(() => {
 describe('api.gameRuns', () => {
   it('get reads one run', async () => {
     await api.gameRuns.get(9)
-    expect(http.get).toHaveBeenCalledWith('/game/runs/9')
+    expect(http.get).toHaveBeenCalledWith('/game/runs/9', undefined, undefined)
+    // The re-read after a lost reply is a background read (F5 is not raised by it).
+    await api.gameRuns.get(9, BACKGROUND)
+    expect(http.get).toHaveBeenLastCalledWith('/game/runs/9', undefined, BACKGROUND)
   })
 
   it('answer posts the body to the run, as a copy', async () => {

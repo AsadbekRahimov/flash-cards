@@ -140,7 +140,7 @@ describe('CourseView', () => {
 
       const { wrapper } = await render()
 
-      expect(api.courses.get).toHaveBeenCalledWith('english-a1')
+      expect(api.courses.get).toHaveBeenCalledWith('english-a1', undefined)
       expect(wrapper.find('[data-testid=brand-row]').exists()).toBe(false)
       const heading = wrapper.get('[data-testid=title] h1')
       expect(heading.text()).toBe('Английский A1')

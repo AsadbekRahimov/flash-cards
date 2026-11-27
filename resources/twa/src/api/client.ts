@@ -69,6 +69,12 @@ export interface RequestOptions {
    * refreshed, and the caller, which dropped it itself, ignores it. A signal that has fired already sends nothing.
    */
   signal?: AbortSignal
+  /**
+   * A best-effort read of the screen that does without it (the achievements of the profile, "my cups" of "Today", a poll, a refresh after
+   * an action): its loss to the network is not the loss of the screen, so it never tells the screen "Нет соединения" that it `failed`
+   * (`onNetworkSignal`) - only that it `reached` the server, which is just as true of it. The caller keeps swallowing its failure.
+   */
+  background?: boolean
 }
 
 /** The code of the `network` error of a request the caller dropped (`RequestOptions.signal`). */
@@ -77,7 +83,8 @@ export const REQUEST_ABORTED = 'aborted'
 /**
  * What a JSON request says about the connection (docs/40 §2.6, F5 "Нет сети"): `failed` - it ended as a `network` error (fetch threw, the
  * time ran out), `reached` - the server answered, with any status. `navigator.onLine` is not to be trusted, so the screen "Нет соединения"
- * listens to this too (`composables/useOnline.ts`). `method` lets the listener tell a load (GET) from an action.
+ * listens to this too (`composables/useOnline.ts`). `method` lets the listener tell a load (GET) from an action. A background request
+ * (`RequestOptions.background`) never says `failed`.
  */
 export interface NetworkSignal {
   outcome: 'failed' | 'reached'
@@ -176,7 +183,8 @@ export function createApiClient(opts: ClientOptions) {
       // Dropped by the caller: not a word about the connection, nothing to refresh.
       if (callerSignal?.aborted && !timedOut) throw aborted(err)
       const apiErr = timedOut ? new ApiClientError('network', 0, 'timeout', 'The request timed out', err) : mapError(err)
-      signal(apiErr.kind === 'network' ? 'failed' : 'reached', method)
+      if (apiErr.kind !== 'network') signal('reached', method)
+      else if (init.background !== true) signal('failed', method)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
         const fresh = await freshToken(sentToken)
         if (fresh) {

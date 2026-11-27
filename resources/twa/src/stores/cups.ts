@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import type { CupListResponse } from '@/api/types'
 
@@ -51,7 +52,8 @@ export const useCupsStore = defineStore('cups', {
       if (inFlight !== null) return inFlight
       inFlight = (async () => {
         try {
-          const res = await api.cups.list()
+          // Only the list screen (`force`) stands on it; for "Today" and "Profile" it is a background read.
+          const res = await api.cups.list(force ? undefined : BACKGROUND)
           this.cups = res.cups
         } catch (err) {
           if (err instanceof ApiClientError && err.code === 'cup_unavailable') {

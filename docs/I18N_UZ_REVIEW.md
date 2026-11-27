@@ -476,7 +476,6 @@
 | `today.course.next` | Keyingi dars | Следующий урок |
 | `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
 | `today.course.none` | Asosiy kurs tanlanmagan | Основной курс не выбран |
-| `today.onboarding_hint` | Sozlashni yakunlash uchun botga /start yuboring | Чтобы завершить настройку, отправьте боту /start |
 | `finished.home` | Asosiy sahifaga | На главную |
 | `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
 | `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
@@ -3528,7 +3527,6 @@
 | `today.goal.daily` | { | { |
 | `today.all_done` | Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga | На сегодня всё. Новые слова — завтра |
 | `today.all_done.pro` | Ko'proq yangi so'zlar — Pro'da | Больше новых слов — в Pro |
-| `today.onboarding_btn` | Sozlashni botda tugatish | Закончить настройку в боте |
 | `today.course.learn_hint` | Faqat shu darsning so'zlari, takrorlashsiz | Только слова этого урока, без повторений |
 | `card.grade_new.hard` | Hali eslamadim | Ещё не запомнил |
 | `card.grade_new.medium` | Esladim | Запомнил |
@@ -5471,7 +5469,6 @@ Mini App: экран `/share/story` (свой словарь ленивого э
 | Ключ | uz (не проверено носителем) | ru |
 |---|---|---|
 | `story.heading` | Storisga ulashish | Поделиться в сторис |
-| `story.preview` | Storis shunday ko'rinadi | Так будет выглядеть сторис |
 | `story.streak.title.one/other` | {count} kun ketma-ket | {count} день / дня / дней подряд |
 | `story.streak.text.one/other` | {brand}'da ingliz tilini o'rganyapman — har kuni {count} tadan kartochka. | Учу английский в {brand} — каждый день по {count} карточке / карточки / карточек. |
 | `story.streak.share_text.one/other` | {count} kundan beri ketma-ket {brand}'da ingliz tilini o'rganyapman! | {count} день / дня / дней подряд учу английский в {brand}! |
@@ -5502,6 +5499,9 @@ Mini App: экран `/share/story` (свой словарь ленивого э
 | `onboarding.placement.unavailable_title` | Test hozir mavjud emas | Тест сейчас недоступен |
 | `onboarding.placement.unavailable_text` | Darajani o'zingiz tanlang — uni istalgan vaqtda o'zgartirish mumkin. | Выберите уровень сами — его можно сменить в любой момент. |
 | `onboarding.placement.back` | Darajani tanlash | Выбрать уровень |
+| `story.preview_note` | Storis taxminan shunday ko'rinadi | Примерно так будет выглядеть сторис |
+| `today.onboarding.title` (`i18n/uz.ts`) | Sozlashni yakunlang | Закончите настройку |
+| `today.onboarding.text` (`i18n/uz.ts`) | Bir necha qadam — kurs va kunlik maqsadni tanlab beramiz | Пара шагов — и подберём курс и цель дня |
 
 ## Выпуск 4 · сервер сторис: тексты карточки 9:16 и подписи (`lang/uz/share.php`, ключи `share.story.*`; docs/40 §2.4, T11, 27.11.2026) — не проверено носителем
 

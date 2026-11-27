@@ -14,7 +14,6 @@ interface ShareMessageFailed {
   error?: string
 }
 
-
 /**
  * Thin wrapper around @twa-dev/sdk with safe fallbacks when the TWA is
  * opened outside Telegram (e.g. for Playwright E2E runs with a stub).

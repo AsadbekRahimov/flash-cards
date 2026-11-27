@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { duelFailure, expectedRated, localDuelFailure, type DuelFailure, type DuelRatedExpectation } from '@/composables/cupDuelInfo'
 import { t } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
@@ -172,7 +173,8 @@ export const useCupDuelStore = defineStore('cupDuel', {
       if (this.status !== 'ready' || cupId === null || duelId === null || this.acting !== null) return
       const generation = this.generation
       try {
-        const duel = await api.cups.duels.show(cupId, duelId)
+        // A beat of the poll is a background read: the duel stays on screen, a lost beat only slows the poll down.
+        const duel = await api.cups.duels.show(cupId, duelId, BACKGROUND)
         if (generation !== this.generation || this.acting !== null) return
         this.duel = duel
       } catch (err) {

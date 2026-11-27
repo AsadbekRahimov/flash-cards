@@ -69,7 +69,7 @@ describe('battle setup — the course', () => {
     const setup = await begun(11, 'ielts-core')
 
     expect(setup.course).toBe('ielts-core')
-    expect(api.courses.get).toHaveBeenCalledWith('ielts-core')
+    expect(api.courses.get).toHaveBeenCalledWith('ielts-core', undefined)
     expect(api.battles.options).toHaveBeenCalledWith(11, 'ielts-core', null)
   })
 
@@ -113,7 +113,7 @@ describe('battle setup — the course', () => {
 
     expect(setup.course).toBe('ielts-core')
     expect(setup.lessonId).toBeNull()
-    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core')
+    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core', undefined)
     expect(api.battles.options).toHaveBeenCalledWith(11, 'ielts-core', null)
   })
 
@@ -185,7 +185,7 @@ describe('battle setup — the lesson', () => {
     vi.mocked(api.courses.get).mockReturnValue(other.promise)
 
     const choosing = setup.selectCourse('ielts-core')
-    await vi.waitFor(() => expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core'))
+    await vi.waitFor(() => expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core', undefined))
 
     expect(setup.lessons).toEqual([])
     other.resolve(detailOf('ielts-core'))

@@ -134,15 +134,15 @@ it('keeps every key of meta when two starts and a step of the onboarding write a
 
 it('scores one set once when three answers of it arrive at the same instant: the same result for all, one answered_at', function (): void {
     $learner = Learner::factory()->create();
-    app(PlacementTestService::class)->start($learner);
+    $setId = app(PlacementTestService::class)->start($learner)->setId;
     $items = plRaceItems($learner->id);
     $right = array_column($items, 'correct');
     $wrong = array_map(static fn (array $item): int => ($item['correct'] + 1) % $item['n'], $items);
 
     $results = plRaceInParallel([
-        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $right)->toArray(),
-        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $wrong)->toArray(),
-        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $right)->toArray(),
+        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $setId, $right)->toArray(),
+        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $setId, $wrong)->toArray(),
+        fn (): array => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $setId, $right)->toArray(),
     ]);
 
     foreach ($results as $result) {
@@ -153,30 +153,72 @@ it('scores one set once when three answers of it arrive at the same instant: the
         ->and($results[0]['result']['level'])->toBeIn(['A1', 'C1']);
 
     $stored = $learner->fresh()?->meta['twa_onboarding']['placement'];
-    expect($stored)->toHaveKeys(['answered_at', 'result'])->not->toHaveKey('items')
+    expect($stored)->toHaveKeys(['set_id', 'answered_at', 'result'])->not->toHaveKey('items')
+        ->and($stored['set_id'])->toBe($setId)
         ->and(PlacementResult::fromStored($stored['result'])?->toArray())->toBe($results[0]['result']);
 });
 
-it('never leaves a half state when an answer races a new start: either the old set is scored or the new one waits for its answers', function (): void {
+it('never scores old answers against a new set when an answer races a new start: the old set is scored, or the answer gets 410', function (): void {
     $learner = Learner::factory()->create();
-    app(PlacementTestService::class)->start($learner);
+    $oldSet = app(PlacementTestService::class)->start($learner)->setId;
     $items = plRaceItems($learner->id);
     $right = array_column($items, 'correct');
 
     $results = plRaceInParallel([
-        fn (): string => app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $right)->level,
-        fn (): int => count(app(PlacementTestService::class)->start(Learner::query()->findOrFail($learner->id))->questions),
+        function () use ($learner, $oldSet, $right): string {
+            try {
+                return app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $oldSet, $right)->level;
+            } catch (TwaOnboardingException $e) {
+                return 'error:'.$e->httpStatus.':'.$e->errorCode;
+            }
+        },
+        fn (): string => app(PlacementTestService::class)->start(Learner::query()->findOrFail($learner->id))->setId,
     ]);
 
-    expect($results[1]['ok'])->toBeTrue(($results[1]['error'] ?? '').' '.($results[1]['message'] ?? ''));
-    $stored = $learner->fresh()?->meta['twa_onboarding']['placement'];
-    if ($results[0]['ok']) {
-        // The answer won: the start that followed replaced the result with a fresh set.
-        expect($results[0]['result'])->toBe('C1');
-    } else {
-        // The start won: the old answers no longer match a set (410), nothing scored.
-        expect($results[0]['error'])->toBe(TwaOnboardingException::class);
+    foreach ($results as $result) {
+        expect($result['ok'])->toBeTrue(($result['error'] ?? '').' '.($result['message'] ?? ''));
     }
+    $newSet = $results[1]['result'];
+    expect($newSet)->not->toBe($oldSet);
+    // Either the answer came first and scored ITS set (all right → C1), or the start came first and the answer of the replaced set
+    // is refused with 410 - never a score of the old answers against the new words.
+    expect($results[0]['result'])->toBeIn(['C1', 'error:410:placement_expired']);
+
+    $stored = $learner->fresh()?->meta['twa_onboarding']['placement'];
     expect($stored)->toHaveKey('items')->not->toHaveKey('result')
+        ->and($stored['set_id'])->toBe($newSet)
         ->and($stored['items'])->toHaveCount(10);
+});
+
+it('refuses with 410 the answers of a set a new start already replaced, while the answer waits on the lock', function (): void {
+    $learner = Learner::factory()->create();
+    $oldSet = app(PlacementTestService::class)->start($learner)->setId;
+    $right = array_column(plRaceItems($learner->id), 'correct');
+
+    // The start holds the row lock first (it sleeps inside it); the answer queues behind it and must see the new set.
+    $results = plRaceInParallel([
+        function () use ($learner): string {
+            return DB::transaction(function () use ($learner): string {
+                Learner::query()->whereKey($learner->id)->lock('for no key update')->firstOrFail();
+                usleep(300_000);
+
+                return app(PlacementTestService::class)->start(Learner::query()->findOrFail($learner->id))->setId;
+            });
+        },
+        function () use ($learner, $oldSet, $right): string {
+            usleep(100_000);
+            try {
+                return app(PlacementTestService::class)->answer(Learner::query()->findOrFail($learner->id), $oldSet, $right)->level;
+            } catch (TwaOnboardingException $e) {
+                return 'error:'.$e->httpStatus.':'.$e->errorCode;
+            }
+        },
+    ]);
+
+    foreach ($results as $result) {
+        expect($result['ok'])->toBeTrue(($result['error'] ?? '').' '.($result['message'] ?? ''));
+    }
+    expect($results[1]['result'])->toBe('error:410:placement_expired');
+    $stored = $learner->fresh()?->meta['twa_onboarding']['placement'];
+    expect($stored)->not->toHaveKey('result')->and($stored['set_id'])->toBe($results[0]['result']);
 });

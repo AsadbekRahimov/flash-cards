@@ -160,9 +160,18 @@ describe('ShareStoryView', () => {
 
       expect(text(w, 'story-title')).toBe('12 дней подряд')
       expect(text(w, 'story-text')).toBe('Учу английский в Muhrla — каждый день по 20 карточек.')
+      // No link names the bot yet: the brand alone, without "· @bot".
       expect(text(w, 'story-brand')).toBe('Muhrla')
-      expect(w.get('[data-testid=story-card]').attributes('aria-label')).toBe('Так будет выглядеть сторис: 12 дней подряд')
-      expect(w.find('[data-testid=achievement-art]').exists()).toBe(true)
+      // As the server draws it: the number of days in the stamp, no illustration.
+      expect(text(w, 'story-badge')).toBe('12')
+      expect(w.find('[data-testid=achievement-art]').exists()).toBe(false)
+      expect(w.find('[data-testid=achievement-fallback]').exists()).toBe(false)
+      // An honest caption: the fonts of the picture differ.
+      expect(text(w, 'story-preview-note')).toBe('Примерно так будет выглядеть сторис')
+      expect(w.get('[data-testid=story-card]').attributes('aria-label')).toBe('Примерно так будет выглядеть сторис: 12 дней подряд')
+      // The title up to 2 lines, the description up to 3 (the limits of the server).
+      expect(w.get('[data-testid=story-title]').classes()).toContain('line-clamp-2')
+      expect(w.get('[data-testid=story-text]').classes()).toContain('line-clamp-3')
       expect(text(w, 'story-share')).toBe('Поделиться в сторис')
       expect(w.get('[data-testid=story-share]').classes()).toContain('btn-primary')
       expect(text(w, 'story-battle')).toBe('Позвать друга на баттл')
@@ -306,6 +315,8 @@ describe('ShareStoryView', () => {
       expect(text(w, 'story-title')).toBe('Первый шаг')
       expect(text(w, 'story-text')).toBe('Пройдите первый урок')
       expect(text(w, 'story-brand')).toMatch(/^Muhrla\s*· @MuhrlaBot$/)
+      // The badge of the server's stamp (`AchievementKey::badge()`): "1" for the first lesson.
+      expect(text(w, 'story-badge')).toBe('1')
       expect(apiCalls()).toEqual({})
 
       await w.get('[data-testid=story-share]').trigger('click')
@@ -374,13 +385,63 @@ describe('ShareStoryView', () => {
     })
   })
 
+  it.each([
+    ['game_first_boss', 'BOSS'],
+    ['league_top1', '#1'],
+    ['words_1000', '1000'],
+  ])('puts the badge of the server for %s into the stamp, smaller for a longer one', async (key, badge) => {
+    const data = achievementsData()
+    data.items[0] = { ...data.items[0]!, key, title: 'T' }
+    useAchievementsStore().data = data
+    const { wrapper: w } = await render('achievement', key, '/achievements')
+
+    expect(text(w, 'story-badge')).toBe(badge)
+    const size = Number(/calc\((\d+) \* var\(--u\)\)/.exec(w.get('[data-testid=story-badge]').attributes('style') ?? '')?.[1])
+    expect(size).toBeLessThanOrEqual(300)
+    expect(size * 0.62 * badge.length).toBeLessThanOrEqual(316)
+  })
+
+  it('draws the art of an achievement this build has no badge for', async () => {
+    const data = achievementsData()
+    data.items[0] = { ...data.items[0]!, key: 'some_new_key' }
+    useAchievementsStore().data = data
+    const { wrapper: w } = await render('achievement', 'some_new_key', '/achievements')
+
+    expect(w.find('[data-testid=story-badge]').exists()).toBe(false)
+    expect(w.find('[data-testid=story-stamp] [data-testid=achievement-fallback]').exists()).toBe(true)
+  })
+
   it('speaks Uzbek', async () => {
     setLocale('uz')
     const { wrapper: w } = await render('streak')
 
     expect(text(w, 'story-title')).toBe('12 kun ketma-ket')
+    // «ketma-ket» never breaks at its hyphen.
+    const whole = w.findAll('[data-testid=story-title] .whitespace-nowrap')
+    expect(whole.map((part) => part.text())).toEqual(['ketma-ket'])
+    expect(text(w, 'story-preview-note')).toBe("Storis taxminan shunday ko'rinadi")
     expect(text(w, 'story-share')).toBe('Storisga ulashish')
     expect(text(w, 'story-battle')).toBe("Do'stni bellashuvga chaqirish")
+  })
+
+  it('keeps the buttons in the sticky bottom zone; on a short window an error takes the place of the line about Pro', async () => {
+    const height = window.innerHeight
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 568 })
+    try {
+      vi.mocked(api.share.story).mockRejectedValue(new ApiClientError('network', 0, 'network', 'offline'))
+      const { wrapper: w } = await render('streak')
+      expect(w.get('[data-testid=actions]').classes()).toContain('sticky')
+      expect(w.find('[data-testid=story-hint]').exists()).toBe(true)
+
+      await w.get('[data-testid=story-share]').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=story-error]').exists()).toBe(true)
+      expect(w.find('[data-testid=story-hint]').exists()).toBe(false)
+      expect(w.find('[data-testid=actions] [data-testid=story-share]').exists()).toBe(true)
+    } finally {
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: height })
+    }
   })
 
   it('uses only the tokens of the design system: no hex colours in the screen', () => {

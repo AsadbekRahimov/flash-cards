@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CoursesView from '../CoursesView.vue'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
@@ -191,7 +192,7 @@ describe('CoursesView', () => {
       expect(wrapper.get('[data-testid=course-b1]').attributes('aria-pressed')).toBe('true')
       expect(wrapper.get('[data-testid=course-english-a1]').attributes('aria-pressed')).toBe('false')
       expect(wrapper.get('[data-testid=course-title]').text()).toBe('English B1')
-      expect(api.courses.get).toHaveBeenLastCalledWith('b1')
+      expect(api.courses.get).toHaveBeenLastCalledWith('b1', BACKGROUND)
     })
 
     it('keeps to the kit: flat cards, no tg- classes, shadows, gradients or serif', async () => {
@@ -384,7 +385,7 @@ describe('CoursesView', () => {
 
       const { wrapper } = await render()
 
-      expect(api.courses.get).toHaveBeenCalledWith('english-a1-a2')
+      expect(api.courses.get).toHaveBeenCalledWith('english-a1-a2', BACKGROUND)
       expect(wrapper.get('[data-testid=modules-title]').text()).toBe('A1–A2 · Модули')
       expect(wrapper.get('[data-testid=modules-count]').text()).toBe('2 / 3')
       expect(wrapper.get('[data-testid=modules] ol').classes()).toContain('grid-cols-2')

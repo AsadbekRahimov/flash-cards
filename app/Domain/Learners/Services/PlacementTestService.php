@@ -32,13 +32,16 @@ use Illuminate\Support\Facades\DB;
  *   same course - {@see ExamQuestionBuilder::forWordsFromPool()} applies the rules of the exam (real translations, the language of
  *   the answer first, never a second right answer) without a statement of its own. The translations of every word of the test go in
  *   one batch (one statement cold, none warm).
- * - **The key stays on the server.** The client gets `{id, word, options}`; the draft keeps `{id, word_id, level, correct, n}` under
- *   the learner's row lock (the same lock the steps of the onboarding take: a parallel step keeps its keys of `meta`, this keeps its).
- *   The draft runs out after {@see TTL_MINUTES}; a new start replaces it (a new set of words).
- * - **Answers** come once: `answers[i]` is the option chosen for question `i + 1` (`0 … n − 1`, `null` - skipped); the draft is
- *   scored under the lock, the key is dropped and the result kept in its place, so a repeated request (a retry, a second tab) gets
- *   the SAME result and can neither re-score nor probe the key - together with `throttle:twa-session-create` that is the defence
- *   against guessing. The level: walking A1 → C1 over the levels asked, the last level with at least one right answer before the first
+ * - **The key stays on the server.** The client gets `{set_id, questions: [{id, word, options}], expires_at}`; the draft keeps
+ *   `{set_id, items: [{id, word_id, level, correct, n}], …}` under the learner's row lock (the same lock the steps of the onboarding
+ *   take: a parallel step keeps its keys of `meta`, this keeps its). `set_id` - {@see SET_ID_BYTES} random bytes in hex - names the
+ *   set: the draft runs out after {@see TTL_MINUTES}; a new start replaces it (a new set of words, a new `set_id`).
+ * - **Answers** come once, for one set: `{set_id, answers}`, `answers[i]` is the option chosen for question `i + 1` (`0 … n − 1`,
+ *   `null` - skipped). Under the lock the `set_id` must be the draft's - the answers of a replaced set (a second tab, a start that
+ *   overtook the answer) are never scored against the new one: 410 `placement_expired`. The draft is scored, the key is dropped and
+ *   the result kept in its place with the `set_id`, so a repeated request for the same set (a retry, a second tab) gets the SAME
+ *   result and can neither re-score nor probe the key - together with `throttle:twa-session-create` that is the defence against
+ *   guessing. The level: walking A1 → C1 over the levels asked, the last level with at least one right answer before the first
  *   level with none (a level with none stops the walk); no level passed - A1. `course_slug` - the course of that level, as on the
  *   level screen; the client puts both into the `level` step ("your level is about …, you can change it").
  */
@@ -54,6 +57,9 @@ final class PlacementTestService
 
     /** `meta.twa_onboarding.placement`. */
     public const META_KEY = 'placement';
+
+    /** The random bytes of a `set_id` (32 hex characters): unguessable, so the answers name the set they were given for. */
+    public const SET_ID_BYTES = 16;
 
     /** Random words of a course read on top of the asked ones: the distractors of its questions. */
     private const POOL = 20;
@@ -99,25 +105,28 @@ final class PlacementTestService
         }
 
         $expiresAt = $now->addMinutes(self::TTL_MINUTES);
+        $setId = bin2hex(random_bytes(self::SET_ID_BYTES));
         $this->writeDraft($learner, [
+            'set_id' => $setId,
             'items' => $items,
             'issued_at' => $now->utc()->toIso8601String(),
             'expires_at' => $expiresAt->utc()->toIso8601String(),
         ]);
 
-        return new PlacementQuestions($questions, $expiresAt);
+        return new PlacementQuestions($setId, $questions, $expiresAt);
     }
 
     /**
-     * Scores the answers of the learner's draft once; a repeated call returns the stored result.
+     * Scores the answers of the learner's draft once; a repeated call for the same set returns the stored result.
      *
+     * @param  string  $setId  the `set_id` the start gave: another one (a replaced set) is 410, whatever the draft holds now
      * @param  array<mixed>  $answers  one per question, in the order of the questions: the index of the option chosen, null - skipped
      *                                 (checked here again whatever the request validated)
      *
-     * @throws TwaOnboardingException 409 `onboarding_completed`; 410 `placement_expired`
+     * @throws TwaOnboardingException 409 `onboarding_completed`; 410 `placement_expired` (expired, never started, another set)
      * @throws InvalidSettingException `answers` do not match the questions (422)
      */
-    public function answer(Learner $learner, array $answers, ?CarbonImmutable $now = null): PlacementResult
+    public function answer(Learner $learner, string $setId, array $answers, ?CarbonImmutable $now = null): PlacementResult
     {
         if ($learner->onboarding_state === OnboardingService::DONE) {
             throw TwaOnboardingException::completed();
@@ -125,13 +134,17 @@ final class PlacementTestService
         $now ??= CarbonImmutable::now();
         $result = null;
 
-        DB::transaction(function () use ($learner, $answers, $now, &$result): void {
+        DB::transaction(function () use ($learner, $setId, $answers, $now, &$result): void {
             $fresh = $this->lock($learner);
             if ($fresh->onboarding_state === OnboardingService::DONE) {
                 throw TwaOnboardingException::completed();
             }
 
             $draft = $this->draft($fresh);
+            // The answers are for the set the draft holds now, or for nothing: a set replaced by a new start is never scored against it.
+            if (! is_string($draft['set_id'] ?? null) || ! hash_equals($draft['set_id'], $setId)) {
+                throw TwaOnboardingException::placementExpired();
+            }
             $stored = is_array($draft['result'] ?? null) ? PlacementResult::fromStored($draft['result']) : null;
             if ($stored !== null) {
                 // Answered already: the same result, nothing written, nothing re-scored.
@@ -151,6 +164,7 @@ final class PlacementTestService
 
             $progress = OnboardingChoices::progress($fresh);
             $progress[self::META_KEY] = [
+                'set_id' => $setId,
                 'issued_at' => $draft['issued_at'] ?? null,
                 'answered_at' => $now->utc()->toIso8601String(),
                 'result' => $result->toArray(),
@@ -210,52 +224,15 @@ final class PlacementTestService
     }
 
     /**
-     * The courses asked: for every level of {@see LEVELS} the course the level screen offers ({@see CourseCatalogService::recommendFromCatalog()}
-     * for the general goal), kept only when the course IS of that level - a level whose offer is a fallback of another level (no
-     * course of its own) is not asked. Levels sharing a course are asked from it, in order (the "A1–A2" row of the level screen).
+     * The courses asked: the course of every level of {@see LEVELS} that has one of its own, the neighbour without one in its row
+     * ("A1–A2") - the rows of the level screen ({@see CourseCatalogService::levelCourses()}). A level whose offer is a fallback of
+     * another level is not asked: asking the words of A1 as "B1" says nothing.
      *
      * @return list<array{course: CatalogCourse, levels: non-empty-list<string>}>
      */
     private function courses(): array
     {
-        $catalog = $this->catalog->published($this->locales->default());
-
-        /** @var array<int, array{course: CatalogCourse, levels: non-empty-list<string>}> $byCourse */
-        $byCourse = [];
-        foreach (self::LEVELS as $level) {
-            $course = $this->catalog->recommendFromCatalog(OnboardingService::GENERAL_GOAL, $level, $catalog);
-            if ($course === null) {
-                continue;
-            }
-            $own = $course->level === $level;
-            // A merged row: the level right after the course's own leads to it (A2 → the A1 course, the "A1–A2" of the catalog); a
-            // farther level falling back to the same course (B1 → the A1 course) has no course of its own and is not asked.
-            $merged = ! $own && isset($byCourse[$course->id]) && $byCourse[$course->id]['levels'] === [$course->level]
-                && $this->isNextLevel($byCourse[$course->id]['levels'], $level);
-            if (! $own && ! $merged) {
-                continue;
-            }
-            if (isset($byCourse[$course->id])) {
-                $byCourse[$course->id]['levels'][] = $level;
-            } else {
-                $byCourse[$course->id] = ['course' => $course, 'levels' => [$level]];
-            }
-        }
-
-        return array_values($byCourse);
-    }
-
-    /**
-     * Whether `$level` directly follows the last of `$levels` (A1 → A2): only a neighbouring level is merged into a course of a lower
-     * one, as the level screen does for "A1–A2"; B2 falling back to the A1 course is a missing course, not a merge.
-     *
-     * @param  non-empty-list<string>  $levels
-     */
-    private function isNextLevel(array $levels, string $level): bool
-    {
-        $last = (int) array_search($levels[count($levels) - 1], self::LEVELS, true);
-
-        return (self::LEVELS[$last + 1] ?? null) === $level;
+        return $this->catalog->levelCourses(OnboardingService::GENERAL_GOAL, self::LEVELS);
     }
 
     /**

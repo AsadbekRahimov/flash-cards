@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import StickyActions from '@/components/StickyActions.vue'
@@ -61,7 +62,7 @@ const mascotPose = computed((): 'celebrate' | 'trophy' | 'thinking' | null => {
 async function toReadiness(): Promise<void> {
   const result = quizResult.value
   if (result === null) return
-  if (result.scored) void today.load()
+  if (result.scored) void today.load(BACKGROUND)
   await router.push({ name: 'readiness', params: { slug: result.course_slug }, query: { source: 'today' } })
 }
 

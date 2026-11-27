@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { t } from '@/i18n'
@@ -917,7 +918,7 @@ export const usePracticeStore = defineStore('practice', {
       if (session === null || session.timed == null || session.status !== 'active' || this.status !== 'ready' || this.expiring) return
       const generation = this.generation
       try {
-        const fresh = await api.practice.get(session.id)
+        const fresh = await api.practice.get(session.id, BACKGROUND)
         if (generation !== this.generation || this.status !== 'ready') return
         this.applySession(fresh)
       } catch {

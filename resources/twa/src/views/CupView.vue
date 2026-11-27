@@ -21,6 +21,7 @@ import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { useCupBoardStore } from '@/stores/cupBoard'
@@ -76,7 +77,7 @@ async function load(): Promise<void> {
   }
   if (left) return
   const board = await boards.load(props.id)
-  if (!left && board?.me?.duel && !duels.off) void duels.load(props.id)
+  if (!left && board?.me?.duel && !duels.off) void duels.load(props.id, BACKGROUND)
 }
 
 const data = computed(() => (board.value !== null && board.value.cup.id === props.id ? board.value : null))

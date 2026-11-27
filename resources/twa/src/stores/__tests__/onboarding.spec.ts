@@ -294,6 +294,7 @@ describe('onboarding store', () => {
 
   describe('the placement test (docs/40 §2.1a)', () => {
     const test = () => ({
+      set_id: 'set-1',
       questions: Array.from({ length: 10 }, (_, i) => ({ id: i + 1, word: `w${i + 1}`, options: ['a', 'b', 'c', 'd'] })),
       expires_at: new Date(Date.now() + 60_000).toISOString(),
     })
@@ -318,6 +319,33 @@ describe('onboarding store', () => {
 
       await store.startPlacement()
       expect(api.onboarding.placement).toHaveBeenCalledTimes(2)
+    })
+
+    it('sends the answers with the id of the set; 410 placement_expired of another set (a second tab) asks for a new one', async () => {
+      const store = await started()
+      vi.mocked(api.onboarding.placementAnswers).mockRejectedValueOnce(new ApiClientError('gone', 410, 'placement_expired', 'another set'))
+
+      expect(await store.answerPlacement(3)).toBe('error')
+      expect(api.onboarding.placementAnswers).toHaveBeenCalledWith({ set_id: 'set-1', answers: [0, 1, 2, 3, 0, 1, 2, 3, 0, 3] })
+      expect(store.placement.phase).toBe('expired')
+
+      vi.mocked(api.onboarding.placement).mockResolvedValueOnce({ ...test(), set_id: 'set-2' })
+      store.openPlacement()
+      expect(await store.startPlacement()).toBe('ok')
+      for (let i = 0; i < 10; i++) await store.answerPlacement(1)
+      expect(vi.mocked(api.onboarding.placementAnswers).mock.calls[1]?.[0]).toEqual({ set_id: 'set-2', answers: Array(10).fill(1) })
+    })
+
+    it('sends no set_id when an older server gave none', async () => {
+      const store = useOnboardingStore()
+      store.take(onboardingFixture({ step: 'level' }))
+      const { set_id: _ignored, ...old } = test()
+      vi.mocked(api.onboarding.placement).mockResolvedValue(old)
+      await store.startPlacement()
+      vi.mocked(api.onboarding.placementAnswers).mockResolvedValueOnce({ level: 'A1', course_slug: 'english-a1', correct_by_level: {} })
+      for (let i = 0; i < 10; i++) await store.answerPlacement(null)
+
+      expect(api.onboarding.placementAnswers).toHaveBeenCalledWith({ answers: Array(10).fill(null) })
     })
 
     it('takes the row of the level when the course of the result is not among the rows', async () => {

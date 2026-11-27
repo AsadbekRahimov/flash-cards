@@ -15,8 +15,10 @@ use App\Models\Learner;
  *   `step`        the next screen to open (one of {@see SCREENS}); every saved step moves it to the one after it;
  *   `started_at`  the first saved step (ISO 8601, UTC) - also the mark that `onboarding.started {channel: mini_app}` was recorded;
  *   `course_slug` the course chosen on the level step (shown on the summary; the course itself is set when the onboarding completes);
- *   `answered`    the steps saved at least once (one `onboarding.step_completed` per step, then only when the value changes).
- * No values are kept there: each step writes its column at once.
+ *   `answered`    the steps saved at least once (one `onboarding.step_completed` per step, then only when the value changes);
+ *   `placement`   the draft of the placement test (docs/40 §2.1a, PlacementTestService): the key or the result of one set.
+ * No values are kept there: each step writes its column at once. When the onboarding completes only {@see KEPT_AFTER_COMPLETION}
+ * stays ({@see withoutDrafts()}): nothing reads the rest once the learner is `done`.
  */
 final class OnboardingChoices
 {
@@ -46,6 +48,13 @@ final class OnboardingChoices
 
     public const CHANNEL = 'mini_app';
 
+    /**
+     * What `meta.twa_onboarding` keeps after the completion: when the Mini App onboarding started (reports) and the course of the
+     * level screen (the summary of a learner without an active course, GET /onboarding after `done`). `step`, `answered` and the
+     * draft of the placement test (its key) are read only before `done`.
+     */
+    public const KEPT_AFTER_COMPLETION = ['started_at', 'course_slug'];
+
     /** The screen after `$step` (the summary after the last one). */
     public static function next(string $step): string
     {
@@ -67,6 +76,30 @@ final class OnboardingChoices
         $step = self::progress($learner)['step'] ?? null;
 
         return is_string($step) && in_array($step, self::SCREENS, true) ? $step : null;
+    }
+
+    /**
+     * `$meta` with `twa_onboarding` cut down to {@see KEPT_AFTER_COMPLETION} (dropped when nothing of it is left); a learner who never
+     * opened the Mini App onboarding keeps `$meta` as it is. Not saved: the completion writes it in its own UPDATE.
+     *
+     * @param  array<string, mixed>  $meta
+     * @return array<string, mixed>
+     */
+    public static function withoutDrafts(array $meta): array
+    {
+        $progress = $meta[self::META_KEY] ?? null;
+        if (! is_array($progress)) {
+            return $meta;
+        }
+
+        $kept = array_intersect_key($progress, array_flip(self::KEPT_AFTER_COMPLETION));
+        if ($kept === []) {
+            unset($meta[self::META_KEY]);
+        } else {
+            $meta[self::META_KEY] = $kept;
+        }
+
+        return $meta;
     }
 
     /** @return array<string, mixed> `meta.twa_onboarding` of the row (empty when there is none) */

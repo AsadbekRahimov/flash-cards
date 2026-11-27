@@ -384,7 +384,10 @@ export const useOnboardingStore = defineStore('onboarding', {
       placement.error = ''
       try {
         await useAuthStore().ensure()
-        const result = await api.onboarding.placementAnswers([...placement.answers])
+        // The set answered goes with its answers (a newer set of another tab makes them 410); an older server named none - none is sent.
+        const setId = test.set_id
+        const answers = [...placement.answers]
+        const result = await api.onboarding.placementAnswers(typeof setId === 'string' && setId !== '' ? { set_id: setId, answers } : { answers })
         placement.result = result
         placement.phase = 'result'
         this.applyPlacement(result)

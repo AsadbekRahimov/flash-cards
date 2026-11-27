@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch, type WatchStopHandle } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type WatchStopHandle } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import AccountRestoredSheet from '@/components/AccountRestoredSheet.vue'
 import OfflineScreen from '@/components/OfflineScreen.vue'
@@ -87,6 +87,24 @@ watch(isOnline, (online, was) => {
 // A new screen starts clean: a load lost on the previous one says nothing about this one.
 watch(() => route.fullPath, () => clearLoadFailed())
 
+/**
+ * F5 has gone (its button had the focus, and it is no more): the focus goes back into the content - the first heading of the screen, else
+ * `<main>` itself - so a keyboard or a screen reader goes on from the top of the screen, not from the body. `preventScroll`: the screen
+ * stays where the learner left it.
+ */
+const mainEl = ref<HTMLElement | null>(null)
+
+watch(offline, async (now, was) => {
+  if (now || !was) return
+  await nextTick()
+  const main = mainEl.value
+  if (main === null || main.contains(document.activeElement)) return
+  const heading = main.querySelector<HTMLElement>('h1, h2')
+  const target = heading ?? main
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+  target.focus({ preventScroll: true })
+})
+
 const router = useRouter()
 let stopStreakMoments: WatchStopHandle | null = null
 let unmounted = false
@@ -111,7 +129,8 @@ onBeforeUnmount(() => {
   <!-- `with-tabbar` pads the content under the fixed tab bar and lifts the toast above it. -->
   <div class="flex flex-1 flex-col" :class="{ 'with-tabbar': showTabBar }" data-testid="app-shell">
     <main
-      class="flex flex-1 flex-col"
+      ref="mainEl"
+      class="flex flex-1 flex-col outline-none"
       :class="enter ? `screen-enter-${enter}` : undefined"
       :data-enter="enter || undefined"
       :inert="offline || undefined"

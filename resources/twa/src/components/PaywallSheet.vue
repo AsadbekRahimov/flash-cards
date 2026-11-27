@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { useRoute, useRouter } from 'vue-router'
 import { useDialogFocus } from '@/composables/useDialogFocus'
 import PromoRedeem from '@/components/PromoRedeem.vue'
@@ -98,7 +99,8 @@ const props = withDefaults(
     period?: BillingPeriod | null
     /**
      * The highest daily goal of Free when the screen knows it and the settings store may not (`daily_goal`, `trial_ended`): the
-     * onboarding O6 has `options.daily_goal_max` of `GET /onboarding`. Absent - the settings of `/me`.
+     * onboarding O6 has `options.daily_goal_max` of `GET /onboarding`. Absent (`undefined`) - the settings of `/me`; `null` - the screen
+     * knows there is no limit.
      */
     goalMax?: number | null
   }>(),
@@ -120,8 +122,13 @@ const billing = useBillingStore()
 const today = useTodayStore()
 const settings = useSettingsStore()
 
-/** The highest daily goal of Free (the prop, else `options.daily_goal_max` of the settings that `/me` carries); null = not known or no limit. */
-const goalMax = computed((): number | null => props.goalMax ?? settings.data?.options.daily_goal_max ?? null)
+/**
+ * The highest daily goal of Free: the prop when the screen passed one (`null` included - it knows there is no limit), else
+ * `options.daily_goal_max` of the settings that `/me` carries; null = not known or no limit.
+ */
+const goalMax = computed((): number | null =>
+  props.goalMax !== undefined ? props.goalMax : (settings.data?.options.daily_goal_max ?? null),
+)
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
@@ -420,7 +427,7 @@ function onRedeemed(me: MeResponse): void {
   redeemed.value = true
   billing.apply(me)
   // The numbers on the Today screen (quota, plan badge) change with the plan.
-  void today.load()
+  void today.load(BACKGROUND)
   emit('redeemed', me)
 }
 

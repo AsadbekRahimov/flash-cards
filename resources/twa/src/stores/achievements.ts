@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
+import type { RequestOptions } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import type { AchievementsResponse } from '@/api/types'
 
@@ -23,11 +25,12 @@ export const useAchievementsStore = defineStore('achievements', {
   }),
 
   actions: {
-    async load(): Promise<void> {
+    /** `options` - `BACKGROUND` when another screen reads it by the way (the finish of a lesson): its loss does not raise "Нет соединения". */
+    async load(options?: RequestOptions): Promise<void> {
       this.status = this.data === null ? 'loading' : this.status
       this.errorMessage = ''
       try {
-        this.data = await api.achievements.list()
+        this.data = await api.achievements.list(options)
         this.status = 'ready'
       } catch (err) {
         this.status = 'error'
@@ -44,7 +47,7 @@ export const useAchievementsStore = defineStore('achievements', {
       if (this.data !== null || this.status === 'loading' || this.ensuring) return
       this.ensuring = true
       try {
-        const data = await api.achievements.list()
+        const data = await api.achievements.list(BACKGROUND)
         this.data = data
         this.status = 'ready'
         this.errorMessage = ''

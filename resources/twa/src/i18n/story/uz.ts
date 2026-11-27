@@ -3,7 +3,7 @@ import type { StoryTranslations } from './ru'
 /** The texts of F3 in Uzbek (Latin script, the ASCII apostrophe); exactly the keys of `ru.ts`. Not yet checked by a native speaker. */
 export const storyUz: StoryTranslations = {
   'story.heading': 'Storisga ulashish',
-  'story.preview': "Storis shunday ko'rinadi",
+  'story.preview_note': "Storis taxminan shunday ko'rinadi",
   'story.streak.title': {
     one: '{count} kun ketma-ket',
     other: '{count} kun ketma-ket',

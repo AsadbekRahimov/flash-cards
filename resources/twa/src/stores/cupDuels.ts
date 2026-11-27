@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import type { RequestOptions } from '@/api/client'
 import { duelFailure, expectedRated, type DuelFailure, type DuelRatedExpectation } from '@/composables/cupDuelInfo'
 import { newRequestId } from '@/composables/requestId'
 import { useBillingStore } from '@/stores/billing'
@@ -87,8 +88,11 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       if (failure.kind === 'disabled') this.markOff()
     },
 
-    /** Reads the list of `cupId` (one request). Nothing is asked while the duels are off. */
-    async load(cupId: number): Promise<CupDuelListResponse | null> {
+    /**
+     * Reads the list of `cupId` (one request). Nothing is asked while the duels are off. `options` - `BACKGROUND` when the board of the cup
+     * reads it by the way (its loss does not raise "Нет соединения").
+     */
+    async load(cupId: number, options?: RequestOptions): Promise<CupDuelListResponse | null> {
       if (this.off) return null
       const seq = ++this.seq
       if (this.cupId !== cupId) this.list = null
@@ -96,7 +100,7 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       this.status = this.list === null ? 'loading' : this.status
       this.failure = null
       try {
-        const list = await api.cups.duels.list(cupId)
+        const list = await api.cups.duels.list(cupId, options)
         if (seq !== this.seq) return null
         this.list = list
         this.status = 'ready'

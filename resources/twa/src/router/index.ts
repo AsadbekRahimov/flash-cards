@@ -287,7 +287,7 @@ const routes: RouteRecordRaw[] = [
       kind: route.query.kind === 'achievement' ? 'achievement' : 'streak',
       subject: typeof route.query.subject === 'string' && route.query.subject !== '' ? route.query.subject : null,
     }),
-    meta: { tab: 'profile' },
+    // No tab and no tab bar (kit F3): it is opened from Achievements (Profile) and from the streak screen (no tab) alike; Telegram's "Back".
   },
   {
     path: '/achievements',

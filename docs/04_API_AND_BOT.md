@@ -2151,8 +2151,10 @@ outbox], строка участника `FOR UPDATE`, UPDATE, событие), 
 ### A.24 Онбординг Mini App O1–O8 (docs/40 §2.1; T2 ✅ 02.12.2026)
 
 Отдельный поток Mini App поверх тех же колонок, что пишет бот-онбординг; машина `learners.onboarding_state` бота не расширяется. Прогресс —
-`learners.meta.twa_onboarding = {step, started_at, course_slug?, answered[]}` (сервис `TwaOnboardingService`, белые списки —
-`OnboardingChoices`). Завершение — одна точка с ботом: `OnboardingService::completeExternally()` под той же блокировкой строки. Все маршруты —
+`learners.meta.twa_onboarding = {step, started_at, course_slug?, answered[], placement?}` (сервис `TwaOnboardingService`, белые списки —
+`OnboardingChoices`; `placement` — черновик теста уровня, A.27). При завершении в том же `UPDATE` от него остаются только
+`{started_at, course_slug}` (`OnboardingChoices::withoutDrafts`, ревью 27.11.2026): `step`, `answered` и черновик теста с ключом ответов
+после `done` не читаются. Завершение — одна точка с ботом: `OnboardingService::completeExternally()` под той же блокировкой строки. Все маршруты —
 под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api`; `PUT` и `POST` ещё под `throttle:twa-onboarding` (30/мин на ученика).
 
 | Метод | Путь | Тело | Ответ | Ошибки |
@@ -2168,14 +2170,17 @@ outbox], строка участника `FOR UPDATE`, UPDATE, событие), 
 | `name` | `{display_name: string}` | `learners.display_name` после `DisplayName::validate` (обрезка пробелов, 1–32 графемы, ≤ 64 кодовых точек; ссылки, `@`, `/`, `#`, «zalgo» — 422 `display_name_invalid {reason: empty\|too_long\|marks\|link\|mention\|command\|tag}`) |
 | `age` | `{age_range: "lt14"\|"14_17"\|"18_24"\|"25_34"\|"35_44"\|"45p"}` | `learners.age_range` |
 | `goals` | `{goals: string[]}` — 1–6 без повторов из `career, study, travel, relocation, communication, media` | `learners.goals` |
-| `level` | `{level: "A1"…"C2", course_slug: string}` — slug курса этого уровня из `options.levels`, иначе 422 по `course_slug` | `learners.level` через `LearnerSettingsService::update`; slug — `meta.twa_onboarding.course_slug` |
+| `level` | `{level: "A1"…"C2", course_slug: string}` — slug курса этого уровня из `options.levels`, иначе 422 по `course_slug` (уровня нет в `options.levels` — 422 при любом slug) | `learners.level` через `LearnerSettingsService::update`; slug — `meta.twa_onboarding.course_slug`, при завершении этот курс становится активным (см. ниже) |
 | `daily_goal` | `{daily_goal: 10\|20\|40}` | `LearnerSettingsService::update` (лимит Free → 403 `daily_goal_pro_required {max}`) |
 | `reminder` | `{enabled: bool, time: "HH:MM"\|null, write_access: "granted"\|"denied"\|"not_asked"}`; при `enabled: true` `time` обязателен и кратен 15 мин | `reminder_time = enabled ? time : null` через `LearnerSettingsService::update` (пересчёт `next_reminder_at`); `write_access` — только в событие |
 
 Каждый `PUT` принимает любой шаг в любом порядке и двигает `meta.twa_onboarding.step` на экран после него (`name → age → goals → level →
 daily_goal → reminder → plan`). Ученику со статусом `done` (бот, другое устройство) — 409 на любой шаг, ничего не пишется.
-`POST /complete` без `level` — 422; иначе ставит `done`, `onboarding_completed_at`, курс (как в боте: курс `c_<slug>`-ссылки, свой уже выбранный,
-`recommend(goal, level)`, общий курс уровня, курс по умолчанию со словами), `next_reminder_at`. Повторный вызов — 200 с тем же ответом, без
+`POST /complete` без `level` — 422; иначе ставит `done`, `onboarding_completed_at`, курс (курс `c_<slug>`-ссылки; свой уже выбранный — не
+меняется; **курс, выбранный на шаге `level`** (`meta.twa_onboarding.course_slug`: опубликованный публичный курс платформы со словами, не
+курс фраз, доступный ученику — ревью 27.11.2026: раньше брался `recommend(goal, level)`, и `goal`, записанная ботом (например, `ielts`),
+давала не тот курс, что показан на O8); если его уже нет — как в боте: `recommend(goal, level)`, общий курс уровня, курс по умолчанию со
+словами), `next_reminder_at`. Повторный вызов — 200 с тем же ответом, без
 записи и событий. `course` — активный курс ученика после завершения (выбранный сейчас или прежний), `next_lesson_id` — первый урок с новыми словами.
 
 `OnboardingStateResource`:
@@ -2205,10 +2210,18 @@ daily_goal → reminder → plan`). Ученику со статусом `done` 
 
 - `step` — как `learner.onboarding.step` в A.1: `null` до первого сохранённого шага и после завершения.
 - `values` — то, что уже лежит в колонках (у нового ученика `daily_goal` и `reminder` — значения по умолчанию). `goals` — `[]`, пока не выбраны.
-  `course` — курс, выбранный на шаге `level` (иначе — курс уровня ученика, если уровень выбран в боте), `null` — ничего.
-- `options.levels` — для каждого уровня A1…C2 курс `recommend('general', level)` из кэша каталога (курс фраз не предлагается никогда), уровни
-  одного курса слиты в одну строку: `level` — первый из них, `levels` — все, `level_label` — «A1–A2» (соседние) или «A1, C1», `title` —
-  название курса на языке ученика, `stages_count` — число модулей (`null` — неизвестно). Пустой список — в каталоге нет общих курсов.
+  `course` — **активный курс ученика**, если он есть (его завершение не меняет: курс ссылки, выбранный в каталоге; у завершившего — курс,
+  который поставил `complete`); иначе курс, выбранный на шаге `level`; иначе курс уровня ученика, если уровень выбран в боте; `null` —
+  ничего (или активный курс больше недоступен — `complete` тогда тоже отвечает `course: null`). Так сводка O8 и ответ `complete` всегда
+  показывают один курс (ревью 27.11.2026). Активный курс вне публичного каталога (по ссылке `unlisted`, своя колода) — из кэша строки курса:
+  `level_label` — уровень курса или `""`, `stages_count` — `null`. Исключение: ожидающая `c_<slug>`-ссылка бота (`meta.pending_course`)
+  при завершении победит, а сводка её не показывает (ссылка во время онбординга — редкость).
+- `options.levels` — для каждого уровня A1…C2 курс `recommend('general', level)` из кэша каталога (курс фраз не предлагается никогда),
+  **только если это курс своего уровня**; следующий уровень без своего курса попадает в строку курса предыдущего (A2 → «A1–A2») — одно
+  правило с тестом уровня (`CourseCatalogService::levelCourses`, ревью 27.11.2026: раньше при неполном каталоге строка A1 склеивалась в
+  «A1, A2, B2, C1, C2»). Уровень, чья рекомендация — запасной курс другого уровня, не предлагается. `level` — первый уровень строки,
+  `levels` — все, `level_label` — «B1» или «A1–A2», `title` — название курса на языке ученика, `stages_count` — число модулей (`null` —
+  неизвестно). Пустой список — в каталоге нет общих курсов.
 - `daily_goal_max` — как в настройках (A.2b): `null` — без лимита, иначе варианты выше — под замком (пейвол `daily_goal`).
 - `options.placement_available: bool` (T14, 27.11.2026) — показывать ли на O5 кнопку «Пройти тест за 2 минуты» (A.27): `true`, когда в
   каталоге есть курсы хотя бы двух уровней теста со словами; из кэша каталога, 0 операторов.
@@ -2217,12 +2230,17 @@ daily_goal → reminder → plan`). Ученику со статусом `done` 
 События: первый сохранённый шаг ученика с `onboarding_state = new` — `onboarding.started {channel: mini_app, source_kind}`; шаг —
 `onboarding.step_completed {step, channel: mini_app}` (у `reminder` ещё `write_access`) при первом сохранении шага и затем только при смене
 значения; `complete` — `onboarding.completed {goal, level, locale, channel: mini_app}` и `course.selected {course_id, via}`. Шаги `level`,
-`daily_goal`, `reminder` идут через настройки и пишут ещё `settings.changed {fields}` при смене значения.
+`daily_goal`, `reminder` идут через `LearnerSettingsService::update(channel: onboarding)` и **не** пишут ни `settings.changed`, ни
+`reminders.disabled` (ревью 27.11.2026): первый ответ онбординга — не смена настроек, а «Не напоминать» на O7 — не отказ от напоминаний;
+guardrail эксперимента с напоминаниями (`ReminderExperimentReport`, «reminders off 7 d») считает любые `reminders.disabled` в окне без
+фильтра по `via`, поэтому событие с `via: onboarding` испортило бы метрику. Выключение напоминаний на O7 видно по
+`onboarding.step_completed {step: reminder}` и `learners.reminder_time IS NULL`.
 
 **Операторы SQL** (`TwaOnboardingQueryBudgetTest`, тёплые кэши каталога и тарифа): `GET` — 1 (ученик; холодный каталог +1, у ученика не на
 языке по умолчанию +1 ещё); `PUT name|age|goals` — 4 (ученик, блокировка, `UPDATE`, вставка событий после ответа), повтор того же — 2;
 `PUT level|daily_goal|reminder` — 5 (+ повторное чтение строки `LearnerSettingsService::update`), смена цели дня — 6 (+ `reconcileGoal`);
-`POST /complete` — 7 (ученик, блокировка, `Course::find` рекомендации, `UPDATE`, дерево курса холодное, прогресс по урокам, события), повтор — 3.
+`POST /complete` — 7 (ученик, блокировка, `Course::find` курса шага `level` — вместо рекомендации, `UPDATE`, дерево курса холодное, прогресс
+по урокам, события), повтор — 3; `GET` ученика с активным курсом из каталога — по-прежнему 1 (курс не из каталога — кэш строки курса, холодный +1).
 `/auth` и `/me` новых операторов не получили.
 
 ### A.25 «Мой словарь» `GET /api/twa/vocabulary` (docs/40 §2.3, F2; T6 ✅ 27.11.2026)
@@ -2320,14 +2338,18 @@ daily_goal → reminder → plan`). Ученику со статусом `done` 
 
 | Метод | Путь | Тело | Ответ | Ошибки |
 |---|---|---|---|---|
-| POST | `/api/twa/onboarding/placement` | — | **201** `{questions: [{id, word, options: string[2..4]}], expires_at}` | 401; 409 `onboarding_completed`; 422 `placement_unavailable` (в каталоге меньше 4 вопросов); 429 |
-| POST | `/api/twa/onboarding/placement/answers` | `{answers: (int\|null)[]}` — по одному на вопрос в порядке `id`, индекс выбранного варианта или `null` (пропущен) | `{level, course_slug, correct_by_level: {A1: 2, A2: 1, …}}` | 401; 409 `onboarding_completed`; 410 `placement_expired` (прошло 20 минут **или** тест не начинали); 422 валидации (`answers` не список, не та длина, индекс вне вариантов вопроса, не целое); 429 |
+| POST | `/api/twa/onboarding/placement` | — | **201** `{set_id: string, questions: [{id, word, options: string[2..4]}], expires_at}` | 401; 409 `onboarding_completed`; 422 `placement_unavailable` (в каталоге меньше 4 вопросов); 429 |
+| POST | `/api/twa/onboarding/placement/answers` | `{set_id: string, answers: (int\|null)[]}` — `set_id` из ответа старта (обязателен); ответы — по одному на вопрос в порядке `id`, индекс выбранного варианта или `null` (пропущен) | `{level, course_slug, correct_by_level: {A1: 2, A2: 1, …}}` | 401; 409 `onboarding_completed`; 410 `placement_expired` (прошло 20 минут, тест не начинали **или** `set_id` не тот, что в черновике — набор заменён новым стартом); 422 валидации (`set_id` не строка / нет / длиннее 64; `answers` не список, не та длина, индекс вне вариантов вопроса, не целое); 429 |
 
-- `id` — позиция вопроса (1…N); `expires_at` — ISO 8601, через 20 минут после старта. Новый старт заменяет черновик (новые случайные
-  слова) и сбрасывает прежний результат.
-- **Один набор оценивается один раз.** Ответы проверяются под блокировкой строки ученика, ключ удаляется, результат сохраняется на его
-  месте; повторный запрос (ретрай, вторая вкладка, другие ответы) отдаёт **тот же** результат и ничего не пересчитывает — так перебором
-  индексов ключ не узнать. `correct_by_level` — верные ответы по каждому спрошенному уровню.
+- `set_id` — идентификатор набора (32 hex-символа из `random_bytes(16)`, непредсказуем), хранится в `meta.twa_onboarding.placement.set_id`
+  (ревью 27.11.2026). `id` — позиция вопроса (1…N); `expires_at` — ISO 8601, через 20 минут после старта. Новый старт заменяет черновик
+  (новые случайные слова, новый `set_id`) и сбрасывает прежний результат.
+- **Ответы — только к своему набору.** Под блокировкой строки ученика `set_id` сверяется с черновиком (`hash_equals`): ответы набора,
+  который уже заменён новым стартом (вторая вкладка; старт, обогнавший ответ), никогда не оцениваются по словам нового набора — 410
+  `placement_expired`. Клиент на 410 начинает тест заново.
+- **Один набор оценивается один раз.** Ключ удаляется, результат сохраняется на его месте вместе с `set_id`; повторный запрос с тем же
+  `set_id` (ретрай, вторая вкладка, другие ответы) отдаёт **тот же** результат и ничего не пересчитывает — так перебором индексов ключ
+  не узнать; с другим `set_id` — 410. `correct_by_level` — верные ответы по каждому спрошенному уровню.
 - **Правило уровня.** Идём A1 → C1 по спрошенным уровням: уровень «пройден», если на нём верно ≥ 1; первый уровень с 0 верных
   останавливает проход; результат — последний пройденный, ни одного — A1. Примеры: всё верно → C1; верно A1–B1, на B2 ноль, на C1 верно →
   B1; на B1 ноль, на B2 верно → A2; по одному из двух везде → C1. `course_slug` — курс этого уровня с экрана O5 (`options.levels`): для
@@ -2336,8 +2358,8 @@ daily_goal → reminder → plan`). Ученику со статусом `done` 
   `ExamQuestionBuilder::forWordsFromPool`); слово, которому в курсе не нашлось ни одного отвлекающего варианта, пропускается (вопросов
   может быть меньше 10; меньше 4 — 422).
 - Черновик живёт в `meta.twa_onboarding.placement` рядом с прогрессом онбординга и пишется под той же блокировкой, что шаги: параллельный
-  `PUT` шага и старт теста не теряют ключи друг друга (`TwaPlacementConcurrencyTest`, PostgreSQL). После `done` черновик остаётся в `meta`
-  (не читается).
+  `PUT` шага и старт теста не теряют ключи друг друга (`TwaPlacementConcurrencyTest`, PostgreSQL: и что ответ, вставший за блокировкой
+  нового старта, строго получает 410). При завершении онбординга черновик (вместе с ключом ответов) удаляется из `meta` (A.24).
 
 **Операторы SQL** (`TwaPlacementTest`, каталог A1, B1, B2, C1, кэши тёплые): старт — **8** (ученик; по одному `ORDER BY random()` на курс
 уровня — 4; переводы всех слов теста одной пачкой — 1; блокировка; `UPDATE learners`); ответы — **3** (ученик, блокировка, `UPDATE`);

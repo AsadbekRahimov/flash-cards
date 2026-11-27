@@ -138,7 +138,8 @@ it('completes the onboarding within its pinned budget, and a repeat costs the re
 
     $queries = QueryLog::during(fn () => $this->withHeaders($h)->postJson('/api/twa/onboarding/complete')->assertOk()->assertJsonPath('course.slug', 'english-b1'));
 
-    // auth, lock, Course::find of the recommendation, update, the cold tree of the course, the learner's progress over its lessons, the events.
+    // auth, lock, Course::find of the course chosen on the level screen (in place of the recommendation's), update, the cold tree of the
+    // course, the learner's progress over its lessons, the events.
     expect($queries)->toHaveCount(7)
         ->and(QueryLog::matching($queries, '/^update ["`]learners["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \* from ["`]courses["`] where ["`]courses["`].["`]id["`] = \?/'))->toHaveCount(1)
@@ -148,6 +149,10 @@ it('completes the onboarding within its pinned budget, and a repeat costs the re
     $again = QueryLog::during(fn () => $this->withHeaders($h)->postJson('/api/twa/onboarding/complete')->assertOk()->assertJsonPath('course.slug', 'english-b1'));
     expect($again)->toHaveCount(3)
         ->and(obWrites($again))->toBe([]);
+
+    // The summary of a learner with an active course: the course from the cached catalog, the learner alone.
+    $state = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/onboarding')->assertOk()->assertJsonPath('values.course.slug', 'english-b1'));
+    expect($state)->toHaveCount(1);
 });
 
 it('adds no statement to /auth and /me: display_name and onboarding come from the loaded row', function (): void {

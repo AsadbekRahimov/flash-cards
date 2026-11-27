@@ -335,6 +335,45 @@ final class CourseCatalogService
     }
 
     /**
+     * The courses of the levels (docs/40 §2.1, §2.1a): for every level of `$levels` the course {@see recommendFromCatalog()} gives for
+     * `$goal`, kept only when the course IS of that level - a level whose recommendation is a fallback to another level's course (no
+     * course of its own) is left out. One exception: the level right after a course's own level joins its row when it has no course of
+     * its own (A2 → the A1 course, the "A1–A2" row of the level screen); only the one neighbour, so B2 falling back to an A1 course with
+     * an A2 already in its row is a missing course, not a merge. Rows in the order of the levels. The level screen of the onboarding
+     * of the Mini App and the placement test read it the same way.
+     *
+     * @param  list<string>  $levels  in order (a subset of the onboarding levels)
+     * @param  list<CatalogCourse>|null  $catalog  {@see published()} of the default locale; read here when null
+     * @return list<array{course: CatalogCourse, levels: non-empty-list<string>}>
+     */
+    public function levelCourses(?string $goal, array $levels, ?array $catalog = null): array
+    {
+        $catalog ??= $this->published($this->locales->default());
+
+        /** @var array<int, array{course: CatalogCourse, levels: non-empty-list<string>}> $byCourse */
+        $byCourse = [];
+        foreach ($levels as $i => $level) {
+            $course = $this->recommendFromCatalog($goal, $level, $catalog);
+            if ($course === null) {
+                continue;
+            }
+            $own = $course->level === $level;
+            $merged = ! $own && isset($byCourse[$course->id]) && $byCourse[$course->id]['levels'] === [$course->level]
+                && $i > 0 && $levels[$i - 1] === $course->level;
+            if (! $own && ! $merged) {
+                continue;
+            }
+            if (isset($byCourse[$course->id])) {
+                $byCourse[$course->id]['levels'][] = $level;
+            } else {
+                $byCourse[$course->id] = ['course' => $course, 'levels' => [$level]];
+            }
+        }
+
+        return array_values($byCourse);
+    }
+
+    /**
      * The catalog with the learner's progress. Public courses without words are not listed. The learner's own
      * active course is listed even when it is `unlisted` (chosen by a link) or the learner's own deck, as long
      * as it is still available (a public one without words stays out, like in the catalog).

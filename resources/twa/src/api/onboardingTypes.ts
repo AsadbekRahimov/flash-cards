@@ -119,14 +119,23 @@ export interface PlacementQuestion {
   options: string[]
 }
 
-/** 201 of `POST /onboarding/placement`: a new set every time (4-10 questions); it expires (`expires_at`, ISO 8601; 20 min) - then 410. */
+/**
+ * 201 of `POST /onboarding/placement`: a new set every time (4-10 questions); it expires (`expires_at`, ISO 8601; 20 min) - then 410.
+ * `set_id` names the set: the answers go back with it, and answers of another set (a second tab started a new one) are 410
+ * `placement_expired`. Absent on an older server.
+ */
 export interface PlacementTest {
+  set_id?: string
   questions: PlacementQuestion[]
   expires_at: string
 }
 
-/** `POST /onboarding/placement/answers`: the index of the chosen option of every question in the order of `id`; null - skipped. */
+/**
+ * `POST /onboarding/placement/answers`: the index of the chosen option of every question in the order of `id`; null - skipped. `set_id` -
+ * the one of the set answered; not sent when the server gave none (an older server).
+ */
 export interface PlacementAnswersRequest {
+  set_id?: string
   answers: (number | null)[]
 }
 

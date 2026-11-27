@@ -108,7 +108,7 @@ describe('CupDuelsView: the groups', () => {
     const r = await render()
 
     expect(api.cups.duels.list).toHaveBeenCalledTimes(1)
-    expect(api.cups.duels.list).toHaveBeenCalledWith(5)
+    expect(api.cups.duels.list).toHaveBeenCalledWith(5, undefined)
     expect(state(r)).toBe('ready')
 
     const toMe = tid(r, 'incoming-row')

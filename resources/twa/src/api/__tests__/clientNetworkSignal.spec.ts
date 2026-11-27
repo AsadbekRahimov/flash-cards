@@ -43,6 +43,38 @@ describe('api client â€” what a request says about the connection (F5, docs/40 Â
     ])
   })
 
+  it('a background read lost to the network says nothing of a failure; one that reached the server says so', async () => {
+    vi.mocked(ofetch).mockRejectedValueOnce(fetchFailed())
+    await expect(client().get('/cups', undefined, { background: true })).rejects.toMatchObject({ kind: 'network' })
+    vi.mocked(ofetch).mockRejectedValueOnce(status(503))
+    await expect(client().get('/achievements', undefined, { background: true })).rejects.toMatchObject({ kind: 'server' })
+    vi.mocked(ofetch).mockResolvedValueOnce({} as never)
+    await client().get('/referrals', undefined, { background: true })
+
+    expect(signals).toEqual([
+      { outcome: 'reached', method: 'GET' },
+      { outcome: 'reached', method: 'GET' },
+    ])
+  })
+
+  it('a background read that ran out of its time is no failure of the screen either; the main load is', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.mocked(ofetch).mockImplementation((_path, opts) => new Promise((_resolve, reject) => {
+        ;(opts as { signal?: AbortSignal }).signal?.addEventListener('abort', () => reject(new Error('aborted')))
+      }) as never)
+      const background = expect(client().get('/practice/battles/1/poll', undefined, { timeoutMs: 100, background: true })).rejects.toMatchObject({ code: 'timeout' })
+      const main = expect(client().get('/today', undefined, { timeoutMs: 100 })).rejects.toMatchObject({ code: 'timeout' })
+      await vi.advanceTimersByTimeAsync(100)
+      await background
+      await main
+    } finally {
+      vi.useRealTimers()
+    }
+
+    expect(signals).toEqual([{ outcome: 'failed', method: 'GET' }])
+  })
+
   it('a listener that stopped hears nothing more', async () => {
     stop()
     vi.mocked(ofetch).mockResolvedValueOnce({} as never)

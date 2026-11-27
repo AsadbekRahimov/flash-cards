@@ -16,7 +16,7 @@ import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({
   ensure: vi.fn(),
-  learner: null as { first_name: string | null; display_name?: string | null } | null,
+  learner: null as { first_name: string | null; display_name?: string | null; onboarding?: { completed: boolean; step: string | null } } | null,
   useBackButton: vi.fn(),
 }))
 
@@ -86,6 +86,7 @@ const makeRouter = () =>
     history: createMemoryHistory(),
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
+      { path: '/onboarding/:step?', name: 'onboarding', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
@@ -646,9 +647,41 @@ describe('TodayView', () => {
 
       expect(w.find('[data-testid=start-card]').exists()).toBe(true)
       expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
-      expect(w.find('[data-testid=onboarding-btn]').exists()).toBe(false)
       expect(w.text()).not.toContain('/start')
       expect(telegram.close).not.toHaveBeenCalled()
+    })
+
+    it('leads a newcomer the guard let through (a deep link, ?from=, outside Telegram) to the onboarding of the Mini App', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: false, step: 'age' } }
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      const hint = w.get('[data-testid=onboarding-hint]')
+      expect(hint.text()).toContain('Закончите настройку')
+      expect(hint.text()).toContain('Пара шагов — и подберём курс и цель дня')
+      // To the step the server keeps, not to the bot.
+      expect(hint.attributes('href')).toBe('/onboarding/age')
+      expect(w.text()).not.toContain('/start')
+
+      await hint.trigger('click')
+      await flushPromises()
+      expect(w.router.currentRoute.value.fullPath).toBe('/onboarding/age')
+      expect(telegram.close).not.toHaveBeenCalled()
+    })
+
+    it('starts the onboarding from O1 when the server names no step', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: false, step: null } }
+      const w = await render()
+
+      expect(w.get('[data-testid=onboarding-hint]').attributes('href')).toBe('/onboarding')
+    })
+
+    it('shows no onboarding card once it is finished, nor to an older server without the block', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: true, step: null } }
+      expect((await render()).find('[data-testid=onboarding-hint]').exists()).toBe(false)
+
+      setActivePinia(createPinia())
+      state.learner = { first_name: 'Aziz' }
+      expect((await render(today({ onboarding_completed: false }))).find('[data-testid=onboarding-hint]').exists()).toBe(false)
     })
 
     it('has no start card when there is something to review, a session is open or the group gave an assignment', async () => {
@@ -1099,7 +1132,6 @@ describe('TodayView', () => {
       const w = await render(today({ onboarding_completed: false }))
 
       expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
-      expect(w.find('[data-testid=onboarding-btn]').exists()).toBe(false)
       expect(w.text()).not.toContain('Чтобы завершить настройку, отправьте боту /start')
       expect(w.text()).not.toContain('Закончить настройку в боте')
     })

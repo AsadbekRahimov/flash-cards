@@ -8,14 +8,19 @@ declare(strict_types=1);
  * the job could not reach - at the next `/start`. Offered once, whichever path comes first.
  */
 
+use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\JwtService;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\OfferPendingInvitesJob;
 use App\Models\Friendship;
 use App\Models\Learner;
+use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
@@ -104,8 +109,15 @@ it('queues nothing when no invitation waits, and nothing for the bot\'s own comp
 
     $pending = piLearner(['telegram_user_id' => 9313]);
     piComplete($pending)->assertOk();
-    Queue::assertPushed(OfferPendingInvitesJob::class, fn (OfferPendingInvitesJob $job): bool => $job->learnerId === $pending->id);
+    Queue::assertPushed(OfferPendingInvitesJob::class, fn (OfferPendingInvitesJob $job): bool => $job->learnerId === $pending->id && $job->kind === OfferPendingInvitesJob::FRIEND);
     Queue::assertPushed(OfferPendingInvitesJob::class, 1);
+
+    // Both links: one job per offer - one message and one slot of the outbound budget each.
+    $both = piLearner(['telegram_user_id' => 9314, 'meta' => ['pending_org_invite' => 'NOSUCHCODE', 'pending_friend_invite' => 'NEWFRND2']]);
+    piComplete($both)->assertOk();
+    $kinds = Queue::pushed(OfferPendingInvitesJob::class, fn (OfferPendingInvitesJob $job): bool => $job->learnerId === $both->id)
+        ->map(fn (OfferPendingInvitesJob $job): string => $job->kind)->sort()->values()->all();
+    expect($kinds)->toBe([OfferPendingInvitesJob::FRIEND, OfferPendingInvitesJob::ORGANIZATION]);
 });
 
 it('keeps the code for a learner the bot cannot reach, and /start offers it later', function (): void {
@@ -130,9 +142,76 @@ it('keeps the code for a learner the bot cannot reach, and /start offers it late
 it('does nothing for a blocked or missing learner when the job runs', function (): void {
     $blocked = piLearner(['blocked_at' => now(), 'onboarding_state' => 'done']);
 
-    (new OfferPendingInvitesJob($blocked->id))->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
-    (new OfferPendingInvitesJob(999_999))->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
+    (new OfferPendingInvitesJob($blocked->id, OfferPendingInvitesJob::FRIEND))->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
+    (new OfferPendingInvitesJob(999_999, OfferPendingInvitesJob::FRIEND))->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
 
     expect($this->tg->sent)->toBe([])
         ->and($blocked->fresh()?->meta['pending_friend_invite'] ?? null)->toBe('NEWFRND2');
+});
+
+/** Runs the job the way a worker does: through its middleware, with a queue job that records the release. */
+function piRunQueued(OfferPendingInvitesJob $job, QueueJob $queueJob): mixed
+{
+    $job->job = $queueJob;
+    $middleware = new ThrottleTelegramOutbound(new TelegramMessageRateLimiter(globalPerSecond: 1000));
+
+    return $middleware->handle($job, fn (OfferPendingInvitesJob $job): mixed => $job->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class)));
+}
+
+it('keeps the code when Telegram answers 429: the job is put back for retry_after, and the retry delivers the offer once', function (): void {
+    $learner = piLearner(['onboarding_state' => 'done']);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 7;
+
+    $queueJob = Mockery::mock(QueueJob::class);
+    $queueJob->shouldReceive('release')->once()->with(Mockery::on(fn (int $delay): bool => $delay >= 7 && $delay <= 10));
+    piRunQueued(new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::FRIEND), $queueJob);
+
+    // Nothing was sent; the code is back where /start and the retry look for it.
+    expect(piOffers($this->tg))->toBe([])
+        ->and($learner->fresh()?->meta['pending_friend_invite'] ?? null)->toBe('NEWFRND2');
+
+    $retry = Mockery::mock(QueueJob::class);
+    $retry->shouldNotReceive('release');
+    piRunQueued(new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::FRIEND), $retry);
+
+    expect(piOffers($this->tg))->toHaveCount(1)
+        ->and($learner->fresh()?->meta)->not->toHaveKey('pending_friend_invite');
+});
+
+it('rethrows a 429 out of the job (the middleware needs it) and puts back the org code too; a newer code is not overwritten', function (): void {
+    $learner = piLearner(['onboarding_state' => 'done', 'meta' => ['pending_org_invite' => 'NOSUCHCODE']]);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 3;
+
+    expect(fn () => (new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::ORGANIZATION))
+        ->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class)))->toThrow(TelegramRateLimitedException::class);
+    expect($learner->fresh()?->meta['pending_org_invite'] ?? null)->toBe('NOSUCHCODE');
+
+    // A code remembered between the pull and the put-back (a newer link) wins.
+    app(OnboardingService::class)->restorePendingOrgInvite($learner, 'OLDERCODE');
+    expect($learner->fresh()?->meta['pending_org_invite'] ?? null)->toBe('NOSUCHCODE');
+});
+
+it('offers once when the job runs twice and /start comes in between: the code is taken under the lock before the send', function (): void {
+    $learner = piLearner(['onboarding_state' => 'done']);
+    $run = fn () => (new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::FRIEND))
+        ->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
+
+    $run();
+    piStart(9312);
+    $run();
+
+    expect(piOffers($this->tg))->toHaveCount(1);
+});
+
+it('reports any other failure of the send and ends the job (no endless retry)', function (): void {
+    $learner = piLearner(['onboarding_state' => 'done']);
+    $this->tg->failSends = 1; // a transport error, not a 429
+    $this->tg->failSendsAsTransport = true;
+
+    $queueJob = Mockery::mock(QueueJob::class);
+    $queueJob->shouldNotReceive('release');
+    expect(piRunQueued(new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::FRIEND), $queueJob))->toBeNull()
+        ->and(piOffers($this->tg))->toBe([]);
 });

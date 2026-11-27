@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -7,6 +7,7 @@ import TopicArt from '@/components/ui/TopicArt.vue'
 import OnboardingActions from './OnboardingActions.vue'
 import SelectableTile from './SelectableTile.vue'
 import StepIntro from './StepIntro.vue'
+import { useBillingStore } from '@/stores/billing'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useTelegram } from '@/composables/useTelegram'
 import { useOnboardingI18n } from '@/i18n/onboarding'
@@ -16,7 +17,8 @@ import type { OnboardingStringKey } from '@/i18n/onboarding'
  * O6 "Goal of the day" (kit 02-onboarding/O6): the goals of the settings, 10 / 20 / 40 CARDS a day (docs/40 §3, В3 - not the kit's
  * 5 / 10 / 20 / 30 words), with the kit's words ("Calm / Serious / Intense"), the minutes and "we recommend" on the recommended one. A
  * goal above the plan's limit (`daily_goal_max`: Free without the trial) carries a lock: a tap opens the paywall and chooses nothing.
- * A 403 `daily_goal_pro_required` (the trial ended meanwhile) puts the choice back to the limit, says so and opens the paywall.
+ * A 403 `daily_goal_pro_required` (the trial ended meanwhile) puts the choice back to the limit, says so and opens the paywall. Pro got
+ * on the paywall (a promo code, a payment) - the state of the onboarding is read again (one request): its limit goes, so do the locks.
  */
 const emit = defineEmits<{ next: []; exit: [] }>()
 const store = useOnboardingStore()
@@ -34,6 +36,21 @@ const busy = computed(() => store.saving === 'daily_goal')
 const locked = (goal: number): boolean => store.goalMax !== null && goal > store.goalMax
 
 const paywallOpen = ref(false)
+const billing = useBillingStore()
+
+/** Pro is the learner's now (a promo code or a payment of the paywall): the limit of `GET /onboarding` is read again. */
+function onPro(): void {
+  store.goalProRequired = false
+  void store.load()
+}
+
+// A payment of the sheet ends with `paid` (no event of the sheet for it): the same as a promo code.
+watch(
+  () => billing.purchase.status,
+  (status, was) => {
+    if (paywallOpen.value && status === 'paid' && was !== 'paid') onPro()
+  },
+)
 
 function label(goal: number): string {
   return LABELLED.includes(goal) ? t(`onboarding.daily_goal.label.${goal}` as OnboardingStringKey) : ''
@@ -105,6 +122,13 @@ async function onContinue(): Promise<void> {
       :error="store.saveErrorStep === 'daily_goal' ? store.saveError : ''"
       @primary="onContinue"
     />
-    <PaywallSheet v-if="paywallOpen" reason="daily_goal" :goal-max="store.goalMax" @close="paywallOpen = false" @review="paywallOpen = false" />
+    <PaywallSheet
+      v-if="paywallOpen"
+      reason="daily_goal"
+      :goal-max="store.goalMax"
+      @close="paywallOpen = false"
+      @review="paywallOpen = false"
+      @redeemed="onPro"
+    />
   </div>
 </template>

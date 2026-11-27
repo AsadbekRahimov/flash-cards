@@ -62,6 +62,15 @@ describe('PaywallSheet', () => {
       expect(w.get('[data-testid=paywall-lead]').text()).toContain('10')
     })
 
+    it('takes an explicit null of the screen as "no limit", not as "not passed": the settings of /me are not read for it', async () => {
+      const response = me()
+      response.settings = settingsFixture({ options: { ...settingsFixture().options, daily_goal_max: 10 } })
+      const w = await render(response, { reason: 'daily_goal', goalMax: null })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Учитесь без ограничений')
+      expect(w.text()).not.toContain('Цель больше 10')
+    })
+
     it('reads the settings of /me without the prop, as the Settings screen opens it', async () => {
       const response = me()
       response.settings = settingsFixture({ options: { ...settingsFixture().options, daily_goal_max: 10 } })

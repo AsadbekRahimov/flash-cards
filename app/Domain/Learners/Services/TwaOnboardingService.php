@@ -67,7 +67,7 @@ final class TwaOnboardingService
                 'age_range' => $learner->age_range,
                 'goals' => array_values(array_filter($learner->goals ?? [], 'is_string')),
                 'level' => $learner->level,
-                'course' => $this->chosenCourse($learner, $levels),
+                'course' => $this->chosenCourse($learner, $levels, $locale),
                 'daily_goal' => (int) $learner->daily_goal,
                 'reminder' => [
                     'enabled' => $this->settings->shortTime($learner->reminder_time) !== null,
@@ -156,49 +156,50 @@ final class TwaOnboardingService
     }
 
     /**
-     * The courses offered on the level screen (O5): for every level the course the onboarding would give for it
-     * ({@see CourseCatalogService::recommendFromCatalog()} for the general goal - never a course of phrases, docs/35 §3.3), the levels
-     * leading to the same course merged into one row ("A1–A2"), in the order of the levels. `title` and `stages_count` are the
-     * catalog's in `$locale`; `course_id` is internal (not in the API).
+     * The courses offered on the level screen (O5): the course of every level that has one of its own in the catalog
+     * ({@see CourseCatalogService::levelCourses()} for the general goal - never a course of phrases, docs/35 §3.3), the next level
+     * without a course of its own in the same row ("A1–A2"), in the order of the levels - the rule of the placement test. A level whose
+     * recommendation is only a fallback to another level's course is not offered: with an incomplete catalog the A1 row stays "A1–A2",
+     * not "A1, A2, B2, C1, C2". `title` and `stages_count` are the catalog's in `$locale`; `course_id` is internal (not in the API).
      *
      * @return list<array{level: string, levels: list<string>, course_slug: string, title: string, level_label: string, stages_count: int|null, course_id: int}>
      */
     private function levelOptions(string $locale): array
     {
         $catalog = $this->catalog->published($this->locales->default());
+        $localized = $this->localized($locale, $catalog);
+
+        $options = [];
+        foreach ($this->catalog->levelCourses(OnboardingService::GENERAL_GOAL, OnboardingService::LEVELS, $catalog) as $row) {
+            $course = $localized[$row['course']->id] ?? $row['course'];
+            $options[] = [
+                'level' => $row['levels'][0],
+                'levels' => $row['levels'],
+                'course_slug' => $course->slug,
+                'title' => $course->title,
+                'level_label' => self::levelLabel($row['levels']),
+                'stages_count' => $course->stagesCount,
+                'course_id' => $course->id,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * The catalog in `$locale` by course id (the cached catalog of the default locale when it is that one).
+     *
+     * @param  list<CatalogCourse>  $catalog  the catalog of the default locale
+     * @return array<int, CatalogCourse>
+     */
+    private function localized(string $locale, array $catalog): array
+    {
         $localized = [];
         foreach ($locale === $this->locales->default() ? $catalog : $this->catalog->published($locale) as $course) {
             $localized[$course->id] = $course;
         }
 
-        /** @var array<string, array{course: CatalogCourse, levels: non-empty-list<string>}> $bySlug */
-        $bySlug = [];
-        foreach (OnboardingService::LEVELS as $level) {
-            $course = $this->catalog->recommendFromCatalog(OnboardingService::GENERAL_GOAL, $level, $catalog);
-            if ($course === null) {
-                continue;
-            }
-            if (isset($bySlug[$course->slug])) {
-                $bySlug[$course->slug]['levels'][] = $level;
-            } else {
-                $bySlug[$course->slug] = ['course' => $localized[$course->id] ?? $course, 'levels' => [$level]];
-            }
-        }
-
-        $options = [];
-        foreach ($bySlug as $slug => $row) {
-            $options[] = [
-                'level' => $row['levels'][0],
-                'levels' => $row['levels'],
-                'course_slug' => (string) $slug,
-                'title' => $row['course']->title,
-                'level_label' => self::levelLabel($row['levels']),
-                'stages_count' => $row['course']->stagesCount,
-                'course_id' => $row['course']->id,
-            ];
-        }
-
-        return $options;
+        return $localized;
     }
 
     /**
@@ -215,13 +216,19 @@ final class TwaOnboardingService
     }
 
     /**
-     * The course shown on the summary: the one chosen on the level screen, else the one of the learner's level (a level chosen in the bot).
+     * The course shown on the summary: the learner's active course when there is one (completing keeps it - a course of a `c_<slug>`
+     * link, one chosen in the catalog, the one completion gave), else the one chosen on the level screen (completion makes it the
+     * active one), else the one of the learner's level (a level chosen in the bot).
      *
      * @param  list<array{level: string, levels: list<string>, course_slug: string, title: string, level_label: string, stages_count: int|null, course_id: int}>  $levels
      * @return array{slug: string, title: string, level_label: string, stages_count: int|null}|null
      */
-    private function chosenCourse(Learner $learner, array $levels): ?array
+    private function chosenCourse(Learner $learner, array $levels, string $locale): ?array
     {
+        if ($learner->active_course_id !== null) {
+            return $this->activeCourse($learner, $learner->active_course_id, $levels, $locale);
+        }
+
         $slug = OnboardingChoices::progress($learner)['course_slug'] ?? null;
 
         foreach ($levels as $option) {
@@ -232,6 +239,36 @@ final class TwaOnboardingService
         }
 
         return null;
+    }
+
+    /**
+     * The learner's active course for the summary: a row of the level screen (no statement), else the cached public catalog (no
+     * statement), else the cached row of the course (an unlisted course of a link, the learner's own deck: 0 statements warm, 1 cold).
+     * Null when it is no longer available - as `complete` answers then (completion keeps an active course, it does not replace it).
+     *
+     * @param  list<array{level: string, levels: list<string>, course_slug: string, title: string, level_label: string, stages_count: int|null, course_id: int}>  $levels
+     * @return array{slug: string, title: string, level_label: string, stages_count: int|null}|null
+     */
+    private function activeCourse(Learner $learner, int $courseId, array $levels, string $locale): ?array
+    {
+        foreach ($levels as $option) {
+            if ($option['course_id'] === $courseId) {
+                return ['slug' => $option['course_slug'], 'title' => $option['title'], 'level_label' => $option['level_label'], 'stages_count' => $option['stages_count']];
+            }
+        }
+
+        foreach ($this->catalog->published($locale) as $course) {
+            if ($course->id === $courseId) {
+                return ['slug' => $course->slug, 'title' => $course->title, 'level_label' => $course->level ?? '', 'stages_count' => $course->stagesCount];
+            }
+        }
+
+        $course = $this->catalog->cachedCourse($courseId);
+        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
+            return null;
+        }
+
+        return ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale), 'level_label' => $course->level ?? '', 'stages_count' => null];
     }
 
     /**
@@ -277,7 +314,7 @@ final class TwaOnboardingService
         $changed = false;
         $marks = ['started' => false, 'first' => false];
 
-        $this->settings->update($learner, $changes, underLock: function (Learner $fresh) use ($step, $changes, $courseSlug, &$changed, &$marks): void {
+        $this->settings->update($learner, $changes, channel: LearnerSettingsService::CHANNEL_ONBOARDING, underLock: function (Learner $fresh) use ($step, $changes, $courseSlug, &$changed, &$marks): void {
             if ($fresh->onboarding_state === OnboardingService::DONE) {
                 throw TwaOnboardingException::completed();
             }

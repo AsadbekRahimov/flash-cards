@@ -54,6 +54,7 @@ const LEVELS = ['A1', 'A1', 'A2', 'A2', 'B1', 'B1', 'B2', 'B2', 'C1', 'C1']
 
 function placementTest(prefix = 'w', expiresInMs = 20 * 60_000): PlacementTest {
   return {
+    set_id: `set-${prefix}`,
     questions: LEVELS.map((_, i) => ({ id: i + 1, word: `${prefix}${i + 1}`, options: ['один', 'два', 'три', 'четыре'] })),
     expires_at: new Date(Date.now() + expiresInMs).toISOString(),
   }
@@ -189,7 +190,8 @@ describe('the placement test of O5', () => {
     expect(api.onboarding.placementAnswers).not.toHaveBeenCalled()
     await answer(r, 1, 3)
 
-    expect(api.onboarding.placementAnswers).toHaveBeenCalledWith([1, 1, 1, 1, 1, 1, 1, 1, 1, 3])
+    // With the id of the set answered (docs/04 A.27).
+    expect(api.onboarding.placementAnswers).toHaveBeenCalledWith({ set_id: 'set-w', answers: [1, 1, 1, 1, 1, 1, 1, 1, 1, 3] })
     expect(r.wrapper.get('[data-testid=onboarding-title]').text()).toBe('Ваш уровень: B1')
     expect(r.wrapper.get('[data-testid=placement-course]').text()).toContain('English B1')
     expect(r.wrapper.get('[data-testid=placement-correct]').text()).toBe('Верных ответов: 4 из 10')
@@ -272,7 +274,8 @@ describe('the placement test of O5', () => {
     await answer(r, 1, 2)
     await tap(r, '[data-testid=placement-skip]')
 
-    expect(vi.mocked(api.onboarding.placementAnswers).mock.calls).toEqual([[[0, null, 2, null]]])
+    // An older server gave no `set_id`: none is sent.
+    expect(vi.mocked(api.onboarding.placementAnswers).mock.calls).toEqual([[{ answers: [0, null, 2, null] }]])
     expect(r.wrapper.get('[data-testid=placement-correct]').text()).toBe('Верных ответов: 4 из 4')
     expect(apiCalls()).toEqual({ get: 1, placement: 1, answers: 1 })
   })
@@ -297,7 +300,8 @@ describe('the placement test of O5', () => {
     expect(r.wrapper.get('[data-testid=option-2]').attributes('data-state')).toBe('selected')
     await tap(r, '[data-testid=placement-retry]')
 
-    expect(vi.mocked(api.onboarding.placementAnswers).mock.calls).toEqual([[Array(10).fill(2)], [Array(10).fill(2)]])
+    const body = { set_id: 'set-w', answers: Array(10).fill(2) }
+    expect(vi.mocked(api.onboarding.placementAnswers).mock.calls).toEqual([[body], [body]])
     expect(r.wrapper.get('[data-testid=onboarding-title]').text()).toBe('Ваш уровень: B1')
     expect(apiCalls()).toEqual({ get: 1, placement: 1, answers: 2 })
   })

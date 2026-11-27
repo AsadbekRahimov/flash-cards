@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import type { RequestOptions } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import { markTiming } from '@/composables/useTimingMarks'
 import type { TodayResponse } from '@/api/types'
@@ -35,12 +36,15 @@ export const useTodayStore = defineStore('today', {
   },
 
   actions: {
-    /** Always refetches: the numbers change with every grade. A stale screen stays visible while reloading. */
-    async load(): Promise<void> {
+    /**
+     * Always refetches: the numbers change with every grade. A stale screen stays visible while reloading. `options` - `BACKGROUND` when
+     * another screen reads it by the way (the finish of a lesson, a promo code): its loss does not raise "Нет соединения".
+     */
+    async load(options?: RequestOptions): Promise<void> {
       this.status = this.data === null ? 'loading' : this.status
       this.errorMessage = ''
       try {
-        this.data = await api.today.get()
+        this.data = await api.today.get(options)
         this.status = 'ready'
         this.loadedAt = Date.now()
         markTiming('today_received')

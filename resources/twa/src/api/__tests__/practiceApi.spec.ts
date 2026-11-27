@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { BACKGROUND } from '@/api/background'
 
 /** The paths, queries and bodies of docs/16 §7: what the stores of practice and battle rely on. */
 const http = vi.hoisted(() => ({
@@ -37,7 +38,7 @@ describe('api.practice', () => {
 
     expect(http.post).toHaveBeenCalledWith('/practice/sessions', body)
     expect(http.post.mock.calls[0]?.[1]).not.toBe(body)
-    expect(http.get).toHaveBeenCalledWith('/practice/sessions/77')
+    expect(http.get).toHaveBeenCalledWith('/practice/sessions/77', undefined, undefined)
   })
 
   it('answer and replace go to the session', async () => {
@@ -79,16 +80,16 @@ describe('api.battles', () => {
     expect(http.get).toHaveBeenNthCalledWith(2, '/practice/battles/options', { friendship_id: 11, course: 'english-a1', lesson_id: 41 }, READ)
   })
 
-  it('reads the list, a battle, its poll and a round - every read with the limit of a read (8 s)', async () => {
+  it('reads the list, a battle, its poll and a round - every read with the limit of a read (8 s); the list and the poll in the background', async () => {
     await api.battles.list()
     await api.battles.get(15)
     await api.battles.poll(15)
     await api.battles.round(15, 2)
 
     expect(http.get.mock.calls).toEqual([
-      ['/practice/battles', undefined, READ],
+      ['/practice/battles', undefined, { ...READ, ...BACKGROUND }],
       ['/practice/battles/15', undefined, READ],
-      ['/practice/battles/15/poll', undefined, READ],
+      ['/practice/battles/15/poll', undefined, { ...READ, ...BACKGROUND }],
       ['/practice/battles/15/round', { no: 2 }, READ],
     ])
   })

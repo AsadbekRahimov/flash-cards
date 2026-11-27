@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { errorMessage } from '@/i18n/errors'
@@ -100,7 +101,7 @@ export const useGameShopStore = defineStore('gameShop', {
     async loadProfile(): Promise<boolean> {
       const seq = this.seq
       try {
-        const profile = await api.gameShop.profile()
+        const profile = await api.gameShop.profile(BACKGROUND)
         if (seq !== this.seq) return false
         this.profile = profile
         return true
@@ -112,7 +113,7 @@ export const useGameShopStore = defineStore('gameShop', {
     /** The catalogue again (after `item_not_found`, a purchase that the server says is not needed): quietly, the screen stays. */
     async reloadShop(): Promise<void> {
       try {
-        const shop = await api.gameShop.shop()
+        const shop = await api.gameShop.shop(BACKGROUND)
         this.shop = shop
       } catch {
         // the screen keeps what it has

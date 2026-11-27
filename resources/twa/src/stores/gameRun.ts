@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { t } from '@/i18n'
@@ -443,7 +444,7 @@ export const useGameRunStore = defineStore('gameRun', {
           // The server may have applied (and charged) the hint before the reply was lost: read the run again before the learner
           // answers, so a hint that is there is shown. The request stays pending: a repeat carries the same id.
           try {
-            const fresh = await api.gameRuns.get(run.id)
+            const fresh = await api.gameRuns.get(run.id, BACKGROUND)
             if (generation === this.generation && this.status === 'playing') this.applyRun(fresh)
           } catch {
             // the connection is still down: the learner sees the error above and may repeat the hint

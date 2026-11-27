@@ -517,6 +517,8 @@ export const useTrainingStore = defineStore('training', {
           this.handleApiError(err)
           return
         }
+        // A repeat of an answer whose first try got no reply (the time ran out, the connection broke).
+        const repeated = this.pending !== null
         this.forgetPending()
         // The server already consumed/re-issued this serve (rare race or network replay - a repeat of an answer that did arrive):
         // the grade was not counted now, so silently fetch the actual card. Once per submit —
@@ -524,6 +526,9 @@ export const useTrainingStore = defineStore('training', {
         // The same for an exercise the server no longer agrees with (the plan changed mid-session,
         // an older card on screen): the fresh card carries the exercise the server expects.
         if (err instanceof ApiClientError && err.kind === 'conflict' && err.code === 'card_not_due') {
+          // For a repeat it is the first try that the server took: the answer counts (`reviewedCount` - the fallback of the finish
+          // screen when `/finish` gave no summary; the server's numbers are the truth).
+          if (repeated) this.reviewedCount += 1
           await this.loadNext()
           return
         }
@@ -565,8 +570,13 @@ export const useTrainingStore = defineStore('training', {
           return false
         }
         this.forgetPending()
-        // Taken already (409 `card_not_due`) or of an exercise the server no longer serves: nothing is lost, the session goes on.
-        if (err instanceof ApiClientError && (err.code === 'card_not_due' || EXERCISE_MISMATCH_CODES.includes(err.code))) return true
+        // Taken already (409 `card_not_due`: the first try of this answer reached the server, so it counts) or of an exercise the server
+        // no longer serves: nothing is lost, the session goes on.
+        if (err instanceof ApiClientError && err.code === 'card_not_due') {
+          this.reviewedCount += 1
+          return true
+        }
+        if (err instanceof ApiClientError && EXERCISE_MISMATCH_CODES.includes(err.code)) return true
         this.handleApiError(err)
         return false
       }

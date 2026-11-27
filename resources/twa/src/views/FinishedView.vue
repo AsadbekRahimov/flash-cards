@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { RouterLink, useRouter, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -247,7 +248,7 @@ async function startLessonReview(): Promise<void> {
 
 /** After the finish of a lesson with new words: the plan of the day read again, so the card of step 2 matches the server. */
 async function readPlanAfterFinish(): Promise<void> {
-  await today.load()
+  await today.load(BACKGROUND)
   const plan = today.status === 'ready' ? today.data?.plan : undefined
   planAfterFinish.value = plan ?? undefined
 }
@@ -347,7 +348,7 @@ onMounted(() => {
   monthly.mine = null
   if (summary.value !== null && !isEmpty.value) {
     void monthly.loadMine()
-    void achievements.load()
+    void achievements.load(BACKGROUND)
   }
   if (showTraining.value) void readPlanAfterFinish()
 })

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimits'
 import type { OfferPlacement } from '@/composables/offerViewed'
@@ -111,7 +112,7 @@ interface MeTarget {
 async function readMe(store: MeTarget): Promise<void> {
   store.loading = true
   try {
-    const me = await api.me.get()
+    const me = await api.me.get(BACKGROUND)
     store.apply(me)
     // `/me` carries the settings too: the language row of the Profile reads them without a second request.
     const settings = useSettingsStore()

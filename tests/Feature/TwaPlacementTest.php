@@ -59,10 +59,18 @@ function plStart(Learner $learner): TestResponse
     return test()->withHeaders(plHeaders($learner))->postJson('/api/twa/onboarding/placement');
 }
 
-/** @param  array<string, mixed>  $body */
+/** @param  array<string, mixed>  $body  without `set_id` - the one of the learner's current draft is sent */
 function plAnswer(Learner $learner, array $body): TestResponse
 {
-    return test()->withHeaders(plHeaders($learner))->postJson('/api/twa/onboarding/placement/answers', $body);
+    return test()->withHeaders(plHeaders($learner))->postJson('/api/twa/onboarding/placement/answers', $body + ['set_id' => plSetId($learner)]);
+}
+
+/** The `set_id` of the learner's draft (or of its result); a made-up one when there is none. */
+function plSetId(Learner $learner): string
+{
+    $setId = $learner->fresh()?->meta['twa_onboarding']['placement']['set_id'] ?? null;
+
+    return is_string($setId) ? $setId : str_repeat('0', 32);
 }
 
 /** @return list<array{id: int, word_id: int, level: string, correct: int, n: int}> the key of the learner's draft */
@@ -103,10 +111,13 @@ it('starts a test of ten questions, two per level, and keeps the key on the serv
     $learner = Learner::factory()->create(['interface_locale' => 'ru']);
     $this->freezeSecond();
 
-    $response = plStart($learner)->assertCreated()->assertJsonStructure(['questions' => [['id', 'word', 'options']], 'expires_at']);
+    $response = plStart($learner)->assertCreated()->assertJsonStructure(['set_id', 'questions' => [['id', 'word', 'options']], 'expires_at']);
 
     $questions = $response->json('questions');
-    expect($questions)->toHaveCount(10)
+    expect(array_keys($response->json()))->toBe(['set_id', 'questions', 'expires_at'])
+        ->and($response->json('set_id'))->toMatch('/^[0-9a-f]{32}$/')
+        ->and($response->json('set_id'))->toBe(plSetId($learner))
+        ->and($questions)->toHaveCount(10)
         ->and(array_column($questions, 'id'))->toBe(range(1, 10))
         ->and($response->json('expires_at'))->toBe(now()->addMinutes(20)->utc()->toIso8601String())
         ->and(array_keys($questions[0]))->toBe(['id', 'word', 'options'])
@@ -178,7 +189,7 @@ it('scores a set once: a repeated request, even with other answers, gets the sam
     $first = plAnswer($learner, ['answers' => plAnswers($learner, ['A1', 'A2'])])->assertOk()->json();
     $meta = $learner->fresh()?->meta['twa_onboarding']['placement'];
     expect($first['level'])->toBe('A2')
-        ->and($meta)->toHaveKeys(['issued_at', 'answered_at', 'result'])
+        ->and($meta)->toHaveKeys(['set_id', 'issued_at', 'answered_at', 'result'])
         ->and($meta)->not->toHaveKey('items');
 
     $second = plAnswer($learner, ['answers' => array_fill(0, 10, 0)])->assertOk()->json();
@@ -336,9 +347,9 @@ it('costs 8 statements to start (the learner, four courses of words, the transla
     $this->withHeaders($headers)->getJson('/api/twa/onboarding')->assertOk(); // warms the catalog and the plan
 
     $start = QueryLog::during(fn () => $this->withHeaders($headers)->postJson('/api/twa/onboarding/placement')->assertCreated());
-    $answers = plAnswers($learner, ['A1']);
-    $answer = QueryLog::during(fn () => $this->withHeaders($headers)->postJson('/api/twa/onboarding/placement/answers', ['answers' => $answers])->assertOk());
-    $again = QueryLog::during(fn () => $this->withHeaders($headers)->postJson('/api/twa/onboarding/placement/answers', ['answers' => $answers])->assertOk());
+    $body = ['set_id' => plSetId($learner), 'answers' => plAnswers($learner, ['A1'])];
+    $answer = QueryLog::during(fn () => $this->withHeaders($headers)->postJson('/api/twa/onboarding/placement/answers', $body)->assertOk());
+    $again = QueryLog::during(fn () => $this->withHeaders($headers)->postJson('/api/twa/onboarding/placement/answers', $body)->assertOk());
 
     $statements = fn (array $log): array => QueryLog::matching($log, '/^(select|insert|update|delete)/i');
     expect(count($statements($start)))->toBe(8, implode("\n", $start))
@@ -349,3 +360,41 @@ it('costs 8 statements to start (the learner, four courses of words, the transla
         ->and(count($statements($again)))->toBe(2, implode("\n", $again))
         ->and(QueryLog::matching([...$start, ...$answer], '/word_repetitions|training_sessions|exam_sessions|score_credits|learner_daily_stats/'))->toBe([]);
 });
+
+it('scores only the set the answers name: a replaced set is 410, the answers of the current one still count, a scored set repeats its result', function (): void {
+    plCatalog();
+    $learner = Learner::factory()->create();
+
+    $old = plStart($learner)->assertCreated()->json('set_id');
+    $oldAnswers = plAnswers($learner, ['A1', 'A2', 'B1', 'B2', 'C1']);
+    $new = plStart($learner)->assertCreated()->json('set_id');
+    expect($new)->not->toBe($old);
+
+    // The answers of the first set (a second tab, a start that overtook them) are not scored against the second one.
+    plAnswer($learner, ['set_id' => $old, 'answers' => $oldAnswers])->assertStatus(410)->assertJsonPath('error.code', 'placement_expired');
+    plAnswer($learner, ['set_id' => 'not-a-set', 'answers' => $oldAnswers])->assertStatus(410)->assertJsonPath('error.code', 'placement_expired');
+    expect(plItems($learner))->toHaveCount(10);
+
+    $result = plAnswer($learner, ['set_id' => $new, 'answers' => plAnswers($learner, [])])->assertOk()->assertJsonPath('level', 'A1')->json();
+
+    // The same set again - the same result; the old set after the scoring - still 410.
+    expect(plAnswer($learner, ['set_id' => $new, 'answers' => array_fill(0, 10, 0)])->assertOk()->json())->toBe($result);
+    plAnswer($learner, ['set_id' => $old, 'answers' => $oldAnswers])->assertStatus(410)->assertJsonPath('error.code', 'placement_expired');
+});
+
+it('requires set_id as a string', function (array $setId): void {
+    plCatalog();
+    $learner = Learner::factory()->create();
+    plStart($learner)->assertCreated();
+
+    $body = ['answers' => plAnswers($learner, ['A1']), ...$setId];
+    $response = test()->withHeaders(plHeaders($learner))->postJson('/api/twa/onboarding/placement/answers', $body);
+
+    expect(array_keys((array) $response->assertUnprocessable()->json('errors')))->toBe(['set_id'])
+        ->and(plItems($learner))->toHaveCount(10);
+})->with([
+    'missing' => [[]],
+    'a number' => [['set_id' => 123]],
+    'null' => [['set_id' => null]],
+    'too long' => [['set_id' => str_repeat('a', 65)]],
+]);

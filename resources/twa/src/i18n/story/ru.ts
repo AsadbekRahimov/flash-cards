@@ -8,7 +8,7 @@ import type { Message, PluralForms } from '../ru'
  */
 export const storyRu = {
   'story.heading': 'Поделиться в сторис',
-  'story.preview': 'Так будет выглядеть сторис',
+  'story.preview_note': 'Примерно так будет выглядеть сторис',
   'story.streak.title': {
     one: '{count} день подряд',
     few: '{count} дня подряд',

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { errorMessage } from '@/i18n/errors'
 import { useTodayStore } from '@/stores/today'
 import type { Course, CourseDetail, CourseLesson } from '@/api/types'
@@ -103,7 +104,7 @@ export const useCoursesStore = defineStore('courses', {
     async loadListQuietly(): Promise<void> {
       if (this.courses.length > 0) return
       try {
-        const res = await api.courses.list()
+        const res = await api.courses.list(BACKGROUND)
         if (this.courses.length === 0) this.courses = res.courses
       } catch {
         // the button then says "Start course"; the server decides anyway
@@ -121,7 +122,8 @@ export const useCoursesStore = defineStore('courses', {
       this.detail = known
       this.detailStatus = known === null ? 'loading' : 'ready'
       try {
-        const res = normalized(await api.courses.get(slug))
+        // With a copy on screen the refresh is a background read: its loss keeps the copy, not "Нет соединения".
+        const res = normalized(await api.courses.get(slug, known === null ? undefined : BACKGROUND))
         this.remember(res)
         if (seq !== this.detailSeq) return
         this.detail = res
@@ -147,7 +149,7 @@ export const useCoursesStore = defineStore('courses', {
       if (this.cached[slug] !== undefined || this.cachedLoads[slug]?.status === 'loading') return
       this.cachedLoads = { ...this.cachedLoads, [slug]: { status: 'loading' } }
       try {
-        this.remember(normalized(await api.courses.get(slug)))
+        this.remember(normalized(await api.courses.get(slug, BACKGROUND)))
         this.cachedLoads = withoutKey(this.cachedLoads, slug)
       } catch (err) {
         this.cachedLoads = { ...this.cachedLoads, [slug]: { status: 'error', message: errorMessage(err, 'catalog') } }

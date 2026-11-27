@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -361,7 +362,7 @@ function playWithFriend(): void {
     return
   }
   pickerOpen.value = true
-  void friends.load()
+  void friends.load(BACKGROUND)
 }
 
 const pickerStatus = computed((): 'loading' | 'ready' | 'error' => {

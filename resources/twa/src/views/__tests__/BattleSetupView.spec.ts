@@ -309,7 +309,7 @@ describe('BattleSetupView — the course', () => {
 
     expect(get(r, 'course-ielts-core').attributes('aria-checked')).toBe('true')
     expect(get(r, 'course-english-a1').attributes('aria-checked')).toBe('false')
-    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core')
+    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core', undefined)
     expect(api.battles.options).toHaveBeenCalledWith(11, 'ielts-core', null)
     expect(tg.haptic).toHaveBeenCalledWith('light')
   })

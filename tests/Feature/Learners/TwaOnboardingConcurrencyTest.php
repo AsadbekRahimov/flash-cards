@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 /*
  * Real races on PostgreSQL around the onboarding of the Mini App (docs/40 §2.1, §5 п. 1): two devices saving the same step, parallel
- * presses of "Start the first lesson", and the Mini App finishing while the bot's last button is pressed. Each contender is a forked
+ * presses of "Start the first lesson", the Mini App finishing while the bot's last button is pressed, and two runs of the job that
+ * offers the pending invitation. Each contender is a forked
  * process with its own connection; committed rows: DatabaseTruncation. Skipped on sqlite.
  */
 
@@ -12,10 +13,15 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Learners\Services\TwaOnboardingService;
+use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Services\FriendsMessenger;
+use App\Domain\Telegram\Services\OrganizationMessenger;
+use App\Jobs\OfferPendingInvitesJob;
 use App\Models\Learner;
 use App\Models\ProductEvent;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\FakeTelegramClient;
 use Tests\Support\ForkSafe;
 use Tests\Support\HotPathFixtures as Fx;
 
@@ -165,3 +171,24 @@ it('lets exactly one of the bot and the Mini App finish the onboarding when both
         ->and($learner->fresh()?->onboarding_state)->toBe('done')
         ->and(onbRaceEvents($learner->id, ProductEventName::OnboardingCompleted))->toBe(1);
 })->with([1, 2, 3]);
+
+it('offers a pending invitation once when two runs of the job (a retry, a duplicate) send at the same instant', function (): void {
+    Learner::factory()->create(['telegram_user_id' => 9001, 'first_name' => 'Dilnoza', 'referral_code' => 'NEWFRND2', 'onboarding_state' => 'done']);
+    $learner = Learner::factory()->create(['telegram_user_id' => 9312, 'onboarding_state' => 'done', 'meta' => ['pending_friend_invite' => 'NEWFRND2']]);
+
+    $offer = function () use ($learner): int {
+        $tg = new FakeTelegramClient;
+        app()->instance(TelegramClient::class, $tg);
+        (new OfferPendingInvitesJob($learner->id, OfferPendingInvitesJob::FRIEND))->handle(app(OrganizationMessenger::class), app(FriendsMessenger::class));
+
+        return count(array_filter($tg->sent, fn (array $m): bool => ($m['markup']['inline_keyboard'][0][0]['callback_data'] ?? null) === 'fr1:snd:NEWFRND2'));
+    };
+
+    $results = onbRaceInParallel([$offer, $offer, $offer]);
+
+    foreach ($results as $result) {
+        expect($result['ok'])->toBeTrue(($result['error'] ?? '').' '.($result['message'] ?? ''));
+    }
+    expect(array_sum(array_column($results, 'result')))->toBe(1)
+        ->and($learner->fresh()?->meta)->not->toHaveKey('pending_friend_invite');
+});

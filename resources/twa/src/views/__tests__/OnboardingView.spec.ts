@@ -9,6 +9,7 @@ import { ApiClientError } from '@/api/client'
 import { onboardingFixture } from '@/api/__tests__/onboardingFixture'
 import type { OnboardingState } from '@/api/onboardingTypes'
 import type { Learner } from '@/api/types'
+import { useBillingStore } from '@/stores/billing'
 
 /*
  * The onboarding of the Mini App, O1-O8 (docs/40 §2.1, kit 02-onboarding): the screens by the mock-ups, "Continue" waits for an answer,
@@ -63,7 +64,12 @@ vi.mock('@/composables/useTelegram', () => ({
 /** The paywall is its own component with its own tests: here only whether it opens. */
 const PaywallStub = defineComponent({
   props: { reason: String, goalMax: { type: Number, default: undefined } },
-  setup: (props) => () => h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-goal-max': props.goalMax }),
+  emits: ['redeemed', 'close'],
+  setup: (props, { emit }) => () =>
+    h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-goal-max': props.goalMax }, [
+      // A promo code accepted on the sheet (`PromoRedeem` -> `redeemed` with the new `/me`).
+      h('button', { 'data-testid': 'paywall-redeem', onClick: () => emit('redeemed', {}) }),
+    ]),
 })
 
 const network = () => new ApiClientError('network', 0, 'network', 'Failed to fetch')
@@ -339,6 +345,47 @@ describe('OnboardingView', () => {
       expect(r.wrapper.get('[data-testid=paywall]').attributes('data-goal-max')).toBe('10')
       expect(r.wrapper.get('[data-testid=daily-goal-10]').attributes('aria-checked')).toBe('true')
       expect(api.onboarding.saveStep).not.toHaveBeenCalled()
+    })
+
+    it('takes the locks off once Pro is got by a promo code on the paywall: the state is read again, once', async () => {
+      const limited = onboardingFixture({ options: { ...onboardingFixture().options, daily_goal_max: 10 } })
+      const r = await render('/onboarding/daily_goal', limited)
+      await tap(r, '[data-testid=daily-goal-40]')
+      expect(api.onboarding.get).toHaveBeenCalledTimes(1)
+
+      vi.mocked(api.onboarding.get).mockResolvedValue(onboardingFixture({ options: { ...onboardingFixture().options, daily_goal_max: null } }))
+      await tap(r, '[data-testid=paywall-redeem]')
+
+      expect(api.onboarding.get).toHaveBeenCalledTimes(2)
+      for (const goal of [20, 40]) {
+        expect(r.wrapper.get(`[data-testid=daily-goal-${goal}]`).attributes('aria-disabled')).toBeUndefined()
+        expect(r.wrapper.find(`[data-testid=daily-goal-${goal}] [data-testid=daily-goal-lock]`).exists()).toBe(false)
+      }
+      // The choice made before stays; the learner now picks 40 and saves it.
+      expect(r.wrapper.get('[data-testid=daily-goal-10]').attributes('aria-checked')).toBe('true')
+      await tap(r, '[data-testid=daily-goal-40]')
+      expect(r.wrapper.get('[data-testid=daily-goal-40]').attributes('aria-checked')).toBe('true')
+    })
+
+    it('takes the locks off after a payment of the paywall too (the sheet says `paid`, no event)', async () => {
+      const r = await render('/onboarding/daily_goal', onboardingFixture({ options: { ...onboardingFixture().options, daily_goal_max: 10 } }))
+      await tap(r, '[data-testid=daily-goal-40]')
+
+      vi.mocked(api.onboarding.get).mockResolvedValue(onboardingFixture({ options: { ...onboardingFixture().options, daily_goal_max: null } }))
+      useBillingStore().purchase.status = 'paid'
+      await flushPromises()
+
+      expect(api.onboarding.get).toHaveBeenCalledTimes(2)
+      expect(r.wrapper.find('[data-testid=daily-goal-lock]').exists()).toBe(false)
+    })
+
+    it('reads nothing again while the paywall is closed or nothing was bought', async () => {
+      const r = await render('/onboarding/daily_goal', onboardingFixture({ options: { ...onboardingFixture().options, daily_goal_max: 10 } }))
+      useBillingStore().purchase.status = 'paid'
+      await flushPromises()
+
+      expect(api.onboarding.get).toHaveBeenCalledTimes(1)
+      expect(r.wrapper.findAll('[data-testid=daily-goal-lock]')).toHaveLength(2)
     })
 
     it('goes back to the limit on 403 daily_goal_pro_required, says so and opens the paywall', async () => {

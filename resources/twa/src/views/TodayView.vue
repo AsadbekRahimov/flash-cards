@@ -37,6 +37,7 @@ import { takeTrialEnded } from '@/composables/trialEnded'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { takeTrialWelcome } from '@/composables/trialWelcome'
 import { useBackButton } from '@/composables/useBackButton'
+import { needsOnboarding, onboardingLocation } from '@/composables/useOnboardingGuard'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
@@ -221,6 +222,14 @@ watch(isPro, (pro) => {
  * caravan of the day / a run that is on already has its own row (`gameEntry`): then this one is not shown.
  */
 const showGameMap = computed(() => data.value?.active_course != null && data.value.game?.available === true && !gameEntry.value)
+/**
+ * The onboarding of the Mini App is not finished (`onboarding.completed === false` of `/auth`, the very sign of the guard; an older server
+ * without the block - no line). The guard sends such a learner to it only from the roots of the tabs on an open without a deep link, a
+ * `?from=` link or a launch outside Telegram; for those the quiet card below leads there - to the step the server keeps, not to the bot.
+ */
+const onboardingPending = computed(() => needsOnboarding(auth.learner))
+const onboardingTo = computed(() => onboardingLocation(auth.learner?.onboarding?.step))
+
 const trialEnd = computed(() => (isPro.value ? trialEndsAt(billing.entitlement) : null))
 const trialText = computed(() => {
   if (trialEnd.value === null) return ''
@@ -763,6 +772,16 @@ onBeforeUnmount(() => {
         />
 
         <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
+
+        <!-- The onboarding is not finished (an open the guard let through): a quiet card that leads to it. -->
+        <RouterLink v-if="onboardingPending" :to="onboardingTo" class="card pressable flex items-center gap-3 py-3" data-testid="onboarding-hint">
+          <span class="icon-tile shrink-0"><AppIcon name="information-circle" :size="20" /></span>
+          <span class="min-w-0 flex-1">
+            <span class="t-body-m-strong block">{{ t('today.onboarding.title') }}</span>
+            <span class="t-label-s block text-muted">{{ t('today.onboarding.text') }}</span>
+          </span>
+          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+        </RouterLink>
 
         <!-- A newcomer without a course: the daftar with the mascot and one button. -->
         <LessonHero v-if="showStart" step="start" :title="t('today.start.title')" :text="t('today.start.text')" data-testid="start-card">

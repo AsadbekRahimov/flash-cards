@@ -144,6 +144,17 @@ final class LearnerSettingsService
     /** `learners.meta` key: the learner picked the interface language (settings / onboarding) — Telegram's `language_code` stops deciding it. */
     public const LOCALE_CHOSEN = 'locale_chosen';
 
+    /** {@see update()} from the settings (TWA, bot `/settings`): `settings.changed` and `reminders.disabled {via: settings}` are recorded. */
+    public const CHANNEL_SETTINGS = 'settings';
+
+    /**
+     * {@see update()} from a step of the onboarding of the Mini App (docs/40 §2.1): the step records its own `onboarding.step_completed`;
+     * no `settings.changed` (choosing a first value is not a change of the settings) and no `reminders.disabled` - the guardrail of the
+     * reminder experiment counts every such event in its window whatever its `via` (ReminderExperimentReport), and "Don't remind me"
+     * on O7 is a first answer, not a learner turning off reminders they had.
+     */
+    public const CHANNEL_ONBOARDING = 'onboarding';
+
     /** @var list<string>|null */
     private ?array $knownTimezones = null;
 
@@ -169,6 +180,7 @@ final class LearnerSettingsService
      * @param  (Closure(Learner): void)|null  $underLock  called with the locked row before the change is applied (the onboarding of the
      *                                                    Mini App, docs/40 §2.1: its state check and its progress in `meta`, written by the
      *                                                    same UPDATE); an exception thrown there refuses the whole update
+     * @param  string  $channel  {@see CHANNEL_SETTINGS} or {@see CHANNEL_ONBOARDING} (no settings events)
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
      * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
@@ -176,8 +188,13 @@ final class LearnerSettingsService
      * @throws RegionChangeTooSoonException when `region_code` changes before 30 days have passed since the last choice
      * @throws ProEmojiProRequiredException when a learner without Pro chooses `pro_emoji`
      */
-    public function update(Learner $learner, array $changes, string $regionVia = LearnerRegionService::VIA_SETTINGS, ?Closure $underLock = null): Learner
-    {
+    public function update(
+        Learner $learner,
+        array $changes,
+        string $regionVia = LearnerRegionService::VIA_SETTINGS,
+        ?Closure $underLock = null,
+        string $channel = self::CHANNEL_SETTINGS,
+    ): Learner {
         $values = $this->normalize($changes);
         if ($values === []) {
             return $learner;
@@ -298,13 +315,14 @@ final class LearnerSettingsService
             }
         }
 
-        if ($changed !== []) {
+        $fromSettings = $channel !== self::CHANNEL_ONBOARDING;
+        if ($changed !== [] && $fromSettings) {
             $this->events->record(ProductEventName::SettingsChanged, ['fields' => implode(',', $changed)], learner: $learner);
         }
         if ($regionChange !== null) {
             $this->regions->recordChange($learner, $regionChange, $regionVia);
         }
-        if ($remindersDisabled) {
+        if ($remindersDisabled && $fromSettings) {
             $this->events->record(ProductEventName::RemindersDisabled, ['via' => 'settings'], learner: $learner);
         }
 
