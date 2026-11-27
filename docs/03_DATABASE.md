@@ -505,11 +505,14 @@ Append-only журнал для продуктовой аналитики (не 
 | telegram_user_id | bigint NOT NULL unique | |
 | first_name, last_name | string(100) nullable | из Telegram |
 | username | string(100) nullable | |
+| display_name | varchar(64) nullable (02.12.2026, docs/40 §2.1) | имя, выбранное в онбординге Mini App (правила `DisplayName`: 1–32 графемы, ≤ 64 кодовых точек — поэтому 64, varchar PostgreSQL считает кодовые точки); `NULL` — показываем `first_name`. Пишет только `TwaOnboardingService`; показывается только на своих экранах ученика (docs/40 §3, В1) |
 | language_code | string(10) nullable | сырой код Telegram |
 | interface_locale | string(5) default 'ru' | `ru` / `uz` — язык бота и TWA |
 | timezone | string(64) default 'Asia/Tashkent' | IANA; дефолт — `config('learners.default_timezone')` |
 | goal | string(20) nullable | `general` / `ielts` / `sat` / `school` |
 | level | string(2) nullable | `A1`..`C2` |
+| age_range | varchar(8) nullable (02.12.2026, docs/40 §2.1) | `lt14` / `14_17` / `18_24` / `25_34` / `35_44` / `45p`. Пишет только `TwaOnboardingService`; только хранится — не отдаётся ни в одном ответе, кроме `GET /onboarding` самого ученика, ничего не ограничивает (В5) |
+| goals | jsonb nullable (02.12.2026, docs/40 §2.1) | зачем учит английский: 1–6 из `career` / `study` / `travel` / `relocation` / `communication` / `media` (не exam-tag `goal`). Пишет только `TwaOnboardingService`; другим не показывается |
 | active_course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для новых слов экрана «Сегодня» |
 | daily_goal | smallint default 20 (колонка; новым ученикам — 10 из config) | карточек (оценок) в день |
 | daily_goal_before_limit | smallint nullable (25.11.2026, docs/34 §2б.2) | цель, которую ученик выбрал до автоснижения к лимиту Free (`DailyGoalLimiter`); возвращается при покупке Pro; стирается ручной сменой цели. `NULL` — снижения не было |
@@ -528,6 +531,7 @@ Append-only журнал для продуктовой аналитики (не 
 | referral_code | string(12) nullable unique | код приглашения *(2C.1, docs/13 §1.5)*: генерируется лениво (`ReferralService::codeFor`, 8 символов алфавита без `0/O/1/I`), ссылка `t.me/<bot>?start=ref_<code>` |
 | streak_current, streak_best | smallint default 0 | |
 | streak_last_date | date nullable | последний **удержанный** локальный день серии: дневная цель выполнена или день заморожен (`learner_daily_stats.frozen_at`, 2C.2) |
+| streak_lost_days, streak_lost_on | smallint nullable, date nullable (02.12.2026, docs/40 §2.5) | «Серия прервалась»: длина серии, сгоревшей при последнем сгорании, и локальный день, когда это заметили; `NULL` — показывать нечего. Пишет `StreakService::burn()` в своём условном `UPDATE`, очищает `project()` с первым днём новой серии (задача T9) |
 | streak_freezes | smallint default 0 | инвентарь заморозок серии (Pro, docs/13 §7.2): ≤ `config('learners.streak_freeze.max')` (2); тратится `StreakFreezeService::tryFreeze` условным `UPDATE … WHERE streak_freezes > 0` *(2C.2)* |
 | streak_freezes_refilled_on | date nullable | понедельник локальной недели, за которую пополнение уже выдано (или отмечено при полном инвентаре) *(2C.2)* |
 | scheduler | varchar(8) nullable | A/B-бакет SRS: `sm2` / `fsrs`; `NULL` = `config('learning.algorithm')`. Ставится при создании: `crc32(telegram_user_id) % 100 < config('learning.fsrs.rollout_percent')`; позже — только админом в Filament с аудитом *(2D.3, docs/06 §9.1)* |
@@ -1855,6 +1859,8 @@ unique `open_challenger_id WHERE NOT NULL` («один открытый вызо
 101. `2026_11_30_100001_add_battle_voided_to_cup_duel_end_reasons` — CHECK причин `cup_duels` с `battle_voided` (PostgreSQL; `NOT VALID` + `VALIDATE`); `down()` переводит `battle_voided` в `battle_gone` *(§2.83)*
 102. `2026_12_01_100001_unlink_deck_words_from_lexemes` — только данные: `words.lexeme_id = NULL` у слов колод учеников (docs/32 §12.12), пачками по 1 000 `words.id`, вне транзакции мигратора, перезапускаемая; `down()` связывает их обратно с существующими лексемами по написанию *(§2.66)*
 103. `2026_12_01_100002_add_withdrawn_at_to_cup_participants` — `cup_participants.withdrawn_at` (без перезаписи таблицы) и CHECK `withdrawn_at IS NULL OR status = 'left'` (PostgreSQL, `NOT VALID` + отдельный `VALIDATE`; вне транзакции мигратора, `IF NOT EXISTS` — перезапускаемая); `down()` снимает CHECK и колонку *(§2.77)*
+104. `2026_12_02_100001_add_profile_fields_to_learners_table` — `learners.display_name`, `age_range`, `goals` (без индексов); `down()` снимает три колонки *(docs/40 §2.1, §2.17)*
+105. `2026_12_02_100002_add_streak_lost_to_learners_table` — `learners.streak_lost_days`, `streak_lost_on` (без индексов); `down()` снимает обе *(docs/40 §2.5, §2.17)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

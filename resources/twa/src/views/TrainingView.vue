@@ -25,6 +25,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, COMBO_STEP, useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
+import { useOfflineContext } from '@/composables/useOnline'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -299,10 +300,33 @@ async function redirectToFinished(): Promise<void> {
   })
 }
 
+/**
+ * "Retry" of the error state and of the screen F5: an answer that waits for the network goes again (the same request, docs/40 §2.6); else
+ * the card is asked for again; a session that never started (or whose waiting answer is still to be sent first) starts again.
+ */
 function onRetry(): void {
-  if (training.sessionId === props.sessionId && training.mode !== null) void training.loadNext()
-  else void begin()
+  if (training.sessionId === props.sessionId && training.mode !== null) {
+    if (training.pending !== null) void training.resendPending()
+    else void training.loadNext()
+  } else void begin()
 }
+
+/**
+ * The screen F5 "Нет сети" over the lesson (docs/40 §2.6): its "Retry" and the return of the network repeat what the lost connection
+ * stopped (nothing when the lesson is fine and the learner simply has not answered yet); the chip says how much of the lesson the server
+ * has - the progress of its last answer, so it is true - and nothing before the first answer.
+ */
+useOfflineContext({
+  retry: () => {
+    if (!left && status.value === 'error' && training.networkError) onRetry()
+  },
+  chip: () => {
+    const { done, total } = progress.value
+    if (done === 0 || total === 0) return null
+    return lesson.value ? t('offline.chip_lesson', { lesson: lesson.value.lesson, done, total }) : t('offline.chip_session', { done, total })
+  },
+  pendingAnswer: () => training.pending !== null,
+})
 
 /** A personal session ended (finished elsewhere or expired): open the same kind again. */
 async function onRestart(): Promise<void> {

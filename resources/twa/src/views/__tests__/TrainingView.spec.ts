@@ -10,6 +10,9 @@ import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import type { Card, LessonHeader, ReviewResponse, TrainingStartResponse } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 vi.mock('@/api', () => ({
   api: {
     training: {
@@ -636,11 +639,13 @@ describe('TrainingView — the end of the session', () => {
     expect(wrapper.find('[data-testid=error]').exists()).toBe(true)
     expect(router.currentRoute.value.name).toBe('training')
 
-    // ... but the server has the whole session: there is no card left.
+    // ... but it had arrived and the server has the whole session: the same answer again is "not due" (docs/06 §5.2), no card is left.
+    vi.mocked(api.training.review).mockRejectedValue(new ApiClientError('conflict', 409, 'card_not_due', 'Card is not due.'))
     vi.mocked(api.training.next).mockResolvedValue({ card: null, progress: { done: 3, total: 3 }, done_reason: 'nothing_due' })
     await wrapper.get('[data-testid=retry-btn]').trigger('click')
     await flushPromises()
 
+    expect(api.training.review).toHaveBeenCalledTimes(2)
     expect(router.currentRoute.value.name).toBe('finished')
     expect(router.currentRoute.value.query).toMatchObject({ reviewed: '3', reason: 'nothing_due' })
     expect(api.training.finish).toHaveBeenCalledTimes(1)

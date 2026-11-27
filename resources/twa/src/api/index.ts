@@ -93,6 +93,7 @@ import type {
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
 import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
+import type { OnboardingCompleteResponse, OnboardingSavedStep, OnboardingState, OnboardingStepBodies } from './onboardingTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
@@ -158,6 +159,15 @@ export const api = {
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
+  },
+  onboarding: {
+    /** The onboarding of the Mini App (docs/04 A.24): the saved answers, the options and the step to show next. */
+    get: () => client().get<OnboardingState>('/onboarding'),
+    /** Saves one step, in any order; 409 `onboarding_completed`, 422 `display_name_invalid {reason}`, 403 `daily_goal_pro_required {max}`. */
+    saveStep: <S extends OnboardingSavedStep>(step: S, body: OnboardingStepBodies[S]) =>
+      client().put<OnboardingState>(`/onboarding/steps/${step}`, { ...body }),
+    /** Finishes the onboarding (idempotent); 422 `onboarding_incomplete {missing}`. */
+    complete: () => client().post<OnboardingCompleteResponse>('/onboarding/complete'),
   },
   words: {
     /** The learner's own memory hook of a word they study (docs/06 §12.3); `null` clears it. */

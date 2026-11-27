@@ -5,6 +5,9 @@ import { ApiClientError } from '@/api/client'
 import { api } from '@/api'
 import type { Card, ReviewResponse } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 vi.mock('@/api', () => ({
   api: {
     training: {

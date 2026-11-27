@@ -65,6 +65,30 @@ export interface RequestOptions {
   timeoutMs?: number
 }
 
+/**
+ * What a JSON request says about the connection (docs/40 §2.6, F5 "Нет сети"): `failed` - it ended as a `network` error (fetch threw, the
+ * time ran out), `reached` - the server answered, with any status. `navigator.onLine` is not to be trusted, so the screen "Нет соединения"
+ * listens to this too (`composables/useOnline.ts`). `method` lets the listener tell a load (GET) from an action.
+ */
+export interface NetworkSignal {
+  outcome: 'failed' | 'reached'
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
+}
+
+const networkListeners = new Set<(signal: NetworkSignal) => void>()
+
+/** Listens to every JSON request of the API (not the clips, not the keepalive analytics); returns the function that stops it. */
+export function onNetworkSignal(listener: (signal: NetworkSignal) => void): () => void {
+  networkListeners.add(listener)
+  return () => {
+    networkListeners.delete(listener)
+  }
+}
+
+function signal(outcome: NetworkSignal['outcome'], method: NetworkSignal['method']): void {
+  for (const listener of [...networkListeners]) listener({ outcome, method })
+}
+
 /** The refresh in flight, shared by every request that got a 401 meanwhile. */
 let refreshing: Promise<string> | null = null
 
@@ -119,19 +143,23 @@ export function createApiClient(opts: ClientOptions) {
           }, init.timeoutMs)
         : null
 
+    const method = init.method ?? 'GET'
     try {
-      return await ofetch<T>(path, {
+      const result = await ofetch<T>(path, {
         baseURL,
-        method: init.method ?? 'GET',
+        method,
         headers,
         body: init.body,
         query: init.query,
         ...(controller !== null ? { signal: controller.signal } : {}),
       })
+      signal('reached', method)
+      return result
     } catch (err) {
       // The limit has done its work: a refresh of the token (below) must not be counted against it.
       if (timer !== null) clearTimeout(timer)
       const apiErr = timedOut ? new ApiClientError('network', 0, 'timeout', 'The request timed out', err) : mapError(err)
+      signal(apiErr.kind === 'network' ? 'failed' : 'reached', method)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
         const fresh = await freshToken(sentToken)
         if (fresh) {

@@ -21,11 +21,14 @@ use Illuminate\Support\Carbon;
  * @property string|null $first_name
  * @property string|null $last_name
  * @property string|null $username
+ * @property string|null $display_name the name the learner chose in the onboarding of the Mini App (docs/40 §2.1); NULL = `first_name`. Own screens only
  * @property string|null $language_code
  * @property string $interface_locale
  * @property string $timezone
  * @property string|null $goal
  * @property string|null $level
+ * @property string|null $age_range `lt14 | 14_17 | 18_24 | 25_34 | 35_44 | 45p` (docs/40 §2.1): stored only, shown to nobody
+ * @property list<string>|null $goals why the learner studies, OnboardingChoices::GOALS (docs/40 §2.1); not the exam-tag `goal`
  * @property int|null $active_course_id
  * @property int $daily_goal
  * @property int|null $daily_goal_before_limit the goal chosen before DailyGoalLimiter lowered it to the Free limit (docs/34 §2б.2)
@@ -42,6 +45,8 @@ use Illuminate\Support\Carbon;
  * @property int $streak_current
  * @property int $streak_best
  * @property Carbon|null $streak_last_date
+ * @property int|null $streak_lost_days the length of the streak burnt at its last loss (docs/40 §2.5); NULL = nothing to show
+ * @property Carbon|null $streak_lost_on the learner's local day that loss was noticed
  * @property int $streak_freezes
  * @property Carbon|null $streak_freezes_refilled_on
  * @property SchedulerKind|null $scheduler A/B bucket of the SRS algorithm (docs/13 §8.3); NULL = config default
@@ -66,11 +71,14 @@ class Learner extends Model
         'first_name',
         'last_name',
         'username',
+        'display_name',
         'language_code',
         'interface_locale',
         'timezone',
         'goal',
         'level',
+        'age_range',
+        'goals',
         'active_course_id',
         'daily_goal',
         'reminder_time',
@@ -86,6 +94,8 @@ class Learner extends Model
         'streak_current',
         'streak_best',
         'streak_last_date',
+        'streak_lost_days',
+        'streak_lost_on',
         'streak_freezes',
         'streak_freezes_refilled_on',
         'scheduler',
@@ -109,6 +119,8 @@ class Learner extends Model
             'streak_current' => 'integer',
             'streak_best' => 'integer',
             'streak_last_date' => 'date',
+            'streak_lost_days' => 'integer',
+            'streak_lost_on' => 'date',
             'streak_freezes' => 'integer',
             'streak_freezes_refilled_on' => 'date',
             'scheduler' => SchedulerKind::class,
@@ -116,6 +128,7 @@ class Learner extends Model
             'blocked_at' => 'datetime',
             'practice_pilot_at' => 'datetime',
             'region_changed_at' => 'datetime',
+            'goals' => 'array',
             'meta' => 'array',
         ];
     }

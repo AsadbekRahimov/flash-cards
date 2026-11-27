@@ -6,6 +6,9 @@ import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import type { Card } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 vi.mock('@/api', () => ({
   api: {
     today: { get: vi.fn() },

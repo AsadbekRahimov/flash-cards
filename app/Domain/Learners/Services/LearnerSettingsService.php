@@ -25,6 +25,7 @@ use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Closure;
 use DateTimeZone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -165,6 +166,9 @@ final class LearnerSettingsService
     /**
      * @param  array<string, mixed>  $changes  field => new value (a partial update; only the keys present are touched)
      * @param  string  $regionVia  where a change of `region_code` comes from, for `region.set`: `settings` or `prompt`
+     * @param  (Closure(Learner): void)|null  $underLock  called with the locked row before the change is applied (the onboarding of the
+     *                                                    Mini App, docs/40 §2.1: its state check and its progress in `meta`, written by the
+     *                                                    same UPDATE); an exception thrown there refuses the whole update
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
      * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
@@ -172,7 +176,7 @@ final class LearnerSettingsService
      * @throws RegionChangeTooSoonException when `region_code` changes before 30 days have passed since the last choice
      * @throws ProEmojiProRequiredException when a learner without Pro chooses `pro_emoji`
      */
-    public function update(Learner $learner, array $changes, string $regionVia = LearnerRegionService::VIA_SETTINGS): Learner
+    public function update(Learner $learner, array $changes, string $regionVia = LearnerRegionService::VIA_SETTINGS, ?Closure $underLock = null): Learner
     {
         $values = $this->normalize($changes);
         if ($values === []) {
@@ -196,12 +200,15 @@ final class LearnerSettingsService
         $remindersDisabled = false;
         $regionChange = null;
 
-        DB::transaction(function () use ($learner, $values, &$changed, &$remindersDisabled, &$regionChange): void {
+        DB::transaction(function () use ($learner, $values, $underLock, &$changed, &$remindersDisabled, &$regionChange): void {
             // `FOR NO KEY UPDATE` on PostgreSQL (as in CardPicker): the row is rewritten, but rows that
             // reference `learners` (daily stats, events, ...) can keep being inserted meanwhile.
             $lock = Learner::query()->whereKey($learner->id);
             /** @var Learner $fresh */
             $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
+            if ($underLock !== null) {
+                $underLock($fresh);
+            }
 
             $exercises = null;
             if (is_array($values['exercises'] ?? null)) {

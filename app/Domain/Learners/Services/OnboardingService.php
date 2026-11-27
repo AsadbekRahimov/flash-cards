@@ -79,8 +79,8 @@ final class OnboardingService
     /** Callback value => local time. */
     public const REMINDER_TIMES = ['0800' => '08:00', '1300' => '13:00', '1900' => '19:00', '2100' => '21:00'];
 
-    /** The goal whose courses form the base catalog: the second step of the course recommendation. */
-    private const GENERAL_GOAL = 'general';
+    /** The goal whose courses form the base catalog: the second step of the course recommendation (and the levels of the Mini App). */
+    public const GENERAL_GOAL = 'general';
 
     /** `learners.meta` key: the course slug of a `c_<slug>` link, applied when the onboarding completes. */
     private const PENDING_COURSE = 'pending_course';
@@ -323,9 +323,7 @@ final class OnboardingService
 
             if ($next === self::DONE) {
                 $completed = true;
-                [$course, $via] = $this->completeCourse($fresh);
-                $fresh->onboarding_completed_at = now();
-                $this->settings->scheduleReminder($fresh);
+                [$course, $via] = $this->finishLocked($fresh);
             }
 
             $fresh->save();
@@ -342,21 +340,84 @@ final class OnboardingService
         }
 
         if ($completed) {
-            $this->events->record(ProductEventName::OnboardingCompleted, [
-                'goal' => $learner->goal,
-                'level' => $learner->level,
-                'locale' => $learner->interface_locale,
-            ], learner: $learner);
-
-            if ($course !== null) {
-                $this->events->record(ProductEventName::CourseSelected, [
-                    'course_id' => $course->id,
-                    'via' => $via,
-                ], learner: $learner);
-            }
+            $this->recordCompletion($learner, $course, $via);
         }
 
         return $this->current($learner);
+    }
+
+    /**
+     * Ends the onboarding from outside the bot (the Mini App, docs/40 §2.1): the one place besides {@see apply()} that writes `done`, with
+     * the same steps under the same row lock - the goal of a skipped goal step, the course ({@see completeCourse()}: a `c_<slug>` link,
+     * the learner's own course, the recommendation for the goal and level, the general course, the default one), `onboarding_completed_at`,
+     * `next_reminder_at`; then `onboarding.completed {channel, ...}` and `course.selected`. A learner already `done` (by the bot, by a
+     * parallel request) is left alone: nothing is written, no event. A learner in the middle of the bot's steps jumps to `done`; the
+     * bot's old buttons are stale from then on ({@see OnboardingException::staleStep()}).
+     *
+     * The passed model is brought up to date from the locked row (no statement of its own).
+     *
+     * @return array{completed: bool, course: Course|null} whether it completed now, and the course it chose now (null - none, or kept)
+     */
+    public function completeExternally(Learner $learner, string $channel): array
+    {
+        $completed = false;
+        $course = null;
+        $via = null;
+
+        DB::transaction(function () use ($learner, &$completed, &$course, &$via): void {
+            $fresh = $this->lock($learner);
+            if ($fresh->onboarding_state === self::DONE) {
+                $learner->setRawAttributes($fresh->getAttributes(), true);
+
+                return;
+            }
+
+            $this->fillSkippedGoal($fresh);
+            $fresh->onboarding_state = self::DONE;
+            [$course, $via] = $this->finishLocked($fresh);
+            $fresh->save();
+
+            $learner->setRawAttributes($fresh->getAttributes(), true);
+            $completed = true;
+        });
+
+        if ($completed) {
+            $this->recordCompletion($learner, $course, $via, $channel);
+        }
+
+        return ['completed' => $completed, 'course' => $course];
+    }
+
+    /**
+     * The end of the onboarding on the locked row (not saved): the active course, the moment, the next reminder.
+     *
+     * @return array{0: Course|null, 1: string|null}
+     */
+    private function finishLocked(Learner $fresh): array
+    {
+        $chosen = $this->completeCourse($fresh);
+        $fresh->onboarding_completed_at = now();
+        $this->settings->scheduleReminder($fresh);
+
+        return $chosen;
+    }
+
+    /** `onboarding.completed` (with `channel` when it is not the bot) and `course.selected` for a course chosen now. */
+    private function recordCompletion(Learner $learner, ?Course $course, ?string $via, ?string $channel = null): void
+    {
+        $this->events->record(ProductEventName::OnboardingCompleted, [
+            'goal' => $learner->goal,
+            'level' => $learner->level,
+            'locale' => $learner->interface_locale,
+            ...($channel === null ? [] : ['channel' => $channel]),
+        ], learner: $learner);
+
+        if ($course !== null) {
+            $this->events->record(ProductEventName::CourseSelected, [
+                'course_id' => $course->id,
+                'via' => $via,
+            ], learner: $learner);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Learners\Support\OnboardingChoices;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AllTimeRatingController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
 use App\Http\Controllers\Api\Twa\OfferViewedController;
+use App\Http\Controllers\Api\Twa\OnboardingController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -71,6 +73,16 @@ Route::prefix('twa')->group(function (): void {
             ->middleware('throttle:twa-organizations')
             ->name('twa.me.organizations.leave');
         Route::get('/today', TodayController::class)->name('twa.today');
+
+        // The onboarding of the Mini App, O1-O8 (docs/40 §2.1, docs/04 A.24): the read shares `twa-api`, the steps and the end have
+        // their own cap too. An unknown step is a 404 of the route.
+        Route::get('/onboarding', [OnboardingController::class, 'show'])->name('twa.onboarding');
+        Route::middleware('throttle:twa-onboarding')->group(function (): void {
+            Route::put('/onboarding/steps/{step}', [OnboardingController::class, 'update'])
+                ->whereIn('step', OnboardingChoices::STEPS)
+                ->name('twa.onboarding.step');
+            Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('twa.onboarding.complete');
+        });
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');

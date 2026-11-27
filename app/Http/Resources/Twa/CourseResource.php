@@ -24,6 +24,7 @@ final class CourseResource extends TwaResource
      *   exam_tag: string|null,
      *   section: string,
      *   words_count: int,
+     *   stages_count: int|null,
      *   is_featured: bool,
      *   is_active: bool,
      *   progress: array{done: int, total: int}
@@ -43,6 +44,8 @@ final class CourseResource extends TwaResource
             // The section of the catalog (docs/35 §3.3 a): `phrases` - the course of phrases, `courses` - every other.
             'section' => $course->section(),
             'words_count' => $course->wordsCount,
+            // The modules of the course (docs/40 §2.1): from the cached catalog; null for a course outside it (a deck, an unlisted one).
+            'stages_count' => $course->stagesCount,
             'is_featured' => $course->isFeatured,
             'is_active' => $listing->isActive,
             'progress' => [

@@ -40,8 +40,10 @@
   "learner": {
     "id": 42,
     "first_name": "Alex",
+    "display_name": null,
     "locale": "ru",
-    "onboarding_completed": false
+    "onboarding_completed": false,
+    "onboarding": { "completed": false, "step": null }
   },
   "account_restored": null,
   "client_timing": { "sample_percent": 10 }
@@ -52,6 +54,11 @@
   оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
   (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
   один раз за сессию (docs/05).
+- `learner.display_name` — имя, выбранное в онбординге Mini App (A.24, docs/40 §2.1), `null` — не выбрано (экран показывает `first_name`).
+  Только для своих экранов ученика (docs/40 §3, В1). `first_name` — по-прежнему снимок Telegram, перезаписывается на каждом `/auth`.
+- `learner.onboarding` (docs/40 §2.1) — `{completed, step}`: `completed` = `onboarding_completed`; `step` — экран онбординга Mini App, с
+  которого продолжить (`name | age | goals | level | daily_goal | reminder | plan`), `null` — онбординг завершён или ещё не начат в Mini App
+  (приветствие O1). Оба поля — из уже загруженной строки, **0 новых операторов SQL**.
 - `client_timing.sample_percent` (0..100) — доля открытий, которые сообщают свои временные метки (A.21); из конфига
   (`CLIENT_TIMING_SAMPLE_PERCENT`), без запроса к БД. `0` — клиент ничего не шлёт. Нет поля (старый сервер) — тоже ничего.
 
@@ -76,7 +83,7 @@
 **Response:**
 ```json
 {
-  "learner": { "id": 42, "first_name": "Alex", "username": "alex_dev", "locale": "ru", "onboarding_completed": true },
+  "learner": { "id": 42, "first_name": "Alex", "display_name": "Азиз", "username": "alex_dev", "locale": "ru", "onboarding_completed": true, "onboarding": { "completed": true, "step": null }, "pro_emoji": null },
   "groups": [{ "id": 7, "title": "B1 English Evening" }],
   "stats": {
     "words_learned": 234,
@@ -2116,6 +2123,81 @@ outbox], строка участника `FOR UPDATE`, UPDATE, событие), 
 (пауза только этого чата); таймаут → `unknown`; «message to edit not found» → `skipped`. ЛС — `SendCupDuelDmJob` → `CupDuelMessenger`:
 личный (не публичный) адресный вызов — адресату (кнопка в вызов), принятие — вызвавшему (кнопка в матч, пока он в комнате); правила
 отправителей docs/34 §4в п. 8, маркер `notifications_log` `cup_duel_dm`, ключ `{kind}:{duel}`.
+
+### A.24 Онбординг Mini App O1–O8 (docs/40 §2.1; T2 ✅ 02.12.2026)
+
+Отдельный поток Mini App поверх тех же колонок, что пишет бот-онбординг; машина `learners.onboarding_state` бота не расширяется. Прогресс —
+`learners.meta.twa_onboarding = {step, started_at, course_slug?, answered[]}` (сервис `TwaOnboardingService`, белые списки —
+`OnboardingChoices`). Завершение — одна точка с ботом: `OnboardingService::completeExternally()` под той же блокировкой строки. Все маршруты —
+под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api`; `PUT` и `POST` ещё под `throttle:twa-onboarding` (30/мин на ученика).
+
+| Метод | Путь | Тело | Ответ | Ошибки |
+|---|---|---|---|---|
+| GET | `/api/twa/onboarding` | — | `OnboardingStateResource` | 401 |
+| PUT | `/api/twa/onboarding/steps/{step}` | по шагу (ниже) | `OnboardingStateResource` | 401; 404 — неизвестный шаг; 409 `onboarding_completed`; 422 — ошибка валидации (`{message, errors}`) / `display_name_invalid {reason}`; 403 `daily_goal_pro_required {max}`; 429 |
+| POST | `/api/twa/onboarding/complete` | — | `{completed: true, course: {slug, title}\|null, next_lesson_id: int\|null}` | 401; 422 `onboarding_incomplete {missing: ["level"]}`; 429 |
+
+Шаги (`{step}` вне списка — 404 маршрута; типы строгие, без приведения):
+
+| `step` | Тело | Куда пишется |
+|---|---|---|
+| `name` | `{display_name: string}` | `learners.display_name` после `DisplayName::validate` (обрезка пробелов, 1–32 графемы, ≤ 64 кодовых точек; ссылки, `@`, `/`, `#`, «zalgo» — 422 `display_name_invalid {reason: empty\|too_long\|marks\|link\|mention\|command\|tag}`) |
+| `age` | `{age_range: "lt14"\|"14_17"\|"18_24"\|"25_34"\|"35_44"\|"45p"}` | `learners.age_range` |
+| `goals` | `{goals: string[]}` — 1–6 без повторов из `career, study, travel, relocation, communication, media` | `learners.goals` |
+| `level` | `{level: "A1"…"C2", course_slug: string}` — slug курса этого уровня из `options.levels`, иначе 422 по `course_slug` | `learners.level` через `LearnerSettingsService::update`; slug — `meta.twa_onboarding.course_slug` |
+| `daily_goal` | `{daily_goal: 10\|20\|40}` | `LearnerSettingsService::update` (лимит Free → 403 `daily_goal_pro_required {max}`) |
+| `reminder` | `{enabled: bool, time: "HH:MM"\|null, write_access: "granted"\|"denied"\|"not_asked"}`; при `enabled: true` `time` обязателен и кратен 15 мин | `reminder_time = enabled ? time : null` через `LearnerSettingsService::update` (пересчёт `next_reminder_at`); `write_access` — только в событие |
+
+Каждый `PUT` принимает любой шаг в любом порядке и двигает `meta.twa_onboarding.step` на экран после него (`name → age → goals → level →
+daily_goal → reminder → plan`). Ученику со статусом `done` (бот, другое устройство) — 409 на любой шаг, ничего не пишется.
+`POST /complete` без `level` — 422; иначе ставит `done`, `onboarding_completed_at`, курс (как в боте: курс `c_<slug>`-ссылки, свой уже выбранный,
+`recommend(goal, level)`, общий курс уровня, курс по умолчанию со словами), `next_reminder_at`. Повторный вызов — 200 с тем же ответом, без
+записи и событий. `course` — активный курс ученика после завершения (выбранный сейчас или прежний), `next_lesson_id` — первый урок с новыми словами.
+
+`OnboardingStateResource`:
+
+```json
+{
+  "completed": false,
+  "step": "level",
+  "values": {
+    "display_name": "Азиз", "first_name": "Aziz",
+    "age_range": "18_24", "goals": ["career", "travel"],
+    "level": "B1", "course": {"slug": "english-b1", "title": "Английский B1", "level_label": "B1", "stages_count": 20},
+    "daily_goal": 20, "reminder": {"enabled": true, "time": "20:00"}
+  },
+  "options": {
+    "age_ranges": ["lt14", "14_17", "18_24", "25_34", "35_44", "45p"],
+    "goals": ["career", "study", "travel", "relocation", "communication", "media"],
+    "levels": [
+      {"level": "A1", "levels": ["A1", "A2"], "course_slug": "english-a1", "title": "Английский A1", "level_label": "A1–A2", "stages_count": 20},
+      {"level": "B1", "levels": ["B1"], "course_slug": "english-b1", "title": "Английский B1", "level_label": "B1", "stages_count": 20}
+    ],
+    "daily_goals": [10, 20, 40], "daily_goal_max": null, "recommended_daily_goal": 20,
+    "reminder_times": ["08:00", "12:30", "18:00", "20:00", "21:30"], "reminder_step_minutes": 15
+  }
+}
+```
+
+- `step` — как `learner.onboarding.step` в A.1: `null` до первого сохранённого шага и после завершения.
+- `values` — то, что уже лежит в колонках (у нового ученика `daily_goal` и `reminder` — значения по умолчанию). `goals` — `[]`, пока не выбраны.
+  `course` — курс, выбранный на шаге `level` (иначе — курс уровня ученика, если уровень выбран в боте), `null` — ничего.
+- `options.levels` — для каждого уровня A1…C2 курс `recommend('general', level)` из кэша каталога (курс фраз не предлагается никогда), уровни
+  одного курса слиты в одну строку: `level` — первый из них, `levels` — все, `level_label` — «A1–A2» (соседние) или «A1, C1», `title` —
+  название курса на языке ученика, `stages_count` — число модулей (`null` — неизвестно). Пустой список — в каталоге нет общих курсов.
+- `daily_goal_max` — как в настройках (A.2b): `null` — без лимита, иначе варианты выше — под замком (пейвол `daily_goal`).
+- Подписи вариантов (возраст, цели, уровни, время) — в i18n Mini App, не в API. Возраст и цели не отдаются ни в одном другом ответе.
+
+События: первый сохранённый шаг ученика с `onboarding_state = new` — `onboarding.started {channel: mini_app, source_kind}`; шаг —
+`onboarding.step_completed {step, channel: mini_app}` (у `reminder` ещё `write_access`) при первом сохранении шага и затем только при смене
+значения; `complete` — `onboarding.completed {goal, level, locale, channel: mini_app}` и `course.selected {course_id, via}`. Шаги `level`,
+`daily_goal`, `reminder` идут через настройки и пишут ещё `settings.changed {fields}` при смене значения.
+
+**Операторы SQL** (`TwaOnboardingQueryBudgetTest`, тёплые кэши каталога и тарифа): `GET` — 1 (ученик; холодный каталог +1, у ученика не на
+языке по умолчанию +1 ещё); `PUT name|age|goals` — 4 (ученик, блокировка, `UPDATE`, вставка событий после ответа), повтор того же — 2;
+`PUT level|daily_goal|reminder` — 5 (+ повторное чтение строки `LearnerSettingsService::update`), смена цели дня — 6 (+ `reconcileGoal`);
+`POST /complete` — 7 (ученик, блокировка, `Course::find` рекомендации, `UPDATE`, дерево курса холодное, прогресс по урокам, события), повтор — 3.
+`/auth` и `/me` новых операторов не получили.
 
 ## Часть B — Telegram Bot
 

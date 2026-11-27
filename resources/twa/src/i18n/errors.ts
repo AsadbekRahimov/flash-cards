@@ -156,6 +156,10 @@ export const KNOWN_ERROR_CODES = [
   'hard_round_unavailable',
   // The review of a lesson studied today (docs/06 §15, docs/04 A.3): `error.details.reason` tells which of the three refusals it is.
   'lesson_review_unavailable',
+  // The onboarding of the Mini App (docs/40 §2.1, docs/04 A.24); `display_name_invalid` has its reason in `error.details.reason`.
+  'onboarding_completed',
+  'onboarding_incomplete',
+  'display_name_invalid',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]

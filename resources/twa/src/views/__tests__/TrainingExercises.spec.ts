@@ -12,6 +12,9 @@ import { useTrainingStore } from '@/stores/training'
 import { CHOICE_FEEDBACK_MS } from '@/composables/useChoice'
 import type { Card, ExercisePrompt, ReviewResponse, TrainingStartResponse } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 vi.mock('@/api', () => ({
   api: {
     training: { open: vi.fn(), start: vi.fn(), next: vi.fn(), review: vi.fn(), answer: vi.fn(), finish: vi.fn() },
@@ -337,29 +340,30 @@ describe('TrainingView — exercises', () => {
       expect(api.training.answer).toHaveBeenCalledTimes(1)
     })
 
-    it('a grade that fails shows the usual error state; "Retry" asks the server for the card again', async () => {
-      vi.mocked(api.training.answer).mockRejectedValue(offline())
-      const { wrapper } = await render(card(prompts.reverse))
+    it('a grade lost to the network shows the usual error state; "Retry" sends the same pick again and goes on to its card', async () => {
+      vi.mocked(api.training.answer).mockRejectedValueOnce(offline())
+      const { wrapper } = await render(card(prompts.reverse, { serve_token: 'ticket-1' }))
 
       await wrapper.get('[data-testid=option-0]').trigger('click')
       await flushPromises()
       expect(wrapper.get('[data-testid=error]').text()).toContain('Нет связи с сервером')
       expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(false)
 
-      vi.mocked(api.training.next).mockResolvedValue({
-        card: card(prompts.reverse, { serve_token: 'ticket-2' }),
-        progress: { done: 0, total: 3 },
-      })
+      // The answer waits (docs/40 §2.6): the very same request goes again, with the ticket of its serve.
+      vi.mocked(api.training.answer).mockResolvedValueOnce(choiceAnswer(false))
       await wrapper.get('[data-testid=retry-btn]').trigger('click')
       await flushPromises()
 
+      expect(api.training.answer).toHaveBeenCalledTimes(2)
+      expect(vi.mocked(api.training.answer).mock.calls[1]).toEqual(vi.mocked(api.training.answer).mock.calls[0])
+      expect(vi.mocked(api.training.answer).mock.calls[1]?.slice(0, 3)).toEqual([1, 7, 'run'])
+      expect(vi.mocked(api.training.answer).mock.calls[1]?.[4]).toBe('ticket-1')
+      // The card of the pick is gone (the error state took its place): what the answer brought is shown at once, nothing waits for "Next".
       expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
-      // A fresh exercise: every option is open again, and nothing is waiting for "Next".
-      for (const i of [0, 1, 2, 3]) {
-        expect(wrapper.get(`[data-testid=option-${i}]`).attributes('data-state')).toBe('idle')
-      }
+      expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
-      expect(api.training.answer).toHaveBeenCalledTimes(1)
+      expect(api.training.next).not.toHaveBeenCalled()
+      expect(useTrainingStore().pending).toBeNull()
     })
 
     describe('leaving after a pick has lost nothing: the grade is sent exactly once', () => {

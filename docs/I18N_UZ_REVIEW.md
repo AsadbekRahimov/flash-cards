@@ -5285,3 +5285,16 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Строки бота не менял�
 | `cup.leave.keep` | Qolish | Остаться |
 | `cup.leave.confirm` | Chiqish | Выйти |
 
+
+## F5 «Нет сети»: экран «Нет соединения» в Mini App (docs/40 §2.6, T13, 27.11.2026) — на проверку носителю
+
+Mini App, `resources/twa/src/i18n/uz.ts`. Кнопка — существующий `common.retry`.
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `offline.title` | Aloqa yo'q | Нет соединения |
+| `offline.text` | Internetni tekshiring. Tarmoq qaytishi bilan shu joydan davom etamiz. | Проверьте интернет. Как только сеть вернётся — продолжим с того же места. |
+| `offline.text_pending` | Oxirgi javobingiz telefonda saqlandi — tarmoq qaytishi bilan uni yuboramiz. | Последний ответ сохранён на телефоне — отправим его, как только сеть вернётся. |
+| `offline.chip_lesson` | {lesson}-dars · {total} tadan {done} tasi saqlandi | Урок {lesson} · сохранено {done} из {total} |
+| `offline.chip_session` | {total} tadan {done} tasi saqlandi | Сохранено {done} из {total} |
+| `offline.chip_server` | Progress serverda saqlangan | Прогресс сохранён на сервере |

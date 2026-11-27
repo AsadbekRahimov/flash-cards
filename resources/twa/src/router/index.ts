@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router'
 import { installStartParamRedirect } from './startParam'
+import { installOnboardingGuard } from '@/composables/useOnboardingGuard'
 
 /** The tabs of the bottom navigation (docs/14 §5.1). */
 export type TabId = 'today' | 'courses' | 'rating' | 'profile'
@@ -36,6 +37,13 @@ const routes: RouteRecordRaw[] = [
     name: 'today',
     component: () => import('@/views/TodayView.vue'),
     meta: { tab: 'today' },
+  },
+  // The onboarding of the Mini App (docs/40 §2.1): O1 "Welcome" without a step, then `name … plan`; no tab bar.
+  {
+    path: '/onboarding/:step?',
+    name: 'onboarding',
+    component: () => import('@/views/OnboardingView.vue'),
+    props: (route) => ({ step: typeof route.params.step === 'string' && route.params.step !== '' ? route.params.step : null }),
   },
   {
     path: '/training/:sessionId(\\d+)',
@@ -389,5 +397,7 @@ const router = createRouter({
 
 // Direct links from group chats (`t.me/bot?startapp=…`) carry the target screen in `start_param`.
 installStartParamRedirect(router)
+// A newcomer is sent from the roots of the tabs to the onboarding of the Mini App (docs/40 §2.1); deep links are not intercepted.
+installOnboardingGuard(router)
 
 export default router

@@ -1,10 +1,15 @@
 import type { GameClassBossStartRequest, GameClassCard } from './gameClassTypes'
+import type { LearnerOnboarding } from './onboardingTypes'
 
 export interface Learner {
   id: number
   first_name: string | null
   locale: string
   onboarding_completed: boolean
+  /** The name the learner chose in the onboarding of the Mini App (docs/40 §2.1); absent on an older server. */
+  display_name?: string | null
+  /** The onboarding of the Mini App: done, or the step to resume at (docs/40 §2.1); absent on an older server - nothing to show. */
+  onboarding?: LearnerOnboarding
 }
 
 export interface AuthContext {

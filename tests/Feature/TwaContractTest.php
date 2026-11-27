@@ -132,7 +132,7 @@ it('POST /auth keeps its exact JSON shape', function (): void {
         ->assertExactJsonStructure([
             'token',
             'expires_in',
-            'learner' => ['id', 'first_name', 'locale', 'onboarding_completed'],
+            'learner' => ['id', 'first_name', 'display_name', 'locale', 'onboarding_completed', 'onboarding' => ['completed', 'step']],
             'account_restored',
             // The share of opens that report their timing marks (docs/04 A.21).
             'client_timing' => ['sample_percent'],
@@ -141,7 +141,10 @@ it('POST /auth keeps its exact JSON shape', function (): void {
     expect($response->json('expires_in'))->toBeInt()
         ->and($response->json('client_timing.sample_percent'))->toBeInt()
         ->and($response->json('account_restored'))->toBeNull()
-        ->and($response->json('learner.onboarding_completed'))->toBeFalse();
+        ->and($response->json('learner.onboarding_completed'))->toBeFalse()
+        // docs/40 §2.1: the name of the onboarding of the Mini App and where it resumes (null - the welcome screen).
+        ->and($response->json('learner.display_name'))->toBeNull()
+        ->and($response->json('learner.onboarding'))->toBe(['completed' => false, 'step' => null]);
 });
 
 it('GET /me keeps its exact JSON shape', function (): void {
@@ -153,7 +156,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
         ->getJson('/api/twa/me')
         ->assertOk()
         ->assertExactJsonStructure([
-            'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed', 'pro_emoji'],
+            'learner' => ['id', 'first_name', 'display_name', 'username', 'locale', 'onboarding_completed', 'onboarding' => ['completed', 'step'], 'pro_emoji'],
             'groups' => [['id', 'title']],
             'stats' => ['words_learned', 'words_due_today'],
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
@@ -429,7 +432,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
     app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
 
     $me = [
-        'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed', 'pro_emoji'],
+        'learner' => ['id', 'first_name', 'display_name', 'username', 'locale', 'onboarding_completed', 'onboarding' => ['completed', 'step'], 'pro_emoji'],
         'groups' => [['id', 'title']],
         'stats' => ['words_learned', 'words_due_today'],
         'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL, 'lapsed'],
@@ -468,7 +471,7 @@ it('billing errors use the ApiErrorResource envelope', function (): void {
 
 const CONTRACT_QUOTA = ['new_words_remaining'];
 
-const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'section', 'words_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
+const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'section', 'words_count', 'stages_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
 
 /** @return array{learner: Learner, course: Course} */
 function contractCourse(): array
@@ -496,6 +499,7 @@ it('GET /courses keeps its exact JSON shape', function (): void {
         'level' => 'A2',
         'exam_tag' => null,
         'section' => 'courses',
+        'stages_count' => 1, // docs/40 §2.1: the modules, counted in the cached catalog
         'is_active' => false,
         'progress' => ['done' => 0, 'total' => 2],
     ]);
