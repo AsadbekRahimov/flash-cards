@@ -54,23 +54,27 @@ describe('ModeCard — a card that can be played', () => {
     expect(render({ info: info('pairs', { estimate_seconds: 300 }) }).get('[data-testid=mode-estimate]').text()).toBe('≈ 5 мин')
   })
 
-  it('is a row with a quiet tile of its mode (docs/design 2026-11-25 Practice): accent icon on the soft accent, one value on the right', () => {
+  it('is the ListRow of the kit (07-igry): the icon on the 40 px plate of the sunken paper, the title, one value and the chevron on the right', () => {
     for (const mode of ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'] as PracticeMode[]) {
       const wrapper = render({ info: info(mode) })
       const tile = wrapper.get('[data-testid=mode-icon]')
-      expect(tile.classes(), mode).toEqual(expect.arrayContaining(['size-10', 'rounded-control', 'bg-accent-soft', 'text-accent']))
+      expect(tile.classes(), mode).toContain('icon-tile')
       expect(tile.attributes('aria-hidden')).toBe('true')
       expect(tile.findComponent(AppIcon).exists(), mode).toBe(true)
-      expect(wrapper.find('.icon-tile').exists(), mode).toBe(false)
-      // The lines between the rows are drawn by the list (`divide-y`), not by the row.
-      expect(wrapper.get(`[data-testid=mode-card-${mode}]`).classes()).not.toContain('border-t')
-      expect(wrapper.get('[data-testid=mode-title]').classes()).toContain('font-bold')
+      // The lines between the rows are the ones of `.list-row-icon` (64 px in), not a border of the row.
+      const row = wrapper.get(`[data-testid=mode-card-${mode}]`)
+      expect(row.classes()).toEqual(expect.arrayContaining(['list-row', 'list-row-icon']))
+      expect(row.classes()).not.toContain('border-t')
+      expect(wrapper.get('[data-testid=mode-title]').classes()).toContain('t-body-m-strong')
+      expect(wrapper.findAllComponents(AppIcon).map((icon) => icon.props('name'))).toContain('chevron-right')
     }
   })
 
   it('shows the state instead of the length when the row is not simply playable', () => {
     const pro = render({ info: info('dictation', { state: 'pro_required' }) })
     expect(pro.get('[data-testid=mode-chip]').classes()).toContain('chip-accent')
+    // Pro is a chip with a lock, never the colour alone.
+    expect(pro.get('[data-testid=mode-chip]').findComponent(AppIcon).props('name')).toBe('lock-closed')
     expect(pro.find('[data-testid=mode-estimate]').exists()).toBe(false)
   })
 

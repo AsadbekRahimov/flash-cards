@@ -15,6 +15,8 @@ import StickyActions from '@/components/StickyActions.vue'
 import NumberText from '@/components/game/NumberText.vue'
 import { NUMBER_MARK } from '@/components/game/numberMark'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import { useI18n } from '@/i18n'
 import type { GameMistake, GameSummary } from '@/api/gameRunTypes'
 
@@ -35,7 +37,7 @@ const props = withDefaults(defineProps<{
 
 defineEmits<{ review: []; again: []; map: []; share: []; class: [] }>()
 
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const again = computed((): boolean => props.canAgain)
 const stars = computed((): number => Math.min(3, Math.max(0, props.summary.stars)))
@@ -85,33 +87,48 @@ function verdictChip(verdict: GameMistake['verdict']): string {
 }
 
 const streakHeld = computed((): boolean => !props.failed && props.summary.streak_held === true)
+
+/** A run that is won (finished, or the boss beaten): the mascot and the stamp of the score. A lost one has neither. */
+const celebrate = computed((): boolean => !props.failed && (boss.value === null || boss.value.won))
 </script>
 
 <template>
   <div class="flex flex-1 flex-col" :data-outcome="failed ? 'failed' : 'completed'" data-testid="run-summary">
-    <!-- The end of a run as the end of a lesson (docs/design Finish): a title, the numbers in a card, the rest in rows; no celebration. -->
-    <div class="flex flex-1 flex-col gap-3.5 px-5 pt-12 pb-4 short:pt-4">
-      <div class="mb-3.5 flex flex-col gap-2">
-        <h2 class="text-[30px] leading-9 font-semibold tracking-[-0.4px] break-words" data-testid="summary-title">{{ title }}</h2>
-        <p v-if="boss && !boss.won" class="text-[15px] leading-5 text-muted" data-testid="boss-lost-hint">
+    <!--
+      The end of a run as the end of a lesson of the kit (06-urok-proyden), on the central axis: a run that is won has the mascot glad of it
+      (with the cup and the stamp of the score after a boss) - the one moment of the screen; a lost one is told quietly, without them. Then
+      the numbers in one card, the rest in rows.
+    -->
+    <div class="flex flex-1 flex-col gap-3.5 px-5 pt-8 pb-4 short:pt-4">
+      <div class="mb-2 flex flex-col items-center gap-2 text-center">
+        <!-- A stop run that is won: the "celebrate" mascot of the kit's lesson end (its picture holds its own stamp); a boss beaten: the
+             mascot with the cup and the stamp of the score. One stamp on the screen either way. -->
+        <template v-if="celebrate && boss">
+          <MascotArt loading="eager" pose="trophy" :height="120" class="short:hidden" />
+          <StampMark :value="summary.score" :unit="tn('gameRun.summary.stamp_unit', summary.score)" haptic class="my-1" />
+        </template>
+        <MascotArt loading="eager" v-else-if="celebrate" pose="celebrate" :height="176" class="short:h-28 short:w-auto" />
+        <h2 class="t-display-l break-words" data-testid="summary-title">{{ title }}</h2>
+        <p v-if="boss && !boss.won" class="t-body-m text-muted" data-testid="boss-lost-hint">
           {{ t(classFight ? 'gameRun.summary.class_boss_lost_hint' : 'gameRun.summary.boss_lost_hint', { accuracy: Math.round(boss.accuracy) }) }}
         </p>
       </div>
 
-      <dl class="grid rounded-card border border-hairline bg-surface" :style="{ gridTemplateColumns: `repeat(${numbers}, minmax(0, 1fr))` }" data-testid="numbers">
-        <div class="flex min-w-0 flex-col-reverse gap-1 px-3.5 py-4">
-          <dt class="text-[13px] leading-[18px] text-muted">{{ t('gameRun.summary.score') }}</dt>
-          <dd class="font-mono text-[24px] leading-[30px] font-medium" data-testid="summary-score">{{ summary.score }}</dd>
+      <!-- The stat card of the kit: equal columns (`flex: 1`) split by 1 px lines, the figure (Numeric/L) over its caption, centred. -->
+      <dl class="grid rounded-card border border-hairline bg-surface text-center" :style="{ gridTemplateColumns: `repeat(${numbers}, minmax(0, 1fr))` }" data-testid="numbers">
+        <div class="flex min-w-0 flex-col-reverse items-center gap-1 px-3 py-4">
+          <dt class="t-label-s text-muted">{{ t('gameRun.summary.score') }}</dt>
+          <dd class="t-numeric-l" data-testid="summary-score">{{ summary.score }}</dd>
         </div>
-        <div class="flex min-w-0 flex-col-reverse gap-1 border-l border-divider px-3.5 py-4">
-          <dt class="text-[13px] leading-[18px] text-muted">{{ t('gameRun.summary.stars_label') }}</dt>
-          <dd class="flex h-[30px] items-center gap-0.5" role="img" :aria-label="t('gameRun.summary.stars', { stars })" data-testid="stars">
-            <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= stars" :size="20" :class="n <= stars ? 'text-warning' : 'text-muted'" :data-full="n <= stars ? 'true' : 'false'" data-testid="star" />
+        <div class="flex min-w-0 flex-col-reverse items-center gap-1 border-l border-divider px-3 py-4">
+          <dt class="t-label-s text-muted">{{ t('gameRun.summary.stars_label') }}</dt>
+          <dd class="flex h-[26px] items-center gap-0.5" role="img" :aria-label="t('gameRun.summary.stars', { stars })" data-testid="stars">
+            <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= stars" :size="20" :class="n <= stars ? 'text-body' : 'text-tertiary'" :data-full="n <= stars ? 'true' : 'false'" data-testid="star" />
           </dd>
         </div>
-        <div v-if="coins > 0" class="flex min-w-0 flex-col-reverse gap-1 border-l border-divider px-3.5 py-4" data-testid="reward-coins">
-          <dt class="text-[13px] leading-[18px] text-muted">{{ t('gameRun.summary.coins') }}</dt>
-          <dd class="font-mono text-[24px] leading-[30px] font-medium">{{ t('gameRun.summary.plus', { count: coins }) }}</dd>
+        <div v-if="coins > 0" class="flex min-w-0 flex-col-reverse items-center gap-1 border-l border-divider px-3 py-4" data-testid="reward-coins">
+          <dt class="t-label-s text-muted">{{ t('gameRun.summary.coins') }}</dt>
+          <dd class="t-numeric-l">{{ t('gameRun.summary.plus', { count: coins }) }}</dd>
         </div>
       </dl>
 
@@ -120,7 +137,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
       <section v-if="rewards.length > 0 || streakHeld || summary.boss" class="list" data-testid="rewards">
         <p v-for="row in rewards" :key="row.key" class="list-row justify-between" :data-testid="`reward-${row.key}`">
           <span class="font-semibold">{{ row.label }}</span>
-          <span class="font-mono font-medium">{{ row.value }}</span>
+          <span class="font-display font-semibold tabular-nums">{{ row.value }}</span>
         </p>
         <p v-if="streakHeld" class="list-row font-semibold" data-testid="streak-held">{{ t('gameRun.summary.streak_held') }}</p>
         <p v-if="summary.boss" class="list-row justify-between" data-testid="boss">
@@ -130,7 +147,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
       </section>
 
       <section v-if="summary.mistakes.length > 0" class="flex flex-col" data-testid="mistakes">
-        <h3 class="section-label !mt-1">{{ t('gameRun.summary.mistakes') }} · <span class="font-mono">{{ summary.mistakes.length }}</span></h3>
+        <h3 class="section-label !mt-1">{{ t('gameRun.summary.mistakes') }} · <span class="tabular-nums">{{ summary.mistakes.length }}</span></h3>
         <ul class="list" role="list">
           <li v-for="(mistake, index) in summary.mistakes" :key="`${mistake.element_id}-${index}`" class="list-row !items-start" :data-testid="`mistake-${index}`">
             <div class="min-w-0 flex-1">
@@ -148,19 +165,19 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
       </section>
     </div>
 
-    <!-- One main button; the others are words under it (docs/14 §4.5). -->
+    <!-- One main button (ink); the next one is Secondary, a third Ghost (kit Muhrla, Button). -->
     <StickyActions>
       <button v-if="canReview" type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy" data-testid="review-btn" @click="$emit('review')">
         {{ t('gameRun.summary.review') }}
       </button>
-      <button v-if="again" type="button" class="btn btn-block" :class="canReview ? 'btn-plain' : 'btn-primary btn-lg'" data-testid="again-btn" @click="$emit('again')">
+      <button v-if="again" type="button" class="btn btn-block" :class="canReview ? 'btn-secondary' : 'btn-primary btn-lg'" data-testid="again-btn" @click="$emit('again')">
         {{ t('gameRun.summary.again') }}
       </button>
       <button
         v-if="toClass"
         type="button"
         class="btn btn-block"
-        :class="canReview ? 'btn-plain' : 'btn-primary btn-lg'"
+        :class="canReview ? 'btn-secondary' : 'btn-primary btn-lg'"
         data-testid="class-btn"
         @click="$emit('class')"
       >
@@ -170,7 +187,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
         v-else
         type="button"
         class="btn btn-block"
-        :class="canReview || again ? 'btn-plain' : 'btn-primary btn-lg'"
+        :class="canReview && again ? 'btn-ghost' : canReview || again ? 'btn-secondary' : 'btn-primary btn-lg'"
         data-testid="map-btn"
         @click="$emit('map')"
       >

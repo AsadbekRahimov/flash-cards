@@ -24,6 +24,14 @@ export const ru = {
   'common.saved': 'Сохранено',
   'common.copy_failed': 'Не удалось скопировать. Выделите ссылку и скопируйте вручную.',
 
+  // ---- offline (F5 «Нет сети», docs/40 §2.6) ----
+  'offline.title': 'Нет соединения',
+  'offline.text': 'Проверьте интернет. Как только сеть вернётся — продолжим с того же места.',
+  'offline.text_pending': 'Последний ответ сохранён на телефоне — отправим его, как только сеть вернётся.',
+  'offline.chip_lesson': 'Урок {lesson} · сохранено {done} из {total}',
+  'offline.chip_session': 'Сохранено {done} из {total}',
+  'offline.chip_server': 'Прогресс сохранён на сервере',
+
   // ---- nav ----
   'nav.today': 'Сегодня',
   'nav.courses': 'Курс',
@@ -162,8 +170,8 @@ export const ru = {
   'assignments.done': 'Выполнено',
   'assignments.done_late': 'Выполнено с опозданием',
   'assignments.load_failed': 'Не удалось загрузить задания центра.',
-  'today.onboarding_hint': 'Чтобы завершить настройку, отправьте боту /start',
-  'today.onboarding_btn': 'Закончить настройку в боте',
+  'today.onboarding.title': 'Закончите настройку',
+  'today.onboarding.text': 'Пара шагов — и подберём курс и цель дня',
   'today.greeting': 'Привет, {name}!',
   'today.session.hint': 'Короткий раунд на несколько минут: повторение и новые слова из вашего курса',
   'today.games.title': 'Игры со словами',
@@ -214,6 +222,13 @@ export const ru = {
     few: 'рекорд серии — {count} дня',
     many: 'рекорд серии — {count} дней',
     other: 'рекорд серии — {count} дня',
+  },
+  // The unit under the number of the stamp of the streak (kit Muhrla: «12 ДНЕЙ»; the stamp writes it in capitals).
+  'today.streak.unit': {
+    one: 'день',
+    few: 'дня',
+    many: 'дней',
+    other: 'дня',
   },
   'today.hero.lesson_eyebrow': '{level} · урок {number}',
   'today.hero.lesson_eyebrow_plain': 'Урок {number}',
@@ -504,6 +519,7 @@ export const ru = {
   'profile.readiness': 'Готовность к уровню',
   'profile.readiness.hint': 'Доля освоенных слов и тест недели',
   'course.readiness': 'Готовность и тест недели',
+  'course.vocabulary': 'Мой словарь',
   'error.code.level_quiz_disabled': 'Тест недели сейчас недоступен.',
   'error.code.readiness_disabled': 'Готовность к уровню сейчас недоступна.',
 
@@ -743,12 +759,28 @@ export const ru = {
   'catalog.open_lessons': 'Открыть уроки',
   'profile.learning': 'Мои результаты',
   'profile.account': 'Мой аккаунт',
+  'profile.stats': 'Статистика',
+  'profile.stats.streak': {
+    one: 'день подряд',
+    few: 'дня подряд',
+    many: 'дней подряд',
+    other: 'дня подряд',
+  },
+  'profile.stats.words': {
+    one: 'слово выучено',
+    few: 'слова выучено',
+    many: 'слов выучено',
+    other: 'слова выучено',
+  },
+  'profile.stats.league': 'место в лиге',
   'catalog.title': 'Курсы',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
   'catalog.choose': 'Перейти на этот курс',
   'catalog.start': 'Начать курс',
   'catalog.selected': 'Курс выбран',
   'catalog.active': 'Вы учите этот курс',
+  // The tile of the learner's course in the grid of the catalog (kit Muhrla 12): «идёт · 12%».
+  'catalog.tile_active': 'идёт · {percent}%',
   'catalog.words': {
     one: '{count} слово',
     few: '{count} слова',
@@ -791,12 +823,24 @@ export const ru = {
     many: '{done} из {total} уроков',
     other: '{done} из {total} урока',
   },
+  // The disclosure of the lessons of the current module: «Пройдено 2 из 10 уроков».
+  'course.lessons_passed': {
+    one: 'Пройдено {done} из {total} урока',
+    few: 'Пройдено {done} из {total} уроков',
+    many: 'Пройдено {done} из {total} уроков',
+    other: 'Пройдено {done} из {total} урока',
+  },
   'course.new_words': {
     one: '{count} новое слово',
     few: '{count} новых слова',
     many: '{count} новых слов',
     other: '{count} новых слова',
   },
+  // The module path of the course screen (kit Muhrla 03): «Модуль 3 из 20», «урок 3 из 10», «после модуля 3».
+  'course.modules': 'Модули',
+  'course.module_of': 'Модуль {number} из {total}',
+  'course.lesson_of': 'урок {number} из {total}',
+  'course.after_module': 'после модуля {number}',
   'course.repeat': 'повторить',
   'course.after_lesson': 'после урока {number}',
   'course.start_lesson': 'Начать урок',
@@ -937,6 +981,8 @@ export const ru = {
   'achievements.share': 'Поделиться',
   'achievements.shared': 'Вы уже поделились',
   'achievements.empty_hint': 'Занимайтесь каждый день — достижения появятся сами.',
+  'achievements.received': 'Получены',
+  'achievements.ahead': 'Впереди',
 
   // ---- leagues (docs/13 §7.3) ----
   'league.title': 'Лига',
@@ -1602,6 +1648,13 @@ export const ru = {
   'battle.result.rounds': 'Раунды',
   'battle.result.round': 'Раунд {round}',
   'battle.result.rematch': 'Реванш',
+  // The unit under the score on the stamp of a victory (kit Muhrla: the stamp of a result, "320 ОЧКОВ").
+  'battle.result.stamp_unit': {
+    one: 'очко',
+    few: 'очка',
+    many: 'очков',
+    other: 'очка',
+  },
   'battle.result.again': 'Пригласить снова',
   'battle.result.rematch_from': '{name} предлагает реванш',
   'battle.result.rematch_text': 'Тот же режим и та же тема. Примите, и откроется комната.',
@@ -1781,6 +1834,13 @@ export const ru = {
   'gameRun.summary.league': 'Очки лиги',
   'gameRun.summary.new_stars': 'Новые звёзды',
   'gameRun.summary.plus': '+{count}',
+  // The unit under the score on the stamp of a run that is done (kit Muhrla: the stamp of a result).
+  'gameRun.summary.stamp_unit': {
+    one: 'очко',
+    few: 'очка',
+    many: 'очков',
+    other: 'очка',
+  },
   'gameRun.summary.streak_held': 'Серия удержана',
   'gameRun.summary.boss_won': 'Хранитель побеждён',
   'gameRun.summary.boss_lost': 'Хранитель устоял',
@@ -2131,6 +2191,8 @@ export const ru = {
   },
   'cup.my_place': 'Ваше место: {rank}',
   'cup.final_place': 'Итоговое место: {rank}',
+  // The unit under the final place on the stamp of a cup that is over (kit Muhrla: the stamp of a result, "1 МЕСТО").
+  'cup.final_stamp_unit': 'место',
   'cup.status.draft': 'Кубок ещё не опубликован',
   'cup.status.scheduled': 'Ждём старта: {date}, 00:00',
   'cup.status.scheduled_soon': 'Ждём старта',

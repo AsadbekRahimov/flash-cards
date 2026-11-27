@@ -23,6 +23,12 @@ export const DEFAULT_LOCALE: Locale = 'ru'
 /** Name of everything about the language: both languages at once, so that a learner who cannot read the current one still finds it (not a dictionary string: it is the same in both). */
 export const LANGUAGE_TITLE = 'Til · Язык'
 
+/**
+ * How a word is translated in each interface language (F6 of the kit Muhrla, the language sheet): "tea — чай" / "tea — choy". A sample
+ * in the language itself, shown whatever the language of the interface is, so it is not a key of the dictionaries.
+ */
+export const LANGUAGE_SAMPLES: Readonly<Record<Locale, string>> = { ru: 'tea — чай', uz: 'tea — choy' }
+
 export type Params = Record<string, string | number>
 
 const dictionaries: Record<Locale, Translations> = { ru, uz }

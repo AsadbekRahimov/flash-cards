@@ -155,20 +155,12 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('has a link back above the heading, as the system button "Back" has: to Today from the plan, to the course otherwise', async () => {
+  it('draws no "Back" of its own: the way back is the system button of Telegram (kit TELEGRAM.md)', async () => {
     const { wrapper } = await render({ from: 'plan' })
 
-    const back = wrapper.get('[data-testid=hub-back]')
-    expect(back.text()).toBe('Сегодня')
-    expect(back.attributes('href')).toBe('/today')
-    expect(back.classes()).toContain('min-h-11') // a finger's 44 px
+    expect(wrapper.find('[data-testid=hub-back]').exists()).toBe(false)
+    expect(tg.backHandler).not.toBeNull()
     wrapper.unmount()
-
-    const fromCourse = await render()
-    const toCourse = fromCourse.wrapper.get('[data-testid=hub-back]')
-    expect(toCourse.text()).toBe('Курс')
-    expect(toCourse.attributes('href')).toBe('/courses/english-a1')
-    fromCourse.wrapper.unmount()
   })
 
   it('shows the hub: "Word games", the place of the lesson above the heading, and the rows of the modes', async () => {
@@ -295,8 +287,8 @@ describe('PracticeHubView — the states', () => {
     expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
     const battle = wrapper.get('[data-testid=battle-play-btn]')
     expect(battle.element.tagName).toBe('BUTTON')
-    expect(battle.classes()).not.toContain('btn-tinted')
-    expect(battle.classes()).toContain('min-h-[60px]')
+    expect(battle.classes()).not.toContain('btn-secondary')
+    expect(battle.classes()).toEqual(expect.arrayContaining(['list-row', 'list-row-icon']))
     wrapper.unmount()
   })
 
@@ -338,7 +330,6 @@ describe('PracticeHubView — the states', () => {
     const { wrapper } = await render()
 
     expect(wrapper.get('h1').text()).toBe("So'z o'yinlari")
-    expect(wrapper.get('[data-testid=hub-back]').text()).toBe('Kurs')
     expect(wrapper.get('[data-testid=subtitle]').text()).toBe("Allaqachon o'rgangan so'zlaringizda o'ynang")
     expect(wrapper.get('[data-testid=battle-card]').text()).toContain("Do'st bilan bellashuv")
     expect(wrapper.text()).toContain("Barcha o'yinlar")
@@ -1226,11 +1217,10 @@ describe('PracticeHubView — Back', () => {
     ['the finish screen', { from: 'finished' as const }, { lesson: '41', from: 'finished' }],
     ['the plan of Today', { from: 'plan' as const }, { lesson: '41', from: 'plan' }],
     ['the reminder of the bot', { from: 'lesson_nudge' as const }, { lesson: '41', from: 'lesson_nudge' }],
-  ])('the system "Back" leads to Today for a hub opened from %s, as the link on the screen', async (_, props, query) => {
+  ])('the system "Back" leads to Today for a hub opened from %s', async (_, props, query) => {
     vi.mocked(api.practice.open).mockRejectedValue(apiError('validation', 422, 'practice_not_enough_material'))
     const { wrapper, router } = await render(props, hub(), query)
     expect(tg.backHandler).not.toBeNull()
-    expect(wrapper.get('[data-testid=hub-back]').attributes('href')).toBe('/today')
 
     tg.backHandler?.()
     await flushPromises()
@@ -1272,7 +1262,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
 
     const quiet = line(wrapper)
     expect(quiet.element.tagName).toBe('P')
-    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-muted', 'text-[13px]']))
+    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-muted', 't-label-s']))
     expect(quiet.find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
     wrapper.unmount()
   })
@@ -1903,7 +1893,7 @@ describe('PracticeHubView — the newer modes, and modes this build does not kno
 
     expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe('Форма слова')
     expect(card(wrapper, 'word_form').get('[data-testid=mode-example]').text()).toBe('decide → decision')
-    expect(card(wrapper, 'word_form').find('.icon-tile').exists()).toBe(false)
+    expect(card(wrapper, 'word_form').find('.icon-tile').exists()).toBe(true)
     expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Найди ошибку')
 
     await card(wrapper, 'error_hunt').trigger('click')
@@ -1981,12 +1971,13 @@ describe('PracticeHubView — step 3: the game on the words of the lesson', () =
     } as never
   }
 
-  it('is a big card on the hub of a lesson: step 3 of 3, the timed pairs on the words of the lesson, and "Play" as the main button', async () => {
+  it('is the recommended game of the kit (07) on the hub of a lesson: step 3 of 3, the tile on the soft accent, the timed pairs, and "Play" as the main button', async () => {
     planOf()
     const { wrapper } = await render({}, withTimed())
 
     const step = wrapper.get('[data-testid=lesson-game-card]')
-    expect(step.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+    expect(step.classes()).toEqual(expect.arrayContaining(['bg-surface', 'rounded-lg', 'border-hairline']))
+    expect(wrapper.get('[data-testid=lesson-game-tile]').classes()).toContain('bg-accent-soft')
     expect(step.text()).toContain('Шаг 3 из 3 · советуем сейчас')
     expect(step.text()).toContain('Пары на время')
     expect(wrapper.get('[data-testid=lesson-game-text]').text()).toBe('Соедините слово и перевод быстрее рекорда. Слова из урока «Еда», около 2 мин.')
@@ -2059,7 +2050,7 @@ describe('PracticeHubView — step 3: the game on the words of the lesson', () =
     const { wrapper, router } = await render({}, withTimed({}, { active_session: active }))
 
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
-    expect(wrapper.get('[data-testid=lesson-game-play]').classes()).toContain('btn-tinted')
+    expect(wrapper.get('[data-testid=lesson-game-play]').classes()).toContain('btn-secondary')
     await wrapper.get('[data-testid=lesson-game-play]').trigger('click')
     await flushPromises()
 

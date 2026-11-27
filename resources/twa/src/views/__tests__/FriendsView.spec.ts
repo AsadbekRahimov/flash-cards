@@ -267,7 +267,7 @@ describe('FriendsView', () => {
       expect(share.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
       const copy = wrapper.get('[data-testid=copy-btn]')
       expect(copy.text()).toBe('Скопировать')
-      expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
     })
 
     it('shares the friend invitation through the bot, with the f_ link and the text as the fallback', async () => {
@@ -346,7 +346,7 @@ describe('FriendsView', () => {
       vi.mocked(api.friends.accept).mockResolvedValue(friendsResponse({ incoming: [] }))
 
       const accept = wrapper.get('[data-testid=accept-btn]')
-      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
       expect(accept.classes()).not.toContain('btn-primary')
       await accept.trigger('click')
       await flushPromises()
@@ -509,8 +509,8 @@ describe('FriendsView', () => {
 
       await wrapper.findAll('[data-testid=challenge-btn]')[0]!.trigger('click')
       expect(text(wrapper, 'metric-picker')).toContain('Кто больше за 7 дн.?')
-      expect(wrapper.get('[data-testid=metric-reviews]').classes()).toContain('btn-tinted')
-      expect(wrapper.get('[data-testid=metric-new_words]').classes()).toContain('btn-tinted')
+      expect(wrapper.get('[data-testid=metric-reviews]').classes()).toContain('btn-secondary')
+      expect(wrapper.get('[data-testid=metric-new_words]').classes()).toContain('btn-secondary')
       expect(wrapper.get('[data-testid=picker-cancel]').classes()).toContain('btn-plain')
 
       await wrapper.get('[data-testid=metric-new_words]').trigger('click')
@@ -586,7 +586,7 @@ describe('FriendsView', () => {
       vi.mocked(api.challenges.list).mockResolvedValue(challengesResponse({ open: [challenge({ role: 'opponent' })] }))
 
       expect(text(wrapper, 'challenge-status')).toBe('вам бросили вызов')
-      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
       expect(wrapper.get('[data-testid=challenge-accept]').classes()).not.toContain('btn-primary')
       expect(wrapper.get('[data-testid=challenge-decline]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
 
@@ -773,7 +773,7 @@ describe('FriendsView', () => {
         const buttons = wrapper.findAll('[data-testid=battle-btn]')
         expect(buttons).toHaveLength(2)
         expect(buttons[0]?.text()).toBe('Баттл')
-        expect(buttons[0]?.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-sm']))
+        expect(buttons[0]?.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-sm']))
         expect(buttons[0]?.attributes('aria-label')).toBe('Баттл с другом: Dilnoza')
         expect(buttons[1]?.attributes('aria-label')).toBe('Баттл с другом: Друг')
       })
@@ -899,7 +899,7 @@ describe('FriendsView', () => {
 
         const row = wrapper.get('[data-testid=battle-invite-row]')
         expect(row.get('[data-testid=battle-accept-btn]').text()).toBe('Принять')
-        expect(row.get('[data-testid=battle-accept-btn]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+        expect(row.get('[data-testid=battle-accept-btn]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
         expect(row.get('[data-testid=battle-decline-btn]').text()).toBe('Отклонить')
         expect(row.get('[data-testid=battle-decline-btn]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
       })

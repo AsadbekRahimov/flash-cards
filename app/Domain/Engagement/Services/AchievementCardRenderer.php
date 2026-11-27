@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace App\Domain\Engagement\Services;
 
 use App\Domain\Engagement\DTO\CardSpec;
+use App\Domain\Engagement\Support\CardCanvas;
 use App\Domain\Engagement\Support\CardPalette;
 use App\Models\Achievement;
 use GdImage;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use RuntimeException;
-use Throwable;
 
 /**
  * The share card (docs/13 §7.4, docs/36 §2б): a 1080×1080 JPEG drawn with GD and Noto Sans (SIL OFL, `resources/fonts/`,
- * Latin with the Uzbek letters + Cyrillic) in the colours of the Mini App ({@see CardPalette}). A white rounded panel on the
- * soft blue field: the brand (`config('app.brand')`, with the logo of `app.brand_logo` when there is one) on top, the
+ * Latin with the Uzbek letters + Cyrillic) in the colours of the Mini App ({@see CardPalette}). A paper rounded panel on the
+ * canvas of the kit: the brand (`config('app.brand')`, with the logo of `app.brand_logo` when there is one) on top, the
  * illustration of the family - or the medal with the badge while the designer's file is not there - then the label, the title
  * (≤ 2 lines), the description (≤ 3 lines) and the footer: the tagline and `t.me/<bot>` (a picture forwarded without the button
  * still leads to the bot).
@@ -28,13 +27,18 @@ use Throwable;
  * logo and the illustration. Rendering the same card again returns the existing file; a changed text, brand or illustration
  * renders a new one. The hash is keyed by the application key, so the address of a card cannot be guessed from its texts.
  * Written to a temporary name and renamed, so a reader (and Telegram downloading the photo) never sees a half-written file.
+ *
+ * The disk, the directory, the public address and the primitives ({@see CardCanvas}) are shared with the 9:16 story card
+ * ({@see StoryCardRenderer}), which keeps its files next to these under the same rules.
  */
 final class AchievementCardRenderer
 {
+    use CardCanvas;
+
     public const SIZE = 1080;
 
     /** Bump to invalidate every cached card after a change of the drawing code. */
-    public const TEMPLATE_VERSION = '2';
+    public const TEMPLATE_VERSION = '3';
 
     /** Lines the title and the description may take; longer texts are cut with "…" (a test keeps every key within them). */
     public const TITLE_LINES = 2;
@@ -52,7 +56,10 @@ final class AchievementCardRenderer
     /** `<key>-<locale>-<hash>.jpg`: what nginx lets through `/storage/share-cards/` (docker/nginx/*.conf) is exactly this (`\z`: no trailing newline). */
     public const FILE_PATTERN = '/^[a-z0-9_]{1,40}-(?:ru|uz)-[0-9a-f]{20}\.jpg\z/';
 
-    private const LOCALES = ['ru', 'uz'];
+    /** The key of a card (the first part of the file name): `[a-z0-9_]{1,40}`. */
+    public const KEY_PATTERN = '/^[a-z0-9_]{1,40}\z/';
+
+    public const LOCALES = ['ru', 'uz'];
 
     private const MARGIN = 60;
 
@@ -81,6 +88,9 @@ final class AchievementCardRenderer
 
     private const MEDAL_DIAMETER = 320;
 
+    /** The ring of the medal - the stamp of the kit (docs/14 §4.0): a muhr band around the paper disc. */
+    private const STAMP_RING = 10;
+
     /**
      * The card of an achievement: its texts in the language, drawn by {@see renderSpec()}.
      *
@@ -108,19 +118,33 @@ final class AchievementCardRenderer
      */
     public function renderSpec(CardSpec $spec, string $locale): string
     {
-        if (preg_match('/^[a-z0-9_]{1,40}\z/', $spec->key) !== 1) {
+        if (preg_match(self::KEY_PATTERN, $spec->key) !== 1) {
             throw new InvalidArgumentException("A card key must be [a-z0-9_]{1,40}, got '{$spec->key}'.");
         }
 
         $locale = $this->locale($locale);
         $content = $this->content($spec, $locale);
 
-        $relative = $this->directory().'/'.$this->fileName($spec->key, $locale, $content);
+        return $this->renderCached($spec->key, $locale, $content, self::TEMPLATE_VERSION, fn (): string => $this->draw($content));
+    }
+
+    /**
+     * The file of a card named by what it shows: found on the disk (and marked used), or drawn by `$draw` and stored. Shared with
+     * the story card: `$content` is everything the picture depends on (texts, brand, bot, the PATHS of the logo and the art - the
+     * files themselves are hashed here), `$version` the template of the caller.
+     *
+     * @param  array<string, string|null>  $content  with the keys `logo` and `art` (paths or null)
+     * @param  callable(): string  $draw  the JPEG bytes
+     * @return string absolute path of the JPEG on the cards disk
+     */
+    public function renderCached(string $key, string $locale, array $content, string $version, callable $draw): string
+    {
+        $relative = $this->directory().'/'.$this->fileName($key, $locale, $content, $version);
 
         $disk = $this->disk();
         // A card found is served only when it is still there after its time was moved (see markUsed()); else it is drawn again.
         if (! $disk->exists($relative) || ! $this->markUsed($disk->path($relative))) {
-            $this->store($disk, $relative, $this->draw($content));
+            $this->store($disk, $relative, $draw());
         }
 
         return $disk->path($relative);
@@ -151,8 +175,8 @@ final class AchievementCardRenderer
 
     /**
      * The HTTPS address of a rendered card (`/storage/share-cards/<file>.jpg`) for Telegram to download (the photo of a shared
-     * message, docs/36 §1в). Null when there is none to give: the cards are not on the `public` disk, APP_URL is not https, or
-     * `$path` is not a card of the cards directory.
+     * message, docs/36 §1в; the picture of a story, docs/40 §2.4). Null when there is none to give: the cards are not on the
+     * `public` disk, APP_URL is not https, or `$path` is not a card of the cards directory.
      */
     public function publicUrl(string $path): ?string
     {
@@ -198,7 +222,7 @@ final class AchievementCardRenderer
      */
     public function illustration(string $family): ?string
     {
-        if (preg_match('/^[a-z0-9_]{1,40}\z/', $family) !== 1) {
+        if (preg_match(self::KEY_PATTERN, $family) !== 1) {
             return null;
         }
 
@@ -218,9 +242,26 @@ final class AchievementCardRenderer
         return Storage::disk((string) config('achievements.disk', 'public'));
     }
 
-    private function locale(string $locale): string
+    /** `ru` / `uz`; anything else is drawn in Russian. */
+    public function locale(string $locale): string
     {
         return in_array($locale, self::LOCALES, true) ? $locale : 'ru';
+    }
+
+    /** The bot's address as the cards print it (`t.me/<bot>`), '' without a username. */
+    public function botAddress(): string
+    {
+        $bot = ltrim(trim((string) config('telegram.bot_username')), '@');
+
+        return $bot === '' ? '' : 't.me/'.$bot;
+    }
+
+    /** The path of the logo of the brand when it is configured and readable. */
+    public function brandLogo(): ?string
+    {
+        $logo = config('app.brand_logo');
+
+        return is_string($logo) && $logo !== '' && is_file($logo) && is_readable($logo) ? $logo : null;
     }
 
     /**
@@ -230,10 +271,6 @@ final class AchievementCardRenderer
      */
     private function content(CardSpec $spec, string $locale): array
     {
-        $bot = ltrim(trim((string) config('telegram.bot_username')), '@');
-        $logo = config('app.brand_logo');
-        $logo = is_string($logo) && $logo !== '' && is_file($logo) && is_readable($logo) ? $logo : null;
-
         return [
             'key' => $spec->key,
             'locale' => $locale,
@@ -242,100 +279,38 @@ final class AchievementCardRenderer
             'title' => $spec->title,
             'description' => $spec->description,
             'brand' => trim((string) config('app.brand')),
-            'logo' => $logo,
+            'logo' => $this->brandLogo(),
             'tagline' => __('achievements.card.tagline', [], $locale),
-            'bot' => $bot === '' ? '' : 't.me/'.$bot,
+            'bot' => $this->botAddress(),
             'art' => $this->illustration($spec->palette),
         ];
     }
 
-    /** @param array{key: string, locale: string, badge: string, label: string, title: string, description: string, brand: string, logo: string|null, tagline: string, bot: string, art: string|null} $content */
-    private function fileName(string $key, string $locale, array $content): string
+    /** @param array<string, string|null> $content with `logo` and `art` as paths or null */
+    private function fileName(string $key, string $locale, array $content, string $version): string
     {
         $inputs = $content;
         // The files themselves, not their paths: a new logo or a new illustration under the same name is a new card.
-        $inputs['logo'] = $content['logo'] === null ? '' : (string) sha1_file($content['logo']);
-        $inputs['art'] = $content['art'] === null ? '' : (string) sha1_file($content['art']);
-        $inputs['version'] = self::TEMPLATE_VERSION;
+        $inputs['logo'] = ($content['logo'] ?? null) === null ? '' : (string) sha1_file((string) $content['logo']);
+        $inputs['art'] = ($content['art'] ?? null) === null ? '' : (string) sha1_file((string) $content['art']);
+        $inputs['version'] = $version;
 
         $hash = hash_hmac('sha256', json_encode($inputs, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), 'share-card|'.(string) config('app.key'));
 
         return "{$key}-{$locale}-".substr($hash, 0, 20).'.jpg';
     }
 
-    /**
-     * A cached card served again is "used": its time moves on (at most once a day), so `achievements:prune-cards` removes only
-     * the cards nobody needed for a month. Best effort - a read-only file is still a good card.
-     *
-     * False when the card is not there to serve after all: `achievements:prune-cards` may delete an old card between the check of
-     * the caller and the `touch` here, and `touch` then CREATES an empty file under the name. The file is looked at again after
-     * the touch (past the stat cache): missing or empty - the caller draws the card anew.
-     */
-    private function markUsed(string $path): bool
-    {
-        $modified = @filemtime($path);
-        if ($modified !== false && $modified < now()->subDay()->getTimestamp()) {
-            @touch($path);
-        }
-
-        clearstatcache(true, $path);
-        $size = @filesize($path);
-
-        return $size !== false && $size > 0;
-    }
-
-    private function store(FilesystemAdapter $disk, string $relative, string $jpeg): void
-    {
-        $temporary = $relative.'.'.bin2hex(random_bytes(6)).'.tmp';
-        if (! $disk->put($temporary, $jpeg)) {
-            throw new RuntimeException('Could not write the share card.');
-        }
-
-        try {
-            $disk->move($temporary, $relative);
-        } catch (Throwable $e) {
-            $disk->delete($temporary);
-            // A parallel renderer produced the very same card first: fine.
-            if (! $disk->exists($relative)) {
-                throw new RuntimeException('Could not store the share card.', 0, $e);
-            }
-        }
-    }
-
-    /** @return array{string, string} the regular and the bold font */
-    private function fonts(): array
-    {
-        $regular = (string) config('achievements.fonts.regular');
-        $bold = (string) config('achievements.fonts.bold');
-        if (! is_file($regular) || ! is_file($bold)) {
-            throw new RuntimeException('The achievement card fonts are missing (resources/fonts).');
-        }
-        if (! function_exists('imagecreatetruecolor') || ! function_exists('imagettftext')) {
-            throw new RuntimeException('PHP GD with FreeType is required for achievement cards.');
-        }
-
-        return [$regular, $bold];
-    }
-
     /** @param array{key: string, locale: string, badge: string, label: string, title: string, description: string, brand: string, logo: string|null, tagline: string, bot: string, art: string|null} $content */
     private function draw(array $content): string
     {
         [$regular, $bold] = $this->fonts();
-        if (! function_exists('imagejpeg') || ! (bool) (gd_info()['JPEG Support'] ?? false)) {
-            throw new RuntimeException('PHP GD with JPEG support is required for achievement cards.');
-        }
-
         $size = self::SIZE;
-        $image = imagecreatetruecolor($size, $size);
-        if ($image === false) {
-            throw new RuntimeException('Could not create the card image.');
-        }
-        imagealphablending($image, true);
+        $image = $this->canvas($size, $size);
 
         $background = $this->color($image, CardPalette::BACKGROUND);
         $panel = $this->color($image, CardPalette::PANEL);
         $line = $this->color($image, CardPalette::LINE);
-        $primary = $this->color($image, CardPalette::PRIMARY);
+        $muhr = $this->color($image, CardPalette::MUHR);
         $accent = $this->color($image, CardPalette::ACCENT);
         $text = $this->color($image, CardPalette::TEXT);
         $muted = $this->color($image, CardPalette::MUTED);
@@ -345,11 +320,11 @@ final class AchievementCardRenderer
         $this->roundedRectangle($image, self::MARGIN, self::MARGIN, $size - 1 - self::MARGIN, $size - 1 - self::MARGIN, self::RADIUS, $line);
         $this->roundedRectangle($image, self::MARGIN + self::BORDER, self::MARGIN + self::BORDER, $size - 1 - self::MARGIN - self::BORDER, $size - 1 - self::MARGIN - self::BORDER, self::RADIUS - self::BORDER, $panel);
 
-        $this->header($image, $content['brand'], $content['logo'], $bold, $primary);
+        $this->header($image, $content['brand'], $content['logo'], $bold, $muhr);
 
         // The text block sits on the bottom of its zone, so the illustration gets whatever the texts leave.
-        $title = $this->fit($this->wrap($content['title'], $bold, self::TITLE_SIZE, self::TEXT_WIDTH), self::TITLE_LINES, $bold, self::TITLE_SIZE);
-        $description = $this->fit($this->wrap($content['description'], $regular, self::DESCRIPTION_SIZE, self::TEXT_WIDTH), self::DESCRIPTION_LINES, $regular, self::DESCRIPTION_SIZE);
+        $title = $this->fit($this->wrap($content['title'], $bold, self::TITLE_SIZE, self::TEXT_WIDTH), self::TITLE_LINES, $bold, self::TITLE_SIZE, self::TEXT_WIDTH);
+        $description = $this->fit($this->wrap($content['description'], $regular, self::DESCRIPTION_SIZE, self::TEXT_WIDTH), self::DESCRIPTION_LINES, $regular, self::DESCRIPTION_SIZE, self::TEXT_WIDTH);
         $label = mb_strtoupper(trim($content['label']));
 
         // Baselines from the bottom up: the last line of the description, the title above it, the label above the title.
@@ -359,7 +334,7 @@ final class AchievementCardRenderer
         $labelBaseline = $titleFirst - 92;
         $artBottom = ($label === '' ? $titleFirst - 50 : $labelBaseline - 26) - 30;
 
-        $this->art($image, $content['art'], $content['badge'], $artBottom, $bold, $line, $background, $accent);
+        $this->art($image, $content['art'], $content['badge'], $artBottom, $bold, $muhr, $background, $accent);
 
         if ($label !== '') {
             $this->spaced($image, $label, $bold, 28, $labelBaseline, $muted, 5);
@@ -374,14 +349,7 @@ final class AchievementCardRenderer
         // The card of the brand says the tagline in its title already: not twice.
         $this->footer($image, $content['tagline'] === $content['title'] ? '' : $content['tagline'], $content['bot'], $regular, $muted, $accent);
 
-        ob_start();
-        $written = imagejpeg($image, null, max(1, min(100, (int) config('achievements.jpeg_quality', 90))));
-        $jpeg = ob_get_clean();
-        if (! $written || ! is_string($jpeg) || $jpeg === '') {
-            throw new RuntimeException('Could not encode the card as JPEG.');
-        }
-
-        return $jpeg;
+        return $this->encodeJpeg($image);
     }
 
     private function header(GdImage $image, string $brand, ?string $logoPath, string $font, int $color): void
@@ -403,9 +371,9 @@ final class AchievementCardRenderer
 
     /**
      * The illustration of the family fitted into its box, centred in the zone between the header and `$bottom`; without one the
-     * medal: a soft disc in the frame colour with the badge.
+     * medal: the stamp of the kit - a soft disc in a muhr ring - with the badge.
      */
-    private function art(GdImage $image, ?string $artPath, string $badge, int $bottom, string $font, int $line, int $soft, int $ink): void
+    private function art(GdImage $image, ?string $artPath, string $badge, int $bottom, string $font, int $ring, int $soft, int $ink): void
     {
         $zone = max(120, $bottom - self::ART_TOP);
         $art = $artPath === null ? null : $this->loadPng($artPath);
@@ -424,7 +392,7 @@ final class AchievementCardRenderer
         $diameter = min(self::MEDAL_DIAMETER, $zone - 20);
         $cx = (int) round(self::SIZE / 2);
         $cy = self::ART_TOP + (int) round($zone / 2);
-        imagefilledellipse($image, $cx, $cy, $diameter + 2 * self::BORDER, $diameter + 2 * self::BORDER, $line);
+        imagefilledellipse($image, $cx, $cy, $diameter + 2 * self::STAMP_RING, $diameter + 2 * self::STAMP_RING, $ring);
         imagefilledellipse($image, $cx, $cy, $diameter, $diameter, $soft);
 
         $badge = trim($badge);
@@ -466,137 +434,5 @@ final class AchievementCardRenderer
         if ($bot !== '') {
             $this->text($image, $bot, $font, $size, $right - $botWidth, self::FOOTER_BASELINE, $accent);
         }
-    }
-
-    /** A PNG for the card (the logo, an illustration); an unreadable one is skipped with a warning - the card still goes out. */
-    private function loadPng(string $path): ?GdImage
-    {
-        $image = @imagecreatefrompng($path);
-        if ($image === false) {
-            Log::warning('achievements.card_image_unreadable', ['file' => basename($path)]);
-
-            return null;
-        }
-        imagealphablending($image, true);
-        imagesavealpha($image, true);
-
-        return $image;
-    }
-
-    private function roundedRectangle(GdImage $image, int $x1, int $y1, int $x2, int $y2, int $radius, int $color): void
-    {
-        imagefilledrectangle($image, $x1 + $radius, $y1, $x2 - $radius, $y2, $color);
-        imagefilledrectangle($image, $x1, $y1 + $radius, $x2, $y2 - $radius, $color);
-        foreach ([[$x1 + $radius, $y1 + $radius], [$x2 - $radius, $y1 + $radius], [$x1 + $radius, $y2 - $radius], [$x2 - $radius, $y2 - $radius]] as [$cx, $cy]) {
-            imagefilledellipse($image, $cx, $cy, 2 * $radius, 2 * $radius, $color);
-        }
-    }
-
-    private function color(GdImage $image, string $hex): int
-    {
-        [$r, $g, $b] = CardPalette::rgb($hex);
-        $color = imagecolorallocate($image, $r, $g, $b);
-        if ($color === false) {
-            throw new RuntimeException('Could not allocate a colour.');
-        }
-
-        return $color;
-    }
-
-    /** Draws `$text` horizontally centred, its baseline at `$baseline`. */
-    private function centered(GdImage $image, string $text, string $font, int $size, int $baseline, int $color): void
-    {
-        $this->text($image, $text, $font, $size, (int) round((self::SIZE - $this->width($text, $font, $size)) / 2), $baseline, $color);
-    }
-
-    /** Small capitals with tracking, centred (the label): letter by letter, `$tracking` px apart. */
-    private function spaced(GdImage $image, string $text, string $font, int $size, int $baseline, int $color, int $tracking): void
-    {
-        $letters = mb_str_split($text);
-        $widths = array_map(fn (string $letter): int => $letter === ' ' ? (int) round($size * 0.4) : $this->width($letter, $font, $size), $letters);
-        $x = (int) round((self::SIZE - array_sum($widths) - $tracking * max(0, count($letters) - 1)) / 2);
-
-        foreach ($letters as $i => $letter) {
-            if ($letter !== ' ') {
-                $this->text($image, $letter, $font, $size, $x, $baseline, $color);
-            }
-            $x += $widths[$i] + $tracking;
-        }
-    }
-
-    private function text(GdImage $image, string $text, string $font, int $size, int $x, int $baseline, int $color): void
-    {
-        if ($text !== '' && imagettftext($image, $size, 0, $x, $baseline, $color, $font, $text) === false) {
-            throw new RuntimeException('Could not draw text on the card.');
-        }
-    }
-
-    private function width(string $text, string $font, int $size): int
-    {
-        $box = $this->box($text, $font, $size);
-
-        return abs($box[2] - $box[0]);
-    }
-
-    /** @return array<int, int> */
-    private function box(string $text, string $font, int $size): array
-    {
-        $box = imagettfbbox($size, 0, $font, $text);
-        if ($box === false) {
-            throw new RuntimeException('Could not measure text.');
-        }
-
-        return $box;
-    }
-
-    /**
-     * Greedy word wrap to `$maxWidth` pixels (a single word wider than that stays on its own line).
-     *
-     * @return list<string>
-     */
-    private function wrap(string $text, string $font, int $size, int $maxWidth): array
-    {
-        $lines = [];
-        $current = '';
-        foreach (preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $word) {
-            $candidate = $current === '' ? $word : $current.' '.$word;
-            if ($current !== '' && $this->width($candidate, $font, $size) > $maxWidth) {
-                $lines[] = $current;
-                $current = $word;
-            } else {
-                $current = $candidate;
-            }
-        }
-        if ($current !== '') {
-            $lines[] = $current;
-        }
-
-        return $lines;
-    }
-
-    /**
-     * At most `$max` lines: the last kept one ends with "…" (shortened until it fits) when anything was cut.
-     *
-     * @param  list<string>  $lines
-     * @return list<string>
-     */
-    private function fit(array $lines, int $max, string $font, int $size, int $maxWidth = self::TEXT_WIDTH): array
-    {
-        if (count($lines) <= $max && ($lines === [] || $this->width($lines[count($lines) - 1], $font, $size) <= $maxWidth)) {
-            return $lines;
-        }
-
-        $kept = array_slice($lines, 0, $max);
-        $last = (string) array_pop($kept);
-        // Whole words first; letters only when a single word is wider than the line.
-        while (str_contains($last, ' ') && $this->width($last.'…', $font, $size) > $maxWidth) {
-            $last = mb_substr($last, 0, (int) mb_strrpos($last, ' '));
-        }
-        while ($last !== '' && $this->width($last.'…', $font, $size) > $maxWidth) {
-            $last = mb_substr($last, 0, -1);
-        }
-        $kept[] = rtrim($last, ' ,.;:—-').'…';
-
-        return $kept;
     }
 }

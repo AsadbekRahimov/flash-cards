@@ -17,6 +17,7 @@ use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use LogicException;
@@ -68,6 +69,11 @@ use Throwable;
  * and callback, `current()` repairs the projection from the facts (today's stats row, or
  * yesterday's fact).
  *
+ * "The streak was lost" (docs/40 §2.5, `/today.streak.lost`): {@see burn()} stores how long the burnt series was and the local day
+ * it noticed that (`streak_lost_days`, `streak_lost_on`) in the same conditional UPDATE that zeroes it; {@see project()} clears both in
+ * its own UPDATE with the first counting day after it. Columns of their own, not `meta`: these optimistic UPDATEs hold no lock and
+ * must not overwrite other keys of a json column.
+ *
  * Events: a goal day writes `daily_goal.met` and (when the series continues) `streak.extended`; a game day only
  * `streak.extended`; a frozen day nothing. A goal met on a day the game held already changes no projection, so
  * {@see onGoalMet()} tells `daily_goal.met` itself then (docs/18 §12.6 "Реализация G2.10").
@@ -84,6 +90,9 @@ class StreakService
 
     /** The columns a held day row is read with: enough for {@see StreakHeldBy::fromRow()}. */
     private const HELD_COLUMNS = ['id', 'learner_id', 'date', 'goal_met_at', 'game_held_at', 'frozen_at'];
+
+    /** The columns of `learners` the projection reads back: the series and the last loss of it. */
+    private const PROJECTION_COLUMNS = ['id', 'streak_current', 'streak_best', 'streak_last_date', 'streak_lost_days', 'streak_lost_on'];
 
     public function __construct(
         private readonly ProductEventRecorder $events,
@@ -173,7 +182,7 @@ class StreakService
             if ($yesterdayRow !== null) {
                 // The projection missed yesterday (callback lost) — without this fact the series would read as 0.
                 $this->project($learner, $yesterday, StreakHeldBy::fromRow($yesterdayRow) ?? StreakHeldBy::Freeze, $now);
-            } elseif ($last !== null && $this->freezeMissed($learner, $yesterday, $last, $now)) {
+            } elseif ($last !== null && $this->freezeMissed($learner, $yesterday, $last, $now, $todayDate)) {
                 $frozenYesterday = true;
             }
         }
@@ -201,7 +210,22 @@ class StreakService
             frozenYesterday: $frozenYesterday,
             // Named only once the projection counts today: while it lags (a contended UPDATE) both fields say "not yet".
             heldBy: $metToday ? $heldToday : null,
+            lost: $this->lost($learner, $current),
         );
+    }
+
+    /**
+     * The series burnt at the last loss, while the new one has no counting day yet (docs/40 §2.5): from the loaded row, no statement.
+     * A series that counts again is never "lost", whatever a model a concurrent projection cleared behind says.
+     *
+     * @return array{days: int, on: string}|null
+     */
+    private function lost(Learner $learner, int $current): ?array
+    {
+        $days = (int) $learner->streak_lost_days;
+        $on = $learner->streak_lost_on?->toDateString();
+
+        return $current === 0 && $days > 0 && $on !== null ? ['days' => $days, 'on' => $on] : null;
     }
 
     /**
@@ -211,7 +235,7 @@ class StreakService
      * cannot cover (or any gap for a learner without the feature) burns the series for good ({@see burn()}).
      * Returns true when yesterday ends up frozen (by this call or a concurrent one).
      */
-    private function freezeMissed(Learner $learner, string $yesterday, string $last, CarbonImmutable $now): bool
+    private function freezeMissed(Learner $learner, string $yesterday, string $last, CarbonImmutable $now, string $today): bool
     {
         $this->projectHeldRows($learner, $last, $yesterday, $now);
 
@@ -234,7 +258,7 @@ class StreakService
         }
 
         if ($tail === null || count($tail) > $this->freezes->available($learner, $now)) {
-            $this->burn($learner, $last); // not coverable by what is in stock NOW: later refills do not bring it back
+            $this->burn($learner, $last, $today); // not coverable by what is in stock NOW: later refills do not bring it back
 
             return false;
         }
@@ -248,7 +272,7 @@ class StreakService
             return true;
         }
 
-        $this->burn($learner, $learner->streak_last_date?->toDateString() ?? $last);
+        $this->burn($learner, $learner->streak_last_date?->toDateString() ?? $last, $today);
 
         return false;
     }
@@ -258,31 +282,38 @@ class StreakService
      * noticed — `streak_current = 0` is stored (`streak_best` and `streak_last_date` stay), and since
      * {@see freezeMissed()} / {@see project()} never freeze for a series of 0, a freeze refilled later neither
      * restores it nor is spent on it. Optimistic single-statement UPDATE like {@see project()}: no extra lock,
-     * and a concurrent projection that moved `streak_last_date` wins.
+     * and a concurrent projection that moved `streak_last_date` wins. The same UPDATE remembers the loss (docs/40 §2.5):
+     * `streak_lost_days` = the stored series it zeroes (the column itself, so a stale model cannot write a wrong length),
+     * `streak_lost_on` = the learner's local `$today`. The loser of a race takes both over with the rest of the row.
      */
-    private function burn(Learner $learner, string $last): void
+    private function burn(Learner $learner, string $last, string $today): void
     {
         if ((int) $learner->streak_current <= 0) {
             return;
         }
 
+        $lostOn = (string) $learner->fromDateTime($today);
         $affected = Learner::withTrashed()
             ->whereKey($learner->id)
             ->where('streak_last_date', (string) $learner->fromDateTime($last))
             ->where('streak_current', '>', 0)
-            ->update(['streak_current' => 0]);
+            // The right-hand side is the row before the UPDATE (PostgreSQL and sqlite): the series being burnt. A constant, no input.
+            ->update(['streak_current' => 0, 'streak_lost_days' => new Expression('streak_current'), 'streak_lost_on' => $lostOn]);
 
         if ($affected === 1) {
+            $lostDays = (int) $learner->streak_current;
             $learner->forceFill(['streak_current' => 0])->syncOriginalAttributes(['streak_current']);
+            $this->syncLost($learner, $lostDays, $today);
 
             return;
         }
 
         // Lost to a concurrent projection / burn: take over what is stored instead of keeping a stale view.
         /** @var Learner|null $fresh */
-        $fresh = Learner::withTrashed()->find($learner->id, ['id', 'streak_current', 'streak_best', 'streak_last_date']);
+        $fresh = Learner::withTrashed()->find($learner->id, self::PROJECTION_COLUMNS);
         if ($fresh !== null) {
             $this->syncModel($learner, (int) $fresh->streak_current, (int) $fresh->streak_best, $fresh->streak_last_date?->toDateString() ?? $last);
+            $this->syncLost($learner, $fresh->streak_lost_days, $fresh->streak_lost_on?->toDateString());
         }
     }
 
@@ -364,7 +395,7 @@ class StreakService
 
         for ($attempt = 0; $attempt < self::MAX_ATTEMPTS; $attempt++) {
             /** @var Learner|null $fresh */
-            $fresh = Learner::withTrashed()->find($learner->id, ['id', 'streak_current', 'streak_best', 'streak_last_date']);
+            $fresh = Learner::withTrashed()->find($learner->id, self::PROJECTION_COLUMNS);
             if ($fresh === null) {
                 return false;
             }
@@ -373,6 +404,7 @@ class StreakService
 
             if ($last !== null && $last >= $date) {
                 $this->syncModel($learner, $fresh->streak_current, $fresh->streak_best, $last);
+                $this->syncLost($learner, $fresh->streak_lost_days, $fresh->streak_lost_on?->toDateString());
 
                 return false;
             }
@@ -401,14 +433,21 @@ class StreakService
                 ? $query->whereNull('streak_last_date')
                 : $query->where('streak_last_date', (string) $fresh->fromDateTime($last));
 
+            // A counting day starts (or continues) a series: the last loss is no longer news (docs/40 §2.5) - cleared in the same UPDATE.
             $affected = $query->update([
                 'streak_current' => $current,
                 'streak_best' => $best,
                 'streak_last_date' => (string) $fresh->fromDateTime($date),
+                ...($counts ? ['streak_lost_days' => null, 'streak_lost_on' => null] : []),
             ]);
 
             if ($affected === 1) {
                 $this->syncModel($learner, $current, $best, $date);
+                if ($counts) {
+                    $this->syncLost($learner, null, null);
+                } else {
+                    $this->syncLost($learner, $fresh->streak_lost_days, $fresh->streak_lost_on?->toDateString());
+                }
                 if ($counts) {
                     $this->recordEvents($learner, $by, $date, $current, $best, $continues);
                     // The tickets of the game (docs/18 §12.7.3): the one point where a goal day or a game day just added one to the
@@ -524,6 +563,11 @@ class StreakService
             'streak_best' => $best,
             'streak_last_date' => $last,
         ])->syncOriginalAttributes(['streak_current', 'streak_best', 'streak_last_date']);
+    }
+
+    private function syncLost(Learner $learner, ?int $days, ?string $on): void
+    {
+        $learner->forceFill(['streak_lost_days' => $days, 'streak_lost_on' => $on])->syncOriginalAttributes(['streak_lost_days', 'streak_lost_on']);
     }
 
     /** A goal day tells `daily_goal.met`; any counting day that continues the series tells `streak.extended`. */

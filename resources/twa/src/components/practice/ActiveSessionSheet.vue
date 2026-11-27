@@ -46,7 +46,7 @@ const text = computed(() =>
       <button type="button" class="btn btn-primary btn-block" :disabled="busy" data-testid="active-continue" @click="emit('continue')">
         {{ t('practice.hub.continue') }}
       </button>
-      <button type="button" class="btn btn-tinted btn-block" :disabled="busy" data-testid="active-replace" @click="emit('replace')">
+      <button type="button" class="btn btn-secondary btn-block" :disabled="busy" data-testid="active-replace" @click="emit('replace')">
         {{ t('practice.hub.active.new') }}
       </button>
       <button type="button" class="btn btn-plain btn-block" data-testid="active-cancel" @click="emit('close')">

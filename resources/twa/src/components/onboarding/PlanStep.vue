@@ -1,0 +1,128 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import OnboardingActions from './OnboardingActions.vue'
+import StepIntro from './StepIntro.vue'
+import { ONBOARDING_GOALS } from '@/api/onboardingTypes'
+import { useOnboardingStore } from '@/stores/onboarding'
+import { useTelegram } from '@/composables/useTelegram'
+import { useOnboardingI18n } from '@/i18n/onboarding'
+import type { IconName } from '@/components/ui/icons'
+import type { OnboardingStringKey } from '@/i18n/onboarding'
+
+/**
+ * O8 "The plan is ready" (kit 02-onboarding/O8): the mascot `celebrate` (with the imprint of the check stamp), "<name>, your plan is ready" - the name
+ * the learner chose on O2 (`display_name`), never Telegram's `first_name` (docs/40 §5, п. 2) - and the summary of what was saved: the
+ * course with its modules, the goal of the day, the reminder, the goals. "Start the first lesson" finishes the onboarding on the server
+ * (`POST /onboarding/complete`: the course is set there) and leads to "Today".
+ */
+const emit = defineEmits<{ done: []; exit: []; missing: [step: string] }>()
+const store = useOnboardingStore()
+const { haptic } = useTelegram()
+const { t, tn } = useOnboardingI18n()
+
+const values = computed(() => store.data?.values ?? null)
+const name = computed((): string | null => values.value?.display_name ?? null)
+const busy = computed(() => store.saving === 'complete')
+
+interface Row {
+  key: string
+  icon: IconName
+  label: string
+  value: string
+}
+
+const rows = computed((): Row[] => {
+  const v = values.value
+  if (v === null) return []
+  const course = v.course
+  const courseValue = course === null
+    ? (v.level ?? '—')
+    : course.stages_count !== null && course.stages_count > 0
+      ? tn('onboarding.plan.course_modules', course.stages_count, { title: course.level_label ?? course.title })
+      : (course.level_label ?? course.title)
+  const reminder = v.reminder
+  const goals = (v.goals ?? []).filter((goal) => ONBOARDING_GOALS.includes(goal))
+  const list: Row[] = [
+    { key: 'course', icon: 'book-open', label: t('onboarding.plan.course'), value: courseValue },
+    {
+      key: 'goal',
+      icon: 'target',
+      label: t('onboarding.plan.goal'),
+      value: v.daily_goal !== null ? tn('onboarding.plan.goal_value', v.daily_goal) : '—',
+    },
+    {
+      key: 'reminder',
+      icon: 'bell',
+      label: t('onboarding.plan.reminder'),
+      value: reminder !== null && reminder.enabled && reminder.time !== null
+        ? t('onboarding.plan.reminder_at', { time: reminder.time })
+        : t('onboarding.plan.reminder_off'),
+    },
+  ]
+  if (goals.length > 0) {
+    list.push({
+      key: 'why',
+      icon: 'award',
+      label: t('onboarding.plan.why'),
+      value: goals.map((goal) => t(`onboarding.goals.short.${goal}` as OnboardingStringKey)).join(', '),
+    })
+  }
+  return list
+})
+
+async function onStart(): Promise<void> {
+  haptic('light')
+  const outcome = await store.complete()
+  if (outcome === 'ok') emit('done')
+  else if (outcome === 'incomplete' && store.missingStep !== null) emit('missing', store.missingStep)
+}
+</script>
+
+<template>
+  <div class="flex flex-1 flex-col">
+    <StepIntro
+      :title="name !== null ? t('onboarding.plan.title', { name }) : t('onboarding.plan.title_plain')"
+      :lead="t('onboarding.plan.lead')"
+    >
+      <!-- The pose `celebrate` carries the imprint of the stamp with the check under the mascot (ASSETS.md), as O8 of the kit. -->
+      <MascotArt pose="celebrate" :height="148" loading="eager" />
+    </StepIntro>
+    <ul class="card mt-5 flex flex-col px-4 py-1" data-testid="plan-summary">
+      <li
+        v-for="row in rows"
+        :key="row.key"
+        class="plan-row flex min-h-14 items-center gap-3 py-2"
+        :data-testid="`plan-${row.key}`"
+      >
+        <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-sm bg-sunken"><AppIcon :name="row.icon" :size="20" /></span>
+        <!-- A value that does not fit beside its label (a narrow screen) moves under it, to the right. -->
+        <span class="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-3">
+          <span class="t-body-m text-muted">{{ row.label }}</span>
+          <span class="t-body-m-strong ml-auto text-right" data-testid="plan-value">{{ row.value }}</span>
+        </span>
+      </li>
+    </ul>
+    <OnboardingActions
+      :label="t('onboarding.plan.start')"
+      :busy="busy"
+      :error="store.saveErrorStep === 'complete' ? store.saveError : ''"
+      @primary="onStart"
+    />
+  </div>
+</template>
+
+<style scoped>
+.plan-row {
+  position: relative;
+}
+.plan-row + .plan-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 48px;
+  right: -16px;
+  border-top: 1px solid var(--app-divider);
+}
+</style>

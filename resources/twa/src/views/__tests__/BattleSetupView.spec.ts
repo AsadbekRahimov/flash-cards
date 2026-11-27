@@ -225,6 +225,9 @@ describe('BattleSetupView — no friend, or no catalog', () => {
     const r = await render({ friendship: null })
 
     expect(has(r, 'no-friend')).toBe(true)
+    // The centred hero of the kit: the mascot greets, no sticky "Invite" under it.
+    expect(get(r, 'no-friend').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
+    expect(has(r, 'invite-section')).toBe(false)
     expect(r.wrapper.text()).toContain('Выберите друга')
     expect(api.courses.list).not.toHaveBeenCalled()
     await click(r, 'to-friends')
@@ -306,7 +309,7 @@ describe('BattleSetupView — the course', () => {
 
     expect(get(r, 'course-ielts-core').attributes('aria-checked')).toBe('true')
     expect(get(r, 'course-english-a1').attributes('aria-checked')).toBe('false')
-    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core')
+    expect(api.courses.get).toHaveBeenLastCalledWith('ielts-core', undefined)
     expect(api.battles.options).toHaveBeenCalledWith(11, 'ielts-core', null)
     expect(tg.haptic).toHaveBeenCalledWith('light')
   })
@@ -583,6 +586,7 @@ describe('BattleSetupView — when the setup cannot go on', () => {
     const r = await render()
 
     expect(get(r, 'blocked').attributes('data-reason')).toBe(reason)
+    expect(get(r, 'blocked').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('thinking')
     expect(r.wrapper.text()).toContain(title)
     expect(has(r, 'invite-btn')).toBe(false)
 

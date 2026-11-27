@@ -5,7 +5,7 @@ import { phraseLabels } from '@/composables/phraseText'
 import { useI18n } from '@/i18n'
 
 /**
- * The labels of a phrase card (docs/35 §3.3 d): small pills under the phrase - the register («разговорное»), UK / US (none for `both`) and
+ * The labels of a phrase card (docs/35 §3.3 d): neutral chips of the kit Muhrla under the phrase - the register («разговорное»), UK / US (none for `both`) and
  * the kind («идиома»). They say nothing of the answer, so they are on the question as well. No labels - nothing is drawn.
  */
 const props = defineProps<{
@@ -22,7 +22,7 @@ const labels = computed(() => phraseLabels(props.phrase))
     <li
       v-for="item in labels"
       :key="item.key"
-      class="h-6 rounded-full bg-fill px-2.5 text-xs leading-6 font-semibold whitespace-nowrap"
+      class="chip chip-neutral"
       :data-key="item.key"
       data-testid="phrase-label"
     >

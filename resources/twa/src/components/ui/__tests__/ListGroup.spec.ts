@@ -21,7 +21,7 @@ describe('ListGroup', () => {
     expect(html.indexOf('class="list"')).toBeLessThan(html.indexOf('Время'))
   })
 
-  it('highlight: the list lies on a tinted plate with the label inside it, 18 px extra bold (Profile mock-up)', () => {
+  it('highlight: the list lies on a plate with the label inside it, in Title/M of the kit', () => {
     const w = mount(ListGroup, {
       props: { header: 'Мой аккаунт', highlight: true },
       slots: { default: '<div class="list-row" data-testid="row">A</div>' },
@@ -30,7 +30,7 @@ describe('ListGroup', () => {
     const plate = w.get('section')
     expect(plate.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
     expect(plate.get('h2').text()).toBe('Мой аккаунт')
-    expect(plate.get('h2').classes()).toEqual(expect.arrayContaining(['text-lg', 'font-extrabold']))
+    expect(plate.get('h2').classes()).toContain('t-title-m')
     expect(plate.find('.section-label').exists()).toBe(false)
     expect(plate.get('.list').find('[data-testid=row]').exists()).toBe(true)
   })

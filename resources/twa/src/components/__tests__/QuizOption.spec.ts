@@ -41,15 +41,15 @@ describe('QuizOption', () => {
     }
   })
 
-  it('draws a check on a correct pick and on the right answer, a cross on an incorrect one, and no mark in the ring of an idle one', () => {
+  it('draws a check on the right answer (picked or revealed), a cross on a miss, and no mark before the check', () => {
     const icon = (state: 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal') =>
       mount(QuizOption, { props: { label: 'x', index: 0, state } }).findComponent(AppIcon)
 
-    expect(icon('selected').props('name')).toBe('check')
     expect(icon('correct').props('name')).toBe('check')
     expect(icon('reveal').props('name')).toBe('check')
     expect(icon('incorrect').props('name')).toBe('x-mark')
     expect(icon('idle').exists()).toBe(false)
+    expect(icon('selected').exists()).toBe(false)
   })
 
   it('gives a disabled option that has no state yet the quiet look of "dimmed", not the ones that show the verdict', () => {
@@ -70,36 +70,65 @@ describe('QuizOption', () => {
     }
   })
 
-  it('has no number in front any more: a 24 px round indicator on the right instead (docs/design/2026-11-25-redesign Question)', () => {
+  it('has the 28 px key with the number on the left (kit AnswerOption), decorative: the name of the option is its label', () => {
     const w = mount(QuizOption, { props: { label: 'apple', index: 2, state: 'idle' } })
     const button = w.get('[data-testid=option-2]')
+    const key = w.get('[data-testid=option-key-2]')
 
-    expect(button.text()).toBe('apple')
-    expect(button.find('.font-mono').exists()).toBe(false)
-    const ring = w.get('[data-testid=option-indicator-2]')
-    expect(button.element.lastElementChild).toBe(ring.element)
-    expect(ring.classes()).toEqual(expect.arrayContaining(['size-6', 'rounded-full', 'border-track']))
-    expect(ring.attributes('aria-hidden')).toBe('true')
+    expect(button.element.firstElementChild).toBe(key.element)
+    expect(key.text()).toBe('3')
+    expect(key.attributes('aria-hidden')).toBe('true')
+    expect(key.classes()).toEqual(expect.arrayContaining(['size-7', 'rounded-xs', 'bg-sunken', 'text-muted']))
+    expect(w.get('[data-testid=option-label]').text()).toBe('apple')
+    expect(w.find('[data-testid=option-indicator-2]').exists()).toBe(false)
   })
 
-  it('fills the ring by the state: primary for the pick, success for the right answer, danger for a miss', () => {
-    const ring = (state: 'selected' | 'correct' | 'incorrect' | 'reveal') =>
-      mount(QuizOption, { props: { label: 'x', index: 0, state } }).get('[data-testid=option-indicator-0]').classes()
+  it.each([
+    ['selected', ['bg-inverse', 'text-on-inverse'], null],
+    ['correct', ['bg-success-ink', 'text-on-inverse'], ['check', 'text-success-ink']],
+    ['reveal', ['bg-success-ink', 'text-on-inverse'], ['check', 'text-success-ink']],
+    ['incorrect', ['bg-danger-ink', 'text-on-inverse'], ['x-mark', 'text-danger-ink']],
+  ] as const)('paints the key and the mark of the state %s', (state, keyClasses, mark) => {
+    const w = mount(QuizOption, { props: { label: 'x', index: 0, state } })
 
-    expect(ring('selected')).toEqual(expect.arrayContaining(['bg-primary', 'text-on-primary']))
-    expect(ring('correct')).toContain('bg-success')
-    expect(ring('reveal')).toContain('bg-success')
-    expect(ring('incorrect')).toContain('bg-danger')
+    expect(w.get('[data-testid=option-key-0]').classes()).toEqual(expect.arrayContaining([...keyClasses]))
+    const indicator = w.find('[data-testid=option-indicator-0]')
+    expect(indicator.exists()).toBe(mark !== null)
+    if (mark) {
+      expect(indicator.findComponent(AppIcon).props('name')).toBe(mark[0])
+      expect(indicator.classes()).toContain(mark[1])
+      expect(indicator.attributes('aria-hidden')).toBe('true')
+      // the right edge: the mark is the last thing in the box
+      expect(w.get('[data-testid=option-0]').element.lastElementChild).toBe(indicator.element)
+    }
   })
 
-  it('leaves the ring out of a dimmed option, as the quiet options of the Feedback mock-up', () => {
+  it('gives the key of a dimmed option the quiet look too', () => {
     const w = mount(QuizOption, { props: { label: 'x', index: 0, state: 'idle', disabled: true } })
+    expect(w.get('[data-testid=option-key-0]').classes()).toEqual(expect.arrayContaining(['bg-transparent', 'text-muted']))
     expect(w.find('[data-testid=option-indicator-0]').exists()).toBe(false)
   })
 
-  it('is the box of the mock-up: radius 14 (rounded-option of .option), 18 px text, at least 58 px high (48 in a low window)', () => {
+  it('writes a note under the label when given one (an option the hint of the game took away), and nothing without it', () => {
+    const w = mount(QuizOption, { props: { label: 'apple', index: 1, state: 'idle', disabled: true, note: 'убран подсказкой', lang: 'en' } })
+    const label = w.get('[data-testid=option-label]')
+    const note = w.get('[data-testid=option-note-1]')
+
+    expect(label.text()).toBe('apple')
+    expect(label.attributes('lang')).toBe('en')
+    expect(note.text()).toBe('убран подсказкой')
+    // under the label, in one column with it; the option keeps the quiet look of a disabled one
+    expect(label.element.parentElement).toBe(note.element.parentElement)
+    expect(w.get('[data-testid=option-1]').attributes('data-dimmed')).toBe('true')
+
+    const plain = mount(QuizOption, { props: { label: 'apple', index: 1, state: 'idle' } })
+    expect(plain.find('[data-testid=option-note-1]').exists()).toBe(false)
+    expect(plain.get('[data-testid=option-label]').element.parentElement).toBe(plain.get('[data-testid=option-1]').element)
+  })
+
+  it('is the box of the kit: .option (radius md, Body/L), at least 60 px high (48 in a low window)', () => {
     const classes = mount(QuizOption, { props: { label: 'x', index: 0, state: 'idle' } }).get('[data-testid=option-0]').classes()
-    expect(classes).toEqual(expect.arrayContaining(['option', 'min-h-[58px]', 'text-[18px]', 'short:min-h-12']))
+    expect(classes).toEqual(expect.arrayContaining(['option', 'min-h-[60px]', 'short:min-h-12']))
   })
 
   it('is a radio: aria-checked on the picked option, aria-disabled (still focusable) once it can no longer be picked', () => {

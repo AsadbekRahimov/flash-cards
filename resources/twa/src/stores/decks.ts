@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import { useTodayStore } from '@/stores/today'
@@ -118,7 +119,7 @@ export const useDecksStore = defineStore('decks', {
         this.lastImport = result
         this.decks = this.decks.map((d) => (d.slug === slug ? result.deck : d))
         // The import itself is done; a failed refresh only leaves the old word list until the next load.
-        const fresh = await api.decks.get(slug).catch(() => null)
+        const fresh = await api.decks.get(slug, BACKGROUND).catch(() => null)
         if (fresh && this.detail?.slug === slug) this.detail = fresh
         return true
       }, false)
@@ -169,7 +170,7 @@ export const useDecksStore = defineStore('decks', {
      */
     async refreshLimits(): Promise<void> {
       try {
-        this.limits = (await api.decks.list()).limits
+        this.limits = (await api.decks.list(BACKGROUND)).limits
       } catch {
         // keep what there is
       }

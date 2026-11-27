@@ -78,31 +78,45 @@ describe('TabBar', () => {
     expect(new Set(w.findAll('svg').map((svg) => svg.html())).size).toBe(4)
   })
 
-  it('marks the tab of the current route: a pill in nav-active, the accent, bold, aria-current', async () => {
+  it('marks the tab of the current route: the label semibold in ink, the icon stroke 2, the 16 x 3 muhr mark, aria-current', async () => {
     const { w } = await mountBar('/league')
 
     const active = w.get('[data-testid=tab-rating]')
     expect(active.attributes('aria-current')).toBe('page')
-    expect(active.classes()).toEqual(expect.arrayContaining(['rounded-option', 'bg-nav-active', 'text-accent', 'font-bold']))
+    expect(active.classes()).toEqual(expect.arrayContaining(['text-body', 'font-semibold']))
+    expect(active.get('svg').attributes('stroke-width')).toBe('2')
+    const mark = active.get('[data-testid=tab-mark]')
+    expect(mark.classes()).toEqual(expect.arrayContaining(['bg-muhr', 'w-4', 'h-[3px]']))
+    expect(mark.attributes('aria-hidden')).toBe('true')
 
     for (const id of ['today', 'courses', 'profile']) {
       const tab = w.get(`[data-testid=tab-${id}]`)
       expect(tab.attributes('aria-current'), id).toBeUndefined()
-      expect(tab.classes(), id).toEqual(expect.arrayContaining(['rounded-option', 'text-body', 'font-medium']))
-      expect(tab.classes(), id).not.toContain('bg-nav-active')
-      expect(tab.classes(), id).not.toContain('font-bold')
+      expect(tab.classes(), id).toEqual(expect.arrayContaining(['text-muted', 'font-medium']))
+      expect(tab.classes(), id).not.toContain('font-semibold')
+      expect(tab.get('svg').attributes('stroke-width'), id).toBe('1.75')
+      expect(tab.find('[data-testid=tab-mark]').exists(), id).toBe(false)
     }
   })
 
-  it('moves the pill with the route', async () => {
+  it('moves the mark with the route: one mark, on the current tab', async () => {
     const { w, router } = await mountBar('/today')
-    expect(w.get('[data-testid=tab-today]').classes()).toContain('bg-nav-active')
+    expect(w.findAll('[data-testid=tab-mark]')).toHaveLength(1)
+    expect(w.get('[data-testid=tab-today]').find('[data-testid=tab-mark]').exists()).toBe(true)
 
     await router.push('/profile')
     await flushPromises()
 
-    expect(w.findAll('.bg-nav-active').map((tab) => tab.attributes('data-testid'))).toEqual(['tab-profile'])
+    expect(w.findAll('[data-testid=tab-mark]')).toHaveLength(1)
+    expect(w.get('[data-testid=tab-profile]').find('[data-testid=tab-mark]').exists()).toBe(true)
     expect(w.findAll('[aria-current=page]').map((tab) => tab.attributes('data-testid'))).toEqual(['tab-profile'])
+  })
+
+  it('sits on the surface with a hairline on top, 64 px high plus the home-indicator inset', async () => {
+    const { w } = await mountBar('/today')
+
+    expect(w.classes()).toEqual(expect.arrayContaining(['bg-surface', 'border-t', 'border-hairline', 'pb-[env(safe-area-inset-bottom,0px)]']))
+    expect(w.get('ul').classes()).toContain('h-[var(--app-tabbar-h)]')
   })
 
   it.each([

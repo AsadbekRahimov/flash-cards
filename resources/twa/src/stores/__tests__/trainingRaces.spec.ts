@@ -4,6 +4,9 @@ import { api } from '@/api'
 import { useTrainingStore } from '../training'
 import type { SessionSummary, TrainingStartResponse } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 vi.mock('@/api', () => ({ api: { training: { start: vi.fn(), next: vi.fn(), finish: vi.fn() } } }))
 
 function pending<T>() {

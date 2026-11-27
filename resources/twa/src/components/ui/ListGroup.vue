@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * Grouped list: an optional label above, the rows in one flat card (hairline frame, radius 16, full-width lines between the
- * rows), an optional footnote below. Put `ListRow`s (or any `.list-row` elements) in the default slot.
+ * Grouped list (kit ListRow / ListGroup): an optional label above, the rows in one flat card (hairline frame, radius lg 20, lines
+ * between the rows inset to the text), an optional footnote below. Put `ListRow`s (or any `.list-row` elements) in the default slot.
  *
  * - `header` — the group label (`.section-label`: 13 px, secondary colour, normal case).
  * - `footer` — a hint under the group.
- * - `highlight` — the group of the Profile mock-up (docs/design/2026-11-25-redesign Profile): the white list lies on a tinted plate
- *   (`bg-highlight`, radius 20) with the label inside it, 18 px extra bold. Off by default: the plain group above.
+ * - `highlight` — the group with its title inside one plate (`bg-highlight`: the surface with a hairline, radius xl 28; the rows
+ *   lie in it without a frame of their own), the title in Title/M of the kit (Unbounded 500, 18 / 24). Off by default: the plain group.
  *
  * @example
  * <ListGroup :header="t('settings.title')" :footer="t('settings.reminder.hint')">
@@ -22,9 +22,10 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="highlight" class="rounded-hero bg-highlight" data-variant="highlight">
-    <h2 v-if="header" class="px-4 pt-3 pb-2.5 text-lg leading-6 font-extrabold">{{ header }}</h2>
-    <div class="list">
+  <section v-if="highlight" class="overflow-hidden rounded-hero bg-highlight" data-variant="highlight">
+    <h2 v-if="header" class="t-title-m px-4 pt-3.5 pb-1">{{ header }}</h2>
+    <!-- One frame: the plate's hairline; the rows lie on the same surface without a second card. -->
+    <div class="list rounded-none border-0">
       <slot />
     </div>
     <p v-if="footer" class="px-4 py-2.5 text-[13px] leading-[18px] text-muted">{{ footer }}</p>

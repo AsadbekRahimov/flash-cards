@@ -23,7 +23,7 @@ describe('ActiveSessionSheet — "Unfinished practice"', () => {
 
     expect(wrapper.get('[data-testid=active-continue]').classes()).toContain('btn-primary')
     expect(wrapper.get('[data-testid=active-continue]').text()).toBe('Продолжить')
-    expect(wrapper.get('[data-testid=active-replace]').classes()).toContain('btn-tinted')
+    expect(wrapper.get('[data-testid=active-replace]').classes()).toContain('btn-secondary')
     expect(wrapper.get('[data-testid=active-replace]').text()).toBe('Начать новую')
     expect(wrapper.get('[data-testid=active-cancel]').text()).toBe('Отмена')
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)

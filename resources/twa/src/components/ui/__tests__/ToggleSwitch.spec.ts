@@ -13,10 +13,11 @@ describe('ToggleSwitch', () => {
     expect(w.attributes('aria-label')).toBe('Перевод → слово')
   })
 
-  it('keeps its 51 x 31 look and takes the press on 44 px (tap-target)', () => {
+  it('is the 48 x 28 switch of the kit and takes the press on 44 px (tap-target)', () => {
     const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
 
-    expect(w.classes()).toEqual(expect.arrayContaining(['tap-target', 'h-[31px]', 'w-[51px]']))
+    expect(w.classes()).toEqual(expect.arrayContaining(['tap-target', 'h-7', 'w-12']))
+    expect(w.get('span').classes()).toContain('size-[22px]')
   })
 
   it('reports off', () => {
@@ -25,26 +26,26 @@ describe('ToggleSwitch', () => {
     expect(w.attributes('aria-checked')).toBe('false')
   })
 
-  it('uses the primary colour when on and the neutral track when off', async () => {
+  it('uses the success colour when on (kit Switch) and the neutral track when off', async () => {
     const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
-    expect(w.classes()).toContain('bg-primary')
+    expect(w.classes()).toContain('bg-success')
 
     await w.setProps({ modelValue: false })
     expect(w.classes()).toContain('bg-track')
-    expect(w.classes()).not.toContain('bg-primary')
+    expect(w.classes()).not.toContain('bg-success')
   })
 
-  it('draws the knob in palette tokens, flat: on-primary when on, the secondary text colour when off', async () => {
+  it('draws the knob in palette tokens, flat: the white knob token when on, the secondary text colour when off', async () => {
     const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
     const knob = () => w.get('span').classes()
 
-    expect(knob()).toContain('bg-on-primary')
+    expect(knob()).toContain('bg-knob')
     expect(knob()).not.toContain('bg-white')
     expect(knob().join(' ')).not.toContain('shadow')
 
     await w.setProps({ modelValue: false })
     expect(knob()).toContain('bg-muted')
-    expect(knob()).not.toContain('bg-on-primary')
+    expect(knob()).not.toContain('bg-knob')
   })
 
   it('emits the opposite value on click', async () => {

@@ -10,13 +10,13 @@ import { transformWithEsbuild, type Plugin, type Rollup } from 'vite'
  * - build: the file is minified and emitted as a hashed asset (`/twa/assets/theme-boot-<hash>.js`: long-cached like every other
  *   asset, `index.html` itself is never cached, so a new release brings a new name), same origin — CSP `script-src 'self'`;
  * - dev: the tag points at the source file, which the dev server serves as it is;
- * - `data-cyrillic-font` of the tag is the URL of the cyrillic Inter (hashed in the build), which the script preloads
+ * - `data-cyrillic-font` of the tag is the URL of the cyrillic Onest (hashed in the build), which the script preloads
  *   for a Russian interface.
  */
 
 export const THEME_BOOT_PLACEHOLDER = '<!-- theme-boot -->'
 export const THEME_BOOT_SOURCE = 'src/boot/theme-boot.js'
-export const CYRILLIC_FONT_SOURCE = 'src/assets/fonts/inter-cyrillic-wght-normal.woff2'
+export const CYRILLIC_FONT_SOURCE = 'src/assets/fonts/onest-cyrillic-wght-normal.woff2'
 
 const BOOT_NAME = 'theme-boot.js'
 
@@ -34,7 +34,7 @@ export function findBootAssets(bundle: Rollup.OutputBundle): { boot: string; fon
   const boot = all.find((a) => a.names?.includes(BOOT_NAME) || a.name === BOOT_NAME)
   const font =
     all.find((a) => a.originalFileNames?.some((name) => name.replace(/\\/g, '/').endsWith(CYRILLIC_FONT_SOURCE))) ??
-    all.find((a) => /(^|\/)inter-cyrillic-wght-normal-[\w-]+\.woff2$/.test(a.fileName))
+    all.find((a) => /(^|\/)onest-cyrillic-wght-normal-[\w-]+\.woff2$/.test(a.fileName))
   if (!boot || !font) {
     throw new Error(`theme-boot: ${!boot ? BOOT_NAME : CYRILLIC_FONT_SOURCE} is not in the bundle`)
   }

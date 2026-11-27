@@ -16,7 +16,7 @@ vi.mock('@/api', () => ({
 
 const sound = vi.hoisted(() => ({ playSound: vi.fn() }))
 vi.mock('@/composables/useFeedbackSound', () => ({ playSound: sound.playSound }))
-vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn() }) }))
+vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn(), haptic: vi.fn() }) }))
 
 const router = createRouter({
   history: createMemoryHistory(),

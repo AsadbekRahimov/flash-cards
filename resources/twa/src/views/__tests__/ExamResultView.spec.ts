@@ -107,6 +107,25 @@ describe('ExamResultView', () => {
     expect(wrapper.find('[data-testid=mock-courses-btn]').exists()).toBe(false)
   })
 
+  it('shows a skeleton of the numbers on a link straight to the result until they come', async () => {
+    let answer: (value: AnyExamResultResponse) => void = () => {}
+    vi.mocked(api.exam.result).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/exam/:sessionId(\\d+)/result', name: 'exam-result', component: { template: '<div />' } }] })
+    await router.push('/exam/9/result')
+    const wrapper = mount(ExamResultView, { props: { sessionId: 9 }, global: { plugins: [router] } })
+    await flushPromises()
+
+    const skeleton = wrapper.get('[data-testid=spinner]')
+    expect(skeleton.attributes('role')).toBe('status')
+    expect(skeleton.find('.skeleton').exists()).toBe(true)
+    expect(wrapper.find('[data-testid=exam-result]').exists()).toBe(false)
+
+    answer(group())
+    await flushPromises()
+    expect(wrapper.find('[data-testid=spinner]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=final-score]').text()).toBe('42')
+  })
+
   it('says "Your result" in the polite form, never the informal "Твой"', async () => {
     const { wrapper } = await render(group())
 
@@ -114,14 +133,57 @@ describe('ExamResultView', () => {
     expect(wrapper.text()).not.toContain('Твой')
   })
 
-  it('does not celebrate: no flag, no star, the numbers monospace in one card split by thin lines', async () => {
+  it('is the result of the kit (06): the mascot with the trophy, no flag or star, the numbers in Numeric/L in one card split by thin lines', async () => {
     const { wrapper } = await render(group())
 
     expect(wrapper.findAllComponents(AppIcon)).toHaveLength(0)
-    expect(wrapper.get('[data-testid=final-score]').classes()).toContain('font-mono')
-    expect(wrapper.get('[data-testid=final-rank] [data-testid=stat-value]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
+    expect(wrapper.get('[data-testid=result-title]').classes()).toContain('t-display-l')
+    expect(wrapper.get('[data-testid=final-score]').classes()).toContain('t-numeric-l')
+    expect(wrapper.get('[data-testid=final-rank] [data-testid=stat-value]').classes()).toContain('t-numeric-l')
     expect(wrapper.get('[data-testid=final-rank]').classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))
     expect(wrapper.get('[data-testid=exam-result]').text()).not.toContain('★')
+  })
+
+  describe('the mascot: a celebration only for a success (kit)', () => {
+    const mock = (percent: number): AnyExamResultResponse => ({
+      mode: 'personal_mock', correct: percent, total: 100, answered: 100, percent, percentile: null, attempts: 1, course_id: 3,
+    })
+    const quiz = (percent: number): AnyExamResultResponse => ({
+      mode: 'level_quiz', correct: percent, total: 100, answered: 100, percent, scored: true, week_start: '2026-11-23', course_id: 3, course_slug: 'english-a1',
+    })
+    const pose = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']): string | null =>
+      wrapper.find('[data-testid=mascot-art]').exists() ? (wrapper.get('[data-testid=mascot-art]').attributes('data-pose') ?? null) : null
+
+    it.each([
+      ['a group exam, place 1', group({ rank: 1 }), 'trophy'],
+      ['a group exam, place 3', group({ rank: 3 }), 'trophy'],
+      ['a group exam, place 4', group({ rank: 4 }), 'thinking'],
+      ['a group exam without a place yet', group({ rank: null }), null],
+      ['a mock of 75%', mock(75), 'celebrate'],
+      ['a mock of 50% (passed)', mock(50), 'celebrate'],
+      ['a mock of 49%', mock(49), 'thinking'],
+      ['a test of the week of 80%', quiz(80), 'celebrate'],
+      ['a test of the week of 20%', quiz(20), 'thinking'],
+    ])('%s -> %s', async (_name, result, expected) => {
+      const { wrapper } = await render(result)
+
+      expect(pose(wrapper)).toBe(expected)
+    })
+
+    it('shows no mascot while the numbers of a link straight to the result are coming, and loads it at once (above the fold)', async () => {
+      let answer: (value: AnyExamResultResponse) => void = () => {}
+      vi.mocked(api.exam.result).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+      const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/exam/:sessionId(\\d+)/result', name: 'exam-result', component: { template: '<div />' } }] })
+      await router.push('/exam/9/result')
+      const wrapper = mount(ExamResultView, { props: { sessionId: 9 }, global: { plugins: [router] } })
+      await flushPromises()
+      expect(wrapper.find('[data-testid=mascot-art]').exists()).toBe(false)
+
+      answer(group({ rank: 1 }))
+      await flushPromises()
+      expect(wrapper.get('[data-testid=mascot-art]').attributes('loading')).toBe('eager')
+    })
   })
 
   it('draws the three numbers of a test in one card with lines between them, like the end of a session', async () => {
@@ -130,10 +192,11 @@ describe('ExamResultView', () => {
     })
 
     const cells = ['mock-percent', 'mock-score', 'mock-unanswered'].map((id) => wrapper.get(`[data-testid=${id}]`))
-    expect(cells[0]?.element.parentElement?.classList.contains('grid-cols-3')).toBe(true)
+    expect(cells[0]?.element.parentElement?.classList.contains('flex')).toBe(true)
     expect(cells[0]?.classes()).not.toContain('border-l')
+    for (const cell of cells) expect(cell.classes()).toContain('flex-1')
     for (const cell of cells.slice(1)) expect(cell.classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))
-    for (const cell of cells) expect(cell.get('[data-testid=stat-value]').classes()).toContain('font-mono')
+    for (const cell of cells) expect(cell.get('[data-testid=stat-value]').classes()).toContain('t-numeric-l')
   })
 
   it('lists the top as a grouped list: the place (no medals), the name, the score on the right', async () => {
@@ -207,7 +270,7 @@ describe('ExamResultView', () => {
 
     const close = wrapper.get('[data-testid=close-btn]')
     expect(close.text()).toBe('Выйти в Telegram')
-    expect(close.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-lg', 'btn-block']))
+    expect(close.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-block']))
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     expect(wrapper.get('[data-testid=actions]').find('[data-testid=close-btn]').exists()).toBe(true)
 
@@ -215,14 +278,14 @@ describe('ExamResultView', () => {
     expect(state.close).toHaveBeenCalledTimes(1)
   })
 
-  it('offers a mock "To courses" as a text button under "Close"', async () => {
+  it('offers a mock "To courses" as the Secondary button under "Close"', async () => {
     const { wrapper } = await render({
       mode: 'personal_mock', correct: 10, total: 40, answered: 40, percent: 25, percentile: 13, attempts: 8, course_id: 3,
     })
 
     const courses = wrapper.get('[data-testid=mock-courses-btn]')
     expect(courses.text()).toBe('К курсам')
-    expect(courses.classes()).toContain('btn-plain')
+    expect(courses.classes()).toContain('btn-secondary')
     expect(courses.classes()).not.toContain('btn-primary')
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     const buttons = wrapper.get('[data-testid=actions]').findAll('button').map((b) => b.attributes('data-testid'))

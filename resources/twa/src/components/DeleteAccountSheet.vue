@@ -26,12 +26,14 @@ const { t } = useI18n()
 
 <template>
   <BottomSheet :label="t('settings.delete.title')" :dismissible="!busy" data-testid="delete-sheet" @close="emit('cancel')">
-    <header class="flex items-start gap-2.5 pt-1 pr-10">
-      <AppIcon name="exclamation-triangle" solid :size="22" class="mt-[3px] shrink-0 text-danger" />
-      <h2 class="text-[22px] leading-7 font-semibold" data-testid="delete-title">{{ t('settings.delete.title') }}</h2>
+    <header class="flex items-start gap-3 pt-1 pr-10">
+      <span class="flex size-10 shrink-0 items-center justify-center rounded-sm bg-danger-soft text-danger" aria-hidden="true">
+        <AppIcon name="exclamation-triangle" :size="20" />
+      </span>
+      <h2 class="t-display-m pt-1" data-testid="delete-title">{{ t('settings.delete.title') }}</h2>
     </header>
 
-    <ul class="list-disc space-y-1.5 pl-5 text-[15px] leading-[22px]" data-testid="delete-consequences">
+    <ul class="t-body-m list-disc space-y-1.5 pl-5" data-testid="delete-consequences">
       <li>{{ t('settings.delete.data') }}</li>
       <li>{{ t('settings.delete.return') }}</li>
       <li>{{ t('settings.delete.payments') }}</li>

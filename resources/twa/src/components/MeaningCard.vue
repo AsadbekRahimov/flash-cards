@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
 import ChoiceFeedback from '@/components/ChoiceFeedback.vue'
 import PhraseLabels from '@/components/PhraseLabels.vue'
+import LessonWord from '@/components/LessonWord.vue'
 import QuizOption from '@/components/QuizOption.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import IconButton from '@/components/ui/IconButton.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import { useChoice } from '@/composables/useChoice'
+import { useRevealInView } from '@/composables/useRevealInView'
 import { useAutoSpeak } from '@/composables/useAutoSpeak'
-import { phraseHeadingClass } from '@/composables/phraseText'
 import { useTelegram } from '@/composables/useTelegram'
 import { useTts } from '@/composables/useTts'
 import { useI18n } from '@/i18n'
@@ -75,6 +77,10 @@ const shown = computed((): Card => {
   }
 })
 
+/** The card: a miss scrolls the right option into view above the feedback sheet. */
+const root = ref<HTMLElement | null>(null)
+useRevealInView(root, isCorrect)
+
 /** The server has answered: the screen of the answer (Feedback) is on. */
 const answered = computed((): boolean => isCorrect.value !== null)
 
@@ -107,56 +113,32 @@ function onContinue(): void {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col" data-testid="meaning-card">
+  <div ref="root" class="flex flex-1 flex-col" data-testid="meaning-card">
     <div class="flex flex-col px-5 pb-4">
       <!--
-        The question (docs/design/2026-11-25-redesign Question): the task in words, the word large on the white screen, its
-        transcription and the round speaker beside it. Once the answer is in (Feedback) the word steps down a size, so the options
-        stay above the answer panel.
+        The question (kit Muhrla 04-urok-vopros): the mascot thinking (not on a short window), the task in words, the word in Word/XL,
+        its transcription and the speaker beside it. Once the answer is in (05) the mascot and the word step down a size, so the options
+        stay above the feedback sheet.
       -->
       <div
         class="flex flex-col items-center text-center"
-        :class="answered ? 'mt-[22px] gap-1.5 short:mt-3 short:gap-1' : 'mt-[30px] gap-2 short:mt-4 short:gap-1.5'"
+        :class="answered ? 'mt-3 gap-1.5 short:mt-2 short:gap-1' : 'mt-5 gap-2 short:mt-3 short:gap-1.5'"
       >
+        <MascotArt loading="eager" pose="thinking" :height="answered ? 72 : 88" class="short:hidden" />
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ title }}</p>
-        <h2
-          v-if="phrase"
-          class="max-w-full font-extrabold text-balance break-words"
-          :class="phraseHeadingClass(word, answered)"
-          lang="en"
-          data-testid="word"
-        >
-          {{ word }}
-        </h2>
-        <h2
-          v-else
-          class="max-w-full font-extrabold break-words"
-          :class="answered ? 'text-[40px] leading-[46px] tracking-[-0.8px] short:text-[34px] short:leading-10' : 'text-[52px] leading-[58px] tracking-[-1px] short:text-[40px] short:leading-[46px]'"
-          lang="en"
-          data-testid="word"
-        >
-          {{ word }}
-        </h2>
+        <p class="t-body-m text-muted" data-testid="exercise-title">{{ title }}</p>
+        <LessonWord :text="word" :phrase="phrase !== null" :compact="answered" lang="en" data-testid="word" />
         <PhraseLabels v-if="phrase" :phrase="phrase" />
-        <div class="flex items-center gap-2.5">
-          <span v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</span>
-          <button
-            type="button"
-            class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent active:bg-fill"
-            :aria-label="t('card.speak')"
-            data-testid="speak-btn"
-            @click="onSpeak"
-          >
-            <AppIcon name="speaker-wave" :size="22" />
-          </button>
+        <div class="flex items-center gap-3">
+          <span v-if="card.transcription" class="font-ipa text-[17px] leading-6 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+          <IconButton icon="speaker-wave" :label="t('card.speak')" data-testid="speak-btn" @click="onSpeak" />
         </div>
       </div>
 
       <!-- The translations: long ones wrap inside the option (QuizOption breaks words), nothing is clipped at 320 px. -->
       <div
         class="flex flex-col gap-2.5 short:gap-2"
-        :class="answered ? 'mt-[22px] short:mt-3' : 'mt-[34px] short:mt-4'"
+        :class="answered ? 'mt-4 short:mt-3' : 'mt-6 short:mt-4'"
         role="radiogroup"
         :aria-label="title"
       >

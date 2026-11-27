@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupView from '../CupView.vue'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useCupDuelsStore } from '@/stores/cupDuels'
@@ -77,7 +78,8 @@ describe('CupView: the duels block', () => {
     vi.mocked(api.cups.duels.list).mockResolvedValue(duelList({ incoming: [cupDuel({ id: 1, role: 'opponent' }), cupDuel({ id: 2, role: 'opponent' })] }))
     const r = await render(withDuel(duelAvailability()))
 
-    expect(api.cups.duels.list).toHaveBeenCalledWith(5)
+    // A block of the board: a background read.
+    expect(api.cups.duels.list).toHaveBeenCalledWith(5, BACKGROUND)
     expect(tid(r, 'challenge-btn').attributes('href')).toBe('/cups/5/duel')
     expect(tid(r, 'challenge-btn').classes()).not.toContain('btn-primary')
     expect(tid(r, 'duel-hint').text()).toContain('очко кубка за каждый свой верный ответ')

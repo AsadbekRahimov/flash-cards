@@ -3,9 +3,9 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createPinia, setActivePinia } from 'pinia'
 import TodayView from '../TodayView.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
 import { useTodayStore } from '@/stores/today'
@@ -16,7 +16,7 @@ import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({
   ensure: vi.fn(),
-  learner: null as { first_name: string | null } | null,
+  learner: null as { first_name: string | null; display_name?: string | null; onboarding?: { completed: boolean; step: string | null } } | null,
   useBackButton: vi.fn(),
 }))
 
@@ -86,6 +86,7 @@ const makeRouter = () =>
     history: createMemoryHistory(),
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
+      { path: '/onboarding/:step?', name: 'onboarding', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
@@ -139,29 +140,56 @@ describe('TodayView', () => {
       settings: settingsFixture({ interface_locale: locale }),
     })
 
-    it('is the pill of the brand row of the header (mock-up 2026-11-25), the only language button of the screen', async () => {
-      const w = await render()
+    it('is a pill in the date line of the header for a newcomer (kit Muhrla 01 has no brand row), the only language button of the screen', async () => {
+      const w = await render(today({ active_course: null, due_count: 0, streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
 
       expect(w.findAll('[data-testid=lang-btn]')).toHaveLength(1)
       const btn = w.get('[data-testid=lang-btn]')
       expect(btn.text()).toBe('RU')
       expect(btn.attributes('aria-label')).toBe('Til · Язык')
       expect(btn.classes()).toContain('tap-target')
-      expect(w.get('[data-testid=brand-row]').element.contains(btn.element)).toBe(true)
-      // the plan badge stays next to the greeting
-      expect(w.get('[data-testid=brand-row]').element.contains(w.get('[data-testid=plan-badge]').element)).toBe(false)
+      expect(w.find('[data-testid=brand-row]').exists()).toBe(false)
+      // next to the plan badge, over the greeting
+      expect(w.get('[data-testid=today-header]').element.contains(btn.element)).toBe(true)
+      expect(w.get('[data-testid=today-header]').element.contains(w.get('[data-testid=plan-badge]').element)).toBe(true)
+    })
+
+    it('stays for a learner with progress and a streak too: a 32 px pill in the date line, the stamp keeps its place on the right', async () => {
+      const w = await render()
+
+      expect(w.findAll('[data-testid=lang-btn]')).toHaveLength(1)
+      const btn = w.get('[data-testid=lang-btn]')
+      expect(btn.text()).toBe('RU')
+      expect(btn.attributes('aria-label')).toBe('Til · Язык')
+      expect(btn.classes()).toEqual(expect.arrayContaining(['chip', 'h-8', 'tap-target']))
+      // In the date line with the plan badge, not in the column of the stamp.
+      const dateLine = w.get('[data-testid=eyebrow]').element.parentElement
+      expect(dateLine?.contains(btn.element)).toBe(true)
+      expect(dateLine?.contains(w.get('[data-testid=plan-badge]').element)).toBe(true)
+      expect(w.find('[data-testid=today-header] [data-testid=stamp]').exists()).toBe(true)
+      expect(dateLine?.querySelector('[data-testid=stamp]')).toBeNull()
+    })
+
+    it('opens the language sheet for a learner with progress and a streak', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
+      const w = await render()
+
+      await w.get('[data-testid=lang-btn]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=language-title]').text()).toBe('Til · Язык')
     })
 
     it('shows UZ in Uzbek', async () => {
       setLocale('uz')
-      const w = await render()
+      const w = await render(today({ active_course: null, due_count: 0, streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
 
       expect(w.get('[data-testid=lang-btn]').text()).toBe('UZ')
     })
 
     it('opens the language sheet in one tap, also for a newcomer without a course, and closes it again', async () => {
       vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
-      const w = await render(today({ active_course: null, due_count: 0 }))
+      const w = await render(today({ active_course: null, due_count: 0, streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
       expect(w.find('[data-testid=language-sheet]').exists()).toBe(false)
 
       await w.get('[data-testid=lang-btn]').trigger('click')
@@ -176,7 +204,7 @@ describe('TodayView', () => {
     it('switches the whole screen when another language is chosen', async () => {
       vi.mocked(api.me.get).mockResolvedValue(meWithSettings())
       vi.mocked(api.me.updateSettings).mockResolvedValue(meWithSettings('uz'))
-      const w = await render(today({ active_course: null, due_count: 0 }))
+      const w = await render(today({ active_course: null, due_count: 0, streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
 
       await w.get('[data-testid=lang-btn]').trigger('click')
       await flushPromises()
@@ -190,7 +218,7 @@ describe('TodayView', () => {
   })
 
   describe('header', () => {
-    it('greets the learner by name with the date and the course over it', async () => {
+    it('greets the learner by name with the date over it (kit 01: the date only, the course is on its card below)', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-10-28T07:00:00Z')) // noon in Tashkent, the zone of the fixture
       state.learner = { first_name: ' Асадбек ' }
@@ -198,9 +226,26 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(w.get('h1').text()).toBe('Привет, Асадбек!')
-      expect(w.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
+      expect(w.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября')
       // the line is over the greeting (mock-up Main), not under it
       expect(w.find('header [data-testid=subtitle]').exists()).toBe(false)
+    })
+
+    it('stamps the streak next to the greeting (kit 01: «12 дней»), and draws no stamp for a streak of 0', async () => {
+      const w = await render(today({ streak: { current: 12, best: 12, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+      const stamp = w.get('[data-testid=today-header] [data-testid=stamp]')
+      expect(stamp.attributes('aria-label')).toBe('12 дней')
+      expect(w.get('[data-testid=stamp-value]').text()).toBe('12')
+      // Today's stamp is there every day: no haptic of a result (kit TELEGRAM.md: the result screens only)
+      expect(w.getComponent(StampMark).props('haptic')).toBe(false)
+      w.unmount()
+
+      const one = await render(today({ streak: { current: 1, best: 1, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+      expect(one.get('[data-testid=stamp]').attributes('aria-label')).toBe('1 день')
+      one.unmount()
+
+      const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+      expect(none.find('[data-testid=stamp]').exists()).toBe(false)
     })
 
     it('has only the date over the greeting without a course', async () => {
@@ -219,10 +264,10 @@ describe('TodayView', () => {
         vi.setSystemTime(new Date('2026-10-28T20:30:00Z'))
 
         const tashkent = await render(today({ timezone: 'Asia/Tashkent' }))
-        expect(tashkent.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября · English A1')
+        expect(tashkent.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября')
 
         const samoa = await render(today({ timezone: 'Pacific/Pago_Pago' }))
-        expect(samoa.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
+        expect(samoa.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября')
       })
 
       it('is already the next day for a learner in Tashkent at 20:30 UTC, while a device in UTC is still on the 28th', async () => {
@@ -235,7 +280,7 @@ describe('TodayView', () => {
 
           const w = await render(today({ timezone: 'Asia/Tashkent' }))
 
-          expect(w.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября · English A1')
+          expect(w.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября')
         } finally {
           if (deviceZone === undefined) delete process.env.TZ
           else process.env.TZ = deviceZone
@@ -246,8 +291,8 @@ describe('TodayView', () => {
         vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
 
-        expect((await render(today({ timezone: 'Mars/Olympus' }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
-        expect((await render(today({ timezone: undefined as unknown as string }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
+        expect((await render(today({ timezone: 'Mars/Olympus' }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября')
+        expect((await render(today({ timezone: undefined as unknown as string }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября')
       })
     })
 
@@ -257,6 +302,28 @@ describe('TodayView', () => {
 
       state.learner = { first_name: '   ' }
       expect((await render()).get('h1').text()).toBe('Сегодня')
+    })
+
+    it('greets by the name chosen in the onboarding, else by the Telegram one (docs/40 §3, В1: own screens)', async () => {
+      state.learner = { first_name: 'Aziz', display_name: 'Азиз' }
+      expect((await render()).get('h1').text()).toBe('Привет, Азиз!')
+
+      state.learner = { first_name: 'Aziz', display_name: null }
+      expect((await render()).get('h1').text()).toBe('Привет, Aziz!')
+    })
+
+    it('makes the greeting smaller for a long name instead of cutting a word: steps by the longest word, wrapping between words only', async () => {
+      state.learner = { first_name: 'Ali' }
+      const short = (await render()).get('h1')
+      expect(short.classes()).toEqual(expect.arrayContaining(['t-display-l', 'break-words', 'greeting-n-l', 'greeting-w-l']))
+      expect(short.classes()).not.toContain('[overflow-wrap:anywhere]')
+
+      state.learner = { first_name: 'Мухаммадали' }
+      const long = (await render()).get('h1')
+      expect(long.classes()).toEqual(expect.arrayContaining(['greeting-n-xs', 'greeting-w-s']))
+
+      state.learner = { first_name: 'Абдурахмонбек Мухаммадалиевич' }
+      expect((await render()).get('h1').classes()).toEqual(expect.arrayContaining(['greeting-n-xxs', 'greeting-w-xxs']))
     })
 
     it('badges the plan with a chip that leads to the subscription', async () => {
@@ -415,7 +482,7 @@ describe('TodayView', () => {
 
         expect(w.find('[data-testid=games-card]').exists()).toBe(true)
         expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
-        expect(w.get('[data-testid=all-done]').find('button.btn-tinted').exists()).toBe(false)
+        expect(w.get('[data-testid=all-done]').find('button.btn-secondary').exists()).toBe(false)
         await w.get('[data-testid=games-play-btn]').trigger('click')
         await flushPromises()
 
@@ -575,14 +642,46 @@ describe('TodayView', () => {
       expect(w.text()).not.toContain('Пока нечего повторять')
     })
 
-    it('keeps the "finish the setup in the bot" banner under the start card, compact', async () => {
+    it('has no "finish the setup in the bot" line under the start card: the onboarding is in the Mini App now (docs/40 T16)', async () => {
       const w = await render(today({ active_course: null, due_count: 0, onboarding_completed: false }))
 
-      const html = w.html()
-      expect(html.indexOf('data-testid="start-card"')).toBeLessThan(html.indexOf('data-testid="onboarding-hint"'))
-      expect(w.get('[data-testid=onboarding-hint]').classes()).not.toContain('card')
-      await w.get('[data-testid=onboarding-btn]').trigger('click')
-      expect(telegram.close).toHaveBeenCalledTimes(1)
+      expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+      expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
+      expect(w.text()).not.toContain('/start')
+      expect(telegram.close).not.toHaveBeenCalled()
+    })
+
+    it('leads a newcomer the guard let through (a deep link, ?from=, outside Telegram) to the onboarding of the Mini App', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: false, step: 'age' } }
+      const w = await render(today({ active_course: null, due_count: 0 }))
+
+      const hint = w.get('[data-testid=onboarding-hint]')
+      expect(hint.text()).toContain('Закончите настройку')
+      expect(hint.text()).toContain('Пара шагов — и подберём курс и цель дня')
+      // To the step the server keeps, not to the bot.
+      expect(hint.attributes('href')).toBe('/onboarding/age')
+      expect(w.text()).not.toContain('/start')
+
+      await hint.trigger('click')
+      await flushPromises()
+      expect(w.router.currentRoute.value.fullPath).toBe('/onboarding/age')
+      expect(telegram.close).not.toHaveBeenCalled()
+    })
+
+    it('starts the onboarding from O1 when the server names no step', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: false, step: null } }
+      const w = await render()
+
+      expect(w.get('[data-testid=onboarding-hint]').attributes('href')).toBe('/onboarding')
+    })
+
+    it('shows no onboarding card once it is finished, nor to an older server without the block', async () => {
+      state.learner = { first_name: 'Aziz', onboarding: { completed: true, step: null } }
+      expect((await render()).find('[data-testid=onboarding-hint]').exists()).toBe(false)
+
+      setActivePinia(createPinia())
+      state.learner = { first_name: 'Aziz' }
+      expect((await render(today({ onboarding_completed: false }))).find('[data-testid=onboarding-hint]').exists()).toBe(false)
     })
 
     it('has no start card when there is something to review, a session is open or the group gave an assignment', async () => {
@@ -725,7 +824,8 @@ describe('TodayView', () => {
       expect(text(safe, 'streak-safe')).toBe('На сегодня серия продлена')
       expect(safe.find('[data-testid=streak-at-risk]').exists()).toBe(false)
       expect(safe.find('[data-testid=streak-best]').exists()).toBe(false)
-      expect(safe.get('[data-testid=streak-dot]').classes()).toContain('bg-accent')
+      // the streak lives: the dot in the muhr colour of the streak (kit Muhrla)
+      expect(safe.get('[data-testid=streak-dot]').classes()).toContain('bg-muhr')
 
       const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
       // no "series 0 days" in the goal card
@@ -1028,25 +1128,12 @@ describe('TodayView', () => {
       })
     })
 
-    it('hints at finishing the onboarding in the bot', async () => {
-      expect((await render()).find('[data-testid=onboarding-hint]').exists()).toBe(false)
-
+    it('sends nobody to the bot to finish the onboarding: the guard of the Mini App leads to it (docs/40 T16)', async () => {
       const w = await render(today({ onboarding_completed: false }))
-      expect(text(w, 'onboarding-hint')).toContain('Чтобы завершить настройку, отправьте боту /start')
-      expect(w.get('[data-testid=onboarding-hint] path').attributes('d')).toBe(ICONS['information-circle'].outline[0]?.d)
-    })
 
-    it('offers a button that closes the Mini App to finish the onboarding in the bot', async () => {
-      expect((await render()).find('[data-testid=onboarding-btn]').exists()).toBe(false)
-
-      const w = await render(today({ onboarding_completed: false }))
-      const button = w.get('[data-testid=onboarding-btn]')
-      expect(button.text()).toBe('Закончить настройку в боте')
-      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
-
-      await button.trigger('click')
-
-      expect(telegram.close).toHaveBeenCalledTimes(1)
+      expect(w.find('[data-testid=onboarding-hint]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Чтобы завершить настройку, отправьте боту /start')
+      expect(w.text()).not.toContain('Закончить настройку в боте')
     })
 
     it('keeps the screen and announces a failed reload as an alert with an icon', async () => {
@@ -1155,7 +1242,7 @@ describe('TodayView', () => {
       const w = await render(everything())
 
       const list = w.get('[data-testid=today-list]')
-      expect(list.classes()).toContain('list')
+      expect(list.find('.list').exists()).toBe(true)
       expect(list.get('h2').text()).toBe('На сегодня')
       const html = w.html()
       const at = (id: string): number => html.indexOf(`data-testid="${id}"`)
@@ -1176,7 +1263,8 @@ describe('TodayView', () => {
       const w = await render(everything())
 
       const row = w.get('[data-testid=hard-round-card] button')
-      expect(row.classes()).toContain('min-h-11')
+      // a row of the kit's ListRow: at least 60 px
+      expect(row.classes()).toContain('min-h-[60px]')
       expect(row.text()).toContain('Раунд трудных слов')
       await row.trigger('click')
       expect(w.get('[data-testid=hard-round-card] button').attributes('disabled')).toBeDefined()
@@ -1531,7 +1619,7 @@ describe('TodayView', () => {
       expect(text(w, 'next-lesson-hint')).toBe('Только слова этого урока, без повторений')
       const button = w.get('[data-testid=next-lesson-btn]')
       expect(button.text()).toBe('Учить следующий урок')
-      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
       await button.trigger('click')
       await flushPromises()
 
@@ -1554,13 +1642,14 @@ describe('TodayView', () => {
 
       const empty = w.get('[data-testid=no-course]')
       expect(empty.text()).toContain('Курс не выбран')
-      expect(empty.get('path').attributes('d')).toBe(ICONS['academic-cap'].outline[0]?.d)
+      // the empty state of the kit: the mascot reading
+      expect(empty.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('reading')
       expect(w.find('[data-testid=next-lesson-btn]').exists()).toBe(false)
       expect(w.find('[data-testid=course-title]').exists()).toBe(false)
 
       const choose = w.get('[data-testid=choose-course]')
       expect(choose.text()).toBe('Выбрать курс')
-      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       expect(choose.attributes('href')).toBe('/courses')
     })
   })
@@ -1590,7 +1679,7 @@ describe('TodayView', () => {
       expect(w.find('[data-testid=course-progress]').exists()).toBe(false)
       expect(w.find('[data-testid=course-card] [role=progressbar]').exists()).toBe(false)
       const other = w.get('[data-testid=course-choose-other]')
-      expect(other.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(other.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       expect(other.attributes('href')).toBe('/courses')
     })
 
@@ -1661,8 +1750,8 @@ describe('TodayView', () => {
       expect(row.text()).toContain('Лига · Серебро')
       expect(row.text()).toContain('3-е место из 28 · 41 балл')
       expect(row.attributes('href')).toBe('/league')
-      // a quiet row like the rest of Home: no coloured tile
-      expect(row.find('.icon-tile').exists()).toBe(false)
+      // a row of the kit's ListRow: the plate with the trophy
+      expect(row.find('.icon-tile').exists()).toBe(true)
     })
 
     it('falls back to the lowest tier for a tier this app does not know', async () => {
@@ -1736,7 +1825,7 @@ describe('TodayView', () => {
     const w = await render(today({ new_words_remaining: 12, league: { tier: 1, tier_key: 'silver', rank: 4, points: 312, members_count: 30 } }))
 
     expect(w.get('h1').text()).toBe('Salom, Asadbek!')
-    expect(w.get('[data-testid=eyebrow]').text()).toBe('Chorshanba, 28-oktabr · English A1')
+    expect(w.get('[data-testid=eyebrow]').text()).toBe('Chorshanba, 28-oktabr')
     expect(text(w, 'goal-text')).toBe("20 ta so'zdan")
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
     expect(text(w, 'session-hint')).toBe("Avval o'rgangan so'zlaringizni takrorlang va kursingizdagi yangi so'zlar bilan tanishing")

@@ -7,7 +7,7 @@ import { useI18n } from '@/i18n'
 import type { ScoreToday, ScoreTodayCount } from '@/api/types'
 
 /**
- * "Today N of 100" of the word points v2 (docs/32 §8.2, docs/04 A.2a `score_today`), drawn as the card of the goal of the day: a star,
+ * "Today N of 100" of the word points v2 (docs/32 §8.2, docs/04 A.2a `score_today`), drawn as a card of the kit (radius lg, no shadow): the plate with a star,
  * «40 / 100 баллов» with the table (Free / Pro) as a quiet pill, what is left on the right and a thin line. The cap, the points and what
  * is left are the server's (`cap`, `points`, `remaining`); the day is the rating day of the league (Tashkent), so at the cap the card says
  * honestly that no more points come today while the words are still learned, and when the next rating day begins in the learner's
@@ -79,24 +79,23 @@ const monthLine = computed(() => {
 <template>
   <section class="card flex flex-col gap-3 px-4 py-3.5" data-testid="score-today">
     <div class="flex min-h-11 items-center gap-3">
-      <AppIcon name="star" :size="28" class="shrink-0 text-accent" />
-      <span class="h-[34px] w-px shrink-0 bg-hairline" aria-hidden="true" />
-      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+      <span class="icon-tile"><AppIcon name="star" :size="20" /></span>
+      <span class="flex min-w-0 flex-1 flex-col">
         <span class="flex min-w-0 items-center gap-2">
-          <span class="truncate text-[17px] leading-[22px] font-bold">{{ t('score.today.title') }}</span>
-          <span class="shrink-0 rounded-full bg-accent-soft px-2 text-xs leading-5 font-bold text-accent" data-testid="score-today-category">{{ category }}</span>
+          <span class="t-body-m-strong truncate">{{ t('score.today.title') }}</span>
+          <span class="chip chip-accent shrink-0" data-testid="score-today-category">{{ category }}</span>
         </span>
-        <span class="text-sm leading-5 text-muted tabular-nums" data-testid="score-today-count">{{ countText }}</span>
+        <span class="t-label-s text-muted tabular-nums" data-testid="score-today-count">{{ countText }}</span>
       </span>
       <span
         v-if="aside"
-        class="shrink-0 text-right text-[13px] leading-[18px]"
+        class="t-label-s shrink-0 text-right"
         :class="capped ? 'font-semibold text-success-ink' : 'text-muted'"
         data-testid="score-today-aside"
       >{{ aside }}</span>
     </div>
     <ProgressLine v-if="cap !== null" :value="percent" :tone="capped ? 'success' : 'accent'" data-testid="score-today-bar" />
-    <div v-if="capped || monthLine" class="flex flex-col gap-0.5 text-[13px] leading-[18px] text-muted">
+    <div v-if="capped || monthLine" class="t-label-s flex flex-col gap-0.5 text-muted">
       <p v-if="weekCappedLine" data-testid="score-today-week-capped">{{ weekCappedLine }}</p>
       <p v-else-if="dayOver" data-testid="score-today-capped">{{ t('score.today.capped') }}<template v-if="dayEnds">. {{ dayEnds }}</template></p>
       <p v-if="monthLine" data-testid="score-today-month">{{ monthLine }}</p>

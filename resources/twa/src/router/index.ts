@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw, type RouterScrollBehavior } from 'vue-router'
 import { installStartParamRedirect } from './startParam'
+import { installOnboardingGuard } from '@/composables/useOnboardingGuard'
 
 /** The tabs of the bottom navigation (docs/14 §5.1). */
 export type TabId = 'today' | 'courses' | 'rating' | 'profile'
@@ -11,6 +12,11 @@ declare module 'vue-router' {
      * one. Absent on immersive screens (training, exam, finished) and the landing.
      */
     tab?: TabId
+    /**
+     * An immersive screen where a swipe down must not close the app (the lesson, the exam, a practice session, the rounds of a battle,
+     * a cup or a duel, a run of "Karvon"): `installVerticalSwipeGuard` switches the swipe off here and on again elsewhere.
+     */
+    immersive?: boolean
   }
 }
 
@@ -32,10 +38,25 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/TodayView.vue'),
     meta: { tab: 'today' },
   },
+  // The onboarding of the Mini App (docs/40 §2.1): O1 "Welcome" without a step, then `name … plan`; no tab bar.
+  {
+    path: '/onboarding/:step?',
+    name: 'onboarding',
+    component: () => import('@/views/OnboardingView.vue'),
+    props: (route) => ({ step: typeof route.params.step === 'string' && route.params.step !== '' ? route.params.step : null }),
+  },
+  // F4 "Серия спасена" / "Серия прервалась" (docs/40 §2.5): opened by itself from "Today" (`useStreakMoments`), `?kind=lost`; no tab bar.
+  {
+    path: '/streak/saved',
+    name: 'streak-saved',
+    component: () => import('@/views/StreakSavedView.vue'),
+    props: (route) => ({ kind: route.query.kind === 'lost' ? 'lost' : 'saved' }),
+  },
   {
     path: '/training/:sessionId(\\d+)',
     name: 'training',
     component: () => import('@/views/TrainingView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
   {
@@ -52,6 +73,7 @@ const routes: RouteRecordRaw[] = [
     path: '/exam/:sessionId(\\d+)',
     name: 'exam',
     component: () => import('@/views/ExamView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
   {
@@ -79,6 +101,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CourseView.vue'),
     meta: { tab: 'courses' },
     props: (route) => ({ slug: String(route.params.slug) }),
+  },
+  // "My dictionary" (docs/40 §2.3, kit F2): the words the learner has graded. `?from=` is the course it was opened from (the system "Back" returns there).
+  {
+    path: '/vocabulary',
+    name: 'vocabulary',
+    component: () => import('@/views/VocabularyView.vue'),
+    meta: { tab: 'courses' },
   },
   // Readiness for the level and the test of the week (docs/05 §5); `?source=` is where the learner came from (the server's analytics, the Back button).
   {
@@ -121,6 +150,7 @@ const routes: RouteRecordRaw[] = [
     path: '/practice/sessions/:id(\\d+)',
     name: 'practice-session',
     component: () => import('@/views/PracticeSessionView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   // The Karvon game (docs/05 §5b): the map is a screen of the Courses tab. `?course=` is the course (else the active one), `?stop=` opens the sheet of that stop.
@@ -173,6 +203,7 @@ const routes: RouteRecordRaw[] = [
     path: '/game/runs/:id(\\d+)',
     name: 'game-run',
     component: () => import('@/views/GameRunView.vue'),
+    meta: { immersive: true },
     props: (route) => ({
       id: Number(route.params.id),
       course: typeof route.query.course === 'string' && route.query.course !== '' ? route.query.course : null,
@@ -195,6 +226,7 @@ const routes: RouteRecordRaw[] = [
     path: '/battles/:id(\\d+)',
     name: 'battle',
     component: () => import('@/views/BattleView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   {
@@ -245,6 +277,17 @@ const routes: RouteRecordRaw[] = [
     name: 'league-all-time',
     component: () => import('@/views/AllTimeRatingView.vue'),
     meta: { tab: 'rating' },
+  },
+  // F3 "Поделиться в сторис" (docs/40 §2.4): `?kind=streak` (from the streak screen) or `?kind=achievement&subject=<key>`.
+  {
+    path: '/share/story',
+    name: 'share-story',
+    component: () => import('@/views/ShareStoryView.vue'),
+    props: (route) => ({
+      kind: route.query.kind === 'achievement' ? 'achievement' : 'streak',
+      subject: typeof route.query.subject === 'string' && route.query.subject !== '' ? route.query.subject : null,
+    }),
+    // No tab and no tab bar (kit F3): it is opened from Achievements (Profile) and from the streak screen (no tab) alike; Telegram's "Back".
   },
   {
     path: '/achievements',
@@ -299,6 +342,7 @@ const routes: RouteRecordRaw[] = [
     path: '/cups/:id(\\d+)/round',
     name: 'cup-round',
     component: () => import('@/views/CupRoundView.vue'),
+    meta: { immersive: true },
     props: (route) => ({ id: Number(route.params.id) }),
   },
   // The duels of a cup (docs/33 §7.1, docs/04 A.23d): the list, a new challenge, one duel (the waiting screen of the challenger), and the
@@ -378,5 +422,7 @@ const router = createRouter({
 
 // Direct links from group chats (`t.me/bot?startapp=…`) carry the target screen in `start_param`.
 installStartParamRedirect(router)
+// A newcomer is sent from the roots of the tabs to the onboarding of the Mini App (docs/40 §2.1); deep links are not intercepted.
+installOnboardingGuard(router)
 
 export default router

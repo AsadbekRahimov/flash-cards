@@ -24,6 +24,19 @@ export function formatPrice(minorUnits: number, currency: BillingCurrency, local
   return `${sum} ${t('billing.sum')}`
 }
 
+/**
+ * A price → its number and its currency, drawn on two lines in a narrow card (the number never breaks): «1 300 Stars» → «1 300» +
+ * «Stars», and a currency written first, «USD 4.99» → «4.99» + «USD». A price without such a word stays whole.
+ */
+export function splitPrice(price: string): { amount: string; unit: string } {
+  const text = price.trim()
+  const after = /^(.*\d.*?)\s+(\D+)$/u.exec(text)
+  if (after) return { amount: after[1] ?? text, unit: (after[2] ?? '').trim() }
+  const before = /^(\D+?)\s+(\d.*)$/u.exec(text)
+  if (before) return { amount: before[2] ?? text, unit: (before[1] ?? '').trim() }
+  return { amount: text, unit: '' }
+}
+
 /** The currencies a saving is read in, the first one both periods are priced in wins: sums, then Stars. */
 const SAVING_CURRENCIES: readonly BillingCurrency[] = ['UZS', 'XTR']
 

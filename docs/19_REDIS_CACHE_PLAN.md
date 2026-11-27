@@ -50,7 +50,7 @@
 | Где | Ключ | TTL | Вид |
 |---|---|---|---|
 | `Billing/Services/EntitlementResolver` | `entitlement:learner:{id}:v{версия}`, версия — `entitlement:ver:{id}` | `BILLING_CACHE_TTL` (300 с) | кэш с версией |
-| `Content/Services/CourseCatalogService` | `catalog:courses:published:v1:{locale}` | 600 с | кэш |
+| `Content/Services/CourseCatalogService` | `catalog:courses:published:v2:{locale}` | 600 с | кэш |
 | `Learning/Services/LearningCache` | слова урока, лидерборд экзамена, «выучено слов» друзей | 3600 / 300 / 600 с | кэш |
 | `Administration/Services/PlatformStatsService` + `WidgetCache` (F7-1) | `admin:widget:platform_subscriptions:v1:all`, `admin:widget:onboarding_funnel:v1:all` | свежий 120 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin`; прежние ключи `platform_stats:*` без версии не читаются и истекают сами |
 | `Engagement/Services/LeagueService` | `league:standings:v2:{группа}` (v2 с G2.10: `+ game_points`) — группа недели v1; `league:standings:v3:{группа}` — группа недели на очках v2 (docs/32 §5.1, S8: лучшие 5 дней, `long_words`, `active_days`, конкурентный ранг — другой смысл массива); `LeagueService::cacheKey(группа, версия недели)` | `LEAGUES_STANDINGS_CACHE_SECONDS` (60 с) | кэш; сброс при закрытии группы и при исправлении дня ученика (`ScoreCorrectionService`) |
@@ -116,7 +116,7 @@
 |---|---|
 | `EntitlementResolver` — снимки `entitlement:learner:{id}:v{n}` | `lru` |
 | `EntitlementResolver` — ключ версии `entitlement:ver:{id}` | `redis` (невытесняемое) |
-| `CourseCatalogService` — `catalog:courses:published:v1:{locale}` | `lru` |
+| `CourseCatalogService` — `catalog:courses:published:v2:{locale}` | `lru` |
 | `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
 | `PlatformDistractorPool` — `content:platform-distractors:v1:{words\|phrases}` | `lru` |
 | `PlatformStatsService` — `admin:widget:platform_subscriptions \| onboarding_funnel:v1:all` (F7-1) | `lru` |

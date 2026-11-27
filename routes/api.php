@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Game\Services\Runs\RunService;
+use App\Domain\Learners\Support\OnboardingChoices;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AllTimeRatingController;
@@ -33,6 +34,8 @@ use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
 use App\Http\Controllers\Api\Twa\OfferViewedController;
+use App\Http\Controllers\Api\Twa\OnboardingController;
+use App\Http\Controllers\Api\Twa\OnboardingPlacementController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -44,6 +47,7 @@ use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\ShareController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
+use App\Http\Controllers\Api\Twa\VocabularyController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
 use App\Http\Middleware\EnsureCupAccess;
 use App\Http\Middleware\EnsureCupDuels;
@@ -71,6 +75,22 @@ Route::prefix('twa')->group(function (): void {
             ->middleware('throttle:twa-organizations')
             ->name('twa.me.organizations.leave');
         Route::get('/today', TodayController::class)->name('twa.today');
+
+        // The onboarding of the Mini App, O1-O8 (docs/40 §2.1, docs/04 A.24): the read shares `twa-api`, the steps and the end have
+        // their own cap too. An unknown step is a 404 of the route.
+        Route::get('/onboarding', [OnboardingController::class, 'show'])->name('twa.onboarding');
+        Route::middleware('throttle:twa-onboarding')->group(function (): void {
+            Route::put('/onboarding/steps/{step}', [OnboardingController::class, 'update'])
+                ->whereIn('step', OnboardingChoices::STEPS)
+                ->name('twa.onboarding.step');
+            Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('twa.onboarding.complete');
+        });
+        // The placement test of the level screen (docs/40 §2.1a, docs/04 A.27): a set of words per start, one scoring per set - the
+        // cap of the personal sessions (10/min) keeps a script from guessing the key by starting over.
+        Route::middleware('throttle:twa-session-create')->group(function (): void {
+            Route::post('/onboarding/placement', [OnboardingPlacementController::class, 'start'])->name('twa.onboarding.placement');
+            Route::post('/onboarding/placement/answers', [OnboardingPlacementController::class, 'answer'])->name('twa.onboarding.placement.answers');
+        });
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');
@@ -91,6 +111,10 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/share/prepare', [ShareController::class, 'prepare'])
             ->middleware('throttle:twa-share')
             ->name('twa.share.prepare');
+        // The 9:16 card for `WebApp.shareToStory` (docs/40 §2.4, docs/04 A.26): a render on the disk, the same cap as the message.
+        Route::post('/share/story', [ShareController::class, 'story'])
+            ->middleware('throttle:twa-share')
+            ->name('twa.share.story');
         Route::post('/share/events', [ShareController::class, 'event'])
             ->middleware('throttle:twa-share-event')
             ->name('twa.share.events');
@@ -160,6 +184,9 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/decks/{slug}/words', [DeckController::class, 'addWords'])
             ->middleware('throttle:twa-deck-import')
             ->name('twa.decks.words.add');
+
+        // "My vocabulary" (docs/40 §2.3, docs/04 A.25): the learner's graded words, a page at a time; a read under `twa-api`.
+        Route::get('/vocabulary', VocabularyController::class)->name('twa.vocabulary');
 
         // The learner's own memory hook of a word (docs/06 §12.3): one row of theirs, a write cap of its own.
         Route::put('/words/{word}/note', [WordNoteController::class, 'update'])

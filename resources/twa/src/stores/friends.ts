@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
+import type { RequestOptions } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
 import type { ChallengeMetric, ChallengesResponse, FriendsResponse } from '@/api/types'
 
@@ -36,11 +38,12 @@ export const useFriendsStore = defineStore('friends', {
       this.actionError = ''
     },
 
-    async load(): Promise<void> {
+    /** `options` - `BACKGROUND` when another screen reads it by the way (the hub of practice): its loss does not raise "Нет соединения". */
+    async load(options?: RequestOptions): Promise<void> {
       this.status = this.friends === null ? 'loading' : this.status
       this.errorMessage = ''
       try {
-        const [friends, challenges] = await Promise.all([api.friends.get(), api.challenges.list()])
+        const [friends, challenges] = await Promise.all([api.friends.get(options), api.challenges.list(options)])
         this.friends = friends
         this.challenges = challenges
         this.status = 'ready'
@@ -52,7 +55,7 @@ export const useFriendsStore = defineStore('friends', {
 
     async refreshChallenges(): Promise<void> {
       try {
-        this.challenges = await api.challenges.list()
+        this.challenges = await api.challenges.list(BACKGROUND)
       } catch {
         /* the lists reload on the next open; the action itself has succeeded */
       }

@@ -24,7 +24,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
         ->postJson('/api/twa/promo/redeem', ['code' => ' welcome-30 '])
         ->assertOk()
         ->assertExactJsonStructure([
-            'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed', 'pro_emoji'],
+            'learner' => ['id', 'first_name', 'display_name', 'username', 'locale', 'onboarding_completed', 'onboarding' => ['completed', 'step'], 'pro_emoji'],
             'groups',
             'stats' => ['words_learned', 'words_due_today'],
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],

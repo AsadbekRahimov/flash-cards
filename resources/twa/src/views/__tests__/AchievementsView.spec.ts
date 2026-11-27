@@ -13,6 +13,8 @@ const state = vi.hoisted(() => ({
   back: undefined as undefined | (() => void),
   hideBack: vi.fn(),
   haptic: vi.fn(),
+  /** `useTelegram().canShareToStory`: a client of Mini Apps 7.8+ (F3); false by default - only "Поделиться". */
+  canStory: false,
   /** `useShare().share`: by default the message went out (the mark runs); a test may hold it or end it otherwise. */
   share: vi.fn(),
   pending: { value: false },
@@ -28,6 +30,8 @@ vi.mock('@/composables/useShare', async () => {
   state.pending = pending
   return { useShare: () => ({ pending, share: state.share }) }
 })
+
+vi.mock('@/composables/telegramStory', () => ({ canShareToStory: () => state.canStory }))
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -67,6 +71,7 @@ const makeRouter = () =>
     routes: [
       { path: '/profile', name: 'profile', component: { template: '<div />' } },
       { path: '/achievements', name: 'achievements', component: AchievementsView },
+      { path: '/share/story', name: 'share-story', component: { template: '<div />' } },
     ],
   })
 
@@ -91,6 +96,7 @@ describe('AchievementsView', () => {
     vi.clearAllMocks()
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
+    state.canStory = false
     state.pending.value = false
     state.share.mockImplementation(async (_kind: string, _subject: string | null, _fallback: unknown, onShared?: () => void) => {
       onShared?.()
@@ -99,104 +105,131 @@ describe('AchievementsView', () => {
   })
   afterEach(() => setLocale('ru'))
 
-  it('lists unlocked achievements first (newest first), then the locked ones with their progress', async () => {
+  it('shows the newest received in the hero, then "Received" (newest first) and "Ahead" (progress first) as grids of badges', async () => {
     const { wrapper } = await render()
 
+    expect(text(wrapper, 'hero-title')).toBe('Серия 7 дней')
     expect(text(wrapper, 'summary')).toBe('Получено 2 из 4')
-    const keys = wrapper.findAll('li').map((li) => li.attributes('data-testid'))
-    expect(keys).toEqual(['item-streak_7', 'item-first_session', 'item-words_100', 'item-league_top1'])
+    expect(wrapper.get('[data-testid=group-received] h2').text()).toBe('Получены')
+    expect(wrapper.get('[data-testid=group-ahead] h2').text()).toBe('Впереди')
+    expect(text(wrapper, 'ahead-count')).toBe('2')
+
+    const keys = (id: string) => wrapper.findAll(`[data-testid=${id}] [data-testid^=item-]:not([data-testid=item-chosen])`).map((el) => el.attributes('data-testid'))
+    expect(keys('list')).toEqual(['item-streak_7', 'item-first_session'])
+    expect(keys('list-ahead')).toEqual(['item-words_100', 'item-league_top1'])
 
     expect(card(wrapper, 'first_session').attributes('data-unlocked')).toBe('true')
-    expect(card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()).toContain('Получено')
-
-    const words = card(wrapper, 'words_100')
-    expect(words.attributes('data-unlocked')).toBe('false')
-    expect(words.get('[data-testid=progress]').text()).toBe('40 из 100')
-    expect(words.get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 40%')
-    expect(words.find('[data-testid=share-btn]').exists()).toBe(false)
-
-    expect(card(wrapper, 'league_top1').get('[data-testid=locked]').text()).toBe('Ещё не получено')
+    expect(card(wrapper, 'words_100').attributes('data-unlocked')).toBe('false')
+    // the badges of the kit: received, in progress with the bar and "40 of 100", locked
+    const state = (key: string) => card(wrapper, key).get('[data-testid=achievement-badge]').attributes('data-state')
+    expect([state('streak_7'), state('words_100'), state('league_top1')]).toEqual(['unlocked', 'progress', 'locked'])
+    expect(card(wrapper, 'words_100').text()).toContain('40 из 100')
+    expect(card(wrapper, 'words_100').get('[data-testid=achievement-progress] .progress-fill').attributes('style')).toContain('width: 40%')
     expect(wrapper.find('[data-testid=empty-hint]').exists()).toBe(false)
   })
 
-  describe('the header and the summary', () => {
-    it('has a plain title (no emoji) and a summary with a progress bar of the unlocked share', async () => {
+  describe('the hero', () => {
+    it('is the 112 px stamp of the chosen achievement on the centre axis, with its description and the day it was received', async () => {
       const { wrapper } = await render()
 
-      expect(wrapper.get('h1').text()).toBe('Достижения')
-      const bar = wrapper.get('[data-testid=summary-bar]')
-      // 2 of 4
-      expect(bar.get('.progress-fill').attributes('style')).toContain('width: 50%')
-      expect(bar.classes()).toContain('progress')
-      expect(bar.attributes('role')).toBe('progressbar')
-      expect(bar.attributes('aria-valuenow')).toBe('50')
-      // the tinted card of the screen (docs/14 §4.5, 25.11.2026)
-      expect(wrapper.get('[data-testid=summary-card]').classes()).toEqual(expect.arrayContaining(['rounded-hero', 'bg-highlight']))
-      expect(wrapper.get('[data-testid=summary]').classes()).toContain('font-bold')
+      const hero = wrapper.get('[data-testid=hero]')
+      expect(hero.classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
+      const art = hero.get('[data-testid=achievement-art]')
+      expect(art.attributes('src')).toContain('achievements/streak-7.webp')
+      expect(art.attributes('width')).toBe('112')
+      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('t-display-m')
+      expect(text(wrapper, 'hero-description')).toBe('Описание')
+      expect(text(wrapper, 'unlocked-on')).toContain('Получено')
     })
 
-    it('does not divide by zero for an empty catalog', async () => {
-      const { wrapper } = await render(response({ unlocked_count: 0, total: 0, items: [] }))
+    it('shows a tapped badge in the hero and marks it as chosen', async () => {
+      const { wrapper } = await render()
 
-      expect(wrapper.get('[data-testid=summary-bar] .progress-fill').attributes('style')).toContain('width: 0%')
-      expect(text(wrapper, 'summary')).toBe('Получено 0 из 0')
+      expect(card(wrapper, 'streak_7').attributes('aria-pressed')).toBe('true')
+      await card(wrapper, 'words_100').trigger('click')
+
+      expect(text(wrapper, 'hero-title')).toBe('100 слов')
+      expect(card(wrapper, 'words_100').attributes('aria-pressed')).toBe('true')
+      expect(card(wrapper, 'words_100').find('[data-testid=item-chosen]').exists()).toBe(true)
+      expect(card(wrapper, 'streak_7').attributes('aria-pressed')).toBe('false')
+      expect(text(wrapper, 'progress')).toBe('40 из 100')
+      expect(wrapper.get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 40%')
+      expect(wrapper.find('[data-testid=share-btn]').exists()).toBe(false)
+
+      await card(wrapper, 'league_top1').trigger('click')
+      expect(text(wrapper, 'locked')).toBe('Ещё не получено')
+      // the grey picture of the kit for a locked one
+      expect(wrapper.get('[data-testid=hero] [data-testid=achievement-art]').attributes('src')).toContain('league-locked.webp')
     })
 
-    it('encourages to study when nothing is unlocked yet', async () => {
+    it('draws the even fallback stamp for an achievement the kit has no picture for, grey while it is ahead', async () => {
+      const { wrapper } = await render(
+        response({
+          items: [
+            item({ key: 'streak_30', title: '30 дней', unlocked_at: '2026-10-01T10:00:00+00:00' }),
+            item({ key: 'first_friend', title: 'Первый друг' }),
+          ],
+          unlocked_count: 1,
+          total: 2,
+        }),
+      )
+
+      const hero = wrapper.get('[data-testid=hero] [data-testid=achievement-fallback]')
+      expect(hero.attributes('style')).toContain('width: 112px')
+      expect(hero.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'border-muhr']))
+      const ahead = card(wrapper, 'first_friend').get('[data-testid=achievement-fallback]')
+      expect(ahead.attributes('data-locked')).toBe('true')
+      expect(ahead.classes()).toEqual(expect.arrayContaining(['bg-sunken', 'text-muted']))
+      expect(ahead.attributes('style')).toContain('width: 88px')
+      expect(ahead.find('svg').exists()).toBe(true)
+    })
+
+    it('colours the fallback of one in progress, as the badge of the kit colours its picture then', async () => {
+      const { wrapper } = await render(
+        response({ items: [item({ key: 'words_500', title: '500 слов', progress: { current: 380, target: 500 } })], unlocked_count: 0, total: 1 }),
+      )
+
+      expect(card(wrapper, 'words_500').get('[data-testid=achievement-fallback]').attributes('data-locked')).toBe('false')
+      expect(wrapper.get('[data-testid=hero] [data-testid=achievement-fallback]').attributes('data-locked')).toBe('false')
+    })
+
+    it('shows the first one ahead and encourages to study while nothing is received', async () => {
       const { wrapper } = await render(
         response({ unlocked_count: 0, items: response().items.map((i) => ({ ...i, unlocked_at: null, shared_at: null, share_text: null })) }),
       )
 
       expect(text(wrapper, 'empty-hint')).toBe('Занимайтесь каждый день — достижения появятся сами.')
-      expect(wrapper.get('[data-testid=summary-bar] .progress-fill').attributes('style')).toContain('width: 0%')
-    })
-  })
-
-  describe('the list', () => {
-    it('is one card of rows with lines between them, not a grid of tiles', async () => {
-      const { wrapper } = await render()
-
-      expect(wrapper.get('[data-testid=list]').classes()).toContain('list')
-      expect(wrapper.get('[data-testid=list]').classes()).not.toContain('grid')
-      expect(wrapper.findAll('[data-testid=list] > li').every((li) => li.classes().includes('border-divider'))).toBe(true)
+      expect(text(wrapper, 'hero-title')).toBe('100 слов')
+      expect(wrapper.find('[data-testid=group-received]').exists()).toBe(false)
     })
 
-    it('draws a quiet trophy for an unlocked row and a lock for a locked one, with no tile under them', async () => {
-      const { wrapper } = await render()
+    it('greets with the mascot for an empty catalog, never dividing by zero', async () => {
+      const { wrapper } = await render(response({ unlocked_count: 0, total: 0, items: [] }))
 
-      const unlocked = card(wrapper, 'first_session').get('[data-testid=item-tile]')
-      expect(unlocked.classes()).toContain('text-warning')
-      expect(unlocked.classes().some((c) => c.startsWith('bg-'))).toBe(false)
-      expect(unlocked.get('svg').attributes('fill')).toBe('currentColor')
-
-      const locked = card(wrapper, 'league_top1').get('[data-testid=item-tile]')
-      expect(locked.classes()).toContain('text-muted')
-      expect(locked.classes().some((c) => c.startsWith('bg-'))).toBe(false)
-      // the lock is an outline icon, the trophy a filled one
-      expect(locked.get('svg').attributes('fill')).toBe('none')
-      expect(locked.get('svg path').attributes('d')).not.toBe(unlocked.get('svg path').attributes('d'))
+      expect(wrapper.get('[data-testid=hero] [data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
+      expect(wrapper.find('[data-testid=hero-title]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=list]').exists()).toBe(false)
     })
 
-    it('shows no emoji on the cards: the icons are drawn', async () => {
+    it('has a plain title (no emoji) and no emoji on the badges: the pictures and icons are drawn', async () => {
       const { wrapper } = await render()
 
+      expect(wrapper.get('h1').text()).toBe('Достижения')
       expect(wrapper.text()).not.toMatch(/[🏅🔒🏆]/u)
     })
 
     it('limits the description to three lines and the title to two', async () => {
       const { wrapper } = await render()
 
-      const first = card(wrapper, 'first_session')
-      expect(first.get('[data-testid=item-description]').classes()).toContain('line-clamp-3')
-      expect(first.get('[data-testid=item-title]').classes()).toContain('line-clamp-2')
-      expect(first.get('[data-testid=item-title]').text()).toBe('Первый шаг')
-      expect(first.get('[data-testid=item-description]').text()).toBe('Описание')
+      expect(wrapper.get('[data-testid=hero-description]').classes()).toContain('line-clamp-3')
+      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('line-clamp-2')
     })
 
     it('shows the unlock date with no break inside it', async () => {
       const { wrapper } = await render()
+      await card(wrapper, 'first_session').trigger('click')
 
-      const date = card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()
+      const date = text(wrapper, 'unlocked-on')
       // "Получено 1 окт. 2026 г." in the device's time zone; the spaces of the date itself are no-break
       const local = new Intl.DateTimeFormat('ru', { day: 'numeric', month: 'short', year: 'numeric' })
         .format(new Date('2026-10-01T10:00:00+00:00'))
@@ -208,16 +241,53 @@ describe('AchievementsView', () => {
   })
 
   describe('sharing', () => {
-    it('has a small tinted "Поделиться" on every unlocked card, none on a locked one', async () => {
+    const hero = (w: Wrapper) => w.get('[data-testid=hero]')
+
+    it('offers "В сторис" beside "Поделиться" on a client of 7.8+, for a received achievement only (F3)', async () => {
+      state.canStory = true
+      const { wrapper, router } = await render()
+
+      await card(wrapper, 'first_session').trigger('click')
+      const story = hero(wrapper).get('[data-testid=story-btn]')
+      expect(story.text()).toBe('В сторис')
+      expect(story.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
+      expect(hero(wrapper).find('[data-testid=share-btn]').exists()).toBe(true)
+
+      await story.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('share-story')
+      expect(router.currentRoute.value.query).toEqual({ kind: 'achievement', subject: 'first_session' })
+      // The screen of the story asks the server; Achievements does not.
+      expect(state.share).not.toHaveBeenCalled()
+      expect(api.achievements.shared).not.toHaveBeenCalled()
+    })
+
+    it('has no "В сторис" for an achievement ahead, nor on a client below 7.8', async () => {
+      state.canStory = true
+      const { wrapper } = await render()
+      await card(wrapper, 'words_100').trigger('click')
+      expect(wrapper.find('[data-testid=story-btn]').exists()).toBe(false)
+
+      state.canStory = false
+      const other = await render()
+      await card(other.wrapper, 'first_session').trigger('click')
+      expect(other.wrapper.find('[data-testid=story-btn]').exists()).toBe(false)
+      expect(other.wrapper.find('[data-testid=share-btn]').exists()).toBe(true)
+    })
+
+    it('has a secondary "Поделиться" in the hero of a received achievement, none for one ahead', async () => {
       const { wrapper } = await render()
 
       for (const key of ['first_session', 'streak_7']) {
-        const button = card(wrapper, key).get('[data-testid=share-btn]')
+        await card(wrapper, key).trigger('click')
+        const button = hero(wrapper).get('[data-testid=share-btn]')
         expect(button.text()).toBe('Поделиться')
-        expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-sm']))
+        expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
       }
-      expect(card(wrapper, 'words_100').find('[data-testid=share-btn]').exists()).toBe(false)
-      expect(card(wrapper, 'league_top1').find('[data-testid=share-btn]').exists()).toBe(false)
+      for (const key of ['words_100', 'league_top1']) {
+        await card(wrapper, key).trigger('click')
+        expect(wrapper.find('[data-testid=share-btn]').exists()).toBe(false)
+      }
     })
 
     it('shares the achievement through the bot (the key as the subject, the link and the text as the fallback), then marks it', async () => {
@@ -226,9 +296,10 @@ describe('AchievementsView', () => {
       })
       vi.mocked(api.achievements.shared).mockResolvedValue(refreshed)
       const { wrapper } = await render()
+      await card(wrapper, 'first_session').trigger('click')
 
-      expect(card(wrapper, 'first_session').find('[data-testid=shared]').exists()).toBe(false)
-      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
+      expect(wrapper.find('[data-testid=shared]').exists()).toBe(false)
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
       await flushPromises()
 
       expect(state.share).toHaveBeenCalledWith(
@@ -239,13 +310,13 @@ describe('AchievementsView', () => {
       )
       expect(state.haptic).toHaveBeenCalled()
       expect(api.achievements.shared).toHaveBeenCalledWith('first_session')
-      expect(card(wrapper, 'first_session').get('[data-testid=shared]').text()).toContain('Вы уже поделились')
+      expect(text(wrapper, 'shared')).toContain('Вы уже поделились')
     })
 
-    it('marks a shared card with a check footnote', async () => {
+    it('marks a shared achievement with a check footnote', async () => {
       const { wrapper } = await render()
 
-      const shared = card(wrapper, 'streak_7').get('[data-testid=shared]')
+      const shared = hero(wrapper).get('[data-testid=shared]')
       expect(shared.text()).toBe('Вы уже поделились')
       expect(shared.find('svg').exists()).toBe(true)
     })
@@ -254,7 +325,7 @@ describe('AchievementsView', () => {
       vi.mocked(api.achievements.shared).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
       const { wrapper } = await render()
 
-      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
       await flushPromises()
 
       expect(state.share).toHaveBeenCalledTimes(1)
@@ -264,15 +335,16 @@ describe('AchievementsView', () => {
     it('puts no mark when the learner closed the chat picker', async () => {
       state.share.mockResolvedValue('cancelled')
       const { wrapper } = await render()
+      await card(wrapper, 'first_session').trigger('click')
 
-      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
       await flushPromises()
 
       expect(api.achievements.shared).not.toHaveBeenCalled()
-      expect(card(wrapper, 'first_session').find('[data-testid=shared]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=shared]').exists()).toBe(false)
     })
 
-    it('spins the button of the card being shared and holds every share button meanwhile', async () => {
+    it('spins the button while the share is on its way and takes no second share meanwhile', async () => {
       let finish: (outcome: string) => void = () => undefined
       state.share.mockImplementation(() => {
         state.pending.value = true
@@ -284,38 +356,41 @@ describe('AchievementsView', () => {
         })
       })
       const { wrapper } = await render()
+      await card(wrapper, 'first_session').trigger('click')
 
-      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
-      const busy = card(wrapper, 'first_session').get('[data-testid=share-btn]')
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
+      const busy = wrapper.get('[data-testid=share-btn]')
       expect(busy.attributes('disabled')).toBeDefined()
       expect(busy.attributes('aria-busy')).toBe('true')
       expect(busy.find('[data-testid=share-busy]').exists()).toBe(true)
-      const other = card(wrapper, 'streak_7').get('[data-testid=share-btn]')
+
+      // another received one: its button waits too, without the spinner
+      await card(wrapper, 'streak_7').trigger('click')
+      const other = wrapper.get('[data-testid=share-btn]')
       expect(other.attributes('disabled')).toBeDefined()
       expect(other.find('[data-testid=share-busy]').exists()).toBe(false)
-
       await other.trigger('click')
       expect(state.share).toHaveBeenCalledTimes(1)
 
       finish('cancelled')
       await flushPromises()
-      expect(card(wrapper, 'first_session').get('[data-testid=share-btn]').attributes('disabled')).toBeUndefined()
+      expect(wrapper.get('[data-testid=share-btn]').attributes('disabled')).toBeUndefined()
       expect(wrapper.find('[data-testid=share-busy]').exists()).toBe(false)
     })
 
-    it('hides the share buttons while there is no invite link', async () => {
+    it('hides the share button while there is no invite link', async () => {
       const { wrapper } = await render(response({ share_link: null }))
 
       expect(wrapper.find('[data-testid=share-btn]').exists()).toBe(false)
-      expect(card(wrapper, 'first_session').text()).toContain('Первый шаг')
+      expect(text(wrapper, 'hero-title')).toBe('Серия 7 дней')
     })
 
-    it('does not share a card that has no text yet', async () => {
+    it('does not share an achievement that has no text yet', async () => {
       const { wrapper } = await render(
         response({ items: [item({ key: 'odd', title: 'Odd', unlocked_at: '2026-10-01T10:00:00+00:00', share_text: null })], unlocked_count: 1, total: 1 }),
       )
 
-      await card(wrapper, 'odd').get('[data-testid=share-btn]').trigger('click')
+      await wrapper.get('[data-testid=share-btn]').trigger('click')
 
       expect(state.share).not.toHaveBeenCalled()
       expect(api.achievements.shared).not.toHaveBeenCalled()
@@ -333,7 +408,7 @@ describe('AchievementsView', () => {
         response({ items: [item({ key: 'count', title: 'Count', progress: { current, target: 100 } })], unlocked_count: 0, total: 1 }),
       )
 
-      const bar = card(wrapper, 'count').get('[data-testid=bar]')
+      const bar = wrapper.get('[data-testid=bar]')
       expect(bar.get('.progress-fill').attributes('style')).toContain(`width: ${width}%`)
       expect(bar.attributes('aria-valuenow')).toBe(String(width))
       expect(bar.attributes('aria-label')).toBe('Count')
@@ -344,7 +419,8 @@ describe('AchievementsView', () => {
         response({ items: [item({ key: 'zero', title: 'Zero', progress: { current: 0, target: 0 } })], unlocked_count: 0, total: 1 }),
       )
 
-      expect(card(wrapper, 'zero').get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 0%')
+      expect(wrapper.get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 0%')
+      expect(card(wrapper, 'zero').get('[data-testid=achievement-badge]').attributes('data-state')).toBe('locked')
     })
   })
 
@@ -354,10 +430,14 @@ describe('AchievementsView', () => {
 
     expect(wrapper.get('h1').text()).toBe('Yutuqlar')
     expect(text(wrapper, 'summary')).toBe('4 tadan 2 tasi olindi')
-    expect(card(wrapper, 'first_session').get('[data-testid=share-btn]').text()).toBe('Ulashish')
-    expect(card(wrapper, 'words_100').get('[data-testid=progress]').text()).toBe('100 tadan 40 tasi')
-    expect(card(wrapper, 'league_top1').get('[data-testid=locked]').text()).toBe('Hali olinmagan')
-    expect(card(wrapper, 'first_session').get('[data-testid=unlocked-on]').text()).toMatch(/kuni olindi$/)
+    expect(wrapper.get('[data-testid=group-received] h2').text()).toBe('Olinganlar')
+    expect(wrapper.get('[data-testid=group-ahead] h2').text()).toBe('Oldinda')
+    expect(text(wrapper, 'share-btn')).toBe('Ulashish')
+    expect(text(wrapper, 'unlocked-on')).toMatch(/kuni olindi$/)
+    await card(wrapper, 'words_100').trigger('click')
+    expect(text(wrapper, 'progress')).toBe('100 tadan 40 tasi')
+    await card(wrapper, 'league_top1').trigger('click')
+    expect(text(wrapper, 'locked')).toBe('Hali olinmagan')
   })
 
   describe('the Back button', () => {
@@ -382,6 +462,7 @@ describe('AchievementsView', () => {
       await flushPromises()
 
       expect(wrapper.find('[data-testid=spinner]').exists()).toBe(true)
+      expect(wrapper.findAll('[data-testid=spinner] .skeleton.rounded-full').length).toBeGreaterThan(1)
       expect(wrapper.get('h1').text()).toBe('Достижения')
       expect(wrapper.find('[data-testid=list]').exists()).toBe(false)
     })

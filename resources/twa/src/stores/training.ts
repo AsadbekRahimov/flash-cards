@@ -138,6 +138,80 @@ interface TrainingState {
   startedAt: number
   /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
   generation: number
+  /** The answer that waits for the network (F5); at most one: no next card is served until it is accepted. */
+  pending: PendingAnswer | null
+  /** The last error was a lost connection: the return of the network repeats what failed. */
+  networkError: boolean
+}
+
+/**
+ * An answer that did not reach the server for want of a connection (docs/40 §2.6, F5): everything needed to send the very same request
+ * again - the same `serve_token`, so the server accepts it once (a repeat of an answer that did arrive is a 409 `card_not_due`, docs/06
+ * §5.2). `quality` for a flash card, `answer` for the others (the pick, the typed text). `hold`, `introduction` - how `submit` treats its
+ * reply. Kept in the store and in `sessionStorage` (`training:pending-review:<sessionId>`), so a reload of the tab sends it first.
+ */
+export interface PendingAnswer {
+  sessionId: number
+  wordId: number
+  serveToken: string | null
+  exercise: ExerciseType
+  timeSpentMs: number
+  quality: Quality | null
+  answer: string | null
+  hold: boolean
+  introduction: boolean
+  /** epoch ms of the first try */
+  at: number
+}
+
+const pendingKey = (sessionId: number): string => `training:pending-review:${sessionId}`
+
+/** Best effort: storage can be full, switched off or gone (iOS clears it in the background); the answer in the store is enough then. */
+function storePending(answer: PendingAnswer): void {
+  try {
+    window.sessionStorage.setItem(pendingKey(answer.sessionId), JSON.stringify(answer))
+  } catch {
+    // the copy in the store still waits for the network
+  }
+}
+
+function dropPending(sessionId: number): void {
+  try {
+    window.sessionStorage.removeItem(pendingKey(sessionId))
+  } catch {
+    // nothing to drop
+  }
+}
+
+/** The answer of `sessionId` left by an earlier load of the tab; null when there is none or it is not one this build wrote. */
+function readPending(sessionId: number): PendingAnswer | null {
+  let raw: string | null
+  try {
+    raw = window.sessionStorage.getItem(pendingKey(sessionId))
+  } catch {
+    return null
+  }
+  if (raw === null) return null
+  try {
+    const v = JSON.parse(raw) as Partial<PendingAnswer> | null
+    const valid =
+      v !== null
+      && typeof v === 'object'
+      && v.sessionId === sessionId
+      && typeof v.wordId === 'number'
+      && (v.serveToken === null || typeof v.serveToken === 'string')
+      && typeof v.exercise === 'string'
+      && typeof v.timeSpentMs === 'number'
+      && ((typeof v.quality === 'number' && v.answer === null) || (v.quality === null && typeof v.answer === 'string'))
+      && typeof v.hold === 'boolean'
+      && typeof v.introduction === 'boolean'
+      && typeof v.at === 'number'
+    if (valid) return v as PendingAnswer
+  } catch {
+    // not JSON
+  }
+  dropPending(sessionId)
+  return null
 }
 
 /** Grows with every chip of the word points, so the same «+2» twice in a row is drawn anew. */
@@ -189,6 +263,8 @@ export const useTrainingStore = defineStore('training', {
     scoreCapNoted: false,
     startedAt: 0,
     generation: 0,
+    pending: null,
+    networkError: false,
   }),
 
   getters: {
@@ -252,7 +328,12 @@ export const useTrainingStore = defineStore('training', {
       const generation = this.generation
       this.status = 'starting'
       try {
-        const res = preloaded ?? (await api.training.start(sessionId))
+        // An answer of this session that waited for the network when the tab was closed or reloaded goes first (docs/40 §2.6): the start
+        // after it shows the card the server serves now. The open's answer is not used then - it was given before this answer was taken.
+        const waiting = readPending(sessionId)
+        if (waiting !== null && !(await this.flushRestored(waiting))) return
+        if (generation !== this.generation) return
+        const res = (waiting === null ? preloaded : null) ?? (await api.training.start(sessionId))
         if (generation !== this.generation) return
         await this.applyStart(res)
       } catch (err) {
@@ -291,6 +372,8 @@ export const useTrainingStore = defineStore('training', {
       try {
         const res = await api.training.next(this.sessionId)
         if (generation !== this.generation) return
+        // A new serve: an answer still waiting was for the card the server no longer holds (it would be refused anyway).
+        this.forgetPending()
         this.progress = clampProgress(res.progress)
         this.doneReason = res.done_reason ?? null
         this.canContinue = res.can_continue === true
@@ -307,12 +390,7 @@ export const useTrainingStore = defineStore('training', {
 
     /** A self-graded (flash) card: the card the review answers with is shown at once. */
     async submitReview(quality: Quality): Promise<void> {
-      await this.submit(
-        (sessionId, wordId, timeSpent, serveToken, exercise) =>
-          api.training.review(sessionId, wordId, quality, timeSpent, serveToken, exercise),
-        false,
-        quality,
-      )
+      await this.submit({ quality, answer: null }, false)
     },
 
     /**
@@ -323,11 +401,7 @@ export const useTrainingStore = defineStore('training', {
      * learner has seen the right answer.
      */
     async submitChoice(picked: string): Promise<void> {
-      await this.submit(
-        (sessionId, wordId, timeSpent, serveToken, exercise) =>
-          api.training.answer(sessionId, wordId, picked, timeSpent, serveToken, exercise),
-        true,
-      )
+      await this.submit({ quality: null, answer: picked }, true)
     },
 
     /**
@@ -335,47 +409,61 @@ export const useTrainingStore = defineStore('training', {
      * until the learner has seen the verdict (`continueAfterVerdict()`).
      */
     async submitAnswer(answer: string): Promise<void> {
-      await this.submit(
-        (sessionId, wordId, timeSpent, serveToken, exercise) =>
-          api.training.answer(sessionId, wordId, answer, timeSpent, serveToken, exercise),
-        false,
-      )
+      await this.submit({ quality: null, answer }, false)
     },
 
     /**
+     * @param grade the learner's own grade of a flash card (`quality`), or the pick / typed text the server grades (`answer`)
      * @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card)
-     * @param selfGrade the learner's own grade of a flash card (the other exercises are graded by the server)
      */
-    async submit(
-      send: (
-        sessionId: number,
-        wordId: number,
-        timeSpent: number,
-        serveToken: string | null,
-        exercise: ExerciseType,
-      ) => Promise<ReviewResponse>,
-      hold: boolean,
-      selfGrade?: Quality,
-    ): Promise<void> {
+    async submit(grade: { quality: Quality; answer: null } | { quality: null; answer: string }, hold: boolean): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
-      const generation = this.generation
-      const wordId = this.card.word_id
-      // Learn-ahead ticket of *this* serve; the server rejects a replay without it.
-      const serveToken = this.card.serve_token ?? null
-      const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
-      this.advanceWhenAnswered = false
       // The exercise this card was shown with: the server refuses (409 `exercise_mismatch`) an answer of another kind.
       const shown = this.exercise
-      // A new word's flash card shows its answer at once: "Got it" there is not an answer to a question (see `recordOutcome`).
-      const introduction = shown === 'flash' && this.card.card_kind === 'new'
+      const answer: PendingAnswer = {
+        sessionId: this.sessionId,
+        wordId: this.card.word_id,
+        // Learn-ahead ticket of *this* serve; the server rejects a replay without it.
+        serveToken: this.card.serve_token ?? null,
+        exercise: shown,
+        timeSpentMs: Math.max(0, Date.now() - this.cardShownAt),
+        quality: grade.quality,
+        answer: grade.answer,
+        hold,
+        // A new word's flash card shows its answer at once: "Got it" there is not an answer to a question (see `recordOutcome`).
+        introduction: shown === 'flash' && this.card.card_kind === 'new',
+        at: Date.now(),
+      }
+      this.advanceWhenAnswered = false
+      await this.send(answer)
+    },
+
+    /**
+     * "Retry" (the error state, the screen F5) and the return of the network (docs/40 §2.6): the answer that waits goes again, the very
+     * same request. Its card is no longer on screen (the error state took its place), so a four-choice answer does not stop on the colours
+     * of the options: what it brought is shown at once.
+     */
+    async resendPending(): Promise<void> {
+      const answer = this.pending
+      if (answer === null || answer.sessionId !== this.sessionId || this.status !== 'error') return
+      if (answer.hold) this.advanceWhenAnswered = true
+      await this.send(answer)
+    },
+
+    /** Sends an answer and shows what it brought; a lost connection keeps it for `resendPending()`. */
+    async send(answer: PendingAnswer): Promise<void> {
+      const generation = this.generation
+      const { exercise: shown, hold, introduction } = answer
+      const selfGrade = answer.quality ?? undefined
       this.lastExercise = shown
       this.choiceResult = null
       this.wordScore = null
       this.status = 'submitting'
       try {
-        const res = await send(this.sessionId, wordId, timeSpent, serveToken, shown)
+        const res = await this.request(answer)
         // The learner has moved on to another session while the answer was on its way: it is no use to this one.
         if (generation !== this.generation) return
+        this.forgetPending()
         // The first answer of the open the server accepted (docs/04 A.21): this sends the timing marks of a sampled open.
         markTiming('first_answer_ack')
         this.reviewedCount += 1
@@ -423,12 +511,24 @@ export const useTrainingStore = defineStore('training', {
         await this.loadNext()
       } catch (err) {
         if (generation !== this.generation) return
-        // The server already consumed/re-issued this serve (rare race or network replay):
-        // the grade was not counted, so silently fetch the actual card. Once per submit —
+        // No connection (docs/40 §2.6): the answer waits - in the store and in `sessionStorage` - for "Retry" or the network.
+        if (err instanceof ApiClientError && err.kind === 'network') {
+          this.keepPending(answer)
+          this.handleApiError(err)
+          return
+        }
+        // A repeat of an answer whose first try got no reply (the time ran out, the connection broke).
+        const repeated = this.pending !== null
+        this.forgetPending()
+        // The server already consumed/re-issued this serve (rare race or network replay - a repeat of an answer that did arrive):
+        // the grade was not counted now, so silently fetch the actual card. Once per submit —
         // loadNext() never re-submits, and its own failure goes through the usual error path.
         // The same for an exercise the server no longer agrees with (the plan changed mid-session,
         // an older card on screen): the fresh card carries the exercise the server expects.
         if (err instanceof ApiClientError && err.kind === 'conflict' && err.code === 'card_not_due') {
+          // For a repeat it is the first try that the server took: the answer counts (`reviewedCount` - the fallback of the finish
+          // screen when `/finish` gave no summary; the server's numbers are the truth).
+          if (repeated) this.reviewedCount += 1
           await this.loadNext()
           return
         }
@@ -438,6 +538,59 @@ export const useTrainingStore = defineStore('training', {
         }
         this.handleApiError(err)
       }
+    },
+
+    /** The request of an answer: a flash grade goes as `quality`, the rest as `answer`. */
+    request(answer: PendingAnswer): Promise<ReviewResponse> {
+      const { sessionId, wordId, timeSpentMs, serveToken, exercise } = answer
+      return answer.quality !== null
+        ? api.training.review(sessionId, wordId, answer.quality, timeSpentMs, serveToken, exercise)
+        : api.training.answer(sessionId, wordId, answer.answer ?? '', timeSpentMs, serveToken, exercise)
+    },
+
+    /**
+     * The answer left by an earlier load of the tab (`start()`): sent before the session is shown. Its reply is not shown - the start
+     * that follows brings the card and the progress. Returns false when the start must not follow: the network is still gone (the answer
+     * keeps waiting, "Retry" starts again), the session is closed (410) or the server refused otherwise.
+     */
+    async flushRestored(answer: PendingAnswer): Promise<boolean> {
+      const generation = this.generation
+      this.pending = answer
+      try {
+        const res = await this.request(answer)
+        if (generation !== this.generation) return false
+        this.forgetPending()
+        this.reviewedCount += 1
+        this.lastIntervalDays = res.new_interval_days
+        return true
+      } catch (err) {
+        if (generation !== this.generation) return false
+        if (err instanceof ApiClientError && err.kind === 'network') {
+          this.handleApiError(err)
+          return false
+        }
+        this.forgetPending()
+        // Taken already (409 `card_not_due`: the first try of this answer reached the server, so it counts) or of an exercise the server
+        // no longer serves: nothing is lost, the session goes on.
+        if (err instanceof ApiClientError && err.code === 'card_not_due') {
+          this.reviewedCount += 1
+          return true
+        }
+        if (err instanceof ApiClientError && EXERCISE_MISMATCH_CODES.includes(err.code)) return true
+        this.handleApiError(err)
+        return false
+      }
+    },
+
+    keepPending(answer: PendingAnswer): void {
+      this.pending = answer
+      storePending(answer)
+    },
+
+    forgetPending(): void {
+      if (this.pending === null) return
+      dropPending(this.pending.sessionId)
+      this.pending = null
     },
 
     /**
@@ -595,6 +748,9 @@ export const useTrainingStore = defineStore('training', {
     resetForSession(sessionId: number): void {
       this.generation += 1
       this.sessionId = sessionId
+      // An answer of the previous session stays in `sessionStorage` for when that session is opened again.
+      this.pending = null
+      this.networkError = false
       this.mode = null
       this.doneReason = null
       this.canContinue = false
@@ -641,6 +797,7 @@ export const useTrainingStore = defineStore('training', {
     handleApiError(err: unknown): void {
       this.status = err instanceof ApiClientError && err.kind === 'gone' ? 'closed' : 'error'
       this.errorMessage = errorMessage(err, 'training')
+      this.networkError = err instanceof ApiClientError && err.kind === 'network'
     },
   },
 })

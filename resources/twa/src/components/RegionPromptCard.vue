@@ -25,8 +25,8 @@ onMounted(() => {
 <template>
   <section v-if="visible" class="card space-y-3" data-testid="region-prompt">
     <div class="space-y-1">
-      <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('region.prompt.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('region.prompt.text') }}</p>
+      <h2 class="t-title-m">{{ t('region.prompt.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('region.prompt.text') }}</p>
     </div>
     <div class="flex gap-2">
       <button type="button" class="btn btn-primary flex-1" data-testid="region-prompt-choose" @click="sheetOpen = true">{{ t('region.prompt.choose') }}</button>

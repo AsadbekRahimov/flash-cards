@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import OpponentStatus from '@/components/battle/OpponentStatus.vue'
 import type { PlayerState } from '@/components/battle/OpponentStatus.vue'
 import { clockText, remainingMs, secondsLeft } from '@/composables/battleTime'
@@ -16,9 +17,10 @@ import type { Battle } from '@/api/types'
 /**
  * Before the match (docs/16 §11.2): the invitation that is sent, the invitation that came, the room.
  *
- * - **Sent** (`invited`, the challenger): "Waiting for {name}…", how long the invitation lasts, "Cancel".
- * - **Came** (`invited`, the opponent): who calls, the format, the topic, the rules; "Accept" (the one primary button)
- *   and "Decline".
+ * - **Sent** (`invited`, the challenger): the mascot thinking, "Waiting for {name}…", how long the invitation lasts (a chip),
+ *   "Cancel" (secondary).
+ * - **Came** (`invited`, the opponent): the mascot greeting, who calls, the format, the topic, the rules; "Accept" (the one primary
+ *   button) and "Decline" (ghost).
  * - **Room** (`room`): both players with their "ready" marks, the format, the topic, the rules and the limit of a
  *   round; "Ready" (the one primary button; after it "Ready - waiting for the opponent") and "Leave". A dictation loads
  *   its five recordings first (`audio`): "Ready" waits for them, and a recording that did not come can be asked again.
@@ -113,12 +115,16 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 <template>
   <div class="flex flex-1 flex-col" data-testid="battle-room" :data-phase="phase">
     <div class="flex flex-1 flex-col gap-4 px-5 pt-3 pb-4">
-      <header class="text-center">
-        <h1 class="text-[22px] leading-7 font-semibold break-words" data-testid="room-title">{{ title }}</h1>
-        <p class="mt-1 text-[15px] leading-5 text-muted" data-testid="room-lead">{{ lead }}</p>
-        <p v-if="expires" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="room-expires">
+      <!-- The centred hero of the kit (DESIGN.md §8): while an invitation waits, the mascot greets above the title; the room keeps its height for the players. -->
+      <header class="flex flex-col items-center gap-2 text-center">
+        <MascotArt v-if="phase !== 'room'" :pose="phase === 'invite_sent' ? 'thinking' : 'hello'" :height="112" class="mb-1 short:hidden" />
+        <h1 class="t-display-m break-words" data-testid="room-title">{{ title }}</h1>
+        <p class="t-body-m text-muted" data-testid="room-lead">{{ lead }}</p>
+        <!-- The time left as a chip of the kit; the figures are tabular, so the chip does not change its width every second. -->
+        <span v-if="expires" class="chip chip-neutral tabular-nums" data-testid="room-expires">
+          <AppIcon name="clock" :size="14" />
           {{ expires }}
-        </p>
+        </span>
       </header>
 
       <section class="card flex flex-col gap-3" data-testid="room-players">
@@ -129,7 +135,7 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
       <section class="card flex flex-col gap-3" data-testid="room-brief">
         <div class="flex items-center gap-3">
           <span class="min-w-0 flex-1">
-            <span class="block text-[15px] leading-5 font-semibold" data-testid="room-mode">{{ modeTitle(battle.mode) }}</span>
+            <span class="block t-body-m-strong" data-testid="room-mode">{{ modeTitle(battle.mode) }}</span>
             <span class="mt-0.5 block truncate text-[13px] leading-[18px] text-muted">{{ t(`practice.mode.${battle.mode}.example`) }}</span>
           </span>
         </div>
@@ -139,7 +145,7 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 
       <div v-if="busyBattleId != null" class="space-y-2" data-testid="room-busy">
         <InlineAlert tone="warning" :message="t('error.code.battle_busy')" />
-        <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
       </div>
 
       <!-- A dictation: the five recordings are loaded before "Ready" (docs/16 §10.3). -->
@@ -147,14 +153,14 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
         <InlineAlert v-if="audio.state === 'failed'" tone="warning" :message="t('battle.audio.failed')" data-testid="audio-failed" />
         <div v-else class="card flex flex-col gap-2">
           <p class="flex items-center gap-2 text-[15px] leading-5" data-testid="audio-progress">
-            <AppIcon :name="audio.state === 'ready' ? 'check' : 'speaker-wave'" :size="18" :class="audio.state === 'ready' ? 'text-success' : 'text-muted'" />
+            <AppIcon :name="audio.state === 'ready' ? 'check' : 'speaker-wave'" :size="18" :class="audio.state === 'ready' ? 'text-success-ink' : 'text-muted'" />
             {{ audio.state === 'ready' ? t('battle.audio.ready') : t('battle.audio.loading', { loaded: audio.loaded, total: audio.total }) }}
           </p>
           <div class="progress" aria-hidden="true">
             <div class="progress-fill" :class="{ 'progress-success': audio.state === 'ready' }" :style="{ width: `${audio.total > 0 ? Math.round((audio.loaded / audio.total) * 100) : 0}%` }" />
           </div>
         </div>
-        <button v-if="audio.state === 'failed'" type="button" class="btn btn-tinted btn-sm mt-2" data-testid="audio-retry" @click="emit('retry-audio')">
+        <button v-if="audio.state === 'failed'" type="button" class="btn btn-secondary btn-sm mt-2" data-testid="audio-retry" @click="emit('retry-audio')">
           {{ t('practice.audio.retry') }}
         </button>
       </section>
@@ -175,13 +181,13 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
         <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy !== null" data-testid="accept-btn" @click="emit('accept')">
           {{ t('battle.invite.accept') }}
         </button>
-        <button type="button" class="btn btn-plain btn-block" :disabled="busy !== null" data-testid="decline-btn" @click="emit('decline')">
+        <button type="button" class="btn btn-ghost btn-block" :disabled="busy !== null" data-testid="decline-btn" @click="emit('decline')">
           {{ t('battle.invite.decline') }}
         </button>
       </template>
 
       <template v-else-if="phase === 'invite_sent'">
-        <button type="button" class="btn btn-tinted btn-block" :disabled="busy !== null" data-testid="cancel-btn" @click="emit('cancel')">
+        <button type="button" class="btn btn-secondary btn-block" :disabled="busy !== null" data-testid="cancel-btn" @click="emit('cancel')">
           {{ t('battle.invite.cancel') }}
         </button>
       </template>
@@ -194,7 +200,7 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
           </template>
           <template v-else>{{ t('battle.room.ready') }}</template>
         </button>
-        <button type="button" class="btn btn-plain btn-block" :disabled="busy !== null" data-testid="leave-btn" @click="emit('leave')">
+        <button type="button" class="btn btn-ghost btn-block" :disabled="busy !== null" data-testid="leave-btn" @click="emit('leave')">
           {{ t('battle.room.leave') }}
         </button>
       </template>

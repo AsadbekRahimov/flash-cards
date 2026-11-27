@@ -70,6 +70,10 @@ async function renderCatalog() {
 async function renderCourse(slug: string) {
   const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router()] } })
   await flushPromises()
+  // the lessons of a module are under its disclosure (kit Muhrla 03; the current one starts open): every module opened
+  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) {
+    if (toggle.attributes('aria-expanded') !== 'true') await toggle.trigger('click')
+  }
   return wrapper
 }
 
@@ -80,44 +84,56 @@ beforeEach(() => {
 })
 afterEach(() => setLocale('ru'))
 
-describe('CoursesView: the section of phrases', () => {
-  it('puts the courses of phrases in a group of their own, after the usual ones, with a heading and a short line', async () => {
+describe('CoursesView: the courses of phrases', () => {
+  beforeEach(() => {
+    vi.mocked(api.courses.get).mockImplementation(async (slug: string) => ({ ...course({ slug }), stages: [] }))
+  })
+
+  it('puts the tiles of phrases after the usual ones, named «Фразы» with their level; the card of a picked one says what they are', async () => {
     vi.mocked(api.courses.list).mockResolvedValue({
-      courses: [phrases(), course({ section: 'courses' }), course({ slug: 'english-b1', title: 'B1', section: 'courses' })],
+      courses: [phrases(), course({ section: 'courses' }), course({ slug: 'english-b1', title: 'B1', level: 'B1', section: 'courses' })],
     })
 
     const wrapper = await renderCatalog()
 
-    const testids = wrapper.findAll('[data-testid]').map((el) => el.attributes('data-testid'))
-      .filter((id) => id === 'phrases-section' || (id ?? '').startsWith('course-') && id !== 'course-link')
-    expect(testids).toEqual(['course-english-a1', 'course-english-b1', 'phrases-section', 'course-english-phrases-a2b1'])
-    expect(wrapper.get('[data-testid=phrases-title]').text()).toBe('Фразы')
-    expect(wrapper.get('[data-testid=phrases-hint]').text()).toContain('идиомы')
-
-    // The size of a course of phrases is in phrases; it has no goal chip (the section says it).
-    const chips = wrapper.get('[data-testid=course-english-phrases-a2b1]').findAll('[data-testid=meta] .chip').map((c) => c.text())
-    expect(chips).toEqual(['A2–B1', '300 фраз'])
-    const usual = wrapper.get('[data-testid=course-english-a1]').findAll('[data-testid=meta] .chip').map((c) => c.text())
+    const tiles = wrapper.findAll('[data-testid=course-grid] > button').map((el) => el.attributes('data-testid'))
+    expect(tiles).toEqual(['course-english-a1', 'course-english-b1', 'course-english-phrases-a2b1'])
+    const tile = wrapper.get('[data-testid=course-english-phrases-a2b1]')
+    expect(tile.get('[data-testid=tile-label]').text()).toBe('Фразы')
+    expect(tile.get('[data-testid=tile-caption]').text()).toBe('A2–B1')
+    // a usual course has no line about phrases
+    expect(wrapper.find('[data-testid=phrases-hint]').exists()).toBe(false)
+    const usual = wrapper.get('[data-testid=selected-english-a1]').findAll('[data-testid=meta] .chip').map((c) => c.text())
     expect(usual).toEqual(['A1', 'Общий английский', '5 слов'])
+
+    await tile.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=phrases-hint]').text()).toContain('идиомы')
+    // The size of a course of phrases is in phrases; it has no goal chip (the tile says it).
+    const chips = wrapper.get('[data-testid=selected-english-phrases-a2b1]').findAll('[data-testid=meta] .chip').map((c) => c.text())
+    expect(chips).toEqual(['A2–B1', '300 фраз'])
+    expect(wrapper.get('[data-testid=modules-title]').text()).toBe('Фразы · Модули')
   })
 
-  it('a list without `section` (an older server) is drawn as before: no section heading', async () => {
+  it('a list without `section` (an older server) is drawn as before: no tile of phrases', async () => {
     vi.mocked(api.courses.list).mockResolvedValue({ courses: [course(), course({ slug: 'english-b1', title: 'B1' })] })
 
     const wrapper = await renderCatalog()
 
-    expect(wrapper.find('[data-testid=phrases-section]').exists()).toBe(false)
-    expect(wrapper.findAll('article')).toHaveLength(2)
+    expect(wrapper.findAll('[data-testid=tile-label]').map((el) => el.text())).toEqual(['A1', 'A1'])
+    expect(wrapper.find('[data-testid=phrases-hint]').exists()).toBe(false)
   })
 
-  it('a catalog of phrases only still has its heading; the Uzbek words', async () => {
+  it('a catalog of phrases only: the tile «Iboralar» and the Uzbek words', async () => {
     setLocale('uz')
-    vi.mocked(api.courses.list).mockResolvedValue({ courses: [phrases({ words_count: 1 })] })
+    vi.mocked(api.courses.list).mockResolvedValue({ courses: [phrases({ words_count: 1, level: null })] })
 
     const wrapper = await renderCatalog()
 
-    expect(wrapper.get('[data-testid=phrases-title]').text()).toBe('Iboralar')
-    expect(wrapper.get('[data-testid=course-english-phrases-a2b1]').text()).toContain('1 ta ibora')
+    expect(wrapper.get('[data-testid=course-english-phrases-a2b1] [data-testid=tile-label]').text()).toBe('Iboralar')
+    expect(wrapper.get('[data-testid=course-english-phrases-a2b1] [data-testid=tile-caption]').text()).toBe('1 ta ibora')
+    expect(wrapper.get('[data-testid=selected-english-phrases-a2b1]').text()).toContain('1 ta ibora')
   })
 })
 
@@ -152,8 +168,9 @@ describe('CourseView of a course of phrases', () => {
 
     const wrapper = await renderCourse('english-phrases-a2b1')
 
-    expect(wrapper.get('[data-testid=progress-text]').text()).toBe('3 / 21 фразы')
-    expect(wrapper.get('[data-testid=course-line]').text()).toBe('A2–B1 · Разговорные фразы')
+    expect(wrapper.get('[data-testid=progress-text]').text()).toBe('3 из 21 фразы')
+    expect(wrapper.get('[data-testid=course-level]').text()).toBe('A2–B1')
+    expect(wrapper.get('[data-testid=course-line]').text()).toBe('Разговорные фразы')
     expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-hint]').text()).toBe('3 из 10 фраз')
     expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-hint]').text()).toBe('11 фраз')
     expect(wrapper.get('[data-testid=choose-hint]').text()).toBe('Новые фразы в ежедневном занятии будут из этого курса')
@@ -168,7 +185,7 @@ describe('CourseView of a course of phrases', () => {
 
     const wrapper = await renderCourse('english-phrases-a2b1')
 
-    expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-hint]').text()).toBe('5 новых фраз')
+    expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-hint]').text()).toBe('5 новых фраз · вы здесь')
   })
 
   it('a usual course keeps «слов»', async () => {
@@ -177,7 +194,7 @@ describe('CourseView of a course of phrases', () => {
 
     const wrapper = await renderCourse('english-a1')
 
-    expect(wrapper.get('[data-testid=progress-text]').text()).toBe('3 / 21 слова')
+    expect(wrapper.get('[data-testid=progress-text]').text()).toBe('3 из 21 слова')
     expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-hint]').text()).toBe('11 слов')
   })
 })

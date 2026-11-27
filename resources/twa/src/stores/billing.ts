@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimits'
 import type { OfferPlacement } from '@/composables/offerViewed'
@@ -108,10 +109,11 @@ interface MeTarget {
 }
 
 /** One reading of `/me`, best effort: it never throws - a failure keeps what the store had and makes the next `load()` ask again. */
-async function readMe(store: MeTarget): Promise<void> {
+async function readMe(store: MeTarget, main: boolean): Promise<void> {
   store.loading = true
   try {
-    const me = await api.me.get()
+    // Only the screens whose load it is (Profile, Subscription) let its loss raise "Нет соединения"; for the others it is a background read.
+    const me = await api.me.get(main ? undefined : BACKGROUND)
     store.apply(me)
     // `/me` carries the settings too: the language row of the Profile reads them without a second request.
     const settings = useSettingsStore()
@@ -199,13 +201,14 @@ export const useBillingStore = defineStore('billing', {
      * Best effort: the paywall still works without it (no support contact, no numeric limit).
      * Without `force` nothing is requested while the stored data is younger than `ME_FRESH_MS` and the last request
      * did not fail. A request already in flight is not repeated either way: whoever asks meanwhile, `force` or not, WAITS for its
-     * answer and finds it in the store (`confirmLimit` decides by it).
+     * answer and finds it in the store (`confirmLimit` decides by it). `main` - the screen stands on it (Profile, Subscription): a loss to
+     * the network raises "Нет соединения"; otherwise it is a background read (docs/40 §2.6).
      */
-    async load({ force = false }: { force?: boolean } = {}): Promise<void> {
+    async load({ force = false, main = false }: { force?: boolean; main?: boolean } = {}): Promise<void> {
       if (this.loading) return meRequests.get(this)
       if (!force && this.loadedAt !== null && Date.now() - this.loadedAt < ME_FRESH_MS) return
 
-      const request = readMe(this)
+      const request = readMe(this, main)
       meRequests.set(this, request)
       void request.then(() => {
         // a newer request (after a payment, `onPaid`) may have taken the place of this one meanwhile

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import AppIcon from '../AppIcon.vue'
-import { ICONS, type IconName } from '../icons'
+import { ICONS, type IconName, type IconSet } from '../icons'
 
 describe('AppIcon', () => {
-  it('draws the outline style by default: stroke, no fill, 20px', () => {
+  it('draws the outline style by default: the 1.75 stroke of the kit, no fill, 20px', () => {
     const w = mount(AppIcon, { props: { name: 'home' } })
     const svg = w.get('svg')
 
@@ -14,7 +14,7 @@ describe('AppIcon', () => {
     expect(svg.attributes('aria-hidden')).toBe('true')
     expect(svg.attributes('fill')).toBe('none')
     expect(svg.attributes('stroke')).toBe('currentColor')
-    expect(svg.attributes('stroke-width')).toBe('1.5')
+    expect(svg.attributes('stroke-width')).toBe('1.75')
     expect(svg.attributes('stroke-linecap')).toBe('round')
     expect(svg.attributes('stroke-linejoin')).toBe('round')
     expect(w.findAll('path').map((p) => p.attributes('d'))).toEqual(ICONS.home.outline.map((p) => p.d))
@@ -51,27 +51,54 @@ describe('AppIcon', () => {
     const w = mount(AppIcon, { props: { name: 'star', solid: false } })
     const outline = w.get('path').attributes('d')
 
+    expect(w.get('svg').attributes('fill')).toBe('none')
+
     await w.setProps({ solid: true })
 
-    expect(w.get('path').attributes('d')).not.toBe(outline)
+    // the Lucide star, filled: the same drawing, now a shape
+    expect(w.get('path').attributes('d')).toBe(outline)
     expect(w.get('svg').attributes('fill')).toBe('currentColor')
+    expect(w.get('svg').attributes('stroke')).toBeUndefined()
+  })
+
+  it('draws an icon without a filled drawing as its outline with a 2 px stroke when asked for solid (the active tab of the kit)', () => {
+    const w = mount(AppIcon, { props: { name: 'search', solid: true } })
+    const svg = w.get('svg')
+
+    expect(svg.attributes('fill')).toBe('none')
+    expect(svg.attributes('stroke')).toBe('currentColor')
+    expect(svg.attributes('stroke-width')).toBe('2')
+    expect(w.findAll('path').map((p) => p.attributes('d'))).toEqual(ICONS.search.outline.map((p) => p.d))
   })
 })
 
 describe('icons data', () => {
   const names = Object.keys(ICONS) as IconName[]
+  const set = (name: IconName): IconSet => ICONS[name]
 
-  it('has the 50 icons of docs/14 and the 3 of the practice modes, each in both styles', () => {
-    expect(names).toHaveLength(53)
+  it('has the 53 icons of the app and the 13 Lucide icons of the kit it had no name for, each with an outline', () => {
+    expect(names).toHaveLength(66)
     for (const name of names) {
-      expect(ICONS[name].outline.length, `${name} outline`).toBeGreaterThan(0)
-      expect(ICONS[name].solid.length, `${name} solid`).toBeGreaterThan(0)
+      expect(set(name).outline.length, `${name} outline`).toBeGreaterThan(0)
+      if (set(name).solid !== undefined) expect(set(name).solid?.length, `${name} solid`).toBeGreaterThan(0)
     }
+    // the filled drawings the screens use
+    for (const name of ['check-circle', 'star', 'trophy', 'check', 'x-mark', 'exclamation-triangle', 'user-circle', 'lock-closed'] as const) {
+      expect(set(name).solid, name).toBeDefined()
+    }
+  })
+
+  it('draws the icons of the kit with the Lucide drawings: the tab bar and the answer marks', () => {
+    // a few drawings of Lucide by their first path, written out here as in 08-icons of the kit
+    expect(ICONS.home.outline[0]?.d).toBe('M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8')
+    expect(ICONS.check.outline.map((p) => p.d)).toEqual(['M20 6 9 17l-5-5'])
+    expect(ICONS['x-mark'].outline.map((p) => p.d)).toEqual(['M18 6 6 18', 'm6 6 12 12'])
+    expect(ICONS['speaker-wave'].outline).toHaveLength(3)
   })
 
   it('every path has data and only a known rule', () => {
     for (const name of names) {
-      for (const path of [...ICONS[name].outline, ...ICONS[name].solid]) {
+      for (const path of [...set(name).outline, ...(set(name).solid ?? [])]) {
         expect(path.d, name).toMatch(/^[Mm][-\d.,\sMmLlHhVvCcSsQqTtAaZz]+$/)
       }
       // Outline icons are strokes: a fill rule only exists on the solid ones.

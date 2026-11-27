@@ -33,12 +33,14 @@ function submit(value: string): void {
 </script>
 
 <template>
-  <StickyActions surface>
+  <StickyActions>
     <form class="flex flex-col gap-2" data-testid="answer-form" @submit.prevent="submit(text)">
+      <!-- The TextField of the kit: 56 px, radius md, the hairline; focused - a 2 px frame of `border/strong` and the muhr caret. -->
       <input
         v-model="text"
         type="text"
-        class="field field-surface text-center text-[22px] leading-7 font-medium"
+        lang="en"
+        class="field text-center text-[20px] leading-7 font-medium"
         autocapitalize="off"
         autocomplete="off"
         autocorrect="off"
@@ -46,24 +48,25 @@ function submit(value: string): void {
         enterkeyhint="done"
         maxlength="100"
         :placeholder="t('exercise.input.placeholder')"
+        :aria-label="t('exercise.input.placeholder')"
         :disabled="disabled || sent"
         data-testid="answer-input"
       />
-      <p v-if="answerLength" class="text-center text-[13px] leading-[18px] text-muted" data-testid="answer-length">
+      <p v-if="answerLength" class="t-caption text-center text-muted" data-testid="answer-length">
         {{ t('exercise.answer_length', { count: answerLength }) }}
       </p>
-      <!-- docs/design Question: "I don't know" as quiet text on the left, the main button takes the rest of the row. -->
+      <!-- "I don't know" is the Ghost button of the kit on the left, the one Primary takes the rest of the row. -->
       <div class="mt-1 flex items-center gap-2">
         <button
           type="button"
-          class="btn btn-plain btn-lg w-28 shrink-0 px-2 text-base font-semibold text-muted"
+          class="btn btn-ghost w-28 shrink-0 px-2 text-muted"
           :disabled="disabled || sent"
           data-testid="skip-btn"
           @click="submit('')"
         >
           {{ t('exercise.skip') }}
         </button>
-        <button type="submit" class="btn btn-primary btn-lg min-w-0 flex-1" :disabled="disabled || sent" data-testid="check-btn">
+        <button type="submit" class="btn btn-primary min-w-0 flex-1" :disabled="disabled || sent" data-testid="check-btn">
           {{ t('exercise.check') }}
         </button>
       </div>

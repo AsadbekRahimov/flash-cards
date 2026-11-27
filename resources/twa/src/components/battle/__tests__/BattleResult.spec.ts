@@ -27,16 +27,36 @@ const primaries = (w: Wrapper) => w.findAll('button.btn-primary')
 
 describe('BattleResult — the outcome', () => {
   it.each([
-    ['won', 'Победа', 'text-success-ink'],
     ['lost', 'Поражение', 'text-muted'],
     ['draw', 'Ничья', 'text-accent-ink'],
-  ] as const)('%s: “%s” big, with a small symbol in a colour of its own (no celebration)', (outcome, title, circle) => {
+  ] as const)('%s: “%s” big, with a small symbol in a colour of its own (no celebration: no mascot, no stamp)', (outcome, title, circle) => {
     const w = render(finishedBattle(outcome))
 
     expect(w.get('[data-testid=battle-result]').attributes('data-outcome')).toBe(outcome)
     expect(w.get('h1').text()).toBe(title)
+    expect(w.get('h1').classes()).toContain('t-display-l')
     expect(w.get('[data-testid=result-icon]').classes()).toContain(circle)
     expect(w.get('[data-testid=result-icon]').find('svg').exists()).toBe(true)
+    expect(w.find('[data-testid=mascot-art]').exists()).toBe(false)
+    expect(w.find('[data-testid=stamp]').exists()).toBe(false)
+  })
+
+  it('won: “Победа” with the mascot holding the cup and the stamp of the score (the one moment of the screen, pressed in)', () => {
+    const w = render(finishedBattle('won'))
+
+    expect(w.get('h1').text()).toBe('Победа')
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
+    expect(w.findAll('[data-testid=stamp]')).toHaveLength(1)
+    expect(w.get('[data-testid=stamp]').classes()).toContain('stamp--enter')
+    expect(w.get('[data-testid=stamp]').attributes('aria-label')).toMatch(/^\d+ (очко|очка|очков)$/)
+    expect(w.find('[data-testid=result-icon]').exists()).toBe(false)
+  })
+
+  it('won in Uzbek: the unit of the stamp is Uzbek', () => {
+    setLocale('uz')
+    const w = render(finishedBattle('won'))
+
+    expect(w.get('[data-testid=stamp-unit]').text()).toBe('ochko')
   })
 
   it('a loss is not painted red: a quiet colour, a word and a symbol', () => {
@@ -194,9 +214,9 @@ describe('BattleResult — what to do next', () => {
     expect(w.get('[data-testid=rematch-btn]').text()).toBe('Реванш')
     expect(w.get('[data-testid=rematch-btn]').classes()).toContain('btn-primary')
     expect(w.get('[data-testid=friends-btn]').text()).toBe('К друзьям')
-    expect(w.get('[data-testid=friends-btn]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=friends-btn]').classes()).toContain('btn-secondary')
     expect(w.get('[data-testid=course-btn]').text()).toBe('В курс')
-    expect(w.get('[data-testid=course-btn]').classes()).toContain('btn-plain')
+    expect(w.get('[data-testid=course-btn]').classes()).toContain('btn-ghost')
 
     await w.get('[data-testid=rematch-btn]').trigger('click')
     await w.get('[data-testid=friends-btn]').trigger('click')
@@ -306,7 +326,7 @@ describe('BattleResult — what to do next', () => {
     expect(w.find('[data-testid=rematch-btn]').exists()).toBe(false)
     expect(primaries(w)).toHaveLength(1)
     expect(w.get('[data-testid=accept-rematch-btn]').classes()).toContain('btn-primary')
-    expect(w.get('[data-testid=decline-rematch-btn]').classes()).toContain('btn-plain')
+    expect(w.get('[data-testid=decline-rematch-btn]').classes()).toContain('btn-ghost')
 
     await w.get('[data-testid=accept-rematch-btn]').trigger('click')
     await w.get('[data-testid=decline-rematch-btn]').trigger('click')
@@ -410,7 +430,7 @@ describe('BattleResult — another battle of the learner’s is in the way of th
   it('is a quiet note with a small button, not a second primary one; the screen keeps its one primary button', () => {
     const w = render(finishedBattle('lost'), { busyBattleId: 9 })
 
-    expect(w.get('[data-testid=open-busy]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+    expect(w.get('[data-testid=open-busy]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
     expect(w.get('[data-testid=result-busy]').find('svg').exists()).toBe(true) // a symbol, not a colour alone
     expect(primaries(w)).toHaveLength(1)
   })

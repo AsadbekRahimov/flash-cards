@@ -107,7 +107,7 @@ describe('MyDecksView', () => {
 
       const heading = wrapper.get('h1')
       expect(heading.text()).toBe('Курсы')
-      expect(heading.classes()).toContain('text-[30px]')
+      expect(heading.classes()).toContain('t-display-l')
 
       const decks = wrapper.get('[data-testid=seg-decks]')
       expect(decks.text()).toBe('Мои колоды')
@@ -374,14 +374,15 @@ describe('MyDecksView', () => {
 
       const choose = wrapper.get('[data-testid=deck-other] [data-testid=choose-btn]')
       expect(choose.text()).toBe('Учить вместо курса')
-      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(choose.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary', 'btn-block']))
 
       const active = wrapper.get('[data-testid="deck-deck-1-abc"]')
       const badge = active.get('[data-testid=active-badge]')
       expect(badge.text()).toBe('Основная колода')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       expect(badge.find('svg').exists()).toBe(false)
-      expect(active.classes()).toContain('bg-accent-soft')
+      // the selected card of the kit: a 2 px ink frame, no tint, no shadow
+      expect(active.classes()).toEqual(expect.arrayContaining(['border-2', 'border-strong']))
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
     })
 
@@ -454,12 +455,12 @@ describe('MyDecksView', () => {
   })
 
   describe('states', () => {
-    it('shows the empty state with an icon and keeps the form', async () => {
+    it('shows the empty state with the mascot reading and keeps the form', async () => {
       const { wrapper } = await render(response([], 0))
 
       const empty = wrapper.get('[data-testid=empty]')
       expect(empty.text()).toBe('У вас пока нет колод.')
-      expect(empty.find('svg').exists()).toBe(true)
+      expect(empty.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('reading')
       expect(wrapper.find('[data-testid^="deck-deck"]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=create-form]').exists()).toBe(true)
       expect(wrapper.get('[data-testid=limits]').text()).toBe('Колод: 0 из 1 · до 50 слов в колоде')

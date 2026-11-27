@@ -7,6 +7,8 @@
  *   again (`useResend`). "I don't know" sends `skip`; the server shows the answer.
  * - The hint of the bazaar takes options away (`element.hint.options_removed`): they stay on the screen, dimmed and disabled, so that
  *   the list does not jump.
+ * - The options are `QuizOption` (AnswerOption of the kit, the one of the lesson and the exam): a radio group, the pick `selected`, the
+ *   rest - once the answer has gone, and the ones a hint took away (with the `note` "removed by the hint") - disabled, in the quiet look.
  * - The clip of `listen` is loaded by the screen as soon as the element is shown (the same URL is not fetched twice); this component asks
  *   when nobody has, and plays it from the tap (a gesture on iOS). Nothing is read aloud by the browser: the word must not be solved by a machine.
  * - A phrase (docs/35 §3.3 e) or its translation as the question is longer than a word: from `GAME_LONG_TEXT_MIN` characters it is a
@@ -14,6 +16,7 @@
  * Events: `answer` (`{ option_id }`), `skip`.
  */
 import { computed, onMounted, ref } from 'vue'
+import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -51,10 +54,9 @@ const locked = computed((): boolean => props.disabled === true || lastSent.value
 /** The question is a phrase or its translation (see above). */
 const longPrompt = computed((): boolean => 'prompt' in props.element && isLongGameText(props.element.prompt))
 
-/** The state of `.option`: the pick; the rest once the answer has gone, and an option a hint took away, step back. */
-function stateOf(option: PracticeChoice): 'idle' | 'selected' | 'dimmed' {
-  if (picked.value === option.id) return 'selected'
-  return locked.value || removed.value.has(option.id) ? 'dimmed' : 'idle'
+/** An option that cannot be picked: every one once the answer has gone, and the ones a hint took away. */
+function blocked(option: PracticeChoice): boolean {
+  return locked.value || removed.value.has(option.id)
 }
 
 function pick(option: PracticeChoice): void {
@@ -113,17 +115,17 @@ function listen(): void {
     <!-- The screen of a question (docs/design Question): the task in words, the word big, the options in thin frames under it. -->
     <div class="flex flex-1 flex-col gap-11 px-5 pt-10 pb-4 short:gap-4 short:pt-3">
       <div class="flex flex-col items-center gap-2.5 text-center short:gap-1.5">
-        <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
+        <p class="t-body-m text-muted short:hidden" data-testid="task-title">{{ t(`gameRun.task.${element.kind}`) }}</p>
 
-        <h2 v-if="element.kind !== 'listen' && longPrompt" class="max-w-full text-[24px] leading-[30px] font-semibold text-balance break-words short:text-[20px] short:leading-[26px]" :lang="element.kind === 'translate_fwd' ? 'en' : undefined" data-long="true" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <h2 v-else-if="element.kind === 'translate_fwd'" class="max-w-full text-[40px] leading-[46px] font-semibold tracking-[-0.5px] break-words short:text-[30px] short:leading-9" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <h2 v-else-if="element.kind === 'translate_back'" class="max-w-full text-[32px] leading-[38px] font-semibold tracking-[-0.4px] break-words short:text-[26px] short:leading-8" data-testid="task-prompt">{{ element.prompt }}</h2>
-        <!-- The clip is the question of `listen`: a big round button in a thin frame, framed in the primary colour while it plays. -->
+        <h2 v-if="element.kind !== 'listen' && longPrompt" class="max-w-full font-display text-[24px] leading-[30px] font-semibold tracking-[-0.02em] text-balance break-words short:text-[20px] short:leading-[26px]" :lang="element.kind === 'translate_fwd' ? 'en' : undefined" data-long="true" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-else-if="element.kind === 'translate_fwd'" class="t-word-xl max-w-full break-words short:text-[32px] short:leading-[38px]" lang="en" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <h2 v-else-if="element.kind === 'translate_back'" class="max-w-full font-display text-[30px] leading-9 font-semibold tracking-[-0.02em] break-words short:text-[24px] short:leading-[30px]" data-testid="task-prompt">{{ element.prompt }}</h2>
+        <!-- The clip is the question of `listen`: a big round IconButton of the kit (the sunken paper), framed in ink (border/strong) while it plays. -->
         <button
           v-else
           type="button"
-          class="flex size-20 short:size-16 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-150 active:scale-95 disabled:opacity-60"
-          :class="failed ? 'border-warning-line bg-warning-soft text-warning-ink' : playing ? 'border-primary bg-accent-soft text-accent-ink' : 'border-hairline bg-surface text-accent'"
+          class="flex size-20 short:size-16 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,box-shadow] duration-150 active:scale-95 disabled:opacity-60"
+          :class="failed ? 'bg-warning-soft text-warning-ink shadow-[inset_0_0_0_1px_var(--app-warning-line)]' : playing ? 'bg-sunken text-body shadow-[inset_0_0_0_2px_var(--app-border-strong)]' : 'bg-sunken text-body'"
           :disabled="loading"
           :aria-label="listenLabel"
           :aria-busy="loading ? 'true' : undefined"
@@ -134,7 +136,7 @@ function listen(): void {
           <span v-if="loading" class="size-7 animate-spin rounded-full border-[3px] border-current/30 border-t-current motion-reduce:animate-none" aria-hidden="true" />
           <AppIcon v-else :name="failed ? 'arrow-path' : 'speaker-wave'" :size="36" />
         </button>
-        <p v-if="listening" class="text-[13px] leading-[18px]" :class="failed ? 'text-warning-ink' : 'text-muted'" role="status" data-testid="audio-state" :data-state="state">
+        <p v-if="listening" class="t-label-s" :class="failed ? 'text-warning-ink' : 'text-muted'" role="status" data-testid="audio-state" :data-state="state">
           {{ listenLabel }}
         </p>
       </div>
@@ -142,26 +144,20 @@ function listen(): void {
       <div class="flex flex-col gap-2.5 short:gap-2">
         <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="resend-note" />
 
-        <div class="flex flex-col gap-2.5 short:gap-2" role="group" :aria-label="t('gameRun.options')">
-          <!-- `.option` (style.css): picked - `selected`; the others once the answer is gone and the ones a hint took away - `dimmed`. -->
-          <button
+        <div class="flex flex-col gap-2.5 short:gap-2" role="radiogroup" :aria-label="t('gameRun.options')">
+          <!-- AnswerOption of the kit, as the lesson draws it (QuizOption): picked - `selected`; the rest step back once the answer is gone. -->
+          <QuizOption
             v-for="(option, index) in element.options"
             :key="option.id"
-            type="button"
-            class="option short:min-h-11"
-            :data-state="stateOf(option)"
+            :label="option.text"
+            :index="index"
+            :state="picked === option.id ? 'selected' : 'idle'"
+            :disabled="blocked(option)"
+            :lang="element.kind === 'translate_fwd' ? undefined : 'en'"
+            :note="removed.has(option.id) ? t('gameRun.option_removed') : undefined"
             :data-removed="removed.has(option.id) ? 'true' : undefined"
-            :data-testid="`option-${index}`"
-            :disabled="locked || removed.has(option.id)"
-            :aria-pressed="picked === option.id ? 'true' : undefined"
-            @click="pick(option)"
-          >
-            <span class="w-3 shrink-0 font-mono text-[13px] leading-[18px] font-normal" :class="stateOf(option) === 'selected' ? 'text-accent-ink' : 'text-muted'" aria-hidden="true">{{ index + 1 }}</span>
-            <span class="min-w-0 flex-1 break-words">
-              <span class="block" :lang="element.kind === 'translate_fwd' ? undefined : 'en'">{{ option.text }}</span>
-              <span v-if="removed.has(option.id)" class="mt-0.5 block text-[13px] leading-[18px] font-normal">{{ t('gameRun.option_removed') }}</span>
-            </span>
-          </button>
+            @pick="pick(option)"
+          />
         </div>
       </div>
     </div>
@@ -170,7 +166,7 @@ function listen(): void {
       <button v-if="retrying" type="button" class="btn btn-primary btn-lg btn-block" :disabled="disabled" data-testid="resend-btn" @click="resend">
         {{ t('common.retry') }}
       </button>
-      <button v-else type="button" class="btn btn-plain btn-block text-muted" :disabled="locked" data-testid="skip-btn" @click="skip">
+      <button v-else type="button" class="btn btn-ghost btn-block text-muted" :disabled="locked" data-testid="skip-btn" @click="skip">
         {{ t('exercise.skip') }}
       </button>
     </StickyActions>

@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
   <div class="flex flex-1 flex-col" data-testid="word-form-input" :data-mode="mode">
     <div class="flex flex-1 flex-col gap-3 px-5 pt-4 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
       <article class="flex flex-col items-center gap-3 px-5 py-5 text-center [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:py-3">
-        <p class="text-[13px] leading-[18px] text-muted [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
+        <p class="t-body-m text-muted [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
           {{ t('practice.word_form.instruction') }}
         </p>
 
@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
-              class="mx-0.5 inline-block min-w-[4.5rem] max-w-full rounded-lg border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold break-words"
+              class="mx-0.5 inline-block min-w-[4.5rem] max-w-full rounded-sm border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold break-words"
               :class="trimmed !== '' ? 'border-accent bg-accent-soft text-accent-ink' : 'border-dashed border-accent bg-accent-soft'"
               :data-tone="trimmed !== '' ? 'typed' : 'empty'"
               data-testid="word-form-blank"

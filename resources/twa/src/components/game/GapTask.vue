@@ -31,15 +31,15 @@ const long = computed((): boolean => isLongGameText(props.element.masked))
   <div class="flex flex-1 flex-col" data-testid="gap-task">
     <!-- The question (docs/design Question), without a card: the task in words, the example with its blank, its translation. -->
     <div class="flex flex-col items-center gap-2.5 px-5 pt-10 pb-8 text-center short:gap-1 short:pt-3 short:pb-3">
-      <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t('gameRun.task.gap') }}</p>
+      <p class="t-body-m text-muted short:hidden" data-testid="task-title">{{ t('gameRun.task.gap') }}</p>
       <h2
-        class="max-w-full font-semibold break-words"
+        class="max-w-full font-display font-semibold tracking-[-0.02em] break-words"
         :class="long ? 'text-[20px] leading-[26px] text-balance short:text-[18px] short:leading-6' : 'text-[24px] leading-[30px] short:text-[20px] short:leading-[26px]'"
         lang="en"
         :data-long="long ? 'true' : undefined"
         data-testid="task-prompt"
       >{{ element.masked }}</h2>
-      <p v-if="element.translation" class="text-[15px] leading-5 text-muted" data-testid="task-translation">{{ element.translation }}</p>
+      <p v-if="element.translation" class="t-body-m text-muted" data-testid="task-translation">{{ element.translation }}</p>
     </div>
     <TypedAnswer :placeholder="t('gameRun.gap.placeholder')" :disabled="disabled" :hint-prefix="prefix" @answer="emit('answer', { text: $event })" @skip="emit('skip')" />
   </div>

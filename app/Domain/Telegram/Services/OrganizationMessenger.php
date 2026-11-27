@@ -14,6 +14,8 @@ use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramOutboundBusyException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Learner;
 use App\Models\OrganizationInvite;
@@ -92,7 +94,10 @@ final class OrganizationMessenger
         );
     }
 
-    /** The end of the onboarding: offers the center of the remembered `org_<code>` link, once. */
+    /**
+     * The end of the onboarding: offers the center of the remembered `org_<code>` link, once - the code is taken under the row lock
+     * before the send (two runs offer once) and put back when Telegram refused the message with 429 / no slot (rethrown).
+     */
     public function offerPending(Learner $learner, int|string $chatId): void
     {
         $code = $this->onboarding->pullPendingOrgInvite($learner);
@@ -100,7 +105,14 @@ final class OrganizationMessenger
             return;
         }
 
-        $this->offer($learner, $chatId, $code);
+        try {
+            $this->offer($learner, $chatId, $code);
+        } catch (TelegramRateLimitedException|TelegramOutboundBusyException $e) {
+            // The one message of the offer was not sent: the code goes back for the retry (the job middleware) or the next `/start`.
+            $this->onboarding->restorePendingOrgInvite($learner, $code);
+
+            throw $e;
+        }
     }
 
     /** "Join" tapped: joins (idempotent); the DM comes from OrganizationMemberJoined. */

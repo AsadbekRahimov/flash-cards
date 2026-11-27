@@ -36,9 +36,9 @@ const text = computed((): string => t('gameClass.card.text', { stars: NUMBER_MAR
     data-testid="class-caravan-card"
   >
     <span class="flex min-w-0 flex-1 flex-col gap-1">
-      <span class="block text-[15px] leading-5 font-semibold">{{ t('gameClass.title') }}</span>
-      <span class="flex items-center gap-1 text-[13px] leading-[18px] text-muted">
-        <AppIcon name="star" solid :size="12" class="shrink-0 text-warning" />
+      <span class="t-body-m-strong block">{{ t('gameClass.title') }}</span>
+      <span class="t-label-s flex items-center gap-1 text-muted">
+        <AppIcon name="star" solid :size="12" class="shrink-0 text-body" />
         <NumberText class="min-w-0 break-words" :text="text" :value="[caravan.stars_total, caravan.target_stars]" data-testid="class-caravan-text" />
       </span>
       <!-- The star track of the week, as a thin line (the numbers are written above it). -->

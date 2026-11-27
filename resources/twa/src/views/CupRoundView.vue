@@ -8,7 +8,8 @@ import GameReveal from '@/components/game/GameReveal.vue'
 import RunHeader from '@/components/game/RunHeader.vue'
 import { taskComponentFor } from '@/components/game/gameTasks'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { nextDayStart, nextRound, revealText, type NextRound } from '@/composables/cupInfo'
@@ -16,7 +17,6 @@ import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { gameVerdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useNow } from '@/composables/useNow'
 import { useServerClock } from '@/composables/useServerClock'
 import { useTelegram } from '@/composables/useTelegram'
@@ -139,9 +139,6 @@ watch(
 
 // ---- the task ----
 
-const white = computed((): boolean => live.value)
-useChromeSurface(white)
-
 const busy = computed((): boolean => status.value === 'submitting')
 const task = computed(() => (status.value === 'playing' || status.value === 'submitting' ? store.element : null))
 const lastTask = computed((): boolean => round.value?.status === 'finished')
@@ -207,13 +204,15 @@ watch(status, (next) => {
 
 const expired = computed((): boolean => round.value?.finish_reason === 'expired')
 
+/** The verdict of a task in the review: right - success with a check, wrong - danger with a cross (never the colour alone, kit Muhrla). */
 const INKS: Record<PracticeVerdict, string> = {
   correct: 'text-success-ink',
-  typo: 'text-warning-ink',
+  typo: 'text-accent-ink',
   wrong: 'text-danger-ink',
   skipped: 'text-muted',
 }
 const inkOf = (verdict: string | null): string => (verdict !== null && verdict in INKS ? INKS[verdict as PracticeVerdict] : 'text-muted')
+const markOf = (verdict: string | null): 'check' | 'x-mark' | null => (verdict === 'correct' ? 'check' : verdict === 'wrong' ? 'x-mark' : null)
 const verdictOf = (verdict: string | null): string =>
   verdict === 'correct' || verdict === 'typo' || verdict === 'wrong' || verdict === 'skipped' ? gameVerdictLabel(verdict) : t('cup.round.no_answer')
 
@@ -261,9 +260,8 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
-    :class="white ? 'bg-surface' : ''"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     :data-status="status"
     data-testid="cup-round-view"
   >
@@ -272,7 +270,7 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
     <LoadingState v-if="status === 'idle' || status === 'loading' || status === 'not_found'" variant="center" />
 
     <ErrorState v-else-if="status === 'error'" :title="failureTitle" :message="notice" @retry="begin">
-      <button type="button" class="btn btn-plain btn-block" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
     </ErrorState>
 
     <ClosedState v-else-if="status === 'closed'" icon="lock-closed" :title="t('cup.status.finished')" :text="notice" data-testid="closed">
@@ -280,29 +278,29 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
     </ClosedState>
 
     <div v-else-if="status === 'unavailable'" class="page flex flex-1 flex-col">
-      <EmptyState
-        :icon="failureKind === 'unavailable' || failureKind === 'off' ? 'lock-closed' : 'calendar-days'"
+      <ClosedState
+        :mascot="failureKind === 'unavailable' || failureKind === 'off' ? 'thinking' : 'hello'"
         :title="failureTitle ?? t('cup.round.unavailable_title')"
         :text="notice"
         :data-kind="failureKind ?? undefined"
         data-testid="unavailable"
       >
-        <template #action>
-          <button type="button" class="btn btn-tinted" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
-        </template>
-      </EmptyState>
+        <button type="button" class="btn btn-secondary btn-block" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
+      </ClosedState>
     </div>
 
     <!-- Before a new attempt: what it is, then "Start". -->
     <div v-else-if="status === 'confirm' || status === 'starting'" class="page flex flex-1 flex-col" data-testid="confirm">
       <div class="flex flex-1 flex-col gap-3">
-        <p class="pt-3.5 text-[13px] leading-[18px] text-muted" data-testid="caption">{{ caption }}</p>
-        <section class="flex flex-col gap-2 rounded-hero bg-highlight p-4">
-          <h1 class="text-[22px] leading-7 font-extrabold">{{ t('cup.round.confirm_title') }}</h1>
-          <p class="text-[15px] leading-[22px]" data-testid="confirm-text">
+        <p class="t-label-s pt-3.5 text-muted" data-testid="caption">{{ caption }}</p>
+        <!-- Before the attempt: the hero of the kit on the central axis - the mascot thinks, the title, what the round is. -->
+        <section class="flex flex-col items-center gap-2 rounded-hero bg-highlight p-5 text-center">
+          <MascotArt loading="eager" pose="thinking" :height="112" class="mb-1 short:hidden" />
+          <h1 class="t-display-m">{{ t('cup.round.confirm_title') }}</h1>
+          <p class="t-body-m" data-testid="confirm-text">
             {{ t('cup.round.confirm_text', { tasks: cup?.round_tasks ?? 0, minutes: cup?.round_minutes ?? 0 }) }}
           </p>
-          <p class="text-[15px] leading-[22px] text-muted">{{ t('cup.round.confirm_points') }}</p>
+          <p class="t-body-m text-muted">{{ t('cup.round.confirm_points') }}</p>
         </section>
       </div>
       <StickyActions>
@@ -316,33 +314,39 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
         >
           {{ t('cup.round.start') }}
         </button>
-        <button type="button" class="btn btn-plain btn-block" data-testid="later-btn" @click="toCup">{{ t('cup.round.later') }}</button>
+        <button type="button" class="btn btn-ghost btn-block" data-testid="later-btn" @click="toCup">{{ t('cup.round.later') }}</button>
       </StickyActions>
     </div>
 
     <!-- The summary: the points of the day, the place, every task with its right answer. -->
     <div v-else-if="status === 'summary' && round" class="page flex flex-1 flex-col" data-testid="summary">
       <div class="flex flex-1 flex-col gap-3">
-        <p class="pt-3.5 text-[13px] leading-[18px] text-muted">{{ caption }}</p>
-        <section class="flex flex-col gap-2 rounded-hero bg-highlight p-4" data-testid="summary-card">
-          <h1 class="text-[22px] leading-7 font-extrabold" data-testid="summary-title">{{ expired ? t('cup.round.expired_title') : t('cup.round.done_title') }}</h1>
-          <p class="font-mono text-[32px] leading-10 font-medium" data-testid="summary-points">
-            {{ round.points }}<span class="text-[17px] text-muted"> / {{ round.max_points }}</span>
+        <p class="t-label-s pt-3.5 text-muted">{{ caption }}</p>
+        <!--
+          The end of the round of the day as the end of a lesson (kit 06-urok-proyden), on the central axis: a round played to the end has
+          the mascot glad of it; a round whose time ran out is told quietly. The points are the big figure, the rest lines under it.
+        -->
+        <section class="flex flex-col items-center gap-2 rounded-hero bg-highlight p-5 text-center" data-testid="summary-card">
+          <MascotArt loading="eager" v-if="!expired && round.points > 0" pose="celebrate" :height="144" class="mb-1 short:hidden" />
+          <h1 class="t-display-m" data-testid="summary-title">{{ expired ? t('cup.round.expired_title') : t('cup.round.done_title') }}</h1>
+          <p class="font-display text-[44px] leading-[50px] font-semibold tracking-[-0.03em] tabular-nums" data-testid="summary-points">
+            {{ round.points }}<span class="t-title-m text-muted"> / {{ round.max_points }}</span>
           </p>
-          <p class="text-[15px] leading-5" data-testid="summary-correct">{{ t('cup.round.correct', { correct: round.correct, total: round.total }) }}</p>
-          <p v-if="myRank !== null" class="text-[15px] leading-5 font-semibold" data-testid="summary-place">{{ t('cup.my_place', { rank: myRank }) }}</p>
-          <p v-if="expired" class="text-[13px] leading-[18px] text-muted" data-testid="summary-expired">{{ t('cup.round.expired_text') }}</p>
-          <p v-if="nextText" class="text-[15px] leading-5" :data-next="next?.kind" data-testid="summary-next">{{ nextText }}</p>
+          <p class="t-body-m" data-testid="summary-correct">{{ t('cup.round.correct', { correct: round.correct, total: round.total }) }}</p>
+          <p v-if="myRank !== null" class="t-body-m-strong" data-testid="summary-place">{{ t('cup.my_place', { rank: myRank }) }}</p>
+          <p v-if="expired" class="t-label-s text-muted" data-testid="summary-expired">{{ t('cup.round.expired_text') }}</p>
+          <p v-if="nextText" class="t-body-m text-muted" :data-next="next?.kind" data-testid="summary-next">{{ nextText }}</p>
         </section>
 
         <section v-if="round.review && round.review.length > 0" class="list" :aria-label="t('cup.round.review_title')" data-testid="review">
-          <h2 class="px-[18px] pt-3.5 pb-2 text-base leading-[22px] font-bold">{{ t('cup.round.review_title') }}</h2>
+          <h2 class="t-title-m px-4 pt-4 pb-2">{{ t('cup.round.review_title') }}</h2>
           <ol class="divide-y divide-divider border-t border-divider">
-            <li v-for="(entry, index) in round.review" :key="entry.element_id" class="flex items-center gap-3 px-[18px] py-3" data-testid="review-row">
-              <span class="w-5 shrink-0 font-mono text-[13px] text-muted" aria-hidden="true">{{ index + 1 }}</span>
-              <span class="min-w-0 flex-1 text-[15px] leading-5 font-semibold break-words" lang="en" data-testid="review-answer">{{ revealText(entry.reveal) }}</span>
-              <span class="shrink-0 text-[13px] leading-[18px] font-semibold" :class="inkOf(entry.verdict)" :data-verdict="entry.verdict ?? 'none'" data-testid="review-verdict">
-                {{ verdictOf(entry.verdict) }}<template v-if="entry.points > 0"> · {{ tn('cup.points', entry.points) }}</template>
+            <li v-for="(entry, index) in round.review" :key="entry.element_id" class="flex items-center gap-3 px-4 py-3" data-testid="review-row">
+              <span class="w-5 shrink-0 font-display text-[13px] leading-[18px] text-muted tabular-nums" aria-hidden="true">{{ index + 1 }}</span>
+              <span class="t-body-m-strong min-w-0 flex-1 break-words" lang="en" data-testid="review-answer">{{ revealText(entry.reveal) }}</span>
+              <span class="t-label-s flex shrink-0 items-center gap-1" :class="inkOf(entry.verdict)" :data-verdict="entry.verdict ?? 'none'" data-testid="review-verdict">
+                <AppIcon v-if="markOf(entry.verdict)" :name="markOf(entry.verdict) ?? 'check'" :size="16" class="shrink-0" />
+                <span>{{ verdictOf(entry.verdict) }}<template v-if="entry.points > 0"> · {{ tn('cup.points', entry.points) }}</template></span>
               </span>
             </li>
           </ol>
@@ -364,9 +368,10 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
         :caption="caption"
         @close="requestLeave"
       />
+      <!-- The time left of the attempt: tabular figures of the kit (no jumping width); the last minute in the accent of text, not the red of a mistake. -->
       <p
-        class="px-5 text-center font-mono text-[13px] leading-[18px]"
-        :class="timerLow ? 'text-danger-ink' : 'text-muted'"
+        class="px-5 text-center font-display text-[15px] leading-5 font-semibold tabular-nums"
+        :class="timerLow ? 'text-accent' : 'text-muted'"
         role="timer"
         :aria-label="t('cup.round.time_left', { time: timerText })"
         data-testid="timer"
@@ -386,7 +391,6 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
         :is="taskComponentFor(task)"
         v-else-if="task"
         :key="`${task.kind}-${elementSeq}`"
-        class="[&_[data-testid=actions]]:bg-surface"
         :element="task"
         :disabled="busy"
         @answer="onAnswer"
@@ -396,10 +400,10 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
 
     <BottomSheet v-if="exitOpen" :label="t('cup.round.exit_title')" @close="exitOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="exit-sheet">
-        <h2 class="text-[22px] leading-7 font-semibold">{{ t('cup.round.exit_title') }}</h2>
-        <p class="text-[15px] leading-5 text-muted">{{ t('cup.round.exit_text', { time: expiresAtText }) }}</p>
+        <h2 class="t-display-m">{{ t('cup.round.exit_title') }}</h2>
+        <p class="t-body-m text-muted">{{ t('cup.round.exit_text', { time: expiresAtText }) }}</p>
         <button type="button" class="btn btn-primary btn-block" data-testid="stay-btn" @click="exitOpen = false">{{ t('cup.round.exit_stay') }}</button>
-        <button type="button" class="btn btn-plain btn-block" data-testid="leave-btn" @click="toCup">{{ t('cup.round.exit_leave') }}</button>
+        <button type="button" class="btn btn-ghost btn-block" data-testid="leave-btn" @click="toCup">{{ t('cup.round.exit_leave') }}</button>
       </div>
     </BottomSheet>
   </section>

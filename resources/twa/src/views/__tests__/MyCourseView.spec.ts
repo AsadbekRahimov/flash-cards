@@ -65,7 +65,8 @@ describe('MyCourseView: the "Course" tab', () => {
     const { wrapper, router } = await render()
 
     expect(wrapper.get('[data-testid=spinner]').attributes('role')).toBe('status')
-    expect(wrapper.find('.bg-highlight').exists()).toBe(true)
+    // the shapes of the course screen: the card of the course, the rows of the path with their pictures
+    expect(wrapper.find('.skeleton.size-16').exists()).toBe(true)
     expect(router.currentRoute.value.name).toBe('my-course')
   })
 

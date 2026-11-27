@@ -437,11 +437,12 @@ it('leaves the learning of the learner exactly as it was after runs of every out
     // The first win over the boss of a city is the one thing added to the achievements - once.
     expect(Achievement::query()->where('learner_id', $learner->id)->where('key', 'game_first_boss')->count())->toBe(1);
 
-    // The only statements against `learners`: the optimistic projection of the streak (StreakService), nothing of the settings or the plan,
+    // The only statements against `learners`: the optimistic projection of the streak (StreakService; a counting day also clears the last
+    // loss of the series in the same UPDATE, docs/40 §2.5), nothing of the settings or the plan,
     $learnerWrites = QueryLog::matching($queries, '/^\s*(insert|update|delete)\b.*["`]learners["`]/i');
     // and the lazy referral code of the link in the card "I got to ..." (the first boss of a city, G2.7b), once, only when it is still empty.
     expect($learnerWrites)->toHaveCount(2)
-        ->and($learnerWrites[0])->toMatch('/^update ["`]learners["`] set ["`]streak_current["`] = \?, ["`]streak_best["`] = \?, ["`]streak_last_date["`] = \?, ["`]updated_at["`] = \? where/')
+        ->and($learnerWrites[0])->toMatch('/^update ["`]learners["`] set ["`]streak_current["`] = \?, ["`]streak_best["`] = \?, ["`]streak_last_date["`] = \?, ["`]streak_lost_days["`] = \?, ["`]streak_lost_on["`] = \?, ["`]updated_at["`] = \? where/')
         ->and($learnerWrites[1])->toMatch('/^update ["`]learners["`] set ["`]referral_code["`] = \?, ["`]updated_at["`] = \? where ["`]learners["`]\.["`]id["`] = \? and ["`]referral_code["`] is null$/');
 
     // The one statement the game may issue against `word_repetitions`: the conditional UPDATE of the three columns (docs/18 §12.4).

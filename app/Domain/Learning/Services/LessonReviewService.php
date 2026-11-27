@@ -31,6 +31,7 @@ use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Learning\Support\LessonReviewState;
+use App\Domain\Learning\Support\MemoryStrength;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -351,6 +352,8 @@ final class LessonReviewService
             isHard: (bool) $card['repetition']->is_hard,
             // The method of the serve, as on a card in the minute steps: the hook of the word (hidden by the resource on a choice card).
             hook: $this->ladder->hooksEnabled ? $this->hooks->for($word, $card['translation']->locale) : null,
+            // The row as it is (this mode does not move the schedule): the Mini App hides the dots here (docs/40 §2.2), the contract keeps the field.
+            memory: MemoryStrength::reading($card['repetition'], $now),
         );
     }
 

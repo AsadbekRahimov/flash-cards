@@ -126,7 +126,10 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Бесплатный тариф')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Free')
       expect(wrapper.get('[data-testid=plan-chip]').attributes('data-plan')).toBe('free')
-      expect(wrapper.get('[data-testid=plan-card]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+      // the hero of the kit (10-podpiska-pro): on the centre axis, the mascot in the scarf above the plan
+      expect(wrapper.get('[data-testid=plan-card]').classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
+      expect(wrapper.get('[data-testid=plan-card] [data-testid=mascot-art]').attributes('data-pose')).toBe('freeze')
+      expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-neutral')
       expect(wrapper.get('[data-testid=plan-free]').text()).toBe('20 новых слов в день, повторения без ограничений')
       expect(wrapper.find('[data-testid=plan-until]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
@@ -303,6 +306,8 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('3 месяца')
       expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('выгоднее на 13%')
       expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=tariff-price]').text()).toBe('390 Stars')
+      // equal cards side by side (the kit's tariffs), three in a row here
+      expect(wrapper.get('[data-testid=tariffs] .grid').classes()).toContain('grid-cols-3')
 
       await wrapper.get('[data-testid=tariff-quarter]').trigger('click')
       await flushPromises()
@@ -542,7 +547,7 @@ describe('BillingView', () => {
       const buy = wrapper.get('[data-testid=buy]')
       expect(buy.text()).toBe('Продлить Pro')
       // One main action on the screen: "Resume" is it, paying again is the other way.
-      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-lg', 'btn-block']))
+      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-lg', 'btn-block']))
       expect(buy.classes()).not.toContain('btn-primary')
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
@@ -569,7 +574,7 @@ describe('BillingView', () => {
       await wrapper.get('[data-testid=promo-toggle]').trigger('click')
 
       const submit = wrapper.get('[data-testid=promo-submit]')
-      expect(submit.classes()).toContain('btn-tinted')
+      expect(submit.classes()).toContain('btn-secondary')
       expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
     })
 

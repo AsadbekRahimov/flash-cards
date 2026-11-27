@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { RouterLink, useRouter, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import ProgressLine from '@/components/ui/ProgressLine.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
+import StampMark from '@/components/ui/StampMark.vue'
+import type { MascotPose } from '@/composables/illustrations'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useBillingStore } from '@/stores/billing'
 import { useMonthlyRatingStore } from '@/stores/monthlyRating'
@@ -244,7 +248,7 @@ async function startLessonReview(): Promise<void> {
 
 /** After the finish of a lesson with new words: the plan of the day read again, so the card of step 2 matches the server. */
 async function readPlanAfterFinish(): Promise<void> {
-  await today.load()
+  await today.load(BACKGROUND)
   const plan = today.status === 'ready' ? today.data?.plan : undefined
   planAfterFinish.value = plan ?? undefined
 }
@@ -344,7 +348,7 @@ onMounted(() => {
   monthly.mine = null
   if (summary.value !== null && !isEmpty.value) {
     void monthly.loadMine()
-    void achievements.load()
+    void achievements.load(BACKGROUND)
   }
   if (showTraining.value) void readPlanAfterFinish()
 })
@@ -513,6 +517,22 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
  */
 const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_due' && training.mode !== 'group_lesson')
 
+/**
+ * The mascot of the hero (kit 06): celebrating after a session that did something, reading for an empty one, thinking after a round of hard
+ * words that was not won (no shame, and no party either).
+ */
+const mascotPose = computed((): MascotPose => {
+  if (isEmpty.value) return 'reading'
+  if (isHardRound.value && !hardCelebrate.value) return 'thinking'
+  return 'celebrate'
+})
+
+/** The one stamp of the screen (kit 06, ANIMATIONS.md §3): the streak of days, pressed in when the screen opens; none without a streak. */
+const stamp = computed((): { value: number; unit: string } | null => {
+  const current = isEmpty.value ? 0 : (streak.value?.current ?? 0)
+  return current > 0 ? { value: current, unit: tn('today.streak.unit', current) } : null
+})
+
 /** The streak has something to say: a run of days, or the warning that it is about to break. */
 const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
 /** The card of rows under the numbers (docs/design Finish) has at least one row. */
@@ -522,7 +542,8 @@ const hasRows = computed(() => corrected.value !== null || showGoal.value || sho
 /** "Next review": the review of a lesson moves no schedule, so it has none. */
 const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
-notificationHaptic('success')
+// One haptic of the result: the press of the stamp (`impactOccurred('medium')`, StampMark `haptic`) when there is one, the success otherwise.
+if (stamp.value === null) notificationHaptic('success')
 if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')
 if (quotaExhausted.value) void billing.load()
 
@@ -534,122 +555,126 @@ onBeforeUnmount(() => {
 
 <template>
   <!--
-    docs/design/2026-11-25-redesign Finish: on the grey page — the title (with the green mark after a lesson and its review, else an eyebrow
-    over it), the numbers in one card with lines between them, one card of rows (a mistake put right, the goal and the streak, the month, the
-    next review), "What next" of the day plan, then the main button and the other actions as text under it.
+    Kit Muhrla 06-urok-proyden: the hero on the central axis - the mascot (celebrating, or calm for an empty / a hard round that went badly)
+    with the stamp of the streak at its side (the one stamp of the screen, pressed in once), the title in Display/L and a line under it;
+    then the numbers in one card of columns split by 1 px lines (Numeric/L), one card of rows (a mistake put right, the goal and the
+    streak, the month, the next review), "What next" of the day plan, the main button and the other ways on under it.
   -->
-  <div class="page" :class="planHeader ? 'pt-[30px]' : 'pt-16 short:pt-6'" data-testid="finished-view">
-    <header v-if="planHeader" class="flex items-center gap-3.5" data-testid="plan-header">
-      <span class="flex size-14 shrink-0 items-center justify-center rounded-full bg-success text-on-primary" aria-hidden="true">
-        <AppIcon name="check" :size="30" />
-      </span>
-      <div class="flex min-w-0 flex-col gap-0.5">
-        <h1 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px] break-words">{{ title }}</h1>
-        <p v-if="planSubtitle" class="text-[15px] leading-5 text-muted break-words" data-testid="plan-subtitle">{{ planSubtitle }}</p>
-        <p v-if="reasonLabel" class="text-[15px] leading-5 text-muted" data-testid="reason">{{ reasonLabel }}</p>
-      </div>
+  <div class="page" :class="planHeader ? 'pt-4' : 'pt-6 short:pt-3'" data-testid="finished-view">
+    <!-- The stamp is pressed in the corner of the page, as on a page of a notebook; on a short window (no mascot) it is the hero itself. -->
+    <div class="relative flex justify-center short:static" data-testid="finished-hero">
+      <MascotArt loading="eager" :pose="mascotPose" :height="120" class="short:hidden" />
+      <StampMark v-if="stamp" :value="stamp.value" :unit="stamp.unit" haptic class="absolute! top-0 right-0 short:static!" />
+    </div>
+    <header v-if="planHeader" class="mt-3 flex flex-col items-center gap-1.5 text-center" data-testid="plan-header">
+      <h1 class="t-display-l break-words">{{ title }}</h1>
+      <p v-if="planSubtitle" class="t-body-m break-words text-muted" data-testid="plan-subtitle">{{ planSubtitle }}</p>
+      <p v-if="reasonLabel" class="t-body-m text-muted" data-testid="reason">{{ reasonLabel }}</p>
     </header>
-    <header v-else class="flex flex-col gap-2">
-      <p class="text-[13px] leading-[18px]" :class="isEmpty ? 'text-muted' : 'text-success-ink'" data-testid="eyebrow">
+    <header v-else class="mt-3 flex flex-col items-center gap-1.5 text-center">
+      <p class="t-label-s" :class="isEmpty ? 'text-muted' : 'text-success-ink'" data-testid="eyebrow">
         {{ isHardRound ? t('training.hard_round.chip') : t('finished.eyebrow') }}
       </p>
       <h1
-        class="text-[30px] leading-9 font-extrabold tracking-[-0.5px] short:text-[26px] short:leading-[30px]"
+        class="t-display-l break-words short:text-[26px] short:leading-8"
         :data-testid="isHardRound ? 'hard-round-title' : undefined"
       >
         {{ title }}
       </h1>
-      <p v-if="hardNote" class="text-[15px] leading-5 text-muted" data-testid="hard-round-note">{{ hardNote }}</p>
-      <p v-else-if="reasonLabel" class="text-[15px] leading-5 text-muted" data-testid="reason">{{ reasonLabel }}</p>
+      <p v-if="hardNote" class="t-body-m text-muted" data-testid="hard-round-note">{{ hardNote }}</p>
+      <p v-else-if="reasonLabel" class="t-body-m text-muted" data-testid="reason">{{ reasonLabel }}</p>
     </header>
 
     <!-- The review of a lesson: the words of its set reinforced, and how many at the first try. No points, no new words: it brings none. -->
     <div
       v-if="summary && hasNumbers && isLessonReview && lessonReview"
-      class="mt-[18px] grid grid-cols-2 rounded-card border border-hairline bg-surface"
+      class="mt-5 flex rounded-lg border border-hairline bg-surface"
+      :data-columns="2"
       data-testid="stats"
     >
-      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-won">{{ t('finished.stats.of', { done: lessonReview.won, total: lessonReview.total }) }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.lesson_review.won') }}</p>
+      <div class="flex min-w-0 flex-1 flex-col items-center gap-1 px-2 py-4 text-center">
+        <p class="t-numeric-l" data-testid="stat-won">{{ t('finished.stats.of', { done: lessonReview.won, total: lessonReview.total }) }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.lesson_review.won') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-first-try">{{ lessonReview.first_try }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.lesson_review.first_try') }}</p>
+      <div class="my-4 flex min-w-0 flex-1 flex-col items-center gap-1 border-l border-divider px-2 text-center">
+        <p class="t-numeric-l" data-testid="stat-first-try">{{ lessonReview.first_try }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.lesson_review.first_try') }}</p>
       </div>
     </div>
-    <!-- A lesson (docs/design 2026-11-25 Finish): right answers of all, the new words, and the points of the league when there are some. -->
+    <!-- A lesson (kit 06): right answers of all, the new words, and the points of the league when there are some. -->
     <div
       v-else-if="summary && hasNumbers && isLessonFinish"
-      class="mt-[18px] grid rounded-card border border-hairline bg-surface"
-      :class="pointsEarned > 0 ? 'grid-cols-3' : 'grid-cols-2'"
+      class="mt-5 flex rounded-lg border border-hairline bg-surface"
+      :data-columns="pointsEarned > 0 ? 3 : 2"
       data-testid="stats"
     >
-      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-correct">{{ t('finished.stats.of', { done: summary.correct, total: summary.reviewed }) }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct_answers') }}</p>
+      <div class="flex min-w-0 flex-1 flex-col items-center gap-1 px-2 py-4 text-center">
+        <p class="t-numeric-l" data-testid="stat-correct">{{ t('finished.stats.of', { done: summary.correct, total: summary.reviewed }) }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.correct_answers') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-new">{{ summary.new_words > 0 ? `+${summary.new_words}` : summary.new_words }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new_words') }}</p>
+      <div class="my-4 flex min-w-0 flex-1 flex-col items-center gap-1 border-l border-divider px-2 text-center">
+        <p class="t-numeric-l" data-testid="stat-new">{{ summary.new_words > 0 ? `+${summary.new_words}` : summary.new_words }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.new_words') }}</p>
       </div>
-      <div v-if="pointsEarned > 0" class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="points-earned">+{{ pointsEarned }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.league_points') }}</p>
+      <div v-if="pointsEarned > 0" class="my-4 flex min-w-0 flex-1 flex-col items-center gap-1 border-l border-divider px-2 text-center">
+        <p class="t-numeric-l" data-testid="points-earned">+{{ pointsEarned }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.league_points') }}</p>
       </div>
     </div>
     <!-- Any other personal session: the cards, the share of right answers and the new words; the points are a row below. -->
     <div
       v-else-if="summary && hasNumbers"
-      class="mt-[18px] grid grid-cols-3 rounded-card border border-hairline bg-surface"
+      class="mt-5 flex rounded-lg border border-hairline bg-surface"
+      :data-columns="3"
       data-testid="stats"
     >
-      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.cards') }}</p>
+      <div class="flex min-w-0 flex-1 flex-col items-center gap-1 px-2 py-4 text-center">
+        <p class="t-numeric-l" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.cards') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct') }}</p>
+      <div class="my-4 flex min-w-0 flex-1 flex-col items-center gap-1 border-l border-divider px-2 text-center">
+        <p class="t-numeric-l" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.correct') }}</p>
       </div>
-      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
-        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-new">{{ summary.new_words }}</p>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new') }}</p>
+      <div class="my-4 flex min-w-0 flex-1 flex-col items-center gap-1 border-l border-divider px-2 text-center">
+        <p class="t-numeric-l" data-testid="stat-new">{{ summary.new_words }}</p>
+        <p class="t-label-s text-muted">{{ t('finished.stats.new') }}</p>
       </div>
     </div>
     <p
       v-else-if="!summary && hasNumbers"
-      class="card mt-7 text-[17px] leading-[22px] font-semibold short:mt-5"
+      class="t-body-l mt-6 rounded-lg border border-hairline bg-surface p-4 text-center short:mt-4"
       data-testid="reviewed"
     >
       {{ tn('finished.reviewed', reviewed) }}
     </p>
-    <p v-if="stagesLine" class="mt-2 px-1 text-[13px] leading-[18px] text-muted" data-testid="stages">{{ stagesLine }}</p>
-    <p v-if="isLessonReview && summary" class="mt-2 px-1 text-[13px] leading-[18px] text-muted" data-testid="lesson-review-note">{{ t('finished.lesson_review.note') }}</p>
+    <p v-if="stagesLine" class="t-label-s mt-2 text-center text-muted" data-testid="stages">{{ stagesLine }}</p>
+    <p v-if="isLessonReview && summary" class="t-label-s mt-2 text-center text-muted" data-testid="lesson-review-note">{{ t('finished.lesson_review.note') }}</p>
 
     <section
       v-if="hasRows"
-      class="mt-2.5 flex flex-col divide-y divide-divider overflow-hidden rounded-card border border-hairline bg-surface"
+      class="mt-3 flex flex-col divide-y divide-divider overflow-hidden rounded-lg border border-hairline bg-surface"
       data-testid="rows"
     >
       <div v-if="corrected" class="flex items-start gap-3 px-[18px] py-3.5" data-testid="hard-round-corrected">
         <AppIcon name="check" :size="18" class="mt-0.5 shrink-0 text-success" />
         <div class="min-w-0 flex-1">
           <!-- The sentence in two keys around the word, so the translation can follow the word as a muted suffix (Uzbek puts more after it). -->
-          <p class="text-[15px] leading-5 break-words" data-testid="hard-round-corrected-line">{{ t('finished.corrected.lead', { word: corrected.word }) }}<span v-if="correctedTranslation" class="text-muted" data-testid="hard-round-corrected-translation"> ({{ correctedTranslation }})</span> {{ t('finished.corrected.tail') }}</p>
-          <p v-if="corrected.answer" class="mt-0.5 text-[13px] leading-[18px] text-muted break-words" data-testid="hard-round-corrected-answer">
+          <p class="t-body-m break-words" data-testid="hard-round-corrected-line">{{ t('finished.corrected.lead', { word: corrected.word }) }}<span v-if="correctedTranslation" class="text-muted" data-testid="hard-round-corrected-translation"> ({{ correctedTranslation }})</span> {{ t('finished.corrected.tail') }}</p>
+          <p v-if="corrected.answer" class="mt-0.5 t-label-s text-muted break-words" data-testid="hard-round-corrected-answer">
             {{ t('finished.corrected.answer', { answer: corrected.answer }) }}
           </p>
         </div>
       </div>
 
       <div v-if="goal && showGoal" class="flex flex-col gap-2.5 px-4 py-3.5" data-testid="goal">
-        <div class="flex items-baseline justify-between gap-3">
-          <p class="text-base leading-5 font-bold" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
+        <div class="flex items-center gap-2">
+          <AppIcon name="target" :size="20" class="shrink-0" data-testid="goal-icon" />
+          <p class="t-body-m-strong min-w-0 flex-1" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
             {{ goal.met ? t('finished.goal_met') : t('finished.goal_line', { done: goal.done, target: goal.target }) }}
           </p>
           <AppIcon v-if="goal.met" name="check" :size="18" class="shrink-0 self-center text-success" />
-          <p v-else-if="goalLeft > 0" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="goal-left">{{ t('finished.goal_left', { count: goalLeft }) }}</p>
+          <p v-else-if="goalLeft > 0" class="t-label-s shrink-0 text-muted" data-testid="goal-left">{{ t('finished.goal_left', { count: goalLeft }) }}</p>
         </div>
         <!-- One segment per word of the goal (as in the mock-up); a long goal is one line. -->
         <div
@@ -665,18 +690,18 @@ onBeforeUnmount(() => {
       </div>
 
       <div v-if="streak && showStreak" class="px-[18px] py-3.5">
-        <p v-if="streak.current > 0" class="text-[15px] leading-5 font-semibold" data-testid="streak">
+        <p v-if="streak.current > 0" class="t-body-m-strong" data-testid="streak">
           {{ tn('today.streak.in_row', streak.current) }}
         </p>
-        <p v-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="streak-held-by-game">
+        <p v-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" class="mt-0.5 t-label-s text-muted" data-testid="streak-held-by-game">
           {{ t('today.streak.held_by_game') }}
         </p>
-        <p v-if="streak.at_risk" class="text-[13px] leading-[18px] text-warning-ink" :class="{ 'mt-0.5': streak.current > 0 }" data-testid="streak-at-risk">
+        <p v-if="streak.at_risk" class="t-label-s text-warning-ink" :class="{ 'mt-0.5': streak.current > 0 }" data-testid="streak-at-risk">
           {{ t('today.streak.at_risk') }}
         </p>
       </div>
 
-      <p v-if="bestCombo > 0" class="px-[18px] py-3.5 text-[15px] leading-5 font-semibold" data-testid="best-combo">
+      <p v-if="bestCombo > 0" class="px-[18px] py-3.5 t-body-m-strong" data-testid="best-combo">
         {{ t('finished.best_combo', { count: bestCombo }) }}
       </p>
 
@@ -686,25 +711,25 @@ onBeforeUnmount(() => {
         class="flex min-h-[52px] items-center gap-3 px-[18px] py-3.5 active:bg-fill"
         data-testid="new-achievement"
       >
-        <span class="min-w-0 flex-1 text-[15px] leading-5 font-semibold break-words">{{ t('finished.new_achievement', { title: newAchievement.title }) }}</span>
+        <span class="min-w-0 flex-1 t-body-m-strong break-words">{{ t('finished.new_achievement', { title: newAchievement.title }) }}</span>
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
       <!-- The word points v2 (docs/32 §8.2): the session's points (on a lesson they are the tile above), where they went, what the cap cut off. -->
       <div v-if="scoreSession && pointsEarned > 0" class="flex flex-col gap-0.5 px-[18px] py-3.5" data-testid="score-session">
         <div class="flex items-baseline justify-between gap-3">
-          <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
-          <p v-if="!isLessonFinish" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+          <p class="t-body-m-strong">{{ t('league.title') }}</p>
+          <p v-if="!isLessonFinish" class="shrink-0 t-label-s text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
         </div>
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="score-split">{{ scoreSplit }}</p>
-        <p v-if="scoreSession.capped_off > 0" class="text-[13px] leading-[18px] text-muted" data-testid="score-capped-off">
+        <p class="t-label-s text-muted" data-testid="score-split">{{ scoreSplit }}</p>
+        <p v-if="scoreSession.capped_off > 0" class="t-label-s text-muted" data-testid="score-capped-off">
           {{ tn('finished.score.capped', scoreSession.capped_off) }}
         </p>
-        <p v-if="scoreTodayLine" class="text-[13px] leading-[18px] text-muted" data-testid="score-today-line">{{ scoreTodayLine }}</p>
+        <p v-if="scoreTodayLine" class="t-label-s text-muted" data-testid="score-today-line">{{ scoreTodayLine }}</p>
       </div>
       <div v-else-if="pointsEarned > 0 && !isLessonFinish" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
-        <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
-        <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+        <p class="t-body-m-strong">{{ t('league.title') }}</p>
+        <p class="shrink-0 t-label-s text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
       </div>
       <RouterLink
         v-if="monthLine"
@@ -712,20 +737,20 @@ onBeforeUnmount(() => {
         class="flex min-h-[52px] items-center gap-3 px-[18px] py-3.5 active:bg-fill"
         data-testid="month-line"
       >
-        <span class="min-w-0 flex-1 text-[15px] leading-5 text-accent">{{ monthLine }}</span>
+        <span class="min-w-0 flex-1 t-body-m text-accent">{{ monthLine }}</span>
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
       <div v-if="showNext" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5" data-testid="next">
-        <p class="text-[15px] leading-5 font-semibold">{{ t('finished.next_label') }}</p>
-        <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="next-label">{{ nextLabel }}</p>
+        <p class="t-body-m-strong">{{ t('finished.next_label') }}</p>
+        <p class="shrink-0 t-label-s text-muted" data-testid="next-label">{{ nextLabel }}</p>
       </div>
     </section>
 
     <section v-if="showQuotaCard" class="card mt-3.5 space-y-3" data-testid="quota-card">
-      <p class="text-[15px] leading-5 font-semibold">{{ t('finished.quota.title') }}</p>
+      <p class="t-body-m-strong">{{ t('finished.quota.title') }}</p>
       <div class="flex flex-col gap-2">
-        <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
+        <button type="button" class="btn btn-secondary btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
           {{ t('finished.quota.pro') }}
         </button>
         <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
@@ -736,52 +761,56 @@ onBeforeUnmount(() => {
 
     <!-- "What next" of the day plan (docs/31 §5б): step 2 (the training of the lesson) or step 3 (the game) as the big card, the game as a row. -->
     <section v-if="showWhatNext" class="mt-[22px] flex flex-col gap-2.5" data-testid="what-next">
-      <h2 class="text-xl leading-6 font-extrabold tracking-[-0.3px]">{{ t('finished.next.title') }}</h2>
+      <h2 class="t-title-m">{{ t('finished.next.title') }}</h2>
 
-      <div v-if="showTraining" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="training-card">
+      <div v-if="showTraining" class="flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4" data-testid="training-card">
         <div class="flex flex-col gap-1">
-          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="training-step">{{ stepEyebrow('training') }}</p>
-          <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ t('finished.next.training_title') }}</p>
-          <p class="text-sm leading-5">{{ t('finished.next.training_text') }} {{ tn('finished.lesson.new_words', newWords) }}.</p>
+          <p class="t-label-s text-accent" data-testid="training-step">{{ stepEyebrow('training') }}</p>
+          <p class="t-title-m">{{ t('finished.next.training_title') }}</p>
+          <p class="t-body-m text-muted">{{ t('finished.next.training_text') }} {{ tn('finished.lesson.new_words', newWords) }}.</p>
         </div>
         <button
           type="button"
-          class="btn btn-primary btn-lg btn-block"
+          class="btn btn-primary btn-block"
           :disabled="training.opening"
           data-testid="lesson-review-btn"
           @click="startLessonReview"
         >
           {{ t('finished.next.training_start') }}
-          <AppIcon name="arrow-right" :size="22" />
+          <AppIcon name="arrow-right" :size="20" />
         </button>
       </div>
 
-      <p v-if="reviewNotice" class="text-[15px] leading-5 text-muted" role="status" data-testid="training-unavailable">{{ reviewNotice }}</p>
+      <p v-if="reviewNotice" class="t-body-m text-muted" role="status" data-testid="training-unavailable">{{ reviewNotice }}</p>
 
-      <div v-if="showPlayHero && gameTarget" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="game-card">
-        <div class="flex flex-col gap-1">
-          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="game-step">{{ stepEyebrow('game') }}</p>
-          <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ modeTitle('pairs_timed') }}</p>
-          <p class="text-sm leading-5">{{ t('finished.next.game_text') }}</p>
+      <div v-if="showPlayHero && gameTarget" class="flex flex-col gap-3 rounded-lg bg-accent-soft p-4" data-testid="game-card">
+        <div class="flex items-start gap-3">
+          <span class="icon-tile bg-surface text-accent" aria-hidden="true"><AppIcon name="clock" :size="20" /></span>
+          <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <p class="t-label-s text-accent-ink" data-testid="game-step">{{ stepEyebrow('game') }}</p>
+            <p class="t-title-m">{{ modeTitle('pairs_timed') }}</p>
+            <p class="t-body-m">{{ t('finished.next.game_text') }}</p>
+          </div>
         </div>
-        <RouterLink :to="gameTarget" class="btn btn-primary btn-lg btn-block" data-testid="game-play-btn">
+        <RouterLink :to="gameTarget" class="btn btn-primary btn-block" data-testid="game-play-btn">
           {{ t('finished.next.play') }}
-          <AppIcon name="arrow-right" :size="22" />
+          <AppIcon name="arrow-right" :size="20" />
         </RouterLink>
       </div>
 
+      <!-- "Or a game: timed pairs" - the Secondary of the kit (06), with the time of the game under it. -->
       <RouterLink
         v-if="showGameLine && gameTarget"
         :to="gameTarget"
-        class="flex min-h-12 items-center gap-3 rounded-card border border-hairline bg-surface px-3.5 py-3 active:bg-fill"
+        class="list-row list-row-icon rounded-lg border border-hairline bg-surface active:bg-fill"
         data-testid="game-line"
       >
-        <AppIcon name="puzzle-piece" :size="28" class="shrink-0 text-accent" />
+        <span class="icon-tile" aria-hidden="true"><AppIcon name="clock" :size="20" /></span>
         <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span class="text-base leading-5 font-bold">{{ t('finished.next.game_line') }}</span>
-          <span class="text-[13px] leading-[18px] text-muted">{{ t('finished.next.game_sub') }}</span>
+          <span class="t-body-m-strong">{{ t('finished.next.game_line') }}</span>
+          <span class="t-label-s text-muted">{{ t('finished.next.game_sub') }}</span>
         </span>
-        <AppIcon name="chevron-right" :size="20" class="shrink-0" />
+        <AppIcon name="chevron-right" :size="20" class="shrink-0 text-muted" />
       </RouterLink>
     </section>
 
@@ -792,7 +821,7 @@ onBeforeUnmount(() => {
       <RouterLink v-if="heroMain" :to="{ name: 'today' }" class="btn btn-plain btn-block text-base" data-testid="home-btn">
         {{ t('finished.home') }}
       </RouterLink>
-      <RouterLink v-else :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
+      <RouterLink v-else :to="{ name: 'today' }" class="btn btn-primary btn-block" data-testid="home-btn">
         {{ t('finished.done') }}
       </RouterLink>
       <button
@@ -829,20 +858,20 @@ onBeforeUnmount(() => {
 
       <!-- Reminders about Pro: under the buttons, so that "Done" stays on the first screen. One at a time. -->
       <section v-if="showTrialEnding" class="card mt-3 space-y-3" data-testid="trial-ending">
-        <p class="text-[15px] leading-5 font-semibold">{{ trialEndingText }}</p>
+        <p class="t-body-m-strong">{{ trialEndingText }}</p>
         <div class="flex flex-col gap-2" data-testid="trial-ending-actions">
           <template v-for="action in reminderActions" :key="action">
             <button
               v-if="action === 'details'"
               type="button"
               class="btn btn-block"
-              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'"
               data-testid="trial-ending-pro"
               @click="openPaywall('info')"
             >
               {{ t(paymentOpen ? 'lapsed.trial.renew' : 'protip.more') }}
             </button>
-            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="trial-ending-invite">
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'" data-testid="trial-ending-invite">
               {{ t('lapsed.invite') }}
             </RouterLink>
           </template>
@@ -851,8 +880,8 @@ onBeforeUnmount(() => {
       <section v-else-if="showTip" class="card mt-3 space-y-3" data-testid="pro-tip">
         <div class="flex items-start gap-3">
           <div class="min-w-0 flex-1">
-            <p class="text-[13px] leading-[18px] text-muted">{{ t('protip.title') }}</p>
-            <p class="text-[15px] leading-5 font-semibold" data-testid="pro-tip-text">{{ tipText }}</p>
+            <p class="t-label-s text-muted">{{ t('protip.title') }}</p>
+            <p class="t-body-m-strong" data-testid="pro-tip-text">{{ tipText }}</p>
           </div>
           <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
           <button
@@ -871,13 +900,13 @@ onBeforeUnmount(() => {
               v-if="action === 'details'"
               type="button"
               class="btn btn-block"
-              :class="paymentOpen ? 'btn-tinted' : 'btn-secondary'"
+              :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'"
               data-testid="pro-tip-details"
               @click="openPaywall('info')"
             >
               {{ t('protip.more') }}
             </button>
-            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-tinted'" data-testid="pro-tip-invite">
+            <RouterLink v-else :to="{ name: 'referrals' }" class="btn btn-block" :class="paymentOpen ? 'btn-secondary' : 'btn-secondary'" data-testid="pro-tip-invite">
               {{ t('protip.invite') }}
             </RouterLink>
           </template>

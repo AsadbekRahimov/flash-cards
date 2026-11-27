@@ -99,8 +99,8 @@ final class ShareMessageBuilder
                 __('share.caption.friend_invite', [], $locale),
                 fn (): string => $this->inviteCard->render($locale),
             ],
-            // Not available yet: refused above.
-            ShareKind::LeagueWeek, ShareKind::MonthPlace => throw ShareException::unavailable('kind_not_available'),
+            // Not available yet, or a story only (docs/40 §2.4): refused above.
+            ShareKind::LeagueWeek, ShareKind::MonthPlace, ShareKind::Streak => throw ShareException::unavailable('kind_not_available'),
         };
 
         $link = $kind === ShareKind::FriendInvite

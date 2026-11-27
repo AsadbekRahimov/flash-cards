@@ -82,15 +82,15 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
 <template>
   <div class="flex flex-1 flex-col" data-testid="collocation-choice" :data-mode="mode">
     <div class="flex flex-1 flex-col gap-4 px-5 pt-4 pb-4">
-      <!-- The task on the white screen, as the word of docs/design Question: no card around it. -->
+      <!-- The task in the language of a lesson question (kit Muhrla 04): no card around it. -->
       <article class="flex flex-col items-center gap-3 px-1 pt-4 pb-4 text-center">
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="collocation-instruction">{{ t('practice.collocation.instruction') }}</p>
+        <p class="t-body-m text-muted" data-testid="collocation-instruction">{{ t('practice.collocation.instruction') }}</p>
 
         <h2 class="font-semibold break-words" :class="phraseClass" lang="en" data-testid="collocation-text">
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
-              class="mx-0.5 inline-block min-w-[4.5rem] rounded-lg border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold"
+              class="mx-0.5 inline-block min-w-[4.5rem] rounded-sm border-2 px-2.5 text-center align-baseline text-[0.9em] leading-6 font-semibold"
               :class="pickedText !== null ? 'border-accent bg-accent-soft text-accent-ink' : 'border-dashed border-accent bg-accent-soft'"
               :data-tone="pickedText !== null ? 'picked' : 'empty'"
               data-testid="collocation-blank"

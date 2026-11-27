@@ -71,7 +71,7 @@ const next = computed((): string => {
   <div v-if="reveal" class="flex flex-1 flex-col gap-3 px-5 pt-3 pb-6" data-testid="battle-reveal">
     <!-- The pause runs out: its clock is under the score, where the clock of the round was, and not at the bottom - in a short window (320 x 568) the bottom is below the fold for the whole pause. -->
     <div class="flex flex-col gap-2" data-testid="reveal-next">
-      <div class="progress progress-primary h-[3px]" aria-hidden="true">
+      <div class="progress progress-primary" aria-hidden="true">
         <div class="progress-fill" :style="{ width: `${Math.round(share * 100)}%` }" />
       </div>
       <p class="flex items-center justify-center gap-1.5 text-[13px] leading-[18px] text-muted">
@@ -81,10 +81,10 @@ const next = computed((): string => {
     </div>
 
     <article class="flex flex-col items-center gap-2 px-1 py-3 text-center">
-      <p class="text-[13px] leading-[18px] text-muted">{{ t('battle.reveal.correct') }}</p>
-      <p v-if="correct?.text" class="text-2xl leading-8 font-semibold break-words" data-testid="reveal-correct">{{ correct.text }}</p>
+      <p class="t-label-s text-muted">{{ t('battle.reveal.correct') }}</p>
+      <p v-if="correct?.text" class="t-display-m break-words" data-testid="reveal-correct">{{ correct.text }}</p>
       <ul v-if="correct && correct.pairs.length > 0" class="flex w-full flex-col gap-1.5" role="list" data-testid="reveal-pairs">
-        <li v-for="pair in correct.pairs" :key="pair.left" class="flex items-center justify-center gap-2 text-lg leading-6 font-semibold break-words">
+        <li v-for="pair in correct.pairs" :key="pair.left" class="t-title-m flex items-center justify-center gap-2 break-words">
           <span>{{ pair.left }}</span>
           <AppIcon name="arrows-right-left" :size="16" class="shrink-0 text-muted" />
           <span class="sr-only"> — </span>
@@ -95,12 +95,12 @@ const next = computed((): string => {
 
     <article v-for="side in sides" :key="side.key" class="card flex flex-col gap-2" :data-testid="`side-${side.key}`" :data-verdict="side.result.verdict">
       <div class="flex items-center gap-2">
-        <span class="min-w-0 flex-1 truncate text-[15px] leading-5 font-semibold" data-testid="side-name">{{ side.name }}</span>
+        <span class="t-body-m-strong min-w-0 flex-1 truncate" :class="{ 'text-accent': side.key === 'me' }" data-testid="side-name">{{ side.name }}</span>
         <span class="chip shrink-0" :class="VERDICT_LOOK[side.result.verdict].chip" data-testid="side-verdict">
           <AppIcon :name="VERDICT_LOOK[side.result.verdict].icon" :size="14" />
           {{ t(VERDICT_LOOK[side.result.verdict].label) }}
         </span>
-        <span class="min-w-[3.25rem] text-right font-mono text-[15px] leading-[22px] font-medium tabular-nums" aria-hidden="true" data-testid="side-points">+{{ side.result.points }}</span>
+        <span class="min-w-[3.5rem] text-right font-display text-[17px] leading-[22px] font-semibold tabular-nums" aria-hidden="true" data-testid="side-points">+{{ side.result.points }}</span>
         <span class="sr-only">{{ tn('battle.points', side.result.points) }}</span>
       </div>
       <p v-if="side.shown.text" class="text-base leading-[22px] break-words" :class="{ 'text-muted': side.result.verdict !== 'correct' }" data-testid="side-answer">{{ side.shown.text }}</p>
@@ -110,7 +110,7 @@ const next = computed((): string => {
       <p v-else class="text-base leading-[22px] text-muted" data-testid="side-answer">{{ t('battle.reveal.no_answer') }}</p>
     </article>
 
-    <section v-if="reveal.translation || reveal.explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-page p-[18px]" data-testid="reveal-notes">
+    <section v-if="reveal.translation || reveal.explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-surface p-[18px]" data-testid="reveal-notes">
       <div v-if="reveal.translation" data-testid="reveal-translation">
         <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.translation') }}</p>
         <p class="mt-0.5 text-base leading-[22px] italic">{{ reveal.translation }}</p>

@@ -10,9 +10,9 @@ import AppIcon from './AppIcon.vue'
 import type { IconName } from './icons'
 
 /**
- * One row of a `ListGroup` (docs/design/2026-11-25-redesign Profile / Practice): an optional bare icon or a custom leading element,
- * a title (16 px bold) with an optional subtitle (13 px, secondary colour), a value (15 px, secondary colour) and a chevron on the
- * right.
+ * One row of a `ListGroup` (kit Muhrla, COMPONENTS.md "ListRow"): at least 60 px, padding 10 / 12; an optional 40 x 40 plate
+ * (radius sm, the sunken paper) with a 20 px icon or a custom leading element, a title (Body/M Strong, 15 / 22, 600) with an optional
+ * subtitle (13 px, secondary colour), a value (15 px, secondary colour) and a chevron on the right.
  *
  * Root element (decided by the props and the parent's listeners):
  * - `to` — a `RouterLink`, with the chevron unless `chevron` is `false`;
@@ -21,7 +21,7 @@ import type { IconName } from './icons'
  *
  * Props: `to`; `icon` (Heroicons name) with `tile` (colour of the tile, default gray); `title`; `subtitle`
  * (hint under the title); `value` (text on the right); `chevron` (force the `›` on or off); `danger` (red title,
- * for destructive rows); `disabled`. The tile is no longer a bright square: `tile` only picks the colour of the icon.
+ * for destructive rows); `disabled`. The plate is the same for all rows: `tile` only picks the colour of the icon.
  * Event: `click` (not emitted while disabled).
  * Slots: `leading` (replaces the icon tile), `trailing` (replaces `value`; e.g. a `ToggleSwitch` or a `select.field-inline`;
  * keep a row with an interactive trailing control free of `@click`).
@@ -82,15 +82,15 @@ function onClick(event: MouseEvent): void {
     @click="onClick"
   >
     <slot name="leading">
-      <span v-if="icon" class="icon-tile" :class="`tile-${tile ?? 'gray'}`"><AppIcon :name="icon" :size="24" /></span>
+      <span v-if="icon" class="icon-tile" :class="`tile-${tile ?? 'gray'}`"><AppIcon :name="icon" :size="20" /></span>
     </slot>
     <span class="min-w-0 flex-1">
-      <span class="block text-base leading-[22px] font-bold" :class="{ 'text-danger': danger }">{{ title }}</span>
+      <span class="block text-[15px] leading-[22px] font-semibold" :class="{ 'text-danger': danger }">{{ title }}</span>
       <span v-if="subtitle" class="mt-0.5 block text-[13px] leading-[18px] text-muted">{{ subtitle }}</span>
     </span>
     <slot name="trailing">
       <span v-if="value" class="shrink-0 text-[15px] leading-5 text-muted">{{ value }}</span>
     </slot>
-    <AppIcon v-if="showChevron" name="chevron-right" :size="20" class="shrink-0 text-body" />
+    <AppIcon v-if="showChevron" name="chevron-right" :size="20" class="shrink-0 text-muted" />
   </component>
 </template>

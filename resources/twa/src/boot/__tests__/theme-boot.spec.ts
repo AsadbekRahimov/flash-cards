@@ -6,7 +6,7 @@ import { resolveLocale } from '@/i18n'
 
 // vitest runs with cwd = resources/twa
 const source = readFileSync(join(process.cwd(), 'src', 'boot', 'theme-boot.js'), 'utf8')
-const FONT = '/twa/assets/inter-cyrillic-wght-normal-abc123.woff2'
+const FONT = '/twa/assets/onest-cyrillic-wght-normal-abc123.woff2'
 
 type Win = Window & { Telegram?: unknown }
 
@@ -62,7 +62,7 @@ describe('the start script (src/boot/theme-boot.js)', () => {
     originalMatchMedia = window.matchMedia
     const meta = document.createElement('meta')
     meta.name = 'theme-color'
-    meta.content = '#f4f6fb'
+    meta.content = '#f6f2ea'
     document.head.append(meta)
   })
 

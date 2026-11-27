@@ -2374,3 +2374,62 @@ it('rolls back and re-applies the migrations of the round of hard words (sqlite 
     $hardIdx->up();
     expect($names('word_repetitions'))->toContain('word_repetitions_hard_idx');
 });
+
+// --- the new screens of the kit (docs/40 §2.1, §2.5): 2026_12_02_100001 / 2026_12_02_100002 ---
+
+it('adds the profile fields of the Mini App onboarding and the lost streak to learners, nullable, and casts them', function (): void {
+    $learner = Learner::factory()->create();
+    $fresh = $learner->fresh();
+    expect($fresh?->display_name)->toBeNull()
+        ->and($fresh?->age_range)->toBeNull()
+        ->and($fresh?->goals)->toBeNull()
+        ->and($fresh?->streak_lost_days)->toBeNull()
+        ->and($fresh?->streak_lost_on)->toBeNull();
+
+    // A name of 32 graphemes may take up to 64 code points (DisplayName::MAX_CODE_POINTS): the column keeps all of them.
+    $name = str_repeat('👍🏽', 32);
+    $learner->update(['display_name' => $name, 'age_range' => '18_24', 'goals' => ['career', 'travel'], 'streak_lost_days' => 12, 'streak_lost_on' => '2026-12-01']);
+    $fresh = $learner->fresh();
+    expect($fresh?->display_name)->toBe($name)
+        ->and($fresh?->age_range)->toBe('18_24')
+        ->and($fresh?->goals)->toBe(['career', 'travel'])
+        ->and($fresh?->streak_lost_days)->toBe(12)
+        ->and($fresh?->streak_lost_on?->toDateString())->toBe('2026-12-01');
+
+    if (DB::getDriverName() === 'pgsql') {
+        $types = DB::table('information_schema.columns')->where('table_name', 'learners')
+            ->whereIn('column_name', ['display_name', 'age_range', 'goals', 'streak_lost_days', 'streak_lost_on'])
+            ->pluck('data_type', 'column_name')->all();
+        expect($types)->toEqual([
+            'display_name' => 'character varying', 'age_range' => 'character varying', 'goals' => 'jsonb',
+            'streak_lost_days' => 'smallint', 'streak_lost_on' => 'date',
+        ]);
+    }
+
+    // No index on any of them (docs/40 §2.1: nothing filters by them on a hot path).
+    $indexed = array_merge(...array_column(Schema::getIndexes('learners'), 'columns'));
+    expect(array_intersect($indexed, ['display_name', 'age_range', 'goals', 'streak_lost_days', 'streak_lost_on']))->toBe([]);
+});
+
+it('rolls back and re-applies the migrations of the new screens of the kit clean (sqlite and PostgreSQL)', function (): void {
+    $profile = require database_path('migrations/2026_12_02_100001_add_profile_fields_to_learners_table.php');
+    $streak = require database_path('migrations/2026_12_02_100002_add_streak_lost_to_learners_table.php');
+    $columns = ['display_name', 'age_range', 'goals', 'streak_lost_days', 'streak_lost_on'];
+    $learner = Learner::factory()->create(['display_name' => 'Азиз', 'goals' => ['media']]);
+
+    $streak->down();
+    $profile->down();
+    foreach ($columns as $column) {
+        expect(Schema::hasColumn('learners', $column))->toBeFalse();
+    }
+    // The row itself and the columns around stay.
+    expect(DB::table('learners')->where('id', $learner->id)->value('first_name'))->toBe($learner->first_name)
+        ->and(Schema::hasColumns('learners', ['username', 'level', 'streak_last_date']))->toBeTrue();
+
+    $profile->up();
+    $streak->up();
+    foreach ($columns as $column) {
+        expect(Schema::hasColumn('learners', $column))->toBeTrue();
+    }
+    expect(DB::table('learners')->where('id', $learner->id)->value('display_name'))->toBeNull();
+});

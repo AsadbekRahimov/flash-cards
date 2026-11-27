@@ -7,6 +7,9 @@ import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import type { Card, ReviewResponse, WordScore } from '@/api/types'
 
+// An answer that waited for the network is kept in `sessionStorage` (docs/40 §2.6): every test starts without one.
+beforeEach(() => window.sessionStorage.clear())
+
 /*
  * The chip of the word points after an answer (docs/32 §8.1, `score` of `/review`): a quiet «+N» from `score.week`; of the reasons of
  * "no points" only the cap of the day is said, once a session. The answer itself goes on as before.

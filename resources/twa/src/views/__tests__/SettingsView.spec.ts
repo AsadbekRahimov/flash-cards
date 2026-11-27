@@ -255,8 +255,10 @@ describe('SettingsView', () => {
       const w = await render(settingsFixture({ active_course: { slug: 'x', title: 'Английский A2: повседневные темы для путешествий и работы' } }))
 
       const row = w.get('[data-testid=course-card]')
-      expect(row.get('span').classes()).toContain('shrink-0') // «Main course» never wraps
-      expect(row.get('span').text()).toBe('Мой курс')
+      expect(row.get('[data-testid=course-label]').classes()).toContain('shrink-0') // «Main course» never wraps
+      expect(row.get('[data-testid=course-label]').text()).toBe('Мой курс')
+      // the row of the kit: the plate of the icon first
+      expect(row.get('span').classes()).toContain('icon-tile')
       expect(w.get('[data-testid=course-title]').classes()).toEqual(expect.arrayContaining(['line-clamp-2', 'min-w-0', 'flex-1', 'text-right']))
       expect(w.get('[data-testid=course-title]').text()).toBe('Английский A2: повседневные темы для путешествий и работы')
       expect(row.find('svg').exists()).toBe(true) // the chevron
@@ -740,5 +742,16 @@ describe('SettingsView', () => {
 
       expect(w.get('[data-testid=sounds-row]').text()).toContain('Tovushlar')
     })
+  })
+
+  it('draws the rows of the kit: the plate of an icon before the toggles, the region, the course, the reminder and the leagues', async () => {
+    const w = await render()
+
+    for (const id of ['say-aloud-row', 'autospeak-row', 'sounds-row', 'region-row', 'course-card']) {
+      const row = w.get(`[data-testid=${id}]`)
+      expect(row.classes(), id).toEqual(expect.arrayContaining(['list-row', 'list-row-icon']))
+      expect(row.get('.icon-tile').attributes('aria-hidden'), id).toBe('true')
+    }
+    expect(w.get('[data-testid=delete-account] .icon-tile').classes()).toContain('bg-danger-soft')
   })
 })

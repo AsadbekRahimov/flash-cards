@@ -24,10 +24,10 @@ function asset(fileName: string, extra: Partial<Rollup.OutputAsset> = {}): Rollu
 
 const bundle = (): Rollup.OutputBundle => ({
   'assets/theme-boot-AbC123.js': asset('assets/theme-boot-AbC123.js', { names: ['theme-boot.js'] }),
-  'assets/inter-cyrillic-wght-normal-XyZ789.woff2': asset('assets/inter-cyrillic-wght-normal-XyZ789.woff2', {
+  'assets/onest-cyrillic-wght-normal-XyZ789.woff2': asset('assets/onest-cyrillic-wght-normal-XyZ789.woff2', {
     originalFileNames: [CYRILLIC_FONT_SOURCE],
   }),
-  'assets/inter-latin-wght-normal-Q1.woff2': asset('assets/inter-latin-wght-normal-Q1.woff2'),
+  'assets/onest-latin-wght-normal-Q1.woff2': asset('assets/onest-latin-wght-normal-Q1.woff2'),
 })
 
 describe('index.html', () => {
@@ -46,7 +46,7 @@ describe('index.html', () => {
   })
 
   it('preloads only the latin font itself: the cyrillic one is up to the start script', () => {
-    expect(indexHtml).toContain('href="/src/assets/fonts/inter-latin-wght-normal.woff2"')
+    expect(indexHtml).toContain('href="/src/assets/fonts/onest-latin-wght-normal.woff2"')
     expect(indexHtml).not.toMatch(/<link[^>]*cyrillic/)
   })
 
@@ -64,7 +64,7 @@ describe('themeBoot (vite plugin)', () => {
     expect(hook.order).toBe('post')
     expect(html).not.toContain(THEME_BOOT_PLACEHOLDER)
     expect(html).toContain(
-      '<script src="/twa/assets/theme-boot-AbC123.js" data-cyrillic-font="/twa/assets/inter-cyrillic-wght-normal-XyZ789.woff2"></script>',
+      '<script src="/twa/assets/theme-boot-AbC123.js" data-cyrillic-font="/twa/assets/onest-cyrillic-wght-normal-XyZ789.woff2"></script>',
     )
   })
 
@@ -100,11 +100,11 @@ describe('themeBoot (vite plugin)', () => {
 
   it('finds the font by its file name when the bundle does not say its source, and fails loudly when a file is missing', () => {
     const b = bundle()
-    b['assets/inter-cyrillic-wght-normal-XyZ789.woff2'] = asset('assets/inter-cyrillic-wght-normal-XyZ789.woff2')
-    expect(findBootAssets(b).font).toBe('assets/inter-cyrillic-wght-normal-XyZ789.woff2')
+    b['assets/onest-cyrillic-wght-normal-XyZ789.woff2'] = asset('assets/onest-cyrillic-wght-normal-XyZ789.woff2')
+    expect(findBootAssets(b).font).toBe('assets/onest-cyrillic-wght-normal-XyZ789.woff2')
 
     const noFont = bundle()
-    delete noFont['assets/inter-cyrillic-wght-normal-XyZ789.woff2']
+    delete noFont['assets/onest-cyrillic-wght-normal-XyZ789.woff2']
     expect(() => findBootAssets(noFont)).toThrow(/cyrillic/)
 
     const noBoot = bundle()

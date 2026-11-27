@@ -86,8 +86,9 @@ describe('SegmentedControl', () => {
     const w = mountControl({ modelValue: 30 })
 
     const [first, , third] = w.findAll('[role=radio]')
-    expect(third?.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'font-semibold', 'text-body']))
-    expect(first?.classes()).not.toContain('bg-accent-soft')
+    // the selected state of the kit: the ink (bg/inverse) with its light text
+    expect(third?.classes()).toEqual(expect.arrayContaining(['bg-inverse', 'font-semibold', 'text-on-inverse']))
+    expect(first?.classes()).not.toContain('bg-inverse')
     expect(first?.classes()).toContain('text-muted')
   })
 })

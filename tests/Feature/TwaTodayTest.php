@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\LessonContentRefresher;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\RepetitionState;
@@ -24,6 +25,7 @@ use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -84,6 +86,24 @@ function todayLearner(array $attributes = []): Learner
     return Learner::factory()->onboarded()->create(['active_course_id' => $lesson->stage?->course_id, ...$attributes]);
 }
 
+/**
+ * `/today.streak.week` of the learner today (docs/40 §2.5): the local week Monday … Sunday, `held_by` of the given days.
+ *
+ * @param  array<string, string>  $held  `Y-m-d` => goal | game | freeze
+ * @return list<array{date: string, held_by: string|null, is_today: bool}>
+ */
+function todayWeek(Learner $learner, array $held = []): array
+{
+    $today = app(LearnerClock::class)->today($learner);
+    $week = [];
+    $day = $today->startOfWeek(CarbonInterface::MONDAY);
+    for ($i = 0; $i < 7; $i++, $day = $day->addDay()) {
+        $week[] = ['date' => $day->toDateString(), 'held_by' => $held[$day->toDateString()] ?? null, 'is_today' => $day->isSameDay($today)];
+    }
+
+    return $week;
+}
+
 afterEach(fn () => CarbonImmutable::setTestNow());
 
 it('requires authentication', function (): void {
@@ -99,7 +119,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'due_count' => 0,
         'new_words_remaining' => 10,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
-        'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null],
+        'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayWeek($learner), 'lost' => null],
         'active_course' => null,
         'open_session_id' => null,
         'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null, 'lapsed' => null],
@@ -162,12 +182,12 @@ it('counts graded cards towards the goal and credits the streak when the goal is
     todayGrade($this, $learner, 1);
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 1, 'met' => false])
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayWeek($learner), 'lost' => null]);
 
     todayGrade($this, $learner, 1);
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 2, 'met' => true])
-        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal']);
+        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => 'goal', 'week' => todayWeek($learner, [app(LearnerClock::class)->today($learner)->toDateString() => 'goal']), 'lost' => null]);
 
     // Grading beyond the goal grows `done` but neither re-credits the day nor un-meets the goal.
     todayGrade($this, $learner, 1);
@@ -182,9 +202,10 @@ it('shows a series that ended yesterday as at risk and one that ended earlier as
     $broken = Learner::factory()->create(['streak_current' => 4, 'streak_best' => 9, 'streak_last_date' => '2026-10-17']);
 
     todayGet($this, $atRisk)->assertOk()
-        ->assertJsonPath('streak', ['current' => 4, 'best' => 9, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        ->assertJsonPath('streak', ['current' => 4, 'best' => 9, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayWeek($atRisk), 'lost' => null]);
     todayGet($this, $broken)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 9, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null]);
+        // Burnt on this read (docs/40 §2.5): how long it was and the local day the loss was noticed.
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 9, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null, 'week' => todayWeek($broken), 'lost' => ['days' => 4, 'on' => '2026-10-19']]);
 });
 
 it('splits the day at the learner\'s local midnight (Asia/Tashkent), not at UTC midnight', function (): void {

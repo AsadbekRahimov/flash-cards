@@ -55,7 +55,7 @@ describe('PromoRedeem', () => {
     expect(input.attributes('aria-label')).toBe('Промокод')
     expect(input.attributes('placeholder')).toBe('Промокод')
     const submit = w.get('[data-testid=promo-submit]')
-    expect(submit.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+    expect(submit.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
     expect(submit.classes()).not.toContain('btn-primary')
     expect(submit.text()).toBe('Активировать')
     expect(w.get('form').classes()).toContain('flex')

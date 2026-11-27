@@ -399,7 +399,9 @@ it('GET /today refills on Monday, reports the inventory and the frozen yesterday
     $pro = freezeLearner(4, '2026-10-17', 1); // Saturday held, Sunday missed, one freeze in stock
     Learner::query()->whereKey($pro->id)->update(['streak_freezes_refilled_on' => '2026-10-12']);
     $this->withHeaders($headers($pro))->getJson('/api/twa/today')->assertOk()
-        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null]);
+        // The frozen Sunday belongs to the week before: this week (Monday 19 …) has nothing held yet (docs/40 §2.5).
+        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true, 'held_by' => null,
+            'week' => array_map(fn (int $d): array => ['date' => "2026-10-{$d}", 'held_by' => null, 'is_today' => $d === 19], range(19, 25)), 'lost' => null]);
     expect(freezeStored($pro))->toMatchArray(['freezes' => 1, 'refilled_on' => '2026-10-19', 'last' => '2026-10-18']);
 
     // No freeze in stock when the screen is read: the series is burnt, the Monday refill does not bring it back.

@@ -74,4 +74,21 @@ class LearnerFactory extends Factory
             'onboarding_completed_at' => now(),
         ]);
     }
+
+    /** The name chosen in the onboarding of the Mini App (docs/40 §2.1), not the Telegram `first_name`. */
+    public function withDisplayName(string $name = 'Азиз'): static
+    {
+        return $this->state(fn (): array => ['display_name' => $name]);
+    }
+
+    /** In the middle of the onboarding of the Mini App: `$step` is the next screen to open (docs/40 §2.1, `meta.twa_onboarding`). */
+    public function withTwaOnboarding(string $step): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'meta' => [
+                ...(is_array($attributes['meta'] ?? null) ? $attributes['meta'] : []),
+                'twa_onboarding' => ['step' => $step, 'started_at' => now()->utc()->toIso8601String()],
+            ],
+        ]);
+    }
 }

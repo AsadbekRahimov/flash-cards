@@ -5,11 +5,10 @@ import { storeToRefs } from 'pinia'
 import ActivateDeckSheet from '@/components/ActivateDeckSheet.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, progressPercent, progressText } from '@/composables/courseLabels'
@@ -77,15 +76,18 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <PageHeader :title="t('catalog.title')" large />
+    <!-- The heading of the twin screen of the catalog (kit 12): on the centre axis. -->
+    <header class="pt-2 pb-5 text-center">
+      <h1 class="t-display-l">{{ t('catalog.title') }}</h1>
+    </header>
     <SegmentedNav :items="tabs" :ariaLabel="t('catalog.title')" />
-    <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="intro">{{ t('decks.intro') }}</p>
+    <p class="t-body-m mt-3 text-muted" data-testid="intro">{{ t('decks.intro') }}</p>
 
-    <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-4" />
+    <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-5" />
 
     <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="load" />
 
-    <div v-else class="mt-4 space-y-3">
+    <div v-else class="mt-5 space-y-3">
       <div>
         <form class="card flex gap-2" data-testid="create-form" @submit.prevent="create">
           <input
@@ -102,7 +104,7 @@ onMounted(() => {
             {{ t('decks.new.submit') }}
           </button>
         </form>
-        <p v-if="limits" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="limits">
+        <p v-if="limits" class="t-label-s mt-2 text-muted" data-testid="limits">
           {{ t('decks.limit', { used: limits.used_decks, max: limits.decks, words: limits.deck_words }) }}
         </p>
       </div>
@@ -110,13 +112,16 @@ onMounted(() => {
       <InlineAlert v-if="proNotice" tone="warning" :message="proNotice" data-testid="pro-limit" />
       <InlineAlert v-else-if="errorMessage" tone="danger" :message="errorMessage" data-testid="write-error" />
 
-      <EmptyState v-if="decks.length === 0" icon="rectangle-stack" :text="t('decks.empty')" />
+      <div v-if="decks.length === 0" class="flex flex-col items-center gap-3 py-8 text-center" data-testid="empty">
+        <MascotArt pose="reading" :height="96" />
+        <p class="t-body-m text-muted">{{ t('decks.empty') }}</p>
+      </div>
 
       <article
         v-for="deck in decks"
         :key="deck.slug"
         class="card"
-        :class="{ 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': deck.is_active }"
+        :class="{ 'border-2 border-strong': deck.is_active }"
         :data-testid="`deck-${deck.slug}`"
       >
         <RouterLink
@@ -125,12 +130,12 @@ onMounted(() => {
           data-testid="deck-link"
         >
           <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold break-words">{{ deck.title }}</h2>
+            <h2 class="t-title-m break-words">{{ deck.title }}</h2>
             <div class="mt-2 flex flex-wrap gap-1.5" data-testid="meta">
               <span class="chip chip-neutral">{{ tn('catalog.words', deck.words_count) }}</span>
             </div>
           </div>
-          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-muted" />
+          <AppIcon name="chevron-right" :size="20" class="mt-0.5 text-muted" />
         </RouterLink>
 
         <div class="mt-3.5 flex items-center gap-3">
@@ -141,7 +146,7 @@ onMounted(() => {
             class="flex-1"
             data-testid="progress-bar"
           />
-          <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(deck.progress) }}</span>
+          <span class="t-label-s shrink-0 text-muted" data-testid="progress-text">{{ progressText(deck.progress) }}</span>
         </div>
 
         <div class="mt-3">
@@ -151,7 +156,7 @@ onMounted(() => {
           <template v-else>
             <button
               type="button"
-              class="btn btn-tinted btn-block"
+              class="btn btn-secondary btn-block"
               :disabled="busy || deck.words_count === 0"
               data-testid="choose-btn"
               @click="activating = deck.slug"
@@ -159,7 +164,7 @@ onMounted(() => {
               {{ t('decks.choose') }}
             </button>
             <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
-            <p v-if="deck.words_count === 0" class="mt-2 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">
+            <p v-if="deck.words_count === 0" class="t-label-s mt-2 text-center text-muted" data-testid="choose-hint">
               {{ t('decks.choose_empty_hint') }}
             </p>
           </template>

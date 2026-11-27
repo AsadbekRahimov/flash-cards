@@ -163,6 +163,9 @@ final class StartCommandHandler implements UpdateHandler
             $this->today->send($learner, $chatId);
             // A `c_<slug>` link of a finished learner does not change the active course; it opens the course.
             $this->messenger->sendCourseLink($learner, $chatId, $payload);
+            // An invitation remembered before an onboarding that ended in the Mini App (docs/40 §5 п. 1): offered here, once -
+            // the job queued at that completion may have found the DM closed, or the queue may have lost it.
+            $this->offerPending($learner, $chatId);
 
             return;
         }
@@ -176,6 +179,29 @@ final class StartCommandHandler implements UpdateHandler
         }
 
         $this->messenger->resume($learner, $chatId, $payload, greet: true);
+    }
+
+    /**
+     * The pending offers of a finished learner, each on its own (the codes are pulled before the send; nothing is left to repeat).
+     * The loaded row says whether there is anything to pull: a `/start` without a pending code costs no lock.
+     */
+    private function offerPending(Learner $learner, int $chatId): void
+    {
+        if (! OnboardingService::hasPendingInvite($learner)) {
+            return;
+        }
+
+        try {
+            $this->organizations->offerPending($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
+        }
+
+        try {
+            $this->friends->offerPending($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     /** The one-shot "you have a week of Pro" DM; a failure of it must not take the answer to `/start` with it. */

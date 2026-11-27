@@ -5,7 +5,9 @@ import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PlayerName from '@/components/PlayerName.vue'
 import CupDuelKind from '@/components/cup/CupDuelKind.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -208,6 +210,24 @@ const myPoints = computed((): number | null => {
 
 const winner = (player: CupDuelPlayer | null): boolean => player !== null && duel.value?.winner_participant_id === player.participant_id
 
+/** The learner played this duel and won it (a stamp of their points, the mascot with the cup). */
+const iWon = computed((): boolean => {
+  const d = duel.value
+  if (d === null || d.status !== 'done' || role.value === null) return false
+  return winner(role.value === 'challenger' ? d.challenger : d.opponent)
+})
+/** The learner's points of the duel, once played. */
+const myScore = computed((): number | null => {
+  const d = duel.value
+  if (d === null || d.points === null || role.value === null) return null
+  return role.value === 'challenger' ? d.points.challenger : d.points.opponent
+})
+/** The mascot of the hero: waiting for an answer to my challenge, or the cup of my victory; none for the other states. */
+const hero = computed((): 'hello' | 'trophy' | null => {
+  if (shownStatus.value === 'open' && role.value === 'challenger') return 'hello'
+  return iWon.value ? 'trophy' : null
+})
+
 const canAccept = computed((): boolean => shownStatus.value === 'open' && role.value !== 'challenger')
 const canDecline = computed((): boolean => shownStatus.value === 'open' && role.value === 'opponent')
 const canCancel = computed((): boolean => shownStatus.value === 'open' && role.value === 'challenger')
@@ -239,68 +259,70 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
 
     <LoadingState v-if="view === 'loading' || view === 'not_found'" variant="cards" />
 
-    <EmptyState v-else-if="view === 'disabled'" icon="lock-closed" :title="t('cup.duel.off_title')" :text="errorText" data-testid="duels-off">
-      <template v-if="cupId !== null" #action>
-        <RouterLink :to="{ name: 'cup', params: { id: cupId } }" class="btn btn-tinted" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'disabled'" mascot="thinking" :title="t('cup.duel.off_title')" :text="errorText" data-testid="duels-off">
+      <RouterLink v-if="cupId !== null" :to="{ name: 'cup', params: { id: cupId } }" class="btn btn-secondary btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
+    </ClosedState>
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable">
-      <template v-if="code" #action>
-        <RouterLink :to="{ name: 'cup-invite', params: { code } }" class="btn btn-tinted" data-testid="to-invite">{{ t('cup.duel.open_cup') }}</RouterLink>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'unavailable'" mascot="thinking" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable">
+      <RouterLink v-if="code" :to="{ name: 'cup-invite', params: { code } }" class="btn btn-secondary btn-block" data-testid="to-invite">{{ t('cup.duel.open_cup') }}</RouterLink>
+    </ClosedState>
 
-    <EmptyState v-else-if="view === 'off'" icon="lock-closed" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
+    <ClosedState v-else-if="view === 'off'" mascot="thinking" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" :data-kind="failure?.kind" @retry="load" />
 
     <div v-else-if="duel" class="space-y-3">
       <!-- The change of the state (waiting → accepted → over) is announced politely. -->
       <p class="sr-only" role="status" aria-live="polite" data-testid="duel-live">{{ liveText }}</p>
-      <section class="flex flex-col gap-3 rounded-hero bg-highlight p-4" :aria-busy="acting !== null ? 'true' : undefined" data-testid="duel-card">
-        <h2 class="text-[22px] leading-7 font-extrabold break-words" data-testid="duel-title">{{ title }}</h2>
-        <CupDuelKind :rated="rated" :hint="shownStatus === 'open'" />
+      <!--
+        The duel as the hero of the kit, on the central axis: the mascot waits with the challenger for an answer, holds the cup for the
+        learner who won (with the stamp of their points - the one moment of the screen); a loss and the other states are told quietly.
+      -->
+      <section class="flex flex-col items-center gap-3 rounded-hero bg-highlight p-5 text-center" :aria-busy="acting !== null ? 'true' : undefined" data-testid="duel-card">
+        <MascotArt v-if="hero" :pose="hero" :height="112" class="short:hidden" />
+        <StampMark v-if="iWon && myScore !== null" :value="myScore" :unit="tn('battle.result.stamp_unit', myScore)" haptic />
+        <h2 class="t-display-m break-words" data-testid="duel-title">{{ title }}</h2>
+        <CupDuelKind :rated="rated" :hint="shownStatus === 'open'" center />
 
         <!-- The players: the score once played. -->
-        <div class="flex items-center gap-3" data-testid="duel-players">
+        <div class="flex w-full items-center gap-3 text-left" data-testid="duel-players">
           <span class="flex min-w-0 flex-1 flex-col" :data-winner="winner(duel.challenger) ? 'true' : undefined" data-testid="challenger">
-            <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" :suffix="role === 'challenger' ? `· ${t('league.you')}` : undefined" class="text-base leading-[22px] font-bold" />
+            <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" :suffix="role === 'challenger' ? `· ${t('league.you')}` : undefined" class="t-body-m-strong" :class="{ 'text-accent': role === 'challenger' }" />
           </span>
-          <span v-if="duel.points" class="shrink-0 font-mono text-[22px] leading-7 font-bold" data-testid="duel-score">{{ duel.points.challenger }} : {{ duel.points.opponent }}</span>
-          <span v-else class="shrink-0 text-[13px] leading-[18px] text-muted" aria-hidden="true">{{ t('cup.duel.versus') }}</span>
+          <span v-if="duel.points" class="t-numeric-l shrink-0" data-testid="duel-score">{{ duel.points.challenger }} : {{ duel.points.opponent }}</span>
+          <span v-else class="t-label-s shrink-0 text-muted" aria-hidden="true">{{ t('cup.duel.versus') }}</span>
           <span class="flex min-w-0 flex-1 flex-col items-end text-right" :data-winner="winner(duel.opponent) ? 'true' : undefined" data-testid="opponent">
             <PlayerName
               :name="playerName(duel.opponent)"
               :emoji="duel.opponent?.pro_emoji"
               :suffix="role === 'opponent' ? `· ${t('league.you')}` : undefined"
-              class="text-base leading-[22px] font-bold"
-              :class="duel.opponent === null ? 'text-muted' : ''"
+              class="t-body-m-strong"
+              :class="duel.opponent === null ? 'text-muted' : role === 'opponent' ? 'text-accent' : ''"
             />
           </span>
         </div>
 
         <template v-if="shownStatus === 'open'">
-          <p class="text-[15px] leading-5" data-testid="duel-timer">
-            {{ t('cup.duel.time_left') }} <span class="font-mono font-medium" role="timer">{{ timer }}</span>
+          <p class="t-body-m" data-testid="duel-timer">
+            {{ t('cup.duel.time_left') }} <span class="font-display font-semibold tabular-nums" role="timer">{{ timer }}</span>
           </p>
-          <p v-if="role === 'challenger'" class="text-[13px] leading-[18px] text-muted" data-testid="waiting-hint">{{ t('cup.duel.waiting_hint') }}</p>
+          <p v-if="role === 'challenger'" class="t-label-s text-muted" data-testid="waiting-hint">{{ t('cup.duel.waiting_hint') }}</p>
         </template>
 
         <template v-else-if="shownStatus === 'accepted'">
-          <p class="text-[15px] leading-5" data-testid="duel-accepted">{{ battleId !== null ? t('cup.duel.to_match_hint') : t('cup.duel.outcome.taken') }}</p>
+          <p class="t-body-m" data-testid="duel-accepted">{{ battleId !== null ? t('cup.duel.to_match_hint') : t('cup.duel.outcome.taken') }}</p>
           <button v-if="battleId !== null" type="button" class="btn btn-primary btn-lg btn-block" data-testid="to-battle" @click="toBattle">{{ t('cup.duel.to_match') }}</button>
         </template>
 
         <template v-else>
-          <p class="text-[15px] leading-5" data-testid="duel-outcome">{{ outcome }}</p>
-          <p v-if="myPoints !== null" class="text-[15px] leading-5 font-semibold" data-testid="duel-my-points">{{ t('cup.duel.my_points', { points: tn('cup.points', myPoints) }) }}</p>
+          <p class="t-body-m" data-testid="duel-outcome">{{ outcome }}</p>
+          <p v-if="myPoints !== null" class="t-body-m-strong" data-testid="duel-my-points">{{ t('cup.duel.my_points', { points: tn('cup.points', myPoints) }) }}</p>
         </template>
       </section>
 
       <InlineAlert v-if="notice" tone="warning" :message="notice" data-testid="duel-notice" />
       <InlineAlert v-if="actionError" tone="danger" :message="actionError" data-testid="duel-error" />
-      <button v-if="busyBattleId !== null" type="button" class="btn btn-tinted btn-block" data-testid="open-busy" @click="toBattle">{{ t('battle.open_current') }}</button>
+      <button v-if="busyBattleId !== null" type="button" class="btn btn-secondary btn-block" data-testid="open-busy" @click="toBattle">{{ t('battle.open_current') }}</button>
 
       <div v-if="canAccept || canDecline || canCancel" class="flex flex-col gap-2" data-testid="duel-actions">
         <button
@@ -317,7 +339,7 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
         <button
           v-if="canDecline"
           type="button"
-          class="btn btn-plain btn-block"
+          class="btn btn-ghost btn-block"
           :disabled="acting !== null"
           :aria-busy="acting === 'decline' ? 'true' : undefined"
           data-testid="decline-btn"
@@ -328,7 +350,7 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
         <button
           v-if="canCancel"
           type="button"
-          class="btn btn-tinted btn-block"
+          class="btn btn-secondary btn-block"
           :disabled="acting !== null"
           :aria-busy="acting === 'cancel' ? 'true' : undefined"
           data-testid="cancel-btn"
@@ -338,8 +360,8 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
         </button>
       </div>
 
+      <!-- Forward to the duels of the cup; back to the cup is Telegram's own "Back" (kit TELEGRAM.md: no "Back" of our own in the content). -->
       <RouterLink v-if="cupId !== null" :to="{ name: 'cup-duels', params: { id: cupId } }" class="btn btn-plain btn-block" data-testid="to-duels">{{ t('cup.duel.list_title') }}</RouterLink>
-      <RouterLink v-if="cupId !== null" :to="{ name: 'cup', params: { id: cupId } }" class="btn btn-plain btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
     </div>
 
     <PaywallSheet v-if="limitHit" reason="practice_limit" :limit-hit="limitHit" @close="store.dismissPaywall()" @review="reviewFromPaywall" />

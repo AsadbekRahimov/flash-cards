@@ -32,7 +32,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
   }
 }
 
-async function render(response: MeResponse = me(), props: { reason?: PaywallReason; deckLimits?: DeckLimits | null } = {}) {
+async function render(response: MeResponse = me(), props: { reason?: PaywallReason; deckLimits?: DeckLimits | null; goalMax?: number | null } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const wrapper = mount(PaywallSheet, { props })
   await flushPromises()
@@ -52,6 +52,32 @@ describe('PaywallSheet', () => {
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
     expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата откроется позже — мы сообщим в боте.')
     expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас бесплатный тариф: 20 новых слов в день, повторения — без лимита.')
+  })
+
+  describe('a goal above the Free limit (daily_goal)', () => {
+    it('quotes the limit the screen hands over when the settings do not know it (onboarding O6: GET /onboarding has it, /me not yet)', async () => {
+      const w = await render(me(), { reason: 'daily_goal', goalMax: 10 })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Цель больше 10 — в Pro')
+      expect(w.get('[data-testid=paywall-lead]').text()).toContain('10')
+    })
+
+    it('takes an explicit null of the screen as "no limit", not as "not passed": the settings of /me are not read for it', async () => {
+      const response = me()
+      response.settings = settingsFixture({ options: { ...settingsFixture().options, daily_goal_max: 10 } })
+      const w = await render(response, { reason: 'daily_goal', goalMax: null })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Учитесь без ограничений')
+      expect(w.text()).not.toContain('Цель больше 10')
+    })
+
+    it('reads the settings of /me without the prop, as the Settings screen opens it', async () => {
+      const response = me()
+      response.settings = settingsFixture({ options: { ...settingsFixture().options, daily_goal_max: 10 } })
+      const w = await render(response, { reason: 'daily_goal' })
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Цель больше 10 — в Pro')
+    })
   })
 
   describe('what Free gives', () => {
@@ -194,7 +220,9 @@ describe('PaywallSheet', () => {
 
       setActivePinia(createPinia()) // a /me younger than 30 s is not asked again: the second sheet needs its own store
       const html = await render(me({ contact: '<img src=x onerror=alert(1)>' }))
-      expect(html.find('img').exists()).toBe(false)
+      // the only picture of the sheet is the mascot: the contact is text
+      expect(html.find('[data-testid=paywall-contact] img').exists()).toBe(false)
+      expect(html.findAll('img').map((img) => img.attributes('data-testid'))).toEqual(['mascot-art'])
       expect(html.get('[data-testid=paywall-contact-text]').text()).toBe('<img src=x onerror=alert(1)>')
     })
   })
@@ -204,12 +232,13 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'quota' })
 
       const header = w.get('[data-testid=paywall] header')
-      // the chip of the Pro mock-up: the crown and the name of the plan (BRAND_PRO)
+      // the hero of the kit (10-podpiska-pro): the mascot in the scarf and the ink chip with the name of the plan (BRAND_PRO), centred
+      expect(header.classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
+      expect(header.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('freeze')
       const chip = header.get('[data-testid=paywall-eyebrow]')
       expect(chip.text()).toBe('Muhrla Pro')
-      expect(chip.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
-      expect(chip.get('svg').attributes('aria-hidden')).toBe('true')
-      expect(header.findAll('svg')).toHaveLength(1)
+      expect(chip.classes()).toEqual(expect.arrayContaining(['chip', 'chip-ink']))
+      expect(header.get('[data-testid=paywall-title]').classes()).toContain('t-display-m')
       expect(header.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
       expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')

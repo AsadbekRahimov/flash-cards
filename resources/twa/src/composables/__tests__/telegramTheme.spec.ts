@@ -1,11 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   CHROME_COLORS,
   applyTelegramTheme,
-  chromeTone,
-  holdSurfaceChrome,
   initTelegramTheme,
   paintTelegramChrome,
   resolveColorScheme,
@@ -17,6 +15,7 @@ interface StubHost extends ThemeHost {
   isVersionAtLeast: Mock<(version: string) => boolean>
   setHeaderColor: Mock<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>
   setBackgroundColor: Mock<(color: `#${string}`) => void>
+  setBottomBarColor: Mock<(color: `#${string}`) => void>
   onEvent: Mock<(event: 'themeChanged', handler: () => void) => void>
 }
 
@@ -27,6 +26,7 @@ function stubHost(overrides: Partial<ThemeHost> = {}): StubHost {
     isVersionAtLeast: vi.fn<(version: string) => boolean>(() => true),
     setHeaderColor: vi.fn<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>(),
     setBackgroundColor: vi.fn<(color: `#${string}`) => void>(),
+    setBottomBarColor: vi.fn<(color: `#${string}`) => void>(),
     onEvent: vi.fn<(event: 'themeChanged', handler: () => void) => void>(),
     ...overrides,
   } as StubHost
@@ -109,8 +109,28 @@ describe('telegramTheme', () => {
 
       paintTelegramChrome(host, 'light')
 
-      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f4f6fb')
+      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f6f2ea')
       expect(host.setHeaderColor).toHaveBeenCalledWith('secondary_bg_color')
+      expect(host.setBottomBarColor).not.toHaveBeenCalled()
+    })
+
+    it('paints the bottom bar in the canvas colour too on Bot API 7.10+ (kit TELEGRAM.md), and lives without the method', () => {
+      const modern = stubHost()
+      paintTelegramChrome(modern, 'light')
+      expect(modern.setBottomBarColor).toHaveBeenCalledWith('#f6f2ea')
+
+      const dark = stubHost()
+      paintTelegramChrome(dark, 'dark')
+      expect(dark.setBottomBarColor).toHaveBeenCalledWith('#121117')
+
+      const older = stubHost({ isVersionAtLeast: vi.fn((version: string) => version !== '7.10') })
+      paintTelegramChrome(older, 'light')
+      expect(older.setBottomBarColor).not.toHaveBeenCalled()
+      expect(older.setHeaderColor).toHaveBeenCalledWith('#f6f2ea')
+
+      const noMethod = { ...stubHost(), setBottomBarColor: undefined }
+      expect(() => paintTelegramChrome(noMethod, 'light')).not.toThrow()
+      expect(noMethod.setHeaderColor).toHaveBeenCalledWith('#f6f2ea')
     })
 
     it('leaves the chrome alone on a client older than 6.1', () => {
@@ -123,24 +143,12 @@ describe('telegramTheme', () => {
       expect(root.dataset.theme).toBe('dark')
     })
 
-    it.each(['page', 'surface'] as const)('uses the very %s colours of style.css, light and dark', (tone) => {
-      const light = new RegExp(`:root\\s*\\{[^}]*?--app-${tone}:\\s*(#[0-9a-f]{6})`, 'i').exec(css)?.[1]
-      const dark = new RegExp(`:root\\[data-theme='dark'\\]\\s*\\{[^}]*?--app-${tone}:\\s*(#[0-9a-f]{6})`, 'i').exec(css)?.[1]
+    it('uses the very page colours of style.css, light and dark', () => {
+      const light = /:root\s*\{[^}]*?--app-page:\s*(#[0-9a-f]{6})/i.exec(css)?.[1]
+      const dark = /:root\[data-theme='dark'\]\s*\{[^}]*?--app-page:\s*(#[0-9a-f]{6})/i.exec(css)?.[1]
 
-      expect(light?.toLowerCase()).toBe(CHROME_COLORS.light[tone])
-      expect(dark?.toLowerCase()).toBe(CHROME_COLORS.dark[tone])
-    })
-
-    it('paints the surface tone: hex since 6.9, the keyword of Telegram\'s own card colour on 6.1-6.8', () => {
-      const modern = stubHost()
-      paintTelegramChrome(modern, 'dark', 'surface')
-      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#181d2a')
-      expect(modern.setHeaderColor).toHaveBeenCalledWith('#181d2a')
-
-      const old = stubHost({ isVersionAtLeast: vi.fn((version: string) => version === '6.1') })
-      paintTelegramChrome(old, 'light', 'surface')
-      expect(old.setBackgroundColor).toHaveBeenCalledWith('#ffffff')
-      expect(old.setHeaderColor).toHaveBeenCalledWith('bg_color')
+      expect(light?.toLowerCase()).toBe(CHROME_COLORS.light.page)
+      expect(dark?.toLowerCase()).toBe(CHROME_COLORS.dark.page)
     })
   })
 
@@ -150,7 +158,7 @@ describe('telegramTheme', () => {
     it('takes the page colour of the scheme, and follows a change', () => {
       const meta = document.createElement('meta')
       meta.name = 'theme-color'
-      meta.content = '#f4f6fb'
+      meta.content = '#f6f2ea'
       document.head.append(meta)
 
       const host = stubHost({ colorScheme: 'dark' })
@@ -164,63 +172,6 @@ describe('telegramTheme', () => {
 
     it('is no error when the page has no such tag', () => {
       expect(() => applyTelegramTheme(stubHost(), root, null)).not.toThrow()
-    })
-  })
-
-  describe('the surface tone of the white screens (holdSurfaceChrome)', () => {
-    it('paints the chrome in the surface colour while held, in the page colour again when given back', () => {
-      const host = stubHost({ colorScheme: 'light' })
-      initTelegramTheme(host, root, null)
-      host.setHeaderColor.mockClear()
-      host.setBackgroundColor.mockClear()
-
-      const release = holdSurfaceChrome()
-      expect(chromeTone()).toBe('surface')
-      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.surface)
-      expect(host.setBackgroundColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.surface)
-
-      release()
-      expect(chromeTone()).toBe('page')
-      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.page)
-      expect(host.setBackgroundColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.page)
-    })
-
-    it('keeps the surface tone across a theme change: the surface of the new palette', () => {
-      const host = stubHost({ colorScheme: 'light' })
-      initTelegramTheme(host, root, null)
-      const release = holdSurfaceChrome()
-
-      host.colorScheme = 'dark'
-      ;(host.onEvent.mock.calls[0]?.[1] as () => void)()
-      expect(root.dataset.theme).toBe('dark')
-      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.surface)
-
-      release()
-      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.page)
-    })
-
-    it('counts the holds: the order of mount and unmount of two screens does not matter, a second release does nothing', () => {
-      const host = stubHost()
-      initTelegramTheme(host, root, null)
-      host.setHeaderColor.mockClear()
-
-      const first = holdSurfaceChrome()
-      const second = holdSurfaceChrome()
-      expect(host.setHeaderColor).toHaveBeenCalledTimes(1) // painted once, not per hold
-
-      first()
-      first()
-      expect(chromeTone()).toBe('surface')
-      expect(host.setHeaderColor).toHaveBeenCalledTimes(1)
-
-      second()
-      expect(chromeTone()).toBe('page')
-      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.page)
-    })
-
-    it('never throws outside Telegram', () => {
-      initTelegramTheme(stubHost({ isVersionAtLeast: vi.fn(() => { throw new Error('not in Telegram') }) }), root, null)
-      expect(() => holdSurfaceChrome()()).not.toThrow()
     })
   })
 
@@ -294,5 +245,28 @@ describe('telegramTheme', () => {
       expect(() => initTelegramTheme(stubHost({ platform: 'unknown' }), root, oldQuery)).not.toThrow()
       expect(root.dataset.theme).toBe('dark')
     })
+  })
+})
+
+// The kit Muhrla paints the Telegram chrome in the canvas only (TELEGRAM.md): no screen is white as a whole, the lesson and the rounds
+// of the games stand on the canvas too, and the boards they share take it for their sticky blocks (`--app-screen`, StickyActions).
+describe('every screen stands on the canvas', () => {
+  // vitest runs with cwd = resources/twa
+  const views = readdirSync(join(process.cwd(), 'src', 'views'))
+    .filter((file) => file.endsWith('.vue'))
+    .map((file) => ({ file, code: readFileSync(join(process.cwd(), 'src', 'views', file), 'utf8') }))
+
+  it.each(['TrainingView.vue', 'ExamView.vue', 'PracticeSessionView.vue', 'BattleView.vue', 'CupRoundView.vue', 'GameRunView.vue'])(
+    '%s: the canvas, and the canvas for the sticky blocks of its boards',
+    (file) => {
+      const code = views.find((view) => view.file === file)?.code ?? ''
+      expect(code).toContain('flex-1 flex-col bg-page"')
+      expect(code).toContain('--app-screen: var(--app-page)')
+    },
+  )
+
+  it('no screen is white as a whole (a static or bound `bg-surface` on the whole screen)', () => {
+    const white = views.filter(({ code }) => /flex-1 flex-col bg-surface"|[?:] 'bg-surface'/.test(code)).map(({ file }) => file)
+    expect(white).toEqual([])
   })
 })

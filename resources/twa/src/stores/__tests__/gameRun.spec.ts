@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { BACKGROUND } from '@/api/background'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
@@ -500,7 +501,7 @@ describe('gameRun store — the hint of the bazaar', () => {
 
     await store.hint()
 
-    expect(api.gameRuns.get).toHaveBeenLastCalledWith(9)
+    expect(api.gameRuns.get).toHaveBeenLastCalledWith(9, BACKGROUND)
     expect(store.status).toBe('playing')
     expect((store.element as { hint?: unknown }).hint).toEqual({ options_removed: ['o3', 'o4'] })
     expect(store.hintOffer).toBeNull()

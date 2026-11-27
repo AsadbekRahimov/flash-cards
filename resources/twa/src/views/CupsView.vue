@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
@@ -82,18 +82,19 @@ onMounted(() => {
 
     <LoadingState v-if="loading && list === null" variant="list" />
 
-    <EmptyState v-else-if="unavailable" icon="lock-closed" :title="t('cup.off_title')" :text="t('cup.failure.off')" data-testid="off" />
+    <ClosedState v-else-if="unavailable" mascot="thinking" :title="t('cup.off_title')" :text="t('cup.failure.off')" data-testid="off" />
 
     <ErrorState v-else-if="failed && list === null" :message="failed" @retry="load" />
 
-    <EmptyState v-else-if="(list ?? []).length === 0" icon="trophy" :text="t('cup.list.empty')" data-testid="empty" />
+    <!-- No cups yet: the centred hero of the kit, the mascot greets (an empty list is not an error). -->
+    <ClosedState v-else-if="(list ?? []).length === 0" mascot="hello" :text="t('cup.list.empty')" data-testid="empty" />
 
     <div v-else class="space-y-3">
       <ListGroup v-if="open.length > 0" highlight :header="t('cup.list.open')" data-testid="cups-open">
-        <ListRow v-for="cup in open" :key="cup.id" :to="{ name: 'cup', params: { id: cup.id } }" :title="cup.group_title" :subtitle="subtitle(cup)" data-testid="cup-row" />
+        <ListRow v-for="cup in open" :key="cup.id" :to="{ name: 'cup', params: { id: cup.id } }" icon="trophy" :title="cup.group_title" :subtitle="subtitle(cup)" data-testid="cup-row" />
       </ListGroup>
       <ListGroup v-if="over.length > 0" :header="t('cup.list.over')" data-testid="cups-over">
-        <ListRow v-for="cup in over" :key="cup.id" :to="{ name: 'cup', params: { id: cup.id } }" :title="cup.group_title" :subtitle="subtitle(cup)" data-testid="cup-row" />
+        <ListRow v-for="cup in over" :key="cup.id" :to="{ name: 'cup', params: { id: cup.id } }" icon="flag" :title="cup.group_title" :subtitle="subtitle(cup)" data-testid="cup-row" />
       </ListGroup>
     </div>
   </div>

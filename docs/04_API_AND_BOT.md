@@ -40,8 +40,10 @@
   "learner": {
     "id": 42,
     "first_name": "Alex",
+    "display_name": null,
     "locale": "ru",
-    "onboarding_completed": false
+    "onboarding_completed": false,
+    "onboarding": { "completed": false, "step": null }
   },
   "account_restored": null,
   "client_timing": { "sample_percent": 10 }
@@ -52,6 +54,11 @@
   оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
   (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
   один раз за сессию (docs/05).
+- `learner.display_name` — имя, выбранное в онбординге Mini App (A.24, docs/40 §2.1), `null` — не выбрано (экран показывает `first_name`).
+  Только для своих экранов ученика (docs/40 §3, В1). `first_name` — по-прежнему снимок Telegram, перезаписывается на каждом `/auth`.
+- `learner.onboarding` (docs/40 §2.1) — `{completed, step}`: `completed` = `onboarding_completed`; `step` — экран онбординга Mini App, с
+  которого продолжить (`name | age | goals | level | daily_goal | reminder | plan`), `null` — онбординг завершён или ещё не начат в Mini App
+  (приветствие O1). Оба поля — из уже загруженной строки, **0 новых операторов SQL**.
 - `client_timing.sample_percent` (0..100) — доля открытий, которые сообщают свои временные метки (A.21); из конфига
   (`CLIENT_TIMING_SAMPLE_PERCENT`), без запроса к БД. `0` — клиент ничего не шлёт. Нет поля (старый сервер) — тоже ничего.
 
@@ -76,7 +83,7 @@
 **Response:**
 ```json
 {
-  "learner": { "id": 42, "first_name": "Alex", "username": "alex_dev", "locale": "ru", "onboarding_completed": true },
+  "learner": { "id": 42, "first_name": "Alex", "display_name": "Азиз", "username": "alex_dev", "locale": "ru", "onboarding_completed": true, "onboarding": { "completed": true, "step": null }, "pro_emoji": null },
   "groups": [{ "id": 7, "title": "B1 English Evening" }],
   "stats": {
     "words_learned": 234,
@@ -151,7 +158,9 @@
   "due_count": 23,
   "new_words_remaining": null,
   "goal": { "target": 20, "done": 8, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false, "held_by": null,
+              "week": [{ "date": "2026-10-19", "held_by": "goal", "is_today": false }, { "date": "2026-10-20", "held_by": "freeze", "is_today": false }, { "date": "2026-10-21", "held_by": null, "is_today": true }, "… до воскресенья"],
+              "lost": null },
   "active_course": {
     "id": 3, "slug": "english-a1", "title": "English A1", "section": "courses",
     "progress": { "learned": 120, "total": 900 },
@@ -185,6 +194,16 @@
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **личных** сессиях за **локальный** день (`word_repetitions.created_at` в окне `LearnerClock::limitWindowUtc` по `learners.timezone` с переносом дня при смене пояса, `introduced_mode <> 'group_lesson'`), не меньше 0; слова групповых уроков не считаются (docs/12 §5.3). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
 - `streak` — `current` серия дней с выполненной целью **или завершённым забегом «Каравана»** (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодняшний день уже удержан и засчитан (целью или забегом), `at_risk` = `current > 0 && !met_today` (серия оборвётся, если до локальной полуночи не выполнить цель и не завершить забег). **`held_by` (G2.10, docs/18 §12.6)** — чем удержан сегодняшний день: `goal` (цель; и когда был ещё и забег), `game` (только забег — Mini App пишет «Серия удержана забегом»), `freeze` (заморозка), `null` (не удержан; также пока `met_today = false` — поле согласовано с ним). Правила — docs/12 §7.4. **Заморозки (2C.2, docs/06 §6a):** `freezes` — сколько заморозок можно потратить (Pro; у Free всегда `0`, даже если в базе что-то осталось от прошлого Pro), `frozen_yesterday` — вчерашний день пропущен и удержан заморозкой. Сам запрос у Pro **пополняет** инвентарь (+1 за локальную неделю, до 2, `StreakFreezeService::refill`) и, если пропущен ровно вчерашний день, **тратит** заморозку (`current` сохраняется, `at_risk = true`, событие `streak.frozen`). Free видит тизер «заморозки — в Pro» (paywall reason `streak_freeze` в TWA).
+- **`streak.week`, `streak.lost` (docs/40 §2.5, F4; T9 ✅ 27.11.2026)** — только в `/today` (в итоге `/finish` поля `streak` прежние). `week` — 7 дней
+  локальной недели ученика (понедельник — воскресенье, `LearnerClock`): `date` (`Y-m-d`), `held_by` — чем удержан день (`goal` / `game` / `freeze`, правило
+  то же, что у `held_by` сегодня: цель важнее забега) или `null` (не удержан; будущие дни — всегда `null`), `is_today`. `lost` — серия, сгоревшая при последнем
+  сгорании, пока у новой нет ни одного засчитанного дня: `{days, on}` — сколько дней было и локальный день, когда сгорание заметили; иначе `null`
+  (никогда — у ученика без серии и при спасении заморозкой). Источник — `learners.streak_lost_days` / `streak_lost_on`: пишет `StreakService::burn()` в том же
+  условном `UPDATE`, что обнуляет серию (`streak_lost_days = streak_current` строки до обновления), очищает `project()` в своём `UPDATE` с первым засчитанным
+  днём; проигравший гонку сгорания перечитывает строку и отдаёт то же значение. Строки недели читаются **тем же** оператором, что и раньше «сегодня + вчера»:
+  диапазон `date >= понедельник-или-вчера AND date <= сегодня` по unique `(learner_id, date)`, ≤ 8 строк — бюджет `/today` не изменился
+  (`TodayStreakQueriesTest`, `TwaTodayMeQueryBudgetTest`). Единственное исключение — запрос, который **сам** только что потратил заморозку(и) на вчера (и
+  дни перед ним): строки недели перечитываются ещё одним оператором (раз; уже следующий запрос читает их в общем операторе).
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `active_course.readiness` **(с 18.11.2026, docs/13 §8.5)** — готовность к уровню курса: `percent` = **пол** от `100 · learned / total`, где `learned` — активные слова курса в стадии «известно» или выше (`state = review` и `interval_days >= learning.stages.known_from_interval_days`, docs/06 §13.3), `mastered` — из них от порога «закреплено», `in_progress` = встреченные − `learned`, `not_started` = `total` − встреченные (не меньше 0). `level_label` — `courses.meta.level_label`, иначе `courses.level` (может быть `null` — клиент пишет «слов курса»). Это оценка словаря, а не прогноз экзамена: поля ничего не обещают. `quiz` — тест недели: `{enabled: false}`, если `READINESS_QUIZ_ENABLED=false`; иначе `week_start` (понедельник ISO-недели в поясе learner'а) и `this_week` — **зачётный** результат этой недели `{correct, total, percent}` или `null` (ещё не пройден). `readiness: null` при `READINESS_ENABLED=false`. **Бюджет запросов `/today`: 7 → 8** — готовность считается двумя суммами в уже существующем запросе строк learner'а по курсу (`CourseCatalogService::lessonsStarted`), 8-й — одно индексное чтение `level_quiz_results` (его нет при выключенных фиче/тесте); закреплено `TwaTodayMeQueryBudgetTest`. Кэша готовности нет.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
@@ -406,6 +425,15 @@ Learner присоединяется к открытой тренировке. �
 ```
 
 Для `prompt.type` = `meaning` / `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null`; `meaning` и `audio` — `translation` = `""`, `example`, `example_translation`, `example_audio_url` = `null` (у `meaning` слово, транскрипция и `audio_url` на месте — это вопрос); у всех `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
+
+**Сила памяти** (docs/40 §2.2, F1; T6 ✅ 27.11.2026): `card.memory` = `{ "strength": 3, "stage": "learning", "next_in_days": 4 }` у каждой карточки (у `card: null` поля нет).
+Это вид строки `word_repetitions` **до** оценки (`App\Domain\Learning\Support\MemoryStrength`; алгоритм не меняется): `strength` 0 — `new` без оценки
+(`last_quality IS NULL`); 1 — в минутных шагах (`new`/`learning` с оценкой) или `relearning`; 2 — `review` с `interval_days` < `learning.stages.fresh_review_days`
+(3, env `LEARNING_STAGE_FRESH_REVIEW_DAYS`); 3 — до `known_from_interval_days` (7); 4 — до `mastered_from_interval_days` (21); 5 — дальше. `stage` — `new` /
+`learning` / `known` / `mastered` (`WordStage`, те же пороги — сила и стадия не противоречат друг другу). `next_in_days` — у `review`-карточки
+`max(0, ceil((next_review_at − now) / сутки))`, у карточки в шагах `null` («повтор в этой сессии»). Ответ не выдаёт — не прячется ни на одном упражнении;
+у `lesson_review` поле есть (строка не меняется), Mini App его там не показывает. Считается из строки, которая уже у пикера, — **0 операторов**
+(`TrainingCycleQueryBudgetTest` без изменений).
 
 Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
 
@@ -1933,6 +1961,9 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 `event`: `sent` → `share.sent {kind}` (колбэк `shareMessage` вернул `true`); `fallback` → `share.fallback {kind, reason}`, `reason` —
 `old_client` (нет `shareMessage`, Mini Apps < 8.0) или `error` (prepare отказал или `shareMessage` не удался); у `sent` `reason` запрещён.
 `kind` — те же виды. Иное — 422, ничего не пишется. Клиент шлёт без ожидания, ошибки глотает.
+События сторис (A.26): `story_sent` → `share.sent {kind, via: story}` (колбэка у `shareToStory` нет — «открыто»), `story_fallback {reason}` →
+`share.fallback {kind, reason, via: story}`, `reason` — `old_client` (нет `shareToStory`, Mini Apps < 7.8) · `unavailable` (`/share/story` ответил
+403 / 404 / 429 / 503) · `error` (SDK отказал); `kind` у них — `streak` | `achievement`.
 
 ### A.23 Кубок друзей в группе (docs/33 §7.2; ядро — K4/K5, маршруты — K7 ✅ 25.11.2026)
 
@@ -2116,6 +2147,223 @@ outbox], строка участника `FOR UPDATE`, UPDATE, событие), 
 (пауза только этого чата); таймаут → `unknown`; «message to edit not found» → `skipped`. ЛС — `SendCupDuelDmJob` → `CupDuelMessenger`:
 личный (не публичный) адресный вызов — адресату (кнопка в вызов), принятие — вызвавшему (кнопка в матч, пока он в комнате); правила
 отправителей docs/34 §4в п. 8, маркер `notifications_log` `cup_duel_dm`, ключ `{kind}:{duel}`.
+
+### A.24 Онбординг Mini App O1–O8 (docs/40 §2.1; T2 ✅ 02.12.2026)
+
+Отдельный поток Mini App поверх тех же колонок, что пишет бот-онбординг; машина `learners.onboarding_state` бота не расширяется. Прогресс —
+`learners.meta.twa_onboarding = {step, started_at, course_slug?, answered[], placement?}` (сервис `TwaOnboardingService`, белые списки —
+`OnboardingChoices`; `placement` — черновик теста уровня, A.27). При завершении в том же `UPDATE` от него остаются только
+`{started_at, course_slug}` (`OnboardingChoices::withoutDrafts`, ревью 27.11.2026): `step`, `answered` и черновик теста с ключом ответов
+после `done` не читаются. Завершение — одна точка с ботом: `OnboardingService::completeExternally()` под той же блокировкой строки. Все маршруты —
+под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api`; `PUT` и `POST` ещё под `throttle:twa-onboarding` (30/мин на ученика).
+
+| Метод | Путь | Тело | Ответ | Ошибки |
+|---|---|---|---|---|
+| GET | `/api/twa/onboarding` | — | `OnboardingStateResource` | 401 |
+| PUT | `/api/twa/onboarding/steps/{step}` | по шагу (ниже) | `OnboardingStateResource` | 401; 404 — неизвестный шаг; 409 `onboarding_completed`; 422 — ошибка валидации (`{message, errors}`) / `display_name_invalid {reason}`; 403 `daily_goal_pro_required {max}`; 429 |
+| POST | `/api/twa/onboarding/complete` | — | `{completed: true, course: {slug, title}\|null, next_lesson_id: int\|null}` | 401; 422 `onboarding_incomplete {missing: ["level"]}`; 429 |
+
+Шаги (`{step}` вне списка — 404 маршрута; типы строгие, без приведения):
+
+| `step` | Тело | Куда пишется |
+|---|---|---|
+| `name` | `{display_name: string}` | `learners.display_name` после `DisplayName::validate` (обрезка пробелов, 1–32 графемы, ≤ 64 кодовых точек; ссылки, `@`, `/`, `#`, «zalgo» — 422 `display_name_invalid {reason: empty\|too_long\|marks\|link\|mention\|command\|tag}`) |
+| `age` | `{age_range: "lt14"\|"14_17"\|"18_24"\|"25_34"\|"35_44"\|"45p"}` | `learners.age_range` |
+| `goals` | `{goals: string[]}` — 1–6 без повторов из `career, study, travel, relocation, communication, media` | `learners.goals` |
+| `level` | `{level: "A1"…"C2", course_slug: string}` — slug курса этого уровня из `options.levels`, иначе 422 по `course_slug` (уровня нет в `options.levels` — 422 при любом slug) | `learners.level` через `LearnerSettingsService::update`; slug — `meta.twa_onboarding.course_slug`, при завершении этот курс становится активным (см. ниже) |
+| `daily_goal` | `{daily_goal: 10\|20\|40}` | `LearnerSettingsService::update` (лимит Free → 403 `daily_goal_pro_required {max}`) |
+| `reminder` | `{enabled: bool, time: "HH:MM"\|null, write_access: "granted"\|"denied"\|"not_asked"}`; при `enabled: true` `time` обязателен и кратен 15 мин | `reminder_time = enabled ? time : null` через `LearnerSettingsService::update` (пересчёт `next_reminder_at`); `write_access` — только в событие |
+
+Каждый `PUT` принимает любой шаг в любом порядке и двигает `meta.twa_onboarding.step` на экран после него (`name → age → goals → level →
+daily_goal → reminder → plan`). Ученику со статусом `done` (бот, другое устройство) — 409 на любой шаг, ничего не пишется.
+`POST /complete` без `level` — 422; иначе ставит `done`, `onboarding_completed_at`, курс (курс `c_<slug>`-ссылки; свой уже выбранный — не
+меняется; **курс, выбранный на шаге `level`** (`meta.twa_onboarding.course_slug`: опубликованный публичный курс платформы со словами, не
+курс фраз, доступный ученику — ревью 27.11.2026: раньше брался `recommend(goal, level)`, и `goal`, записанная ботом (например, `ielts`),
+давала не тот курс, что показан на O8); если его уже нет — как в боте: `recommend(goal, level)`, общий курс уровня, курс по умолчанию со
+словами), `next_reminder_at`. Повторный вызов — 200 с тем же ответом, без
+записи и событий. `course` — активный курс ученика после завершения (выбранный сейчас или прежний), `next_lesson_id` — первый урок с новыми словами.
+
+`OnboardingStateResource`:
+
+```json
+{
+  "completed": false,
+  "step": "level",
+  "values": {
+    "display_name": "Азиз", "first_name": "Aziz",
+    "age_range": "18_24", "goals": ["career", "travel"],
+    "level": "B1", "course": {"slug": "english-b1", "title": "Английский B1", "level_label": "B1", "stages_count": 20},
+    "daily_goal": 20, "reminder": {"enabled": true, "time": "20:00"}
+  },
+  "options": {
+    "age_ranges": ["lt14", "14_17", "18_24", "25_34", "35_44", "45p"],
+    "goals": ["career", "study", "travel", "relocation", "communication", "media"],
+    "levels": [
+      {"level": "A1", "levels": ["A1", "A2"], "course_slug": "english-a1", "title": "Английский A1", "level_label": "A1–A2", "stages_count": 20},
+      {"level": "B1", "levels": ["B1"], "course_slug": "english-b1", "title": "Английский B1", "level_label": "B1", "stages_count": 20}
+    ],
+    "daily_goals": [10, 20, 40], "daily_goal_max": null, "recommended_daily_goal": 20,
+    "reminder_times": ["08:00", "12:30", "18:00", "20:00", "21:30"], "reminder_step_minutes": 15
+  }
+}
+```
+
+- `step` — как `learner.onboarding.step` в A.1: `null` до первого сохранённого шага и после завершения.
+- `values` — то, что уже лежит в колонках (у нового ученика `daily_goal` и `reminder` — значения по умолчанию). `goals` — `[]`, пока не выбраны.
+  `course` — **активный курс ученика**, если он есть (его завершение не меняет: курс ссылки, выбранный в каталоге; у завершившего — курс,
+  который поставил `complete`); иначе курс, выбранный на шаге `level`; иначе курс уровня ученика, если уровень выбран в боте; `null` —
+  ничего (или активный курс больше недоступен — `complete` тогда тоже отвечает `course: null`). Так сводка O8 и ответ `complete` всегда
+  показывают один курс (ревью 27.11.2026). Активный курс вне публичного каталога (по ссылке `unlisted`, своя колода) — из кэша строки курса:
+  `level_label` — уровень курса или `""`, `stages_count` — `null`. Исключение: ожидающая `c_<slug>`-ссылка бота (`meta.pending_course`)
+  при завершении победит, а сводка её не показывает (ссылка во время онбординга — редкость).
+- `options.levels` — для каждого уровня A1…C2 курс `recommend('general', level)` из кэша каталога (курс фраз не предлагается никогда),
+  **только если это курс своего уровня**; следующий уровень без своего курса попадает в строку курса предыдущего (A2 → «A1–A2») — одно
+  правило с тестом уровня (`CourseCatalogService::levelCourses`, ревью 27.11.2026: раньше при неполном каталоге строка A1 склеивалась в
+  «A1, A2, B2, C1, C2»). Уровень, чья рекомендация — запасной курс другого уровня, не предлагается. `level` — первый уровень строки,
+  `levels` — все, `level_label` — «B1» или «A1–A2», `title` — название курса на языке ученика, `stages_count` — число модулей (`null` —
+  неизвестно). Пустой список — в каталоге нет общих курсов.
+- `daily_goal_max` — как в настройках (A.2b): `null` — без лимита, иначе варианты выше — под замком (пейвол `daily_goal`).
+- `options.placement_available: bool` (T14, 27.11.2026) — показывать ли на O5 кнопку «Пройти тест за 2 минуты» (A.27): `true`, когда в
+  каталоге есть курсы хотя бы двух уровней теста со словами; из кэша каталога, 0 операторов.
+- Подписи вариантов (возраст, цели, уровни, время) — в i18n Mini App, не в API. Возраст и цели не отдаются ни в одном другом ответе.
+
+События: первый сохранённый шаг ученика с `onboarding_state = new` — `onboarding.started {channel: mini_app, source_kind}`; шаг —
+`onboarding.step_completed {step, channel: mini_app}` (у `reminder` ещё `write_access`) при первом сохранении шага и затем только при смене
+значения; `complete` — `onboarding.completed {goal, level, locale, channel: mini_app}` и `course.selected {course_id, via}`. Шаги `level`,
+`daily_goal`, `reminder` идут через `LearnerSettingsService::update(channel: onboarding)` и **не** пишут ни `settings.changed`, ни
+`reminders.disabled` (ревью 27.11.2026): первый ответ онбординга — не смена настроек, а «Не напоминать» на O7 — не отказ от напоминаний;
+guardrail эксперимента с напоминаниями (`ReminderExperimentReport`, «reminders off 7 d») считает любые `reminders.disabled` в окне без
+фильтра по `via`, поэтому событие с `via: onboarding` испортило бы метрику. Выключение напоминаний на O7 видно по
+`onboarding.step_completed {step: reminder}` и `learners.reminder_time IS NULL`.
+
+**Операторы SQL** (`TwaOnboardingQueryBudgetTest`, тёплые кэши каталога и тарифа): `GET` — 1 (ученик; холодный каталог +1, у ученика не на
+языке по умолчанию +1 ещё); `PUT name|age|goals` — 4 (ученик, блокировка, `UPDATE`, вставка событий после ответа), повтор того же — 2;
+`PUT level|daily_goal|reminder` — 5 (+ повторное чтение строки `LearnerSettingsService::update`), смена цели дня — 6 (+ `reconcileGoal`);
+`POST /complete` — 7 (ученик, блокировка, `Course::find` курса шага `level` — вместо рекомендации, `UPDATE`, дерево курса холодное, прогресс
+по урокам, события), повтор — 3; `GET` ученика с активным курсом из каталога — по-прежнему 1 (курс не из каталога — кэш строки курса, холодный +1).
+`/auth` и `/me` новых операторов не получили.
+
+### A.25 «Мой словарь» `GET /api/twa/vocabulary` (docs/40 §2.3, F2; T6 ✅ 27.11.2026)
+
+Слова ученика, оценённые хотя бы раз (`word_repetitions.last_reviewed_at IS NOT NULL`), только активные слова (`words.is_active`), по алфавиту
+(`lower(word)`, затем id строки), с силой памяти (A.3 `card.memory`). Сервис — `VocabularyService`. Под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api`; только свои строки
+(ученик — из JWT). Кэша нет (личные данные, меняются каждой оценкой).
+
+| Параметр | Значение |
+|---|---|
+| `q` | поиск по слову и переводу, до 50 символов после `trim` (пустой — без поиска); `%`, `_`, `\` — обычные символы; регистр не важен (`lower()` с обеих сторон; на PostgreSQL — юникодный). Перевод ищется в `words.translation` (ru) и в `word_translations` языка ученика |
+| `filter` | `all` (по умолчанию) · `weak` (сила ≤ 2) · `strong` (сила ≥ 4) |
+| `after` | курсор `next_cursor` прошлой страницы (base64url `{"w": "<lower слова>", "id": <id строки>}`), не длиннее 600 символов |
+| `limit` | 1–50, по умолчанию 50 |
+
+**Ответ (200):**
+```json
+{
+  "total": 120, "counts": {"all": 120, "weak": 18, "strong": 64},
+  "items": [{"word_id": 7, "word": "tea", "translation": "чай", "translation_fallback": false, "transcription": "/tiː/",
+             "audio_url": "https://…/audio/…", "strength": 5, "stage": "mastered", "next_in_days": 12, "is_hard": false}],
+  "next_cursor": "eyJ3IjoidGVhIiwiaWQiOjcwfQ"
+}
+```
+
+- `total` и `counts` — только на первой странице (без `after`), дальше `null`. Счётчики не зависят от `q` и `filter` (как в макете); `total` = `counts.all`.
+- `translation` — через `WordTranslationResolver` на языке ученика; нет перевода — ru и `translation_fallback: true`. `audio_url` — как у карточки тренировки (`null` — нет файла).
+- `next_in_days` и `stage` — как в `card.memory`; `is_hard` — `word_repetitions.is_hard`.
+- `next_cursor` — `null` на последней странице. Курсор не зависит от фильтра и поиска: со сменой `q`/`filter` клиент начинает с первой страницы.
+
+**Ошибки:** 401; 422 валидации (`{message, errors}`: `limit` вне 1–50, `filter` вне списка, `q` > 50, `after` > 600); 422 `invalid_cursor` — курсор не того вида; 429.
+
+**Операторы SQL** (`TwaVocabularyQueryBudgetTest`, 120 слов): первая страница — 4 (ученик; страница; счётчики; переводы страницы одной пачкой — 0, если все в кэше
+резолвера: тогда 3); поиск и фильтр — столько же (сужают оператор страницы); поиск без совпадений — 3; следующая страница — 3 (2 с тёплым кэшем переводов);
+битый курсор — 1. Каждый оператор идёт от строк ученика: страница — `word_repetitions` по `learner_id`, `words` по ключу на каждую строку (на PostgreSQL —
+`JOIN LATERAL (… OFFSET 0)`), перевод для поиска — `EXISTS` по unique `(word_id, locale)`; счётчики — anti-join по частичному индексу неактивных слов.
+Новых индексов нет. Замеры — docs/40, приложение «Замеры».
+
+### A.26 Сторис: `POST /api/twa/share/story` (docs/40 §2.4, F3; T11 ✅ 27.11.2026)
+
+Картинка 9:16 и подпись для `WebApp.shareToStory(media_url, {text, widget_link})` (Mini Apps 7.8+). Сервер рисует карточку 1080×1920
+(`StoryCardRenderer`: чернила кита, печать-кольцо с иллюстрацией семейства или значком, заголовок, описание, «Muhrla · @<bot>» — адрес
+бота **на картинке**, потому что `widget_link` Telegram показывает только у Premium), кладёт на диск карточек под именем
+`story_<key>-<ru|uz>-<hash20>.jpg` (то же правило nginx и та же чистка `achievements:prune-cards`, что у карточек 1:1) и отдаёт её
+публичный адрес. Bot API не вызывается, кэша Redis нет: файл по хэшу содержимого и есть кэш — повтор и другой ученик с той же серией
+получают тот же файл. Сервис — `StoryShareService`. Под `TwaAuth`, `SetTwaLocale`, `throttle:twa-api` и **тем же** `throttle:twa-share`
+(20/мин и 100/сутки на ученика), что `/share/prepare`.
+
+```json
+{ "kind": "streak" }
+{ "kind": "achievement", "subject": "words_100" }
+```
+- `kind` — `streak` (предмет — `learners.streak_current` ученика на момент запроса, `subject` **запрещён**) · `achievement` (`subject` — ключ
+  своего открытого достижения). `invite`, `friend_invite`, `game_city` и будущие виды в сторис не бывают — 422 как неизвестный вид;
+  `streak` на `/share/prepare` — тоже 422.
+- Личность — только из JWT; текст, ссылка и картинка — только серверные. На картинке нет личных данных: число дней серии и цель дня, не имя.
+
+**200:**
+```json
+{
+  "media_url": "https://…/storage/share-cards/story_streak_7-ru-0123456789abcdef0123.jpg",
+  "text": "7 дней подряд в Muhrla · https://t.me/MuhrlaBot?start=ref_ABCDEFGH",
+  "widget_link": { "url": "https://t.me/MuhrlaBot?start=ref_ABCDEFGH", "name": "Muhrla" }
+}
+```
+- `text` — фраза на языке ученика (`share.story.streak.text` «N дней подряд в Muhrla» / `share.story.achievement.text` «Достижение «…» в
+  Muhrla») и реферальная ссылка `t.me/<bot>?start=ref_<code>`, всего **≤ 200 символов** (лимит подписи сторис без Premium; при нехватке
+  режется фраза, никогда ссылка). `widget_link.url` — та же ссылка, `name` — бренд (`app.brand`, ≤ 48 символов).
+- Карточка серии: заголовок «N дней подряд», описание «Учу английский в Muhrla — каждый день по M карточек» (M = `daily_goal`), значок N;
+  карточка достижения — заголовок и описание ключа, иллюстрация семейства. Шрифт — Noto Sans (TTF Unbounded/Onest в репозитории нет —
+  docs/40 §2.4).
+
+| Код | `error.code` | Когда | Что делает клиент |
+|---|---|---|---|
+| 401 | как у всего TWA (A.6) | | как везде |
+| 403 | `share_unavailable` | `SHARE_ENABLED=false`, у бота нет имени, диск карточек не публичный или `APP_URL` не https (картинке нет адреса), карточка не нарисовалась (GD) | запасной путь: `/share/prepare` + `shareMessage` (карточка 1:1), далее `t.me/share/url` |
+| 404 | `share_subject_not_found` | серия 0; достижения нет, не открыто **или чужое** — одним кодом | запасной путь (с экрана достижений кнопка есть только у открытых) |
+| 422 | ошибки валидации | вид без сторис / неизвестный, нет / лишний / кривой `subject`, неверный размер ответов | ошибка клиента: запасной путь, в лог |
+| 429 | — | лимит `twa-share` (`Retry-After`) | запасной путь |
+
+Событие `share.prepared {kind, subject, via: story}`. Клиентские события — `POST /share/events` c `story_sent` / `story_fallback` (A.22).
+
+**Операторы SQL** (`TwaShareStoryTest`): `streak` — ≤ 2 (ученик; вставка события после ответа; код приглашения — один раз в жизни
+ученика +1), `achievement` — ≤ 3 (+ своя строка `achievements` по unique). Диск: один `stat` (+ `touch` раз в сутки) на готовый файл;
+рендер — только для нового содержимого.
+
+### A.27 Тест уровня на O5: `POST /api/twa/onboarding/placement`, `…/placement/answers` (docs/40 §2.1a; T14 ✅ 27.11.2026)
+
+Десять вопросов «слово → 4 перевода», по два активных слова из курса каждого уровня `A1, A2, B1, B2, C1` (A2 — из курса «A1–A2», когда
+своего курса A2 нет; уровень, у которого в каталоге нет своего курса, не спрашивается; C2 не спрашивается никогда). Ключ ответов — только
+в `learners.meta.twa_onboarding.placement`; клиенту уходят варианты без правильного. Это **не** экзамен и не повторение: ни
+`word_repetitions`, ни `training_sessions`, ни `exam_sessions`, ни очки, ни серия не трогаются; `level` ученика тест не пишет —
+клиент подставляет результат в шаг `level` («примерный уровень — можно сменить»). Сервис — `PlacementTestService`. Под `TwaAuth`,
+`SetTwaLocale`, `throttle:twa-api` и `throttle:twa-session-create` (10/мин на ученика).
+
+| Метод | Путь | Тело | Ответ | Ошибки |
+|---|---|---|---|---|
+| POST | `/api/twa/onboarding/placement` | — | **201** `{set_id: string, questions: [{id, word, options: string[2..4]}], expires_at}` | 401; 409 `onboarding_completed`; 422 `placement_unavailable` (в каталоге меньше 4 вопросов); 429 |
+| POST | `/api/twa/onboarding/placement/answers` | `{set_id: string, answers: (int\|null)[]}` — `set_id` из ответа старта (обязателен); ответы — по одному на вопрос в порядке `id`, индекс выбранного варианта или `null` (пропущен) | `{level, course_slug, correct_by_level: {A1: 2, A2: 1, …}}` | 401; 409 `onboarding_completed`; 410 `placement_expired` (прошло 20 минут, тест не начинали **или** `set_id` не тот, что в черновике — набор заменён новым стартом); 422 валидации (`set_id` не строка / нет / длиннее 64; `answers` не список, не та длина, индекс вне вариантов вопроса, не целое); 429 |
+
+- `set_id` — идентификатор набора (32 hex-символа из `random_bytes(16)`, непредсказуем), хранится в `meta.twa_onboarding.placement.set_id`
+  (ревью 27.11.2026). `id` — позиция вопроса (1…N); `expires_at` — ISO 8601, через 20 минут после старта. Новый старт заменяет черновик
+  (новые случайные слова, новый `set_id`) и сбрасывает прежний результат.
+- **Ответы — только к своему набору.** Под блокировкой строки ученика `set_id` сверяется с черновиком (`hash_equals`): ответы набора,
+  который уже заменён новым стартом (вторая вкладка; старт, обогнавший ответ), никогда не оцениваются по словам нового набора — 410
+  `placement_expired`. Клиент на 410 начинает тест заново.
+- **Один набор оценивается один раз.** Ключ удаляется, результат сохраняется на его месте вместе с `set_id`; повторный запрос с тем же
+  `set_id` (ретрай, вторая вкладка, другие ответы) отдаёт **тот же** результат и ничего не пересчитывает — так перебором индексов ключ
+  не узнать; с другим `set_id` — 410. `correct_by_level` — верные ответы по каждому спрошенному уровню.
+- **Правило уровня.** Идём A1 → C1 по спрошенным уровням: уровень «пройден», если на нём верно ≥ 1; первый уровень с 0 верных
+  останавливает проход; результат — последний пройденный, ни одного — A1. Примеры: всё верно → C1; верно A1–B1, на B2 ноль, на C1 верно →
+  B1; на B1 ноль, на B2 верно → A2; по одному из двух везде → C1. `course_slug` — курс этого уровня с экрана O5 (`options.levels`): для
+  A2 без своего курса — курс «A1–A2».
+- Варианты — из слов **того же курса** (правила экзамена: настоящие переводы, язык ответа, никогда второй правильный —
+  `ExamQuestionBuilder::forWordsFromPool`); слово, которому в курсе не нашлось ни одного отвлекающего варианта, пропускается (вопросов
+  может быть меньше 10; меньше 4 — 422).
+- Черновик живёт в `meta.twa_onboarding.placement` рядом с прогрессом онбординга и пишется под той же блокировкой, что шаги: параллельный
+  `PUT` шага и старт теста не теряют ключи друг друга (`TwaPlacementConcurrencyTest`, PostgreSQL: и что ответ, вставший за блокировкой
+  нового старта, строго получает 410). При завершении онбординга черновик (вместе с ключом ответов) удаляется из `meta` (A.24).
+
+**Операторы SQL** (`TwaPlacementTest`, каталог A1, B1, B2, C1, кэши тёплые): старт — **8** (ученик; по одному `ORDER BY random()` на курс
+уровня — 4; переводы всех слов теста одной пачкой — 1; блокировка; `UPDATE learners`); ответы — **3** (ученик, блокировка, `UPDATE`);
+повтор ответов — **2**. Ни одного обращения к таблицам прогресса и очков.
 
 ## Часть B — Telegram Bot
 

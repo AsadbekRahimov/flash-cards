@@ -26,4 +26,19 @@ return [
         'friend_invite' => "Muhrla'da do'st bo'lish",
         'game_city' => 'Men yetib keldim: :city',
     ],
+
+    // Stories (docs/40 §2.4): 9:16 kartochka matnlari va izoh. `text` — havolasiz ibora: server « · <havola>» ni o'zi qo'shadi va
+    // izohni 200 belgida ushlab turadi.
+    'story' => [
+        'days' => ':count kun',
+        'cards' => ':count ta kartochka',
+        'streak' => [
+            'title' => ':days ketma-ket',
+            'description' => "Muhrla'da ingliz tilini o'rganyapman — har kuni :cards",
+            'text' => "Muhrla'da :days ketma-ket",
+        ],
+        'achievement' => [
+            'text' => "Muhrla'da «:title» yutug'i",
+        ],
+    ],
 ];

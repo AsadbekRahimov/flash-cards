@@ -142,7 +142,10 @@ describe('TodayView: the plan of the day', () => {
 
       const hero = w.get('[data-testid=lesson-hero]')
       expect(hero.attributes('data-step')).toBe('1')
-      expect(hero.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+      // the daftar of the kit: the ruled surface, radius xl, the red margin
+      expect(hero.classes()).toEqual(expect.arrayContaining(['rounded-xl', 'bg-surface']))
+      expect(hero.find('[data-testid=hero-lines]').exists()).toBe(true)
+      expect(hero.find('[data-testid=hero-margin]').exists()).toBe(true)
       expect(text(w, 'hero-eyebrow')).toBe('A1–A2 · урок 3')
       expect(text(w, 'hero-title')).toBe('Напитки')
       expect(text(w, 'hero-text')).toBe('5 новых слов')
@@ -153,7 +156,9 @@ describe('TodayView: the plan of the day', () => {
       expect(text(w, 'plan-counter')).toBe('шаг 1 из 3')
       expect(steps(w)).toEqual([['lesson', 'current'], ['training', 'upcoming'], ['game', 'upcoming']])
       expect(w.get('[data-testid=plan-step][data-key=lesson]').attributes('aria-current')).toBe('step')
-      expect(w.get('[data-testid=plan-step][data-key=lesson] [data-testid=plan-step-note]').text()).toBe('5 новых слов')
+      expect(w.get('[data-testid=plan-step][data-key=lesson]').text()).toContain('5 новых слов')
+      // the current step: the muhr circle with its number (PlanStep of the kit)
+      expect(w.get('[data-testid=plan-step][data-key=lesson] [data-testid=plan-step-circle]').text()).toBe('1')
       // the previous session card is not there
       expect(w.find('[data-testid=review-card]').exists()).toBe(false)
     })
@@ -199,6 +204,47 @@ describe('TodayView: the plan of the day', () => {
     })
   })
 
+  describe('the picture of the topic (kit Muhrla 01 / 02)', () => {
+    const withCourse = (slug: string, stage: number | null): Partial<TodayResponse> => {
+      const base = today()
+      return { active_course: { ...base.active_course!, slug, next_lesson: { ...base.active_course!.next_lesson!, stage } } }
+    }
+
+    it('draws the topic of the module of the next lesson on the daftar of step 1, in the place of the kit (112 px)', async () => {
+      const w = await render(today(withCourse('english-a1-a2', 3)))
+
+      const art = w.get('[data-testid=lesson-hero] [data-testid=hero-art] [data-testid=topic-art]')
+      expect(art.attributes('src')).toBe('/assets/img/m1/topics/english-a1-a2/03-120.webp')
+      expect(art.attributes('width')).toBe('112')
+      expect(art.attributes('alt')).toBe('')
+    })
+
+    it('keeps the topic after the lesson of the active course (steps 2 and 3), with the chip "lesson done" in green', async () => {
+      const w = await render(today({ ...withCourse('english-a1-a2', 3), plan: afterLesson() }))
+
+      expect(w.find('[data-testid=hero-art]').exists()).toBe(true)
+      expect(w.get('[data-testid=hero-eyebrow]').attributes('data-tone')).toBe('success')
+    })
+
+    it('has no picture for a course without pictures or a lesson without a module: the text takes the width', async () => {
+      const centre = await render(today())
+      expect(centre.find('[data-testid=hero-art]').exists()).toBe(false)
+      expect(text(centre, 'hero-title')).toBe('Напитки')
+      expect(centre.get('[data-testid=hero-eyebrow]').attributes('data-tone')).toBe('neutral')
+      centre.unmount()
+
+      const noStage = await render(today(withCourse('english-a1-a2', null)))
+      expect(noStage.find('[data-testid=hero-art]').exists()).toBe(false)
+    })
+
+    it('greets the done plan with the mascot celebrating instead of a topic', async () => {
+      const w = await render(today({ plan: { ...afterLesson(), step: null, done: true } }))
+
+      expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('done')
+      expect(w.get('[data-testid=lesson-hero] [data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
+    })
+  })
+
   describe('step 2: the review of the lesson', () => {
     it('says the lesson is done and offers to fix its words, without a word about points', async () => {
       const w = await render(today({ plan: afterLesson(), goal: { target: 20, done: 13, met: false } }))
@@ -218,6 +264,8 @@ describe('TodayView: the plan of the day', () => {
       const w = await render(today({ plan: afterLesson({ training: { lesson_id: 40, title: null, words: 1, done: false, open_session_id: 9 } }) }))
 
       expect(text(w, 'hero-eyebrow')).toBe('Урок пройден')
+      // the lesson is not surely of the active course: no picture of a topic
+      expect(w.find('[data-testid=hero-art]').exists()).toBe(false)
       expect(text(w, 'hero-text')).toBe('Закрепите 1 слово')
       expect(text(w, 'hero-btn')).toBe('Продолжить')
     })
@@ -386,7 +434,7 @@ describe('TodayView: the plan of the day', () => {
       const w = await render(today({ due_count: 0, plan: afterLesson({ step: null, done: true, training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null }, game: null }) }))
 
       // the only action of the card: tinted, not plain
-      expect(w.get('[data-testid=hero-next-lesson]').classes()).toContain('btn-tinted')
+      expect(w.get('[data-testid=hero-next-lesson]').classes()).toContain('btn-secondary')
       await w.get('[data-testid=hero-next-lesson]').trigger('click')
       await flushPromises()
 
@@ -436,7 +484,8 @@ describe('TodayView: the plan of the day', () => {
       expect(text(w, 'day-goal-aside')).toBe('серия 12 дней')
       const segments = w.findAll('[data-testid=day-goal-bar] span')
       expect(segments).toHaveLength(20)
-      expect(segments.filter((s) => s.classes().includes('bg-success'))).toHaveLength(8)
+      // the dots of the kit: a word learned is a dot in the muhr colour
+      expect(segments.filter((s) => s.classes().includes('bg-muhr'))).toHaveLength(8)
       expect(w.get('[data-testid=goal-setting]').attributes('href')).toBe('/settings')
     })
 
@@ -447,7 +496,7 @@ describe('TodayView: the plan of the day', () => {
 
       const met = await render(today({ goal: { target: 20, done: 22, met: true } }))
       expect(text(met, 'day-goal-aside')).toBe('Цель выполнена')
-      expect(met.findAll('[data-testid=day-goal-bar] .bg-success')).toHaveLength(20)
+      expect(met.findAll('[data-testid=day-goal-bar] .bg-muhr')).toHaveLength(20)
     })
 
     it('opens the daily review from the tile "Review" and the practice from "Word games"', async () => {

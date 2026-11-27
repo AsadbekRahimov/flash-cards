@@ -25,7 +25,7 @@ describe('AudioTrouble', () => {
 
     expect(wrapper.get('[data-testid=trouble-retry]').classes()).toContain('btn-primary')
     expect(wrapper.get('[data-testid=trouble-retry]').text()).toBe('Повторить загрузку')
-    expect(wrapper.get('[data-testid=trouble-replace]').classes()).toContain('btn-tinted')
+    expect(wrapper.get('[data-testid=trouble-replace]').classes()).toContain('btn-secondary')
     expect(wrapper.get('[data-testid=trouble-replace]').text()).toBe('Заменить задание')
     expect(wrapper.get('[data-testid=trouble-silent]').classes()).toContain('btn-plain')
     expect(wrapper.get('[data-testid=trouble-silent]').text()).toBe('Сейчас без звука')

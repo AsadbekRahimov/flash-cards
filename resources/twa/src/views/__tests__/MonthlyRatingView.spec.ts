@@ -119,12 +119,13 @@ describe('MonthlyRatingView', () => {
     expect(state.showBack).not.toHaveBeenCalled()
   })
 
-  it('is drawn as the League mock-up: the brand row, my place in the big tinted card, the top as a card table', async () => {
+  it('is drawn as the League of the kit: the brand row, my place in the big card, the top as LeagueRows on the page', async () => {
     const { wrapper } = await render()
 
     expect(wrapper.find('[data-testid=brand-row]').exists()).toBe(true)
     expect(wrapper.get('[data-testid=my-card]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
-    expect(wrapper.get('[data-testid=top]').classes()).toContain('card')
+    expect(wrapper.get('[data-testid=top]').classes()).not.toContain('card')
+    expect(wrapper.get('[data-testid=top] [data-testid=row]').classes()).toContain('league-row')
     expect(wrapper.get('[data-testid=top] h2').text()).toBe('Топ месяца')
     expect(wrapper.html()).not.toContain('font-mono')
   })
@@ -225,21 +226,24 @@ describe('MonthlyRatingView', () => {
   })
 
   describe('the top', () => {
-    it('the place in a soft badge for everybody (no medals), "Ученик" for no name, my row tinted with "вы"', async () => {
+    it('the place and an avatar for everybody (no medals), "Ученик" for no name, my row the "You" row of the kit with "вы"', async () => {
       const { wrapper } = await render(response({ top: top(5, 5), me: me({ rank: 5 }) }))
 
       const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
       expect(rows).toHaveLength(5)
       expect(rows[0]?.get('[data-testid=rank]').text()).toBe('1')
-      expect(rows[0]?.get('[data-testid=rank]').classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'text-accent']))
+      expect(rows[0]?.get('[data-testid=rank]').classes()).toEqual(expect.arrayContaining(['text-muted', 'tabular-nums']))
+      expect(rows[0]?.get('[aria-hidden=true].rounded-full').text()).toBe('M')
       expect(rows[0]?.text()).toContain('Member 1')
       expect(rows[0]?.get('[data-testid=points]').text()).toBe('1000')
       expect(wrapper.text()).not.toMatch(/[🥇🥈🥉]/u)
       expect(rows[3]?.text()).toContain('Ученик')
       expect(rows[3]?.text()).toContain('4')
       expect(rows[4]?.attributes('data-testid')).toBe('row-me')
-      expect(rows[4]?.classes()).toContain('bg-nav-active')
-      expect(rows[4]?.get('[data-testid=rank]').classes()).toContain('bg-surface')
+      expect(rows[4]?.attributes('data-me')).toBe('true')
+      expect(rows[4]?.classes()).toContain('league-row-sticky')
+      expect(rows[4]?.get('[data-testid=rank]').classes()).toContain('text-accent')
+      expect(rows[4]?.get('[aria-hidden=true].rounded-full').classes()).toContain('bg-muhr')
       expect(rows[4]?.text()).toContain('· вы')
       expect(has(wrapper, 'row-pinned')).toBe(false)
     })
@@ -257,6 +261,9 @@ describe('MonthlyRatingView', () => {
 
       expect(text(wrapper, 'empty')).toContain('Пока никто не набрал баллов в этом месяце')
       expect(has(wrapper, 'top')).toBe(false)
+      // one mascot on the screen: the one with the cup in the card "Start", none again under it
+      expect(wrapper.findAll('[data-testid=mascot-art]')).toHaveLength(1)
+      expect(wrapper.get('[data-testid=not-started] [data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
     })
   })
 

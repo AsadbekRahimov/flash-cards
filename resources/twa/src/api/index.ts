@@ -1,4 +1,5 @@
-import { createApiClient } from './client'
+import { createApiClient, type RequestOptions } from './client'
+import { BACKGROUND } from './background'
 import { useAuthStore } from '@/stores/auth'
 import type {
   AchievementsResponse,
@@ -92,7 +93,17 @@ import type {
   GameRunView,
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
-import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
+import type { ShareEventRequest, ShareKind, SharePrepared, StoryShare, StoryShareKind } from './shareTypes'
+import type {
+  OnboardingCompleteResponse,
+  OnboardingSavedStep,
+  OnboardingState,
+  OnboardingStepBodies,
+  PlacementAnswersRequest,
+  PlacementResult,
+  PlacementTest,
+} from './onboardingTypes'
+import type { VocabularyPage, VocabularyQuery } from './vocabularyTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
@@ -145,7 +156,7 @@ export const api = {
     clientTiming: (payload: ClientTimingPayload) => client().postKeepalive('/client-timing', { ...payload }),
   },
   me: {
-    get: () => client().get<MeResponse>('/me'),
+    get: (options?: RequestOptions) => client().get<MeResponse>('/me', undefined, options),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
     /** Takes back the last change of the region within 10 minutes (docs/35 §2.3); 422 `region_revert_unavailable` later. */
     revertRegion: () => client().post<MeResponse>('/me/settings/region/revert'),
@@ -157,7 +168,31 @@ export const api = {
     deleteAccount: () => client().post<AccountDeletedResponse>('/me/delete', { confirm: true }),
   },
   today: {
-    get: () => client().get<TodayResponse>('/today'),
+    get: (options?: RequestOptions) => client().get<TodayResponse>('/today', undefined, options),
+  },
+  onboarding: {
+    /** The onboarding of the Mini App (docs/04 A.24): the saved answers, the options and the step to show next. */
+    get: () => client().get<OnboardingState>('/onboarding'),
+    /** Saves one step, in any order; 409 `onboarding_completed`, 422 `display_name_invalid {reason}`, 403 `daily_goal_pro_required {max}`. */
+    saveStep: <S extends OnboardingSavedStep>(step: S, body: OnboardingStepBodies[S]) =>
+      client().put<OnboardingState>(`/onboarding/steps/${step}`, { ...body }),
+    /** Finishes the onboarding (idempotent); 422 `onboarding_incomplete {missing}`. */
+    complete: () => client().post<OnboardingCompleteResponse>('/onboarding/complete'),
+    /** The placement test of O5 (docs/04 A.27): a new set of questions; 409 `onboarding_completed`, 422 `placement_unavailable`. */
+    placement: () => client().post<PlacementTest>('/onboarding/placement'),
+    /**
+     * The answers of the test, all at once (null - skipped), with the `set_id` of the set when the server gave one; 410 `placement_expired`
+     * (20 min, not started, or another set), 409, 422. A repeat answers the same.
+     */
+    placementAnswers: (body: PlacementAnswersRequest) => client().post<PlacementResult>('/onboarding/placement/answers', { ...body }),
+  },
+  vocabulary: {
+    /**
+     * "My dictionary" (docs/04 A.25): one page; `signal` drops a request a newer search has replaced. 422 `invalid_cursor` for a bad
+     * `after`, `validation` for `q` / `limit` out of range.
+     */
+    list: (query: VocabularyQuery, signal?: AbortSignal) =>
+      client().get<VocabularyPage>('/vocabulary', { ...query }, signal !== undefined ? { signal } : undefined),
   },
   words: {
     /** The learner's own memory hook of a word they study (docs/06 §12.3); `null` clears it. */
@@ -165,10 +200,11 @@ export const api = {
       client().put<WordNoteResponse>(`/words/${wordId}/note`, { note }),
   },
   assignments: {
-    list: () => client().get<AssignmentsResponse>('/assignments'),
+    /** Secondary on "Today" (it has its own line with "Retry"): always a background read. */
+    list: () => client().get<AssignmentsResponse>('/assignments', undefined, BACKGROUND),
   },
   referrals: {
-    get: () => client().get<ReferralsResponse>('/referrals'),
+    get: (options?: RequestOptions) => client().get<ReferralsResponse>('/referrals', undefined, options),
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
@@ -188,10 +224,11 @@ export const api = {
         ? client().get<AllTimeResponse>('/league/all-time')
         : client().get<AllTimeResponse>('/league/all-time', { ...query }),
     allTimePage: (query: BoardQuery, after: string) => client().get<LeagueBoardPage>('/league/all-time', { ...query, after }),
-    monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me'),
+    /** The learner's line of the finish screen, best effort: a background read. */
+    monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me', undefined, BACKGROUND),
   },
   achievements: {
-    list: () => client().get<AchievementsResponse>('/achievements'),
+    list: (options?: RequestOptions) => client().get<AchievementsResponse>('/achievements', undefined, options),
     /** The learner opened the share dialog of an unlocked key; answers with the refreshed list. */
     shared: (key: string) => client().post<AchievementsResponse>(`/achievements/${encodeURIComponent(key)}/shared`),
   },
@@ -199,18 +236,24 @@ export const api = {
     /** A message "through the bot" with the card and the button (docs/04 A.22); 403/404/422/429/503 -> the plain share dialog. */
     prepare: (kind: ShareKind, subject: string | null) =>
       client().post<SharePrepared>('/share/prepare', subject === null ? { kind } : { kind, subject }),
+    /**
+     * The 9:16 card of a story (docs/04 A.26, docs/40 §2.4): only on the tap "Share to a story". 403 `share_unavailable` / 404 -> the plain
+     * share; 429 `rate_limited` and the network -> "Retry".
+     */
+    story: (kind: StoryShareKind, subject: string | null) =>
+      client().post<StoryShare>('/share/story', subject === null ? { kind } : { kind, subject }),
     /** The client's analytics of a share (204); sent without waiting, a failure is swallowed by the caller. */
     event: (body: ShareEventRequest) => client().post<void>('/share/events', { ...body }),
   },
   friends: {
-    get: () => client().get<FriendsResponse>('/friends'),
+    get: (options?: RequestOptions) => client().get<FriendsResponse>('/friends', undefined, options),
     /** Each action answers with the refreshed list. */
     accept: (id: number) => client().post<FriendsResponse>(`/friends/${id}/accept`),
     decline: (id: number) => client().post<FriendsResponse>(`/friends/${id}/decline`),
     remove: (id: number) => client().post<FriendsResponse>(`/friends/${id}/remove`),
   },
   challenges: {
-    list: () => client().get<ChallengesResponse>('/challenges'),
+    list: (options?: RequestOptions) => client().get<ChallengesResponse>('/challenges', undefined, options),
     /** To a friend, addressed by the friendship id. */
     propose: (friendshipId: number, metric: ChallengeMetric) =>
       client().post<ChallengeItem>('/challenges', { friendship_id: friendshipId, metric }),
@@ -237,13 +280,13 @@ export const api = {
     resume: () => client().post<MeResponse>('/billing/subscription/resume'),
   },
   courses: {
-    list: () => client().get<CoursesResponse>('/courses'),
-    get: (slug: string) => client().get<CourseDetail>(`/courses/${encodeURIComponent(slug)}`),
+    list: (options?: RequestOptions) => client().get<CoursesResponse>('/courses', undefined, options),
+    get: (slug: string, options?: RequestOptions) => client().get<CourseDetail>(`/courses/${encodeURIComponent(slug)}`, undefined, options),
     select: (slug: string) => client().post<Course>('/me/course', { slug }),
   },
   decks: {
-    list: () => client().get<DecksResponse>('/decks'),
-    get: (slug: string) => client().get<DeckDetail>(`/decks/${encodeURIComponent(slug)}`),
+    list: (options?: RequestOptions) => client().get<DecksResponse>('/decks', undefined, options),
+    get: (slug: string, options?: RequestOptions) => client().get<DeckDetail>(`/decks/${encodeURIComponent(slug)}`, undefined, options),
     create: (title: string) => client().post<Deck>('/decks', { title }),
     rename: (slug: string, title: string) =>
       client().patch<Deck>(`/decks/${encodeURIComponent(slug)}`, { title }),
@@ -327,7 +370,7 @@ export const api = {
   },
   gameRuns: {
     /** A run of "Karvon" as the server has it (the restart of an interrupted screen, the re-read after a conflict). 410 `game_run_closed`: it is over. */
-    get: (id: number) => client().get<GameRunView>(`/game/runs/${id}`),
+    get: (id: number, options?: RequestOptions) => client().get<GameRunView>(`/game/runs/${id}`, undefined, options),
     /** One answer; a repeat with the same `request_id` returns the first result. */
     answer: (id: number, body: GameAnswerRequest) => client().post<GameAnswerResponse>(`/game/runs/${id}/answer`, { ...body }, ACT),
     /** The hint of the bazaar: coins for options taken away or the first letters. */
@@ -345,7 +388,7 @@ export const api = {
       client().get<PracticeHubResponse>('/practice/hub', { course, ...(lessonId !== null ? { lesson_id: lessonId } : {}) }),
     /** Opens a solo session (201). 409 `practice_session_active` carries the unfinished one in `details`. */
     open: (body: PracticeOpenRequest) => client().post<PracticeSession>('/practice/sessions', { ...body }),
-    get: (id: number) => client().get<PracticeSession>(`/practice/sessions/${id}`),
+    get: (id: number, options?: RequestOptions) => client().get<PracticeSession>(`/practice/sessions/${id}`, undefined, options),
     /** Starts the clock of a timed game (no body); idempotent: a second call returns the same deadline. */
     start: (id: number) => client().post<PracticeSession>(`/practice/sessions/${id}/start`),
     /** One answer; a repeat with the same `request_id` returns the first result. */
@@ -378,11 +421,11 @@ export const api = {
     /** The coins, the tickets and the last entries of the ledger. 403 `game_unavailable`. */
     wallet: () => client().get<GameWallet>('/game/wallet'),
     /** The catalogue with what the learner owns, has in stock and wears, and the balance. */
-    shop: () => client().get<GameShop>('/game/shop'),
+    shop: (options?: RequestOptions) => client().get<GameShop>('/game/shop', undefined, options),
     /** Buys an item (the reply is the wallet after it); a repeat with the same `request_id` charges once. 404 `item_not_found`, 409 `item_not_purchasable` / `item_already_owned` / `coins_insufficient`. */
     buy: (key: string, body: GameBuyRequest) => client().post<GameWallet>(`/game/shop/${encodeURIComponent(key)}/buy`, { ...body }),
     /** What the learner wears and how far they have come. */
-    profile: () => client().get<GameProfile>('/game/profile'),
+    profile: (options?: RequestOptions) => client().get<GameProfile>('/game/profile', undefined, options),
     /** Puts an item on (`item_key`) or takes the slot's item off (`null`); the reply is the profile. 404 `item_not_found`. */
     equip: (body: GameEquipRequest) => client().post<GameProfile>('/game/profile/equip', { ...body }),
   },
@@ -397,14 +440,16 @@ export const api = {
         },
         READ,
       ),
-    list: () => client().get<BattleListResponse>('/practice/battles', undefined, READ),
+    /** The list is best effort on every screen that shows it: a background read. */
+    list: () => client().get<BattleListResponse>('/practice/battles', undefined, { ...READ, ...BACKGROUND }),
     invite: (body: BattleInviteRequest) => client().post<Battle>('/practice/battles', { ...body }, ACT),
     get: (id: number) => client().get<Battle>(`/practice/battles/${id}`, undefined, READ),
     /**
      * The heartbeat of a battle: read every two seconds while the room or the match is on screen. After a battle is over it is
-     * also the cheap way to ask whether a rematch has been offered (it carries `rematch`, and runs outside the `twa-api` budget).
+     * also the cheap way to ask whether a rematch has been offered (it carries `rematch`, and runs outside the `twa-api` budget). A
+     * background read: the battle has its own state of a lost connection.
      */
-    poll: (id: number) => client().get<BattlePoll>(`/practice/battles/${id}/poll`, undefined, READ),
+    poll: (id: number) => client().get<BattlePoll>(`/practice/battles/${id}/poll`, undefined, { ...READ, ...BACKGROUND }),
     round: (id: number, no: number) => client().get<BattleRound>(`/practice/battles/${id}/round`, { no }, READ),
     accept: (id: number) => client().post<Battle>(`/practice/battles/${id}/accept`, undefined, ACT),
     decline: (id: number) => client().post<Battle>(`/practice/battles/${id}/decline`, undefined, ACT),
@@ -426,9 +471,9 @@ export const api = {
     /** The invitation of the link of the chat. 403 `cup_not_member`; 409 `cup_paused` / `cup_unverifiable`; 503; 429 `cup_check_busy`. */
     invite: (code: string) => client().get<CupInvite>(`/cups/by-code/${encodeURIComponent(code)}`),
     /** My cups: the open first, then the last ten over. */
-    list: () => client().get<CupListResponse>('/cups'),
+    list: (options?: RequestOptions) => client().get<CupListResponse>('/cups', undefined, options),
     /** The table, my day and my days. */
-    show: (id: number) => client().get<CupBoardResponse>(`/cups/${id}`),
+    show: (id: number, options?: RequestOptions) => client().get<CupBoardResponse>(`/cups/${id}`, undefined, options),
     /** Joins (201) or answers the row already there (200). 409 `cup_not_open`, 410 `cup_closed`, 422 `cup_display_name_invalid`. */
     join: (id: number, displayName?: string) =>
       client().post<CupParticipantView>(`/cups/${id}/join`, displayName !== undefined ? { display_name: displayName } : {}),
@@ -458,9 +503,9 @@ export const api = {
      */
     duels: {
       /** Challenges to me, open ones to anybody, mine, my duels of today, and whether I may challenge. */
-      list: (id: number) => client().get<CupDuelListResponse>(`/cups/${id}/duels`),
+      list: (id: number, options?: RequestOptions) => client().get<CupDuelListResponse>(`/cups/${id}/duels`, undefined, options),
       /** One duel: the screen of a challenge and the poll of the waiting screen (every 3 s; `battle_id` appears once accepted). */
-      show: (id: number, duelId: number) => client().get<CupDuel>(`/cups/${id}/duels/${duelId}`, undefined, READ),
+      show: (id: number, duelId: number, options?: RequestOptions) => client().get<CupDuel>(`/cups/${id}/duels/${duelId}`, undefined, { ...READ, ...options }),
       /**
        * Challenges (201) or answers the same `request_id` again (200). 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope,
        * limit}`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`; 403 `cup_duel_unavailable`, `practice_limit_reached`; 410

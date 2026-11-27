@@ -20,6 +20,11 @@ final readonly class StreakState
      * @param  bool  $frozenYesterday  yesterday was missed and held by a freeze (`learner_daily_stats.frozen_at`)
      * @param  StreakHeldBy|null  $heldBy  what held today (`goal` wins over `game` when both happened); null while not `metToday`,
      *                                     or when the caller gave StreakService::current() no row of today
+     * @param  array{days: int, on: string}|null  $lost  the series burnt at the last loss (`learners.streak_lost_*`, docs/40 §2.5) while
+     *                                                   the new one has no counting day yet; null otherwise
+     * @param  list<array{date: string, held_by: string|null, is_today: bool}>|null  $week  the learner's local week, Monday to Sunday
+     *                                                                                      ({@see withWeek()}, the Today screen only); null
+     *                                                                                      where the caller did not read it
      */
     public function __construct(
         public int $current,
@@ -29,7 +34,15 @@ final readonly class StreakState
         public int $freezes = 0,
         public bool $frozenYesterday = false,
         public ?StreakHeldBy $heldBy = null,
+        public ?array $lost = null,
+        public ?array $week = null,
     ) {}
+
+    /** @param  list<array{date: string, held_by: string|null, is_today: bool}>  $week */
+    public function withWeek(array $week): self
+    {
+        return new self($this->current, $this->best, $this->metToday, $this->atRisk, $this->freezes, $this->frozenYesterday, $this->heldBy, $this->lost, $week);
+    }
 
     /** @return array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null} */
     public function toArray(): array
@@ -43,5 +56,16 @@ final readonly class StreakState
             'frozen_yesterday' => $this->frozenYesterday,
             'held_by' => $this->heldBy?->value,
         ];
+    }
+
+    /**
+     * `/today.streak` (docs/04 A.2a): {@see toArray()} with the week and the last loss (docs/40 §2.5). Only the Today screen reads the
+     * rows of the week; the summary of a session keeps the shape of {@see toArray()}.
+     *
+     * @return array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool, held_by: string|null, week: list<array{date: string, held_by: string|null, is_today: bool}>, lost: array{days: int, on: string}|null}
+     */
+    public function toTodayArray(): array
+    {
+        return [...$this->toArray(), 'week' => $this->week ?? [], 'lost' => $this->lost];
     }
 }

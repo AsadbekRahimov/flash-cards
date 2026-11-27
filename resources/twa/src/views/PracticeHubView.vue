@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -319,6 +320,12 @@ async function autoplay(): Promise<void> {
 
 // ---- the caravan of the day ----
 
+/**
+ * The line above a row of the list that follows the rows of the modes (they are in a wrapper of their own, so `.list-row + .list-row` does
+ * not reach across it): the hairline of the list, 64 px in, as between any two rows with a plate.
+ */
+const ROW_LINE = "before:absolute before:top-0 before:right-0 before:left-16 before:h-px before:bg-divider before:content-['']"
+
 /** "Caravan of the day": the game is open to the learner (`/me`, asked best effort). */
 const caravanOn = computed(() => billing.gameAccess.available)
 
@@ -355,7 +362,7 @@ function playWithFriend(): void {
     return
   }
   pickerOpen.value = true
-  void friends.load()
+  void friends.load(BACKGROUND)
 }
 
 const pickerStatus = computed((): 'loading' | 'ready' | 'error' => {
@@ -413,15 +420,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page" data-testid="practice-hub-view">
-    <!-- The way back is on the screen too (the system button of Telegram says nothing about where it leads). -->
-    <RouterLink
-      :to="backTarget"
-      class="-mb-3.5 flex min-h-11 items-center gap-1 self-start text-[15px] font-semibold text-accent"
-      data-testid="hub-back"
-    >
-      <AppIcon name="chevron-left" :size="18" />{{ fromPlan ? t('nav.today') : t('nav.courses') }}
-    </RouterLink>
-
+    <!-- The way back is Telegram's own "Back" (kit TELEGRAM.md: no "Back" of our own in the content); it leads to Today or the course. -->
     <PageHeader :eyebrow="place" :title="t('practice.hub.games_title')" :subtitle="learnedLine" large />
 
     <LoadingState v-if="hubStatus === 'idle' || hubStatus === 'loading'" variant="cards" />
@@ -434,7 +433,7 @@ onBeforeUnmount(() => {
       data-testid="unavailable"
     >
       <template #action>
-        <button type="button" class="btn btn-tinted" data-testid="to-course" @click="router.push({ name: 'course', params: { slug } })">
+        <button type="button" class="btn btn-secondary" data-testid="to-course" @click="router.push({ name: 'course', params: { slug } })">
           {{ t('practice.hub.to_course') }}
         </button>
       </template>
@@ -454,24 +453,32 @@ onBeforeUnmount(() => {
         />
       </ListGroup>
 
-      <!-- Step 3 of the day plan (hub of a lesson): the timed pairs on its words. Its button is the main one unless "Continue" has it. -->
-      <section v-if="showLessonGame" class="mb-3.5 flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="lesson-game-card">
-        <div class="flex flex-col gap-1">
-          <p v-if="lessonGameEyebrow" class="text-[13px] leading-[18px] font-bold text-accent" data-testid="lesson-game-step">{{ lessonGameEyebrow }}</p>
-          <h2 class="text-2xl leading-[30px] font-extrabold tracking-[-0.4px]">{{ modeTitle('pairs_timed') }}</h2>
-          <p class="text-sm leading-5" data-testid="lesson-game-text">{{ lessonGameText }}</p>
+      <!--
+        Step 3 of the day plan (hub of a lesson): the recommended game of the kit (07-igry) - a card of the surface with the tile of the game
+        on the soft accent, its name in Title, a line and "Play". Its button is the main one unless "Continue" has it.
+      -->
+      <section v-if="showLessonGame" class="mb-6 flex flex-col gap-4 rounded-lg border border-hairline bg-surface p-4" data-testid="lesson-game-card">
+        <div class="flex items-start gap-4">
+          <span class="flex size-14 shrink-0 items-center justify-center rounded-md bg-accent-soft text-accent" aria-hidden="true" data-testid="lesson-game-tile">
+            <AppIcon name="clock" :size="28" />
+          </span>
+          <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <p v-if="lessonGameEyebrow" class="t-label-s text-accent" data-testid="lesson-game-step">{{ lessonGameEyebrow }}</p>
+            <h2 class="t-display-m">{{ modeTitle('pairs_timed') }}</h2>
+            <p class="t-body-m text-muted" data-testid="lesson-game-text">{{ lessonGameText }}</p>
+          </div>
         </div>
         <button
           type="button"
-          class="btn btn-lg btn-block"
-          :class="activeSession ? 'btn-tinted' : 'btn-primary'"
+          class="btn btn-block"
+          :class="activeSession ? 'btn-secondary' : 'btn-primary'"
           :disabled="opening !== null"
           :aria-busy="opening === 'pairs_timed' ? 'true' : undefined"
           data-testid="lesson-game-play"
           @click="playLessonGame"
         >
           {{ t('practice.hub.step.play') }}
-          <AppIcon name="arrow-right" :size="22" />
+          <AppIcon name="arrow-right" :size="20" />
         </button>
       </section>
 
@@ -479,15 +486,15 @@ onBeforeUnmount(() => {
       <RouterLink
         v-if="activeSession"
         :to="{ name: 'practice-session', params: { id: activeSession.id } }"
-        class="card mb-3.5 flex flex-col gap-3"
+        class="mb-6 flex flex-col gap-3 rounded-lg border border-hairline bg-surface p-4"
         :aria-label="continueLabel"
         data-testid="continue-card"
       >
-        <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.continue') }}</span>
+        <span class="t-label-s text-muted">{{ t('practice.hub.continue') }}</span>
         <span class="flex flex-col gap-1">
-          <span class="text-xl leading-6 font-semibold" data-testid="continue-title">{{ modeTitle(activeSession.mode) }}</span>
-          <span v-if="activePlace" class="text-sm leading-5 text-muted" data-testid="continue-place">{{ activePlace }}</span>
-          <span class="text-[13px] leading-[18px] text-muted" data-testid="continue-progress">
+          <span class="t-title-m" data-testid="continue-title">{{ modeTitle(activeSession.mode) }}</span>
+          <span v-if="activePlace" class="t-body-m text-muted" data-testid="continue-place">{{ activePlace }}</span>
+          <span class="t-label-s text-muted" data-testid="continue-progress">
             {{ t('practice.session.progress', { done: activeSession.progress.done, total: activeSession.progress.total }) }}
           </span>
         </span>
@@ -495,61 +502,66 @@ onBeforeUnmount(() => {
         <span class="btn btn-primary btn-block" aria-hidden="true">{{ t('practice.hub.continue') }}</span>
       </RouterLink>
 
-      <section class="overflow-hidden rounded-card border border-hairline bg-surface" data-testid="modes-list">
-        <h2 class="px-3.5 pt-3.5 pb-2 text-lg leading-6 font-extrabold">{{ t('practice.hub.all_modes') }}</h2>
+      <!-- "All games" (kit 07): the heading in Display/M, then one ListGroup of ListRows - the modes, the caravan, the battle. -->
+      <section data-testid="modes-list">
+        <h2 class="t-display-m">{{ t('practice.hub.all_modes') }}</h2>
         <!-- Free only: the sessions left today. Quiet on purpose - the rows below are the screen. -->
-        <p v-if="sessionLimit" class="-mt-1 px-3.5 pb-2 text-[13px] leading-[18px] text-muted" data-testid="practice-limit">
+        <p v-if="sessionLimit" class="t-label-s mt-1 text-muted" data-testid="practice-limit">
           {{ t('practice.limit.sessions', { remaining: Math.max(0, sessionLimit.remaining), limit: sessionLimit.limit }) }}
         </p>
-        <div class="divide-y divide-divider" data-testid="mode-cards">
-          <ModeCard
-            v-for="info in modes"
-            :key="info.mode"
-            :info="info"
-            :resume="resumeFor(info)"
-            :busy="opening === info.mode"
-            :learn="learnKind"
-            @select="select"
-            @learn="learn"
-          />
-        </div>
+        <div class="list mt-3">
+          <div class="contents" data-testid="mode-cards">
+            <ModeCard
+              v-for="info in modes"
+              :key="info.mode"
+              :info="info"
+              :resume="resumeFor(info)"
+              :busy="opening === info.mode"
+              :learn="learnKind"
+              @select="select"
+              @learn="learn"
+            />
+          </div>
 
-        <!-- The caravan of the day (docs/05 §5b.4): a link to its screen, on the words of this course. -->
-        <RouterLink
-          v-if="caravanOn"
-          :to="{ name: 'game-daily', query: { course: slug } }"
-          class="flex min-h-[60px] items-center gap-3 border-t border-divider px-3.5 py-2.5 active:bg-fill"
-          data-testid="caravan-row"
-        >
-          <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent" aria-hidden="true">
-            <AppIcon name="globe-alt" :size="22" />
-          </span>
-          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="text-base leading-5 font-bold">{{ t('practice.hub.caravan.title') }}</span>
-            <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.caravan.text') }}</span>
-          </span>
-          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
-        </RouterLink>
+          <!-- The caravan of the day (docs/05 §5b.4): a link to its screen, on the words of this course. -->
+          <RouterLink
+            v-if="caravanOn"
+            :to="{ name: 'game-daily', query: { course: slug } }"
+            class="list-row list-row-icon"
+            :class="{ [ROW_LINE]: modes.length > 0 }"
+            data-testid="caravan-row"
+          >
+            <span class="icon-tile" aria-hidden="true">
+              <AppIcon name="map" :size="20" />
+            </span>
+            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="t-body-m-strong">{{ t('practice.hub.caravan.title') }}</span>
+              <span class="t-label-s text-muted">{{ t('practice.hub.caravan.text') }}</span>
+            </span>
+            <AppIcon name="chevron-right" :size="20" class="shrink-0 text-muted" />
+          </RouterLink>
 
-        <!-- The battle with a friend: the last row, the whole row is its button (a new battle, or back into the one under way). -->
-        <div v-if="battleOn" class="border-t border-divider" data-testid="battle-card">
+          <!-- The battle with a friend: the last row, the whole row is its button (a new battle, or back into the one under way). -->
+          <div v-if="battleOn" class="contents" data-testid="battle-card">
           <button
             type="button"
-            class="flex min-h-[60px] w-full items-center gap-3 px-3.5 py-2.5 text-left active:bg-fill"
+            class="list-row list-row-icon"
+            :class="{ [ROW_LINE]: modes.length > 0 || caravanOn }"
             :aria-label="activeBattleId !== null ? t('practice.hub.battle.resume') : `${t('practice.hub.battle.title')}. ${t('practice.hub.battle.text')}`"
             data-testid="battle-play-btn"
             @click="playWithFriend"
           >
-            <span class="flex size-10 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent" aria-hidden="true">
-              <AppIcon name="users" :size="22" />
+            <span class="icon-tile" aria-hidden="true">
+              <AppIcon name="swords" :size="20" />
             </span>
             <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span class="text-base leading-5 font-bold">{{ t('practice.hub.battle.title') }}</span>
-              <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.battle.text') }}</span>
+              <span class="t-body-m-strong">{{ t('practice.hub.battle.title') }}</span>
+              <span class="t-label-s text-muted">{{ t('practice.hub.battle.text') }}</span>
             </span>
-            <span v-if="activeBattleId !== null" class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="battle-resume">{{ t('practice.hub.battle.resume') }}</span>
-            <AppIcon v-else name="chevron-right" :size="16" class="shrink-0 text-muted" />
+            <span v-if="activeBattleId !== null" class="chip chip-accent shrink-0" data-testid="battle-resume">{{ t('practice.hub.battle.resume') }}</span>
+            <AppIcon v-else name="chevron-right" :size="20" class="shrink-0 text-muted" />
           </button>
+          </div>
         </div>
       </section>
     </template>

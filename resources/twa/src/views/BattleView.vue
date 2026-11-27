@@ -20,11 +20,12 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import SegmentProgress from '@/components/ui/SegmentProgress.vue'
 import { remainingMs, secondsLeft } from '@/composables/battleTime'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
-import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useBattleAudio } from '@/composables/useBattleAudio'
 import { useNow } from '@/composables/useNow'
 import { usePolling } from '@/composables/usePolling'
@@ -448,9 +449,6 @@ function requestLeave(): void {
 
 useBackButton(requestLeave)
 
-// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
-useChromeSurface()
-
 async function confirmLeave(): Promise<void> {
   const kind = leaving.value
   if (kind === 'match') {
@@ -489,18 +487,20 @@ watch(
   },
 )
 
-watch(over, (isOver) => {
-  if (isOver && result.value.outcome === 'won') notificationHaptic('success')
-})
+// A victory is felt by the press of its stamp (BattleResult: StampMark `haptic`, `impactOccurred('medium')`) - one haptic of the result.
 </script>
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
-    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-page"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh); --app-screen: var(--app-page)"
     :data-status="status"
     data-testid="battle-view"
   >
+    <!--
+      A round stands on the canvas of the kit, as a lesson does (04-urok-vopros): the Telegram chrome keeps the page colour, the options and
+      the boards are the surface on it, and the sticky blocks of the boards take the canvas (`--app-screen`).
+    -->
     <!-- Always there, so that what is put into it is announced. -->
     <p class="sr-only" role="status" aria-live="polite" data-testid="battle-live">{{ liveText }}</p>
 
@@ -511,17 +511,25 @@ watch(over, (isOver) => {
     </ClosedState>
 
     <ErrorState v-else-if="failed" :message="errorMessage" @retry="begin">
-      <button type="button" class="btn btn-plain btn-block" data-testid="friends-btn" @click="toFriends">{{ t('battle.to_friends') }}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-testid="friends-btn" @click="toFriends">{{ t('battle.to_friends') }}</button>
     </ErrorState>
 
     <template v-else-if="data">
       <header class="px-5 pt-3 short:pt-2">
         <div class="flex items-center gap-2">
           <button type="button" class="-ml-3 flex size-11 shrink-0 items-center justify-center text-muted" :aria-label="t('common.close')" data-testid="close-btn" @click="requestLeave">
-            <AppIcon name="x-mark" :size="18" />
+            <AppIcon name="x-mark" :size="20" />
           </button>
-          <p class="min-w-0 flex-1 truncate text-center text-base leading-[22px] font-semibold" data-testid="headline">{{ headline }}</p>
-          <span class="size-8 shrink-0" aria-hidden="true" />
+          <!-- A round is a lesson screen of the kit (04-urok-vopros): the segments of the rounds (passed - ink, this one - muhr) and "2 / 5"; the headline stays for a screen reader. -->
+          <template v-if="status === 'playing' && state">
+            <SegmentProgress :total="roundsTotal" :current="state.no - 1" class="min-w-0 flex-1" data-testid="round-segments" />
+            <span class="shrink-0 pl-1 text-[15px] leading-5 text-muted tabular-nums" aria-hidden="true" data-testid="round-count">{{ state.no }} / {{ roundsTotal }}</span>
+            <p class="sr-only" data-testid="headline">{{ headline }}</p>
+          </template>
+          <template v-else>
+            <p class="t-body-m-strong min-w-0 flex-1 truncate text-center" data-testid="headline">{{ headline }}</p>
+            <span class="size-8 shrink-0" aria-hidden="true" />
+          </template>
         </div>
         <!-- In a short window the round and the result do not need the lesson here (the result says it again under the title): the row is the task's. The room keeps it. -->
         <p
@@ -566,16 +574,16 @@ watch(over, (isOver) => {
       />
 
       <section v-else-if="status === 'countdown'" class="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-10 text-center" data-testid="battle-countdown">
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('battle.countdown.title') }}</p>
-        <p class="font-mono text-[88px] leading-none font-medium tabular-nums" aria-hidden="true" data-testid="countdown-number">
+        <p class="t-title-m text-muted">{{ t('battle.countdown.title') }}</p>
+        <p class="font-display text-[88px] leading-none font-semibold tracking-[-0.03em] tabular-nums" aria-hidden="true" data-testid="countdown-number">
           {{ countdownLeft > 0 ? countdownLeft : t('battle.countdown.go') }}
         </p>
-        <ol class="flex items-center gap-3 font-mono text-xl leading-7" aria-hidden="true" data-testid="countdown-steps">
+        <ol class="flex items-center gap-3 font-display text-xl leading-7 font-medium" aria-hidden="true" data-testid="countdown-steps">
           <li
             v-for="(number, index) in countdownNumbers"
             :key="number"
             class="flex items-center gap-3"
-            :class="number === countdownLeft ? 'font-medium text-body' : number > countdownLeft ? 'text-muted opacity-50' : 'text-muted'"
+            :class="number === countdownLeft ? 'text-body' : number > countdownLeft ? 'text-tertiary' : 'text-muted'"
           >
             <span v-if="index > 0" class="text-muted">·</span>
             <span class="tabular-nums">{{ number }}</span>
@@ -605,13 +613,15 @@ watch(over, (isOver) => {
 
         <template v-else-if="phase === 'answering'">
           <!-- The answer is in: the opponent's turn. -->
-          <section v-if="iAnswered" class="flex flex-1 flex-col gap-4 px-5 pt-8 pb-6" data-testid="battle-waiting">
+          <section v-if="iAnswered" class="flex flex-1 flex-col gap-4 px-5 pt-6 pb-6 short:pt-3" data-testid="battle-waiting">
+            <!-- Waiting for the opponent: the mascot thinks (kit), the answer is in - a check and a word, not the colour alone. -->
             <div class="flex flex-col items-center gap-2 text-center">
-              <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold text-success-ink">
+              <MascotArt loading="eager" pose="thinking" :height="112" class="mb-1 short:hidden" />
+              <h2 class="t-title-m flex items-center gap-1.5 text-success-ink">
                 <AppIcon name="check" :size="20" />
                 {{ t('battle.round.answered') }}
               </h2>
-              <p class="text-[15px] leading-5 text-muted">{{ t('battle.round.waiting') }}</p>
+              <p class="t-body-m text-muted">{{ t('battle.round.waiting') }}</p>
               <div class="w-full pt-4">
                 <OpponentStatus :name="opponentName" :emoji="opponentEmoji" :state="!store.opponentPresent ? 'absent' : state?.opponent_answered ? 'answered' : 'answering'" />
               </div>
@@ -626,15 +636,15 @@ watch(over, (isOver) => {
 
           <!-- Going again after a try with no reply: the note stands alone (see `resending`). -->
           <section v-else-if="resending" class="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-10 text-center" data-testid="battle-resending">
-            <span class="size-8 animate-spin rounded-full border-[3px] border-track border-t-accent motion-reduce:animate-none" aria-hidden="true" />
-            <p class="text-[17px] leading-[22px] font-semibold" role="status" data-testid="resending-note">{{ t('battle.round.sending') }}</p>
+            <span class="size-8 animate-spin rounded-full border-[3px] border-track border-t-inverse motion-reduce:animate-none" aria-hidden="true" />
+            <p class="t-title-m" role="status" data-testid="resending-note">{{ t('battle.round.sending') }}</p>
           </section>
 
           <template v-else-if="round">
             <p v-if="answerState === 'sending'" class="px-5 pt-3 text-center text-[13px] leading-[18px] text-muted" data-testid="sending">{{ t('battle.round.sending') }}</p>
             <div v-if="clipFailed" class="flex flex-col gap-2 px-5 pt-3" data-testid="clip-failed">
               <InlineAlert tone="warning" :message="t('battle.audio.round_failed')" />
-              <button type="button" class="btn btn-tinted btn-sm self-start" data-testid="clip-retry" @click="retryClip">{{ t('practice.audio.retry') }}</button>
+              <button type="button" class="btn btn-secondary btn-sm self-start" data-testid="clip-retry" @click="retryClip">{{ t('practice.audio.retry') }}</button>
             </div>
             <!-- The component of the mode (modeComponents.ts); the key makes every round a new one, with no pick left over. -->
             <component

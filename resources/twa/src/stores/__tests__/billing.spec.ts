@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
+import { BACKGROUND } from '@/api/background'
 import { ApiClientError } from '@/api/client'
 import { ME_FRESH_MS, useBillingStore } from '../billing'
 import { useSettingsStore } from '../settings'
@@ -40,6 +41,17 @@ describe('billing store', () => {
     expect(billing.entitlement?.new_words_per_day).toBe(20)
     expect(billing.paywall?.contact).toBe('@lexiflow_help')
     expect(billing.loading).toBe(false)
+  })
+
+  it('reads /me in the background for the screens that do without it; Profile and Subscription stand on it (docs/40 §2.6)', async () => {
+    vi.mocked(api.me.get).mockResolvedValue(me())
+    const billing = useBillingStore()
+
+    await billing.load()
+    expect(api.me.get).toHaveBeenLastCalledWith(BACKGROUND)
+
+    await billing.load({ force: true, main: true })
+    expect(api.me.get).toHaveBeenLastCalledWith(undefined)
   })
 
   it('hands the settings of /me to the settings store without switching the interface language', async () => {

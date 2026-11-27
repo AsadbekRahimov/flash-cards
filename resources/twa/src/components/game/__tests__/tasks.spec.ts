@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import ChoiceTask from '../ChoiceTask.vue'
+import QuizOption from '@/components/QuizOption.vue'
 import GapTask from '../GapTask.vue'
 import PracticeTask from '../PracticeTask.vue'
 import SpellTask from '../SpellTask.vue'
@@ -39,7 +40,9 @@ describe('ChoiceTask', () => {
     expect(wrapper.get('[data-testid=task-title]').text()).not.toBe('')
     const options = wrapper.findAll('.option')
     expect(options).toHaveLength(4)
-    for (const option of options) expect(option.classes()).toContain('option')
+    // the AnswerOption of the lesson (QuizOption): one look for the lesson, the exam and the game
+    expect(wrapper.findAllComponents(QuizOption)).toHaveLength(4)
+    expect(wrapper.get('[role=radiogroup]').findAll('[role=radio]')).toHaveLength(4)
   })
 
   it('a tap on an option answers with its id, once; the options are locked after it', async () => {
@@ -50,9 +53,13 @@ describe('ChoiceTask', () => {
 
     expect(wrapper.emitted('answer')).toEqual([[{ option_id: 'o2' }]])
     expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('selected')
-    // the other options step back (`.option[data-state=dimmed]`), as on the screen of a question once it is answered
-    expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('dimmed')
-    expect(wrapper.get('[data-testid=option-0]').attributes('disabled')).toBeDefined()
+    // the key of the kit's answer option: in ink when picked, a quiet ring once the others step back
+    expect(wrapper.get('[data-testid=option-key-1]').classes()).toContain('bg-inverse')
+    expect(wrapper.get('[data-testid=option-key-0]').classes()).toContain('bg-transparent')
+    expect(wrapper.get('[data-testid=option-1]').attributes('aria-checked')).toBe('true')
+    // the other options step back (QuizOption's `dimmed`), as on the screen of a question once it is answered
+    expect(wrapper.get('[data-testid=option-0]').attributes('data-dimmed')).toBe('true')
+    expect(wrapper.get('[data-testid=option-0]').attributes('aria-disabled')).toBe('true')
   })
 
   it('"I don\'t know" sends skip, once', async () => {
@@ -77,8 +84,11 @@ describe('ChoiceTask', () => {
     const wrapper = mount(ChoiceTask, { props: { element: translateFwd({ hint: { options_removed: ['o3', 'o4'] } }) } })
 
     expect(wrapper.get('[data-testid=option-2]').attributes('data-removed')).toBe('true')
-    expect(wrapper.get('[data-testid=option-2]').attributes('disabled')).toBeDefined()
-    expect(wrapper.get('[data-testid=option-0]').attributes('disabled')).toBeUndefined()
+    expect(wrapper.get('[data-testid=option-2]').attributes('aria-disabled')).toBe('true')
+    expect(wrapper.get('[data-testid=option-2]').attributes('data-dimmed')).toBe('true')
+    expect(wrapper.get('[data-testid=option-note-2]').text()).toBe('убран подсказкой')
+    expect(wrapper.get('[data-testid=option-0]').attributes('aria-disabled')).toBeUndefined()
+    expect(wrapper.find('[data-testid=option-note-0]').exists()).toBe(false)
     await wrapper.get('[data-testid=option-2]').trigger('click')
     expect(wrapper.emitted('answer')).toBeUndefined()
   })

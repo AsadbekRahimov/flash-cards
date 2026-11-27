@@ -1,0 +1,722 @@
+[
+ {
+  "course": "A1-A2",
+  "module": 1,
+  "title": "Знакомство и люди",
+  "file": "topics/A1-A2/01.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 2,
+  "title": "Семья и дом",
+  "file": "topics/A1-A2/02.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 3,
+  "title": "Еда и напитки",
+  "file": "topics/A1-A2/03.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 4,
+  "title": "Время, дни и числа",
+  "file": "topics/A1-A2/04.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 5,
+  "title": "Город и транспорт",
+  "file": "topics/A1-A2/05.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 6,
+  "title": "Покупки и одежда",
+  "file": "topics/A1-A2/06.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 7,
+  "title": "Работа и учёба",
+  "file": "topics/A1-A2/07.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 8,
+  "title": "Свободное время и спорт",
+  "file": "topics/A1-A2/08.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 9,
+  "title": "Тело и здоровье",
+  "file": "topics/A1-A2/09.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 10,
+  "title": "Погода и природа",
+  "file": "topics/A1-A2/10.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 11,
+  "title": "Путешествия",
+  "file": "topics/A1-A2/11.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 12,
+  "title": "Технологии и связь",
+  "file": "topics/A1-A2/12.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 13,
+  "title": "Чувства и характер",
+  "file": "topics/A1-A2/13.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 14,
+  "title": "Работа и карьера",
+  "file": "topics/A1-A2/14.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 15,
+  "title": "Образование",
+  "file": "topics/A1-A2/15.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 16,
+  "title": "Дом и быт",
+  "file": "topics/A1-A2/16.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 17,
+  "title": "Услуги и покупки",
+  "file": "topics/A1-A2/17.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 18,
+  "title": "Здоровье и образ жизни",
+  "file": "topics/A1-A2/18.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 19,
+  "title": "Природа и экология",
+  "file": "topics/A1-A2/19.png"
+ },
+ {
+  "course": "A1-A2",
+  "module": 20,
+  "title": "Общество и культура",
+  "file": "topics/A1-A2/20.png"
+ },
+ {
+  "course": "B1",
+  "module": 1,
+  "title": "Личность и биография",
+  "file": "topics/B1/01.png"
+ },
+ {
+  "course": "B1",
+  "module": 2,
+  "title": "Отношения и общение",
+  "file": "topics/B1/02.png"
+ },
+ {
+  "course": "B1",
+  "module": 3,
+  "title": "Жильё и жизнь в городе",
+  "file": "topics/B1/03.png"
+ },
+ {
+  "course": "B1",
+  "module": 4,
+  "title": "Еда и кулинария",
+  "file": "topics/B1/04.png"
+ },
+ {
+  "course": "B1",
+  "module": 5,
+  "title": "Здоровье и медицина",
+  "file": "topics/B1/05.png"
+ },
+ {
+  "course": "B1",
+  "module": 6,
+  "title": "Путешествия и транспорт",
+  "file": "topics/B1/06.png"
+ },
+ {
+  "course": "B1",
+  "module": 7,
+  "title": "Работа и профессии",
+  "file": "topics/B1/07.png"
+ },
+ {
+  "course": "B1",
+  "module": 8,
+  "title": "Деньги и покупки",
+  "file": "topics/B1/08.png"
+ },
+ {
+  "course": "B1",
+  "module": 9,
+  "title": "Учёба и знания",
+  "file": "topics/B1/09.png"
+ },
+ {
+  "course": "B1",
+  "module": 10,
+  "title": "Технологии и интернет",
+  "file": "topics/B1/10.png"
+ },
+ {
+  "course": "B1",
+  "module": 11,
+  "title": "СМИ и развлечения",
+  "file": "topics/B1/11.png"
+ },
+ {
+  "course": "B1",
+  "module": 12,
+  "title": "Спорт и активный отдых",
+  "file": "topics/B1/12.png"
+ },
+ {
+  "course": "B1",
+  "module": 13,
+  "title": "Природа и окружающая среда",
+  "file": "topics/B1/13.png"
+ },
+ {
+  "course": "B1",
+  "module": 14,
+  "title": "Наука и открытия",
+  "file": "topics/B1/14.png"
+ },
+ {
+  "course": "B1",
+  "module": 15,
+  "title": "Общество и закон",
+  "file": "topics/B1/15.png"
+ },
+ {
+  "course": "B1",
+  "module": 16,
+  "title": "Чувства и мнения",
+  "file": "topics/B1/16.png"
+ },
+ {
+  "course": "B1",
+  "module": 17,
+  "title": "Время, перемены и планы",
+  "file": "topics/B1/17.png"
+ },
+ {
+  "course": "B1",
+  "module": 18,
+  "title": "Описание вещей и мест",
+  "file": "topics/B1/18.png"
+ },
+ {
+  "course": "B1",
+  "module": 19,
+  "title": "Действия и процессы",
+  "file": "topics/B1/19.png"
+ },
+ {
+  "course": "B1",
+  "module": 20,
+  "title": "Слова-связки и абстрактные понятия",
+  "file": "topics/B1/20.png"
+ },
+ {
+  "course": "B2",
+  "module": 1,
+  "title": "Характер и поведение",
+  "file": "topics/B2/01.png"
+ },
+ {
+  "course": "B2",
+  "module": 2,
+  "title": "Карьера и управление",
+  "file": "topics/B2/02.png"
+ },
+ {
+  "course": "B2",
+  "module": 3,
+  "title": "Экономика и финансы",
+  "file": "topics/B2/03.png"
+ },
+ {
+  "course": "B2",
+  "module": 4,
+  "title": "Наука и исследования",
+  "file": "topics/B2/04.png"
+ },
+ {
+  "course": "B2",
+  "module": 5,
+  "title": "Технологии и инновации",
+  "file": "topics/B2/05.png"
+ },
+ {
+  "course": "B2",
+  "module": 6,
+  "title": "Здоровье и психология",
+  "file": "topics/B2/06.png"
+ },
+ {
+  "course": "B2",
+  "module": 7,
+  "title": "Окружающая среда и климат",
+  "file": "topics/B2/07.png"
+ },
+ {
+  "course": "B2",
+  "module": 8,
+  "title": "Политика и государство",
+  "file": "topics/B2/08.png"
+ },
+ {
+  "course": "B2",
+  "module": 9,
+  "title": "Право и безопасность",
+  "file": "topics/B2/09.png"
+ },
+ {
+  "course": "B2",
+  "module": 10,
+  "title": "СМИ и коммуникация",
+  "file": "topics/B2/10.png"
+ },
+ {
+  "course": "B2",
+  "module": 11,
+  "title": "Искусство и литература",
+  "file": "topics/B2/11.png"
+ },
+ {
+  "course": "B2",
+  "module": 12,
+  "title": "Образование и мышление",
+  "file": "topics/B2/12.png"
+ },
+ {
+  "course": "B2",
+  "module": 13,
+  "title": "Общество и глобальные проблемы",
+  "file": "topics/B2/13.png"
+ },
+ {
+  "course": "B2",
+  "module": 14,
+  "title": "Путешествия и культуры мира",
+  "file": "topics/B2/14.png"
+ },
+ {
+  "course": "B2",
+  "module": 15,
+  "title": "Город и инфраструктура",
+  "file": "topics/B2/15.png"
+ },
+ {
+  "course": "B2",
+  "module": 16,
+  "title": "Бизнес и маркетинг",
+  "file": "topics/B2/16.png"
+ },
+ {
+  "course": "B2",
+  "module": 17,
+  "title": "Аргументация и дискуссия",
+  "file": "topics/B2/17.png"
+ },
+ {
+  "course": "B2",
+  "module": 18,
+  "title": "Причины, следствия и изменения",
+  "file": "topics/B2/18.png"
+ },
+ {
+  "course": "B2",
+  "module": 19,
+  "title": "Точные описания",
+  "file": "topics/B2/19.png"
+ },
+ {
+  "course": "B2",
+  "module": 20,
+  "title": "Академические глаголы и понятия",
+  "file": "topics/B2/20.png"
+ },
+ {
+  "course": "C1",
+  "module": 1,
+  "title": "Характер и личность",
+  "file": "topics/C1/01.png"
+ },
+ {
+  "course": "C1",
+  "module": 2,
+  "title": "Чувства и отношения",
+  "file": "topics/C1/02.png"
+ },
+ {
+  "course": "C1",
+  "module": 3,
+  "title": "Работа и карьера",
+  "file": "topics/C1/03.png"
+ },
+ {
+  "course": "C1",
+  "module": 4,
+  "title": "Бизнес и управление",
+  "file": "topics/C1/04.png"
+ },
+ {
+  "course": "C1",
+  "module": 5,
+  "title": "Экономика и финансы",
+  "file": "topics/C1/05.png"
+ },
+ {
+  "course": "C1",
+  "module": 6,
+  "title": "Наука и исследования",
+  "file": "topics/C1/06.png"
+ },
+ {
+  "course": "C1",
+  "module": 7,
+  "title": "Технологии",
+  "file": "topics/C1/07.png"
+ },
+ {
+  "course": "C1",
+  "module": 8,
+  "title": "Здоровье и медицина",
+  "file": "topics/C1/08.png"
+ },
+ {
+  "course": "C1",
+  "module": 9,
+  "title": "Психология и мышление",
+  "file": "topics/C1/09.png"
+ },
+ {
+  "course": "C1",
+  "module": 10,
+  "title": "Природа и экология",
+  "file": "topics/C1/10.png"
+ },
+ {
+  "course": "C1",
+  "module": 11,
+  "title": "Политика и власть",
+  "file": "topics/C1/11.png"
+ },
+ {
+  "course": "C1",
+  "module": 12,
+  "title": "Право и правосудие",
+  "file": "topics/C1/12.png"
+ },
+ {
+  "course": "C1",
+  "module": 13,
+  "title": "Общество",
+  "file": "topics/C1/13.png"
+ },
+ {
+  "course": "C1",
+  "module": 14,
+  "title": "СМИ и информация",
+  "file": "topics/C1/14.png"
+ },
+ {
+  "course": "C1",
+  "module": 15,
+  "title": "Искусство и культура",
+  "file": "topics/C1/15.png"
+ },
+ {
+  "course": "C1",
+  "module": 16,
+  "title": "Образование и научный стиль",
+  "file": "topics/C1/16.png"
+ },
+ {
+  "course": "C1",
+  "module": 17,
+  "title": "Аргументация и дискуссия",
+  "file": "topics/C1/17.png"
+ },
+ {
+  "course": "C1",
+  "module": 18,
+  "title": "История и конфликты",
+  "file": "topics/C1/18.png"
+ },
+ {
+  "course": "C1",
+  "module": 19,
+  "title": "Город и пространство",
+  "file": "topics/C1/19.png"
+ },
+ {
+  "course": "C1",
+  "module": 20,
+  "title": "Абстрактные понятия",
+  "file": "topics/C1/20.png"
+ },
+ {
+  "course": "C2",
+  "module": 1,
+  "title": "Оттенки характера",
+  "file": "topics/C2/01.png"
+ },
+ {
+  "course": "C2",
+  "module": 2,
+  "title": "Эмоции и состояния души",
+  "file": "topics/C2/02.png"
+ },
+ {
+  "course": "C2",
+  "module": 3,
+  "title": "Речь и оттенки смысла",
+  "file": "topics/C2/03.png"
+ },
+ {
+  "course": "C2",
+  "module": 4,
+  "title": "Официальный стиль",
+  "file": "topics/C2/04.png"
+ },
+ {
+  "course": "C2",
+  "module": 5,
+  "title": "Философия и этика",
+  "file": "topics/C2/05.png"
+ },
+ {
+  "course": "C2",
+  "module": 6,
+  "title": "Разум и познание",
+  "file": "topics/C2/06.png"
+ },
+ {
+  "course": "C2",
+  "module": 7,
+  "title": "Художественное описание",
+  "file": "topics/C2/07.png"
+ },
+ {
+  "course": "C2",
+  "module": 8,
+  "title": "Литература и язык",
+  "file": "topics/C2/08.png"
+ },
+ {
+  "course": "C2",
+  "module": 9,
+  "title": "Власть и государство",
+  "file": "topics/C2/09.png"
+ },
+ {
+  "course": "C2",
+  "module": 10,
+  "title": "Тонкости права",
+  "file": "topics/C2/10.png"
+ },
+ {
+  "course": "C2",
+  "module": 11,
+  "title": "Экономика и капитал",
+  "file": "topics/C2/11.png"
+ },
+ {
+  "course": "C2",
+  "module": 12,
+  "title": "Точные и естественные науки",
+  "file": "topics/C2/12.png"
+ },
+ {
+  "course": "C2",
+  "module": 13,
+  "title": "Медицина и организм",
+  "file": "topics/C2/13.png"
+ },
+ {
+  "course": "C2",
+  "module": 14,
+  "title": "Мир природы",
+  "file": "topics/C2/14.png"
+ },
+ {
+  "course": "C2",
+  "module": 15,
+  "title": "Общество и нравы",
+  "file": "topics/C2/15.png"
+ },
+ {
+  "course": "C2",
+  "module": 16,
+  "title": "Конфликт и согласие",
+  "file": "topics/C2/16.png"
+ },
+ {
+  "course": "C2",
+  "module": 17,
+  "title": "Время и перемены",
+  "file": "topics/C2/17.png"
+ },
+ {
+  "course": "C2",
+  "module": 18,
+  "title": "Мера и оценка",
+  "file": "topics/C2/18.png"
+ },
+ {
+  "course": "C2",
+  "module": 19,
+  "title": "Искусство и эстетика",
+  "file": "topics/C2/19.png"
+ },
+ {
+  "course": "C2",
+  "module": 20,
+  "title": "Труд и достижения",
+  "file": "topics/C2/20.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 1,
+  "title": "Знакомство и вежливость",
+  "file": "topics/Phrases/01.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 2,
+  "title": "Разговор и понимание",
+  "file": "topics/Phrases/02.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 3,
+  "title": "Просьбы и предложения",
+  "file": "topics/Phrases/03.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 4,
+  "title": "Покупки и деньги",
+  "file": "topics/Phrases/04.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 5,
+  "title": "Город и дорога",
+  "file": "topics/Phrases/05.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 6,
+  "title": "Дом и время",
+  "file": "topics/Phrases/06.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 7,
+  "title": "Эмоции",
+  "file": "topics/Phrases/07.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 8,
+  "title": "Согласие и несогласие",
+  "file": "topics/Phrases/08.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 9,
+  "title": "Работа",
+  "file": "topics/Phrases/09.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 10,
+  "title": "Учёба",
+  "file": "topics/Phrases/10.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 11,
+  "title": "Люди и отношения",
+  "file": "topics/Phrases/11.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 12,
+  "title": "Здоровье и отдых",
+  "file": "topics/Phrases/12.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 13,
+  "title": "Решения и проблемы",
+  "file": "topics/Phrases/13.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 14,
+  "title": "Идиомы: еда",
+  "file": "topics/Phrases/14.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 15,
+  "title": "Идиомы: животные",
+  "file": "topics/Phrases/15.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 16,
+  "title": "Идиомы: тело",
+  "file": "topics/Phrases/16.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 17,
+  "title": "Успех и неудача",
+  "file": "topics/Phrases/17.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 18,
+  "title": "Деловое общение",
+  "file": "topics/Phrases/18.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 19,
+  "title": "Разговорный английский",
+  "file": "topics/Phrases/19.png"
+ },
+ {
+  "course": "Phrases",
+  "module": 20,
+  "title": "Мудрость и пословицы",
+  "file": "topics/Phrases/20.png"
+ }
+]

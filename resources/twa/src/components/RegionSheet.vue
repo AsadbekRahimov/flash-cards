@@ -42,6 +42,13 @@ const inUzbekistan = computed(() => current.value !== null && current.value !== 
 /** Level 2 is open: the list of the regions of Uzbekistan. Opens on it when the current region is one of them. */
 const list = ref(false)
 
+/** The choices of level 1: "Uzbekistan" (no code: it opens level 2), "Another country", "Rather not say" (not while browsing). */
+const levelOne = computed(() => [
+  { testid: 'region-uzbekistan', label: t('region.sheet.uzbekistan'), checked: inUzbekistan.value, code: undefined },
+  { testid: 'region-other', label: t('region.sheet.other'), checked: current.value === OTHER, code: OTHER as string | null },
+  ...(props.browse ? [] : [{ testid: 'region-none', label: t('region.sheet.none'), checked: current.value === null, code: null as string | null }]),
+])
+
 async function pick(code: string | null): Promise<void> {
   if (props.browse) {
     if (code === null) return
@@ -75,37 +82,37 @@ onMounted(() => {
 <template>
   <BottomSheet :label="browse ? t('region.sheet.view_title') : t('region.sheet.title')" data-testid="region-sheet" @close="emit('close')">
     <div class="space-y-1 pt-2 pr-10">
-      <h2 v-if="browse" class="text-[22px] leading-7 font-semibold" data-testid="region-title">{{ list ? t('region.sheet.view_pick') : t('region.sheet.view_title') }}</h2>
-      <h2 v-else class="text-[22px] leading-7 font-semibold" data-testid="region-title">{{ list ? t('region.sheet.pick') : t('region.sheet.title') }}</h2>
-      <p v-if="!list && !browse" class="text-[15px] leading-5 text-muted">{{ t('region.sheet.lead') }}</p>
+      <h2 v-if="browse" class="t-display-m" data-testid="region-title">{{ list ? t('region.sheet.view_pick') : t('region.sheet.view_title') }}</h2>
+      <h2 v-else class="t-display-m" data-testid="region-title">{{ list ? t('region.sheet.pick') : t('region.sheet.title') }}</h2>
+      <p v-if="!list && !browse" class="t-body-m text-muted">{{ t('region.sheet.lead') }}</p>
     </div>
 
     <LoadingState v-if="!data" variant="list" />
 
-    <!-- One choice of three: a group of radios; "Uzbekistan" opens level 2 and is the chosen one while the region is one of its. -->
-    <ListGroup v-else-if="!list" role="radiogroup" :aria-label="t('region.sheet.title')" data-testid="region-level-1">
+    <!-- One choice of three, as the selectable tiles of the kit (the chosen one framed 2 px in border/strong, an ink check at its corner);
+         "Uzbekistan" opens level 2 and is the chosen one while the region is one of its. -->
+    <div v-else-if="!list" class="space-y-3 pt-2 pb-1" role="radiogroup" :aria-label="t('region.sheet.title')" data-testid="region-level-1">
       <button
+        v-for="choice in levelOne"
+        :key="choice.testid"
         type="button"
-        class="list-row"
+        class="pressable relative flex min-h-14 w-full items-center gap-3 rounded-lg bg-surface px-4 py-3 text-left disabled:opacity-50"
+        :class="choice.checked ? 'shadow-[inset_0_0_0_2px_var(--app-border-strong)]' : 'shadow-[inset_0_0_0_1.5px_var(--app-hairline)]'"
         role="radio"
-        :aria-checked="inUzbekistan"
+        :aria-checked="choice.checked"
         :disabled="saving"
-        data-testid="region-uzbekistan"
-        @click="list = true"
+        :data-testid="choice.testid"
+        @click="choice.code === undefined ? (list = true) : pick(choice.code)"
       >
-        <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': inUzbekistan }">{{ t('region.sheet.uzbekistan') }}</span>
-        <AppIcon v-if="inUzbekistan" name="check" :size="20" class="shrink-0 text-accent" data-testid="region-uzbekistan-check" />
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+        <span
+          v-if="choice.checked"
+          class="absolute -top-2 -left-2 flex size-[22px] items-center justify-center rounded-full bg-inverse text-on-inverse"
+          :data-testid="choice.testid === 'region-uzbekistan' ? 'region-uzbekistan-check' : undefined"
+        ><AppIcon name="check" :size="14" /></span>
+        <span class="t-body-m-strong min-w-0 flex-1">{{ choice.label }}</span>
+        <AppIcon v-if="choice.code === undefined" name="chevron-right" :size="18" class="shrink-0 text-muted" />
       </button>
-      <button type="button" class="list-row" role="radio" :aria-checked="current === OTHER" :disabled="saving" data-testid="region-other" @click="pick(OTHER)">
-        <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': current === OTHER }">{{ t('region.sheet.other') }}</span>
-        <AppIcon v-if="current === OTHER" name="check" :size="20" class="shrink-0 text-accent" />
-      </button>
-      <button v-if="!browse" type="button" class="list-row" role="radio" :aria-checked="current === null" :disabled="saving" data-testid="region-none" @click="pick(null)">
-        <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': current === null }">{{ t('region.sheet.none') }}</span>
-        <AppIcon v-if="current === null" name="check" :size="20" class="shrink-0 text-accent" />
-      </button>
-    </ListGroup>
+    </div>
 
     <template v-else>
       <ListGroup role="radiogroup" :aria-label="t('region.sheet.pick')" data-testid="region-list">
@@ -120,8 +127,8 @@ onMounted(() => {
           :data-testid="`region-${region.code}`"
           @click="pick(region.code)"
         >
-          <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': region.code === current }">{{ region.name }}</span>
-          <AppIcon v-if="region.code === current" name="check" :size="20" class="shrink-0 text-accent" />
+          <span class="t-body-m min-w-0 flex-1 text-left" :class="{ 'font-semibold': region.code === current }">{{ region.name }}</span>
+          <span v-if="region.code === current" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse"><AppIcon name="check" :size="14" /></span>
         </button>
       </ListGroup>
       <button type="button" class="btn btn-secondary btn-block" data-testid="region-back" @click="list = false">{{ t('region.sheet.back') }}</button>

@@ -2,10 +2,13 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import InitialAvatar from '@/components/InitialAvatar.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
 import LanguageSheet from '@/components/LanguageSheet.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import AchievementArt from '@/components/achievements/AchievementArt.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
+import AchievementBadge from '@/components/ui/AchievementBadge.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
@@ -13,30 +16,38 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
+import { ACHIEVEMENT_ART_BY_KEY, type AchievementArt as KitArt } from '@/composables/illustrations'
+import { shownName } from '@/composables/learnerName'
 import { trialEndsAt } from '@/composables/trial'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { useAchievementsStore } from '@/stores/achievements'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { useCupsStore } from '@/stores/cups'
 import { useGameShopStore } from '@/stores/gameShop'
+import { useLeagueStore } from '@/stores/league'
 import { useSettingsStore } from '@/stores/settings'
+import { useTodayStore } from '@/stores/today'
 import { errorMessage } from '@/i18n/errors'
 import { LANGUAGE_TITLE, useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { GameItemSlot } from '@/api/gameShopTypes'
+import type { AchievementItem } from '@/api/types'
 
 /**
- * "Profile" tab (docs/14 §5.2, docs/design/2026-11-25-redesign Profile): the brand row and the title; the big tinted card — the initial,
- * the name with the emoji of Pro (docs/31 §5а: `learner.pro_emoji`, sent only while Pro lasts), the Free / Pro chip and the plan line
- * (for Free the daily limit of `/me`, never a number of the mock-up); then two tinted groups, "My results" (achievements, readiness,
- * friends) and "My account" (language, settings, subscription, the emoji of Pro). What the mock-up does not have stays, below it in the
- * same style (owner's decision): invitations and "How it works", the caravan card, the Pro card of Free, the support contact.
+ * "Profile" tab (docs/14 §5.2), drawn by the kit Muhrla (09-profil): the brand row and the title; the hero on the centre axis — the
+ * avatar with the initial in the muhr colour, the name with the emoji of Pro (docs/31 §5а: `learner.pro_emoji`, sent only while Pro lasts),
+ * the plan line (for Free the daily limit of `/me`, never a number of the mock-up) and the Free / Pro chip; the statistics in equal
+ * columns (what this session already knows); three achievements with the way to all of them; then the groups of rows "My results"
+ * (achievements, readiness, friends) and "My account" (language, settings, subscription, the emoji of Pro). What the mock-up does not have
+ * stays, below it in the same style (owner's decision): invitations and "How it works", the caravan card, the Pro card of Free, the
+ * support contact.
  * The data is `GET /me` through the billing store (the plan and the support contact; the settings and the emoji are handed on to the
- * settings store) and the learner's name from the auth store (`/auth` and `/me` carry the same `first_name`). A tab root: no system
- * "Back" button.
+ * settings store), the learner's name from the auth store (`display_name ?? first_name`, `shownName`; `/auth` and `/me` carry the same fields) and `GET /achievements` (best
+ * effort). A tab root: no system "Back" button.
  */
 const { t, tn, locale } = useI18n()
 const auth = useAuthStore()
@@ -44,6 +55,9 @@ const billing = useBillingStore()
 const shop = useGameShopStore()
 const settings = useSettingsStore()
 const cups = useCupsStore()
+const achievements = useAchievementsStore()
+const today = useTodayStore()
+const league = useLeagueStore()
 const { entitlement, paywall } = storeToRefs(billing)
 
 useBackButton(null)
@@ -74,13 +88,72 @@ async function load(): Promise<void> {
   // "Friends' cups" (docs/33 §7.1): the row shows once the learner has a cup; best effort, a young read is not repeated, a switched
   // off cup is not asked again in this session.
   void cups.load()
-  await billing.load()
+  // The three achievements of the screen: best effort, the profile works without them (no row of badges then). Read once: what the
+  // store already has (an earlier visit, the "Achievements" screen) is shown as is, no request on every opening of the tab.
+  void achievements.ensureLoaded()
+  await billing.load({ main: true })
   attempted.value = true
 }
 
-const name = computed(() => (auth.learner?.first_name ?? '').trim())
+const name = computed(() => shownName(auth.learner))
 /** First letter of the name (a whole code point, so an emoji is not cut in half). */
 const initial = computed(() => (Array.from(name.value)[0] ?? '').toUpperCase())
+
+/**
+ * The statistics of the kit (09-profil): the streak and the words learned in the active course from `/today`, the place in this week's
+ * league from `/today` or the League screen — only what this session has already read (the profile asks for neither: `/today` carries the
+ * timing marks of the first screen). A number not known yet is left out; none known - no card.
+ */
+interface ProfileStat {
+  key: 'streak' | 'words' | 'league'
+  value: string
+  label: string
+}
+
+const stats = computed((): ProfileStat[] => {
+  const list: ProfileStat[] = []
+  const streak = today.data?.streak?.current
+  if (typeof streak === 'number') list.push({ key: 'streak', value: String(streak), label: tn('profile.stats.streak', streak) })
+  const learned = today.data?.active_course?.progress?.learned
+  if (typeof learned === 'number') list.push({ key: 'words', value: String(learned), label: tn('profile.stats.words', learned) })
+  const rank = today.data?.league?.rank ?? league.data?.membership?.rank ?? null
+  if (typeof rank === 'number' && rank > 0) list.push({ key: 'league', value: String(rank), label: t('profile.stats.league') })
+  return list
+})
+
+interface ProfileBadge {
+  item: AchievementItem
+  art: KitArt | null
+  state: 'unlocked' | 'progress' | 'locked'
+  progress: number
+  meta: string
+}
+
+/** Three achievements: the newest received first, then the ones ahead with the most progress (`/achievements`). */
+const badges = computed((): ProfileBadge[] => {
+  const items = achievements.data?.items ?? []
+  const received = items
+    .filter((item) => item.unlocked_at !== null)
+    .sort((a, b) => String(b.unlocked_at).localeCompare(String(a.unlocked_at)))
+  const share = (item: AchievementItem): number => (item.progress && item.progress.target > 0 ? item.progress.current / item.progress.target : 0)
+  const ahead = items.filter((item) => item.unlocked_at === null).sort((a, b) => share(b) - share(a))
+  return [...received, ...ahead].slice(0, 3).map((item): ProfileBadge => {
+    const art = ACHIEVEMENT_ART_BY_KEY[item.key] ?? null
+    if (item.unlocked_at !== null) {
+      return { item, art, state: 'unlocked', progress: 0, meta: formatDate(item.unlocked_at, 'dayMonth', locale.value) }
+    }
+    if (item.progress && item.progress.current > 0) {
+      return {
+        item,
+        art,
+        state: 'progress',
+        progress: Math.round(share(item) * 100),
+        meta: t('achievements.progress', { current: item.progress.current, target: item.progress.target }),
+      }
+    }
+    return { item, art, state: 'locked', progress: 0, meta: t('achievements.locked') }
+  })
+})
 
 /** The sheet "How it works" (the same one Home shows to a newcomer). */
 const introOpen = ref(false)
@@ -170,72 +243,75 @@ onMounted(() => {
   <div class="page" data-testid="profile-view">
     <PageHeader brand :title="t('nav.profile')" large />
 
-    <LoadingState v-if="status === 'loading'" variant="list" />
+    <div v-if="status === 'loading'" role="status" aria-busy="true" data-testid="spinner">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <!-- The skeleton of the screen: the avatar, the name and the plan on the centre axis, the statistics, a group of rows. -->
+      <div class="flex flex-col items-center gap-2.5 pb-6" aria-hidden="true">
+        <span class="skeleton size-[72px] rounded-full" />
+        <span class="skeleton h-7 w-40" />
+        <span class="skeleton h-4 w-52" />
+      </div>
+      <div class="skeleton mb-6 h-[78px] rounded-lg" aria-hidden="true" />
+      <LoadingState variant="list" aria-hidden="true" />
+    </div>
 
     <ErrorState v-else-if="status === 'error'" :message="errorText" @retry="load" />
 
-    <div v-else class="space-y-3">
-      <!-- The big card of the mock-up: the initial, a thin line, the name with the emoji of Pro and the chip, the plan; books on the right. -->
-      <section class="flex items-center gap-3 rounded-hero bg-highlight py-3.5 pr-2.5 pl-3.5" data-testid="profile-header">
-        <span
-          v-if="initial"
-          class="flex size-[58px] shrink-0 items-center justify-center rounded-full bg-primary text-[26px] leading-none font-extrabold text-on-primary"
-          aria-hidden="true"
-          data-testid="profile-avatar"
-        >
-          {{ initial }}
-        </span>
-        <AppIcon v-else name="user-circle" solid :size="58" class="shrink-0 text-accent" data-testid="profile-avatar" />
-        <span class="h-[46px] w-px shrink-0 bg-accent-line" aria-hidden="true" />
-
-        <div class="flex min-w-0 flex-1 flex-col gap-1">
-          <div class="flex min-w-0 items-center gap-2">
-            <h2 class="min-w-0 truncate text-2xl leading-[30px] font-extrabold tracking-[-0.3px]" data-testid="profile-name">
-              {{ name || t('profile.anonymous') }}
-            </h2>
-            <span v-if="nameEmoji" class="shrink-0 text-[22px] leading-none" data-testid="profile-emoji">{{ nameEmoji }}</span>
-            <span
-              class="inline-flex h-[22px] shrink-0 items-center rounded-full border px-[9px] text-[13px] leading-none font-bold"
-              :class="isPro ? 'border-primary bg-primary text-on-primary' : 'border-accent-line bg-surface text-accent'"
-              :data-plan="isPro ? 'pro' : 'free'"
-              data-testid="profile-chip"
-            >
-              {{ planChip }}
-            </span>
-          </div>
-          <p class="text-sm leading-[18px] text-muted" data-testid="profile-plan">{{ planLine }}</p>
+    <div v-else class="space-y-6">
+      <!-- The hero of the kit (09-profil), on the centre axis: the avatar with the initial, the name with the emoji of Pro, the plan and its chip. -->
+      <section class="flex flex-col items-center gap-2 text-center" data-testid="profile-header">
+        <InitialAvatar :name="name" size="lg" muhr data-testid="profile-avatar" />
+        <div class="mt-1 flex max-w-full min-w-0 items-center justify-center gap-2">
+          <h2 class="t-display-m min-w-0 truncate" data-testid="profile-name">{{ name || t('profile.anonymous') }}</h2>
+          <span v-if="nameEmoji" class="shrink-0 text-[24px] leading-none" data-testid="profile-emoji">{{ nameEmoji }}</span>
         </div>
-
-        <!-- The picture of the mock-up: two rolled books and a sprig, in the tokens of the palette; left out on a narrow screen. -->
-        <svg
-          aria-hidden="true"
-          width="96"
-          height="75"
-          viewBox="0 0 200 156"
-          fill="none"
-          stroke-width="2.2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="shrink-0 stroke-accent max-[359px]:hidden"
-          data-testid="profile-art"
-        >
-          <path d="M152 68c-6-20 0-40 14-56" />
-          <path d="M158 40c-14-2-22-12-22-24 12 0 22 8 22 24zM163 34c2-14 12-22 24-22 0 14-8 22-24 22zM154 58c-14 2-24-4-28-16 12-4 24 2 28 16z" class="fill-nav-active" />
-          <path d="M40 66h112a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H40c-8 0-14-8-14-18s6-18 14-18z" class="fill-surface" />
-          <path d="M48 66c-6 8-6 28 0 36" />
-          <path d="M58 76h92M58 84h92M58 92h92" stroke-width="1.4" />
-          <path d="M30 104h124a8 8 0 0 1 8 8v22a8 8 0 0 1-8 8H30c-8 0-14-8-14-19s6-19 14-19z" class="fill-nav-active" />
-          <path d="M38 104c-6 8-6 30 0 38" />
-          <path d="M48 114h104M48 123h104M48 132h104" stroke-width="1.4" />
-          <path d="M4 148h192M22 153h56M120 153h52" stroke-width="1.4" />
-        </svg>
+        <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          <p class="t-body-m text-muted" data-testid="profile-plan">{{ planLine }}</p>
+          <span class="chip" :class="isPro ? 'chip-ink' : 'chip-neutral'" :data-plan="isPro ? 'pro' : 'free'" data-testid="profile-chip">
+            {{ planChip }}
+          </span>
+        </div>
       </section>
 
-      <ListGroup highlight :header="t('profile.learning')" data-testid="group-results">
+      <!-- The statistics of the kit: equal columns with 1 px lines between them, the numbers in Numeric/L. What the screen already knows. -->
+      <section v-if="stats.length > 0" class="card flex items-stretch px-2 py-4" :aria-label="t('profile.stats')" data-testid="profile-stats">
+        <template v-for="(stat, index) in stats" :key="stat.key">
+          <span v-if="index > 0" class="my-1 w-px shrink-0 bg-divider" aria-hidden="true" />
+          <div class="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 text-center" :data-testid="`stat-${stat.key}`">
+            <span class="t-numeric-l">{{ stat.value }}</span>
+            <span class="text-[13px] leading-[18px] text-muted">{{ stat.label }}</span>
+          </div>
+        </template>
+      </section>
+
+      <!-- Three achievements of the kit: the newest received first, then the nearest ahead; "N of M" leads to all of them. -->
+      <section v-if="badges.length > 0" :aria-label="t('achievements.title')" data-testid="profile-achievements">
+        <div class="mb-3 flex items-baseline justify-between gap-3">
+          <h2 class="t-title-m">{{ t('achievements.title') }}</h2>
+          <RouterLink :to="{ name: 'achievements' }" class="tap-target shrink-0 text-[13px] leading-[18px] font-semibold text-accent" data-testid="profile-achievements-all">
+            {{ t('achievements.summary', { unlocked: achievements.data?.unlocked_count ?? 0, total: achievements.data?.total ?? 0 }) }}
+          </RouterLink>
+        </div>
+        <div class="flex justify-between">
+          <AchievementBadge
+            v-for="badge in badges"
+            :key="badge.item.key"
+            :art="badge.art"
+            :state="badge.state"
+            :progress="badge.progress"
+            :title="badge.item.title"
+            :meta="badge.meta"
+          >
+            <template #fallback><AchievementArt :item-key="badge.item.key" :locked="badge.state === 'locked'" /></template>
+          </AchievementBadge>
+        </div>
+      </section>
+
+      <ListGroup :header="t('profile.learning')" data-testid="group-results">
         <ListRow
           :to="{ name: 'achievements' }"
           :title="t('achievements.title')"
-          icon="trophy" tile="blue"
+          icon="award" tile="gray"
           data-testid="row-achievements"
         />
         <ListRow
@@ -243,29 +319,29 @@ onMounted(() => {
           :to="`/courses/${encodeURIComponent(activeCourseSlug)}/readiness?source=profile`"
           :title="t('profile.readiness')"
           :subtitle="t('profile.readiness.hint')"
-          icon="chart-bar" tile="blue"
+          icon="chart-bar" tile="gray"
           data-testid="row-readiness"
         />
         <ListRow
           :to="{ name: 'friends' }"
           :title="t('profile.friends')"
-          icon="users" tile="blue"
+          icon="users" tile="gray"
           data-testid="row-friends"
         />
         <ListRow
           v-if="cups.hasAny"
           :to="{ name: 'cups' }"
           :title="t('profile.cups')"
-          icon="trophy" tile="blue"
+          icon="trophy" tile="gray"
           data-testid="row-cups"
         />
       </ListGroup>
 
-      <ListGroup highlight :header="t('profile.account')" data-testid="group-account">
+      <ListGroup :header="t('profile.account')" data-testid="group-account">
         <ListRow
           :title="LANGUAGE_TITLE"
           :value="languageLabel || locale.toUpperCase()"
-          icon="globe-alt" tile="blue"
+          icon="globe-alt" tile="gray"
           :chevron="true"
           data-testid="row-language"
           @click="languageOpen = true"
@@ -273,14 +349,14 @@ onMounted(() => {
         <ListRow
           :to="{ name: 'settings' }"
           :title="t('settings.title')"
-          icon="cog-6-tooth" tile="blue"
+          icon="cog-6-tooth" tile="gray"
           data-testid="row-settings"
         />
         <ListRow
           :to="{ name: 'billing' }"
           :title="t('billing.title')"
           :value="planChip"
-          icon="credit-card" tile="blue"
+          icon="crown" tile="gray"
           data-testid="row-billing"
         />
         <!-- The emoji of Pro (docs/31 §5а): Pro — the symbol, to the picker of the Settings; Free — a lock, to the paywall. -->
@@ -288,7 +364,7 @@ onMounted(() => {
           v-if="emojiOptions.length > 0 && !emojiLocked"
           :to="{ name: 'settings' }"
           :title="t('profile.pro_emoji')"
-          icon="sparkles" tile="blue"
+          icon="sparkles" tile="gray"
           :value="emojiValue"
           data-locked="false"
           data-testid="row-pro-emoji"
@@ -296,7 +372,7 @@ onMounted(() => {
         <ListRow
           v-else-if="emojiOptions.length > 0"
           :title="t('profile.pro_emoji')"
-          icon="sparkles" tile="blue"
+          icon="sparkles" tile="gray"
           :chevron="true"
           data-locked="true"
           data-testid="row-pro-emoji"
@@ -312,17 +388,17 @@ onMounted(() => {
       </ListGroup>
 
       <!-- What the mock-up does not have stays here, in the same style (owner's decision). -->
-      <ListGroup highlight :header="t('profile.more')" data-testid="group-more">
+      <ListGroup :header="t('profile.more')" data-testid="group-more">
         <ListRow
           :to="{ name: 'referrals' }"
           :title="t('referrals.title')"
           :subtitle="t('profile.referrals.hint')"
-          icon="gift" tile="blue"
+          icon="gift" tile="gray"
           data-testid="row-referrals"
         />
         <ListRow
           :title="t('profile.how_it_works')"
-          icon="information-circle" tile="blue"
+          icon="information-circle" tile="gray"
           :chevron="true"
           data-testid="row-intro"
           @click="introOpen = true"
@@ -330,16 +406,16 @@ onMounted(() => {
       </ListGroup>
 
       <section v-if="showCaravan" class="card space-y-3" :aria-label="t('profile.caravan.title')" data-testid="profile-caravan">
-        <h2 class="text-lg leading-6 font-extrabold">{{ t('profile.caravan.title') }}</h2>
+        <h2 class="t-title-m">{{ t('profile.caravan.title') }}</h2>
         <div class="flex items-center gap-3">
           <!-- The frame goes round the avatar: it is drawn behind a smaller avatar. -->
           <span class="relative flex size-[72px] shrink-0 items-center justify-center" data-testid="caravan-frame">
             <GameItemImage v-if="frame" :name="frame.asset" :size="72" class="absolute inset-0" data-testid="caravan-frame-image" />
-            <span class="relative flex size-11 items-center justify-center rounded-full bg-primary text-[20px] leading-none font-extrabold text-on-primary" aria-hidden="true">{{ initial }}</span>
+            <span class="relative flex size-11 items-center justify-center rounded-full bg-muhr font-display text-[20px] leading-none font-semibold text-on-muhr" aria-hidden="true">{{ initial }}</span>
           </span>
           <ul class="grid min-w-0 flex-1 grid-cols-3 gap-2">
             <li v-for="slot in worn" :key="slot.slot" class="flex min-w-0 flex-col items-center gap-1 text-center" :data-testid="`caravan-${slot.slot}`">
-              <span class="flex size-12 items-center justify-center rounded-control bg-accent-soft">
+              <span class="flex size-12 items-center justify-center rounded-sm bg-sunken">
                 <GameItemImage v-if="slot.item" :name="slot.item.asset" :size="40" />
               </span>
               <span class="w-full truncate text-[12px] leading-4 text-muted">{{ slot.label }}</span>
@@ -347,22 +423,25 @@ onMounted(() => {
             </li>
           </ul>
         </div>
-        <RouterLink :to="{ name: 'game-caravan', query: { from: 'profile' } }" class="btn btn-tinted btn-block" data-testid="profile-caravan-open">
+        <RouterLink :to="{ name: 'game-caravan', query: { from: 'profile' } }" class="btn btn-secondary btn-block" data-testid="profile-caravan-open">
           {{ t('profile.caravan.open') }}
         </RouterLink>
       </section>
 
       <section v-if="!isPro" class="card space-y-3" data-testid="profile-pro-card">
-        <div>
-          <h2 class="text-lg leading-6 font-extrabold">{{ t('profile.pro.title') }}</h2>
-          <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('profile.pro.text') }}</p>
+        <div class="flex items-start gap-3">
+          <span class="icon-tile" aria-hidden="true"><AppIcon name="crown" :size="20" /></span>
+          <div class="min-w-0 flex-1">
+            <h2 class="t-title-m">{{ t('profile.pro.title') }}</h2>
+            <p class="t-body-m mt-1 text-muted">{{ t('profile.pro.text') }}</p>
+          </div>
         </div>
         <RouterLink :to="{ name: 'billing' }" class="btn btn-primary btn-block" data-testid="profile-pro-cta">
           {{ t('profile.pro.more') }}
         </RouterLink>
       </section>
 
-      <p v-if="support" class="px-4 pt-2 text-center text-[13px] leading-[18px] text-muted" data-testid="profile-support">
+      <p v-if="support" class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="profile-support">
         {{ t('profile.support') }}
         <a
           v-if="support.href"

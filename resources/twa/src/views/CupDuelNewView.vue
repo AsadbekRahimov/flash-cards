@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import ClosedState from '@/components/ClosedState.vue'
 import PlayerName from '@/components/PlayerName.vue'
 import CupDuelKind from '@/components/cup/CupDuelKind.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -214,15 +215,13 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
 
     <LoadingState v-if="view === 'loading'" variant="list" />
 
-    <EmptyState v-else-if="view === 'disabled'" icon="lock-closed" :title="t('cup.duel.off_title')" :text="t('cup.duel.failure.disabled')" data-testid="duels-off">
-      <template #action>
-        <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-tinted" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
-      </template>
-    </EmptyState>
+    <ClosedState v-else-if="view === 'disabled'" mascot="thinking" :title="t('cup.duel.off_title')" :text="t('cup.duel.failure.disabled')" data-testid="duels-off">
+      <RouterLink :to="{ name: 'cup', params: { id } }" class="btn btn-secondary btn-block" data-testid="to-cup">{{ t('cup.round.to_cup') }}</RouterLink>
+    </ClosedState>
 
-    <EmptyState v-else-if="view === 'unavailable'" icon="lock-closed" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
+    <ClosedState v-else-if="view === 'unavailable'" mascot="thinking" :title="t('cup.invite.unavailable_title')" :text="errorText" data-testid="unavailable" />
 
-    <EmptyState v-else-if="view === 'off'" icon="lock-closed" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
+    <ClosedState v-else-if="view === 'off'" mascot="thinking" :title="t('cup.off_title')" :text="errorText" data-testid="off" />
 
     <EmptyState v-else-if="view === 'not_participant'" icon="users" :text="t('cup.duel.failure.not_participant')" data-testid="not-participant" />
 
@@ -251,10 +250,13 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               @click="pick(PUBLIC)"
             >
               <span class="flex min-w-0 flex-1 flex-col">
-                <span class="font-bold">{{ t('cup.duel.new.public') }}</span>
-                <span class="text-[13px] leading-[18px] text-muted">{{ t('cup.duel.new.public_hint') }}</span>
+                <span class="t-body-m-strong">{{ t('cup.duel.new.public') }}</span>
+                <span class="t-label-s text-muted">{{ t('cup.duel.new.public_hint') }}</span>
               </span>
-              <AppIcon v-if="isPublic" name="check" :size="20" class="text-accent" />
+              <span v-if="isPublic" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse" aria-hidden="true">
+                <AppIcon name="check" :size="14" />
+              </span>
+              <span v-else class="size-[22px] shrink-0 rounded-full border-[1.5px] border-hairline" aria-hidden="true" />
             </button>
             <button
               v-for="row in candidates"
@@ -267,8 +269,11 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               :data-testid="`opponent-${row.participant_id}`"
               @click="pick(String(row.participant_id))"
             >
-              <PlayerName :name="rowName(row)" :emoji="row.pro_emoji" class="min-w-0 flex-1 font-bold" />
-              <AppIcon v-if="choice === String(row.participant_id)" name="check" :size="20" class="text-accent" />
+              <PlayerName :name="rowName(row)" :emoji="row.pro_emoji" class="t-body-m-strong min-w-0 flex-1" />
+              <span v-if="choice === String(row.participant_id)" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse" aria-hidden="true">
+                <AppIcon name="check" :size="14" />
+              </span>
+              <span v-else class="size-[22px] shrink-0 rounded-full border-[1.5px] border-hairline" aria-hidden="true" />
             </button>
           </div>
           <p v-if="candidates.length === 0" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="no-candidates">{{ t('cup.duel.new.no_candidates') }}</p>
@@ -292,12 +297,15 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               @click="pickKind('rated')"
             >
               <span class="flex min-w-0 flex-1 flex-col">
-                <span class="font-bold">{{ t('cup.duel.kind.rated') }}</span>
-                <span class="text-[13px] leading-[18px] text-muted" data-testid="kind-rated-hint">
+                <span class="t-body-m-strong">{{ t('cup.duel.kind.rated') }}</span>
+                <span class="t-label-s text-muted" data-testid="kind-rated-hint">
                   {{ ratedAvailable ? t('cup.duel.new.kind_rated_hint') : t('cup.duel.block_rated_played') }}
                 </span>
               </span>
-              <AppIcon v-if="rated" name="check" :size="20" class="text-accent" />
+              <span v-if="rated" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse" aria-hidden="true">
+                <AppIcon name="check" :size="14" />
+              </span>
+              <span v-else class="size-[22px] shrink-0 rounded-full border-[1.5px] border-hairline" aria-hidden="true" />
             </button>
             <button
               ref="kindFriendlyEl"
@@ -311,10 +319,13 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               @click="pickKind('friendly')"
             >
               <span class="flex min-w-0 flex-1 flex-col">
-                <span class="font-bold">{{ t('cup.duel.kind.friendly') }}</span>
-                <span class="text-[13px] leading-[18px] text-muted">{{ t('cup.duel.kind.friendly_hint') }}</span>
+                <span class="t-body-m-strong">{{ t('cup.duel.kind.friendly') }}</span>
+                <span class="t-label-s text-muted">{{ t('cup.duel.kind.friendly_hint') }}</span>
               </span>
-              <AppIcon v-if="!rated" name="check" :size="20" class="text-accent" />
+              <span v-if="!rated" class="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-inverse text-on-inverse" aria-hidden="true">
+                <AppIcon name="check" :size="14" />
+              </span>
+              <span v-else class="size-[22px] shrink-0 rounded-full border-[1.5px] border-hairline" aria-hidden="true" />
             </button>
           </div>
           <p v-if="rated && !isPublic" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="rated-note">{{ t('cup.duel.new.rated_note') }}</p>
@@ -323,19 +334,23 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
           </p>
         </section>
 
-        <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="choice === null" data-testid="next-btn" @click="openConfirm">
-          {{ t('cup.duel.new.next') }}
-        </button>
       </template>
+    </div>
+
+    <!-- "Next" at the end, in the flow: the screen has the tab bar (the bottom zone of a button is for the screens without it, DESIGN.md §7). -->
+    <div v-if="view === 'ready' && availability && openDuelId === null && canChallenge" class="mt-5">
+      <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="choice === null" data-testid="next-btn" @click="openConfirm">
+        {{ t('cup.duel.new.next') }}
+      </button>
     </div>
 
     <BottomSheet v-if="confirmOpen" :label="confirmTitle" @close="confirmOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="confirm-sheet">
-        <h2 class="text-[22px] leading-7 font-bold" data-testid="confirm-title">{{ confirmTitle }}</h2>
+        <h2 class="t-display-m" data-testid="confirm-title">{{ confirmTitle }}</h2>
         <CupDuelKind :rated="rated" hint />
         <p class="text-[15px] leading-5 text-muted" data-testid="confirm-text">{{ isPublic ? t('cup.duel.new.confirm_public_text') : t('cup.duel.new.confirm_personal_text') }}</p>
         <InlineAlert v-if="sendError" tone="danger" :message="sendError" data-testid="send-error" />
-        <button v-if="createFailure?.duelId" type="button" class="btn btn-tinted btn-block" data-testid="open-existing" @click="openMine">{{ t('cup.duel.open_mine') }}</button>
+        <button v-if="createFailure?.duelId" type="button" class="btn btn-secondary btn-block" data-testid="open-existing" @click="openMine">{{ t('cup.duel.open_mine') }}</button>
         <button
           type="button"
           class="btn btn-primary btn-block"
@@ -346,7 +361,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
         >
           {{ createFailure?.uncertain ? t('common.retry') : t('cup.duel.new.send') }}
         </button>
-        <button type="button" class="btn btn-plain btn-block" :disabled="creating" data-testid="confirm-cancel" @click="confirmOpen = false">{{ t('cup.duel.new.back') }}</button>
+        <button type="button" class="btn btn-ghost btn-block" :disabled="creating" data-testid="confirm-cancel" @click="confirmOpen = false">{{ t('cup.duel.new.back') }}</button>
       </div>
     </BottomSheet>
 

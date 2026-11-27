@@ -1,0 +1,143 @@
+import type { Message, PluralForms } from '../ru'
+
+/**
+ * The texts of the onboarding of the Mini App, O1-O8 (docs/40 §2.1), in Russian - the source of truth for its keys. A dictionary of its
+ * own, loaded with the screens of the onboarding (their lazy chunk), so the main chunk does not carry them for every open; read through
+ * `useOnboardingI18n` (`./index.ts`), in the language of the app (`getLocale()`). `uz.ts` is typed against this file.
+ */
+export const onboardingRu = {
+  'onboarding.progress_label': 'Шаг {n} из {total}',
+  'onboarding.continue': 'Продолжить',
+  'onboarding.continue_selected': {
+    one: 'Продолжить · выбрано {count}',
+    few: 'Продолжить · выбрано {count}',
+    many: 'Продолжить · выбрано {count}',
+    other: 'Продолжить · выбрано {count}',
+  },
+  'onboarding.saving': 'Сохраняем…',
+  'onboarding.welcome.lead': 'Английские слова каждый день — и каждое запоминается, как печать в тетради.',
+  'onboarding.welcome.start': 'Начать',
+  'onboarding.welcome.note': 'Вход через Telegram — без паролей и регистрации',
+  'onboarding.name.title': 'Как вас зовут?',
+  'onboarding.name.lead': 'Так Muhrcha будет обращаться к вам в уроках.',
+  'onboarding.name.label': 'Имя',
+  'onboarding.name.placeholder': 'Ваше имя',
+  'onboarding.name.from_telegram': 'Взяли из Telegram — можно изменить',
+  'onboarding.name.error.empty': 'Введите имя.',
+  'onboarding.name.error.too_long': 'Имя слишком длинное: не больше {max} символов.',
+  'onboarding.name.error.link': 'Имя не должно быть похоже на ссылку или адрес сайта.',
+  'onboarding.name.error.symbols': 'Уберите @, / и # в начале слов.',
+  'onboarding.name.error.marks': 'В имени слишком много значков над буквами.',
+  'onboarding.name.error.invalid': 'Имя — от 1 до 32 символов, без служебных знаков.',
+  'onboarding.age.title': 'Сколько вам лет?',
+  'onboarding.age.lead': 'Подберём слова и примеры под ваш возраст.',
+  'onboarding.age.note': 'Возраст никто не увидит — он нужен только для подбора тем.',
+  'onboarding.age.lt14': 'до 14',
+  'onboarding.age.14_17': '14–17',
+  'onboarding.age.18_24': '18–24',
+  'onboarding.age.25_34': '25–34',
+  'onboarding.age.35_44': '35–44',
+  'onboarding.age.45p': '45+',
+  'onboarding.goals.title': 'Зачем вам английский?',
+  'onboarding.goals.lead': 'Можно выбрать несколько — план учтёт всё.',
+  'onboarding.goals.career': 'Работа и карьера',
+  'onboarding.goals.study': 'Учёба и экзамены',
+  'onboarding.goals.travel': 'Путешествия',
+  'onboarding.goals.relocation': 'Переезд',
+  'onboarding.goals.communication': 'Общение',
+  'onboarding.goals.media': 'Фильмы и музыка',
+  'onboarding.goals.short.career': 'работа',
+  'onboarding.goals.short.study': 'учёба',
+  'onboarding.goals.short.travel': 'путешествия',
+  'onboarding.goals.short.relocation': 'переезд',
+  'onboarding.goals.short.communication': 'общение',
+  'onboarding.goals.short.media': 'фильмы и музыка',
+  'onboarding.level.title': 'С какого уровня начнём?',
+  'onboarding.level.lead': 'Выберите курс — сменить его можно в любой момент.',
+  'onboarding.level.desc.A1': 'Начинаю с нуля',
+  'onboarding.level.desc.A2': 'Знаю основы',
+  'onboarding.level.desc.B1': 'Понимаю простые тексты',
+  'onboarding.level.desc.B2': 'Говорю на бытовые темы',
+  'onboarding.level.desc.C1': 'Читаю статьи и книги',
+  'onboarding.level.desc.C2': 'Хочу оттенки и стиль',
+  'onboarding.level.start': 'Начать с {level}',
+  'onboarding.level.empty': 'Курсы сейчас недоступны. Попробуйте позже.',
+  'onboarding.level.lead_test': 'Не уверены — пройдите тест за 2 минуты.',
+  'onboarding.level.test': 'Пройти тест за 2 минуты',
+  'onboarding.level.by_test': 'Примерный уровень по тесту — можно сменить.',
+  'onboarding.placement.title': 'Тест уровня',
+  'onboarding.placement.progress_label': 'Вопрос {n} из {total}',
+  'onboarding.placement.prompt': 'Выберите перевод',
+  'onboarding.placement.skip': 'Не знаю',
+  'onboarding.placement.loading': 'Готовим вопросы…',
+  'onboarding.placement.checking': 'Проверяем ответы…',
+  'onboarding.placement.result_title': 'Ваш уровень: {level}',
+  'onboarding.placement.result_lead': 'Это примерный уровень — курс можно сменить на следующем экране.',
+  'onboarding.placement.correct': 'Верных ответов: {count} из {total}',
+  'onboarding.placement.choose': 'Продолжить с {level}',
+  'onboarding.placement.expired_title': 'Время теста вышло',
+  'onboarding.placement.expired_text': 'Тест действует 20 минут. Начните заново — вопросы будут новые.',
+  'onboarding.placement.restart': 'Начать заново',
+  'onboarding.placement.unavailable_title': 'Тест сейчас недоступен',
+  'onboarding.placement.unavailable_text': 'Выберите уровень сами — его можно сменить в любой момент.',
+  'onboarding.placement.back': 'Выбрать уровень',
+  'onboarding.daily_goal.title': 'Сколько карточек в день?',
+  'onboarding.daily_goal.lead': 'Регулярность важнее объёма. Можно поменять позже.',
+  'onboarding.daily_goal.label.10': 'Спокойно',
+  'onboarding.daily_goal.label.20': 'Серьёзно',
+  'onboarding.daily_goal.label.40': 'Интенсив',
+  'onboarding.daily_goal.unit': {
+    one: 'карточка в день · ~{minutes} мин',
+    few: 'карточки в день · ~{minutes} мин',
+    many: 'карточек в день · ~{minutes} мин',
+    other: 'карточки в день · ~{minutes} мин',
+  },
+  'onboarding.daily_goal.recommended': 'рекомендуем',
+  'onboarding.daily_goal.locked': '{value} — в Pro',
+  'onboarding.daily_goal.pro_required': 'Цель больше {max} — в Pro. Выбрали {max} в день.',
+  'onboarding.reminder.title': 'Когда напомнить?',
+  'onboarding.reminder.lead': 'Muhrcha напишет в Telegram, чтобы серия не прервалась.',
+  'onboarding.reminder.custom': 'Своё',
+  'onboarding.reminder.custom_label': 'Своё время',
+  'onboarding.reminder.custom_hint': 'Время — с шагом {step} минут',
+  'onboarding.reminder.bot_title': 'Сообщения от бота',
+  'onboarding.reminder.bot_caption': 'Разрешение Telegram на сообщения',
+  'onboarding.reminder.denied': 'Без разрешения бот не сможет напомнить. Включите переключатель, чтобы разрешить.',
+  'onboarding.reminder.skip': 'Не напоминать',
+  'onboarding.plan.title': '{name}, ваш план готов',
+  'onboarding.plan.title_plain': 'Ваш план готов',
+  'onboarding.plan.lead': 'Первое занятие — уже сегодня.',
+  'onboarding.plan.course': 'Курс',
+  'onboarding.plan.goal': 'Цель',
+  'onboarding.plan.reminder': 'Напоминание',
+  'onboarding.plan.why': 'Зачем',
+  'onboarding.plan.course_modules': {
+    one: '{title} · {count} модуль',
+    few: '{title} · {count} модуля',
+    many: '{title} · {count} модулей',
+    other: '{title} · {count} модуля',
+  },
+  'onboarding.plan.goal_value': {
+    one: '{count} карточка в день',
+    few: '{count} карточки в день',
+    many: '{count} карточек в день',
+    other: '{count} карточки в день',
+  },
+  'onboarding.plan.reminder_at': 'каждый день в {time}',
+  'onboarding.plan.reminder_off': 'выключено',
+  'onboarding.plan.start': 'Начать первый урок',
+} satisfies Record<string, Message>
+
+export type OnboardingDictionary = typeof onboardingRu
+export type OnboardingMessageKey = keyof OnboardingDictionary
+
+/** Keys whose value is a set of plural forms (use with `tn`). */
+export type OnboardingPluralKey = { [K in OnboardingMessageKey]: OnboardingDictionary[K] extends string ? never : K }[OnboardingMessageKey]
+
+/** Keys whose value is a plain string (use with `t`). */
+export type OnboardingStringKey = Exclude<OnboardingMessageKey, OnboardingPluralKey>
+
+/** Shape the Uzbek dictionary must have: same keys, same string/plural kind. */
+export type OnboardingTranslations = {
+  [K in OnboardingMessageKey]: OnboardingDictionary[K] extends string ? string : PluralForms
+}

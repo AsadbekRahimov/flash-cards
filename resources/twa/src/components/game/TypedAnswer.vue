@@ -50,7 +50,7 @@ function skip(): void {
 <template>
   <div class="flex flex-1 flex-col" data-testid="typed-answer">
     <div class="flex flex-col gap-3 px-5 pb-4 short:gap-2">
-      <p v-if="hintPrefix" class="text-center text-[15px] leading-5 text-muted" data-testid="hint-prefix">
+      <p v-if="hintPrefix" class="t-body-m text-center text-muted" data-testid="hint-prefix">
         {{ t('gameRun.hint.prefix', { prefix: hintPrefix }) }}
       </p>
 
@@ -79,7 +79,7 @@ function skip(): void {
     <!-- "I don't know" a quiet word on the left, "Check" the main button (docs/design Question). -->
     <StickyActions surface>
       <div class="flex items-stretch gap-2">
-        <button type="button" class="btn btn-plain shrink-0 basis-28 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">{{ t('exercise.skip') }}</button>
+        <button type="button" class="btn btn-ghost shrink-0 basis-28 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">{{ t('exercise.skip') }}</button>
         <button type="button" class="btn btn-primary btn-lg min-w-0 flex-1" :disabled="!canCheck" data-testid="check-btn" @click="check">{{ t('exercise.check') }}</button>
       </div>
     </StickyActions>

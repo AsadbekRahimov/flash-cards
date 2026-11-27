@@ -75,7 +75,8 @@ async function shownOptions(p) {
   return p.page.evaluate(() =>
     [...document.querySelectorAll('[data-testid="choice-task"] button[data-testid^="option-"]')].map((button) => ({
       testid: button.dataset.testid,
-      text: button.querySelector('span.block')?.textContent.replace(/\s+/g, ' ').trim() ?? button.innerText.replace(/\s+/g, ' ').trim(),
+      // the label of QuizOption (without the key of the number and the note of a hint)
+      text: button.querySelector('[data-testid="option-label"]')?.textContent.replace(/\s+/g, ' ').trim() ?? button.innerText.replace(/\s+/g, ' ').trim(),
     })),
   )
 }

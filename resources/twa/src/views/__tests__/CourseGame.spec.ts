@@ -76,12 +76,13 @@ afterEach(() => {
 })
 
 describe('CourseView: the entry to the Karvon game (docs/05 §5b.1)', () => {
-  it('is a tinted full-width "Караван" when /me says the game is available, and leads to the map of the course', async () => {
+  it('is a row "Караван" of the list of the course (kit ListRow) when /me says the game is available, and leads to the map of the course', async () => {
     const { wrapper, router } = await render(access())
 
     const button = wrapper.get('[data-testid=game-btn]')
     expect(button.text()).toBe('Игра «Караван»')
-    expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(button.classes()).toContain('min-h-[60px]')
+    expect(button.find('.icon-tile').exists()).toBe(true)
 
     await button.trigger('click')
     await flushPromises()

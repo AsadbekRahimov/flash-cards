@@ -48,7 +48,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseCatalogService
 {
-    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:v1:';
+    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:v2:';
 
     private const PUBLISHED_CACHE_TTL = 600;
 
@@ -237,11 +237,13 @@ final class CourseCatalogService
     {
         $locale = $this->locales->isSupported($locale) ? $locale : $this->locales->default();
 
-        /** @var list<array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool}> $rows */
+        /** @var list<array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool, stages_count?:int|null}> $rows */
         $rows = PureCache::store()->remember(
             self::PUBLISHED_CACHE_PREFIX.$locale,
             self::PUBLISHED_CACHE_TTL,
             fn (): array => Course::query()
+                // v2: the number of modules rides in the same statement (a correlated count over `stages.course_id`, docs/40 §2.1).
+                ->withCount('stages')
                 ->where('status', 'published')
                 ->where('visibility', 'public')
                 ->orderBy('position')
@@ -303,12 +305,25 @@ final class CourseCatalogService
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
+        $choice = $this->recommendFromCatalog($goal, $level);
+
+        return $choice === null ? null : Course::query()->find($choice->id);
+    }
+
+    /**
+     * {@see recommend()} on the cached catalog only, without reading the course row: the choices of the onboarding of the Mini App
+     * (docs/40 §2.1) ask it for every level in one request and pass the catalog they read once (`$catalog`, the default locale).
+     *
+     * @param  list<CatalogCourse>|null  $catalog  {@see published()} of the default locale; read here when null
+     */
+    public function recommendFromCatalog(?string $goal, ?string $level, ?array $catalog = null): ?CatalogCourse
+    {
         if ($goal === null || $goal === '') {
             return null;
         }
 
         $matching = array_values(array_filter(
-            $this->published($this->locales->default()),
+            $catalog ?? $this->published($this->locales->default()),
             fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0 && $c->section() !== Phrase::SECTION_PHRASES,
         ));
 
@@ -316,7 +331,46 @@ final class CourseCatalogService
         usort($matching, fn (CatalogCourse $a, CatalogCourse $b): int => [$b->level === $level && $level !== null, $b->isFeatured]
             <=> [$a->level === $level && $level !== null, $a->isFeatured]);
 
-        return $matching === [] ? null : Course::query()->find($matching[0]->id);
+        return $matching[0] ?? null;
+    }
+
+    /**
+     * The courses of the levels (docs/40 §2.1, §2.1a): for every level of `$levels` the course {@see recommendFromCatalog()} gives for
+     * `$goal`, kept only when the course IS of that level - a level whose recommendation is a fallback to another level's course (no
+     * course of its own) is left out. One exception: the level right after a course's own level joins its row when it has no course of
+     * its own (A2 → the A1 course, the "A1–A2" row of the level screen); only the one neighbour, so B2 falling back to an A1 course with
+     * an A2 already in its row is a missing course, not a merge. Rows in the order of the levels. The level screen of the onboarding
+     * of the Mini App and the placement test read it the same way.
+     *
+     * @param  list<string>  $levels  in order (a subset of the onboarding levels)
+     * @param  list<CatalogCourse>|null  $catalog  {@see published()} of the default locale; read here when null
+     * @return list<array{course: CatalogCourse, levels: non-empty-list<string>}>
+     */
+    public function levelCourses(?string $goal, array $levels, ?array $catalog = null): array
+    {
+        $catalog ??= $this->published($this->locales->default());
+
+        /** @var array<int, array{course: CatalogCourse, levels: non-empty-list<string>}> $byCourse */
+        $byCourse = [];
+        foreach ($levels as $i => $level) {
+            $course = $this->recommendFromCatalog($goal, $level, $catalog);
+            if ($course === null) {
+                continue;
+            }
+            $own = $course->level === $level;
+            $merged = ! $own && isset($byCourse[$course->id]) && $byCourse[$course->id]['levels'] === [$course->level]
+                && $i > 0 && $levels[$i - 1] === $course->level;
+            if (! $own && ! $merged) {
+                continue;
+            }
+            if (isset($byCourse[$course->id])) {
+                $byCourse[$course->id]['levels'][] = $level;
+            } else {
+                $byCourse[$course->id] = ['course' => $course, 'levels' => [$level]];
+            }
+        }
+
+        return array_values($byCourse);
     }
 
     /**
@@ -686,6 +740,8 @@ final class CourseCatalogService
             $course->exam_tag,
             $course->words_count,
             $course->is_featured,
+            // Only where the row was read with `withCount('stages')` (the cached catalog); no statement for it here.
+            array_key_exists('stages_count', $course->getAttributes()) ? (int) $course->getAttributes()['stages_count'] : null,
         );
     }
 

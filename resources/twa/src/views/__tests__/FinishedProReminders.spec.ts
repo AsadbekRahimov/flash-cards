@@ -16,7 +16,7 @@ vi.mock('@/api', () => ({
   api: { achievements: { list: vi.fn() }, league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn(), finish: vi.fn() } },
 }))
 
-vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn() }) }))
+vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn(), haptic: vi.fn() }) }))
 
 const router = createRouter({
   history: createMemoryHistory(),
@@ -116,7 +116,7 @@ describe('FinishedView — reminders about Pro', () => {
       const buttons = w.get('[data-testid=pro-tip-actions]').findAll('.btn')
       expect(buttons.map((b) => b.attributes('data-testid'))).toEqual(['pro-tip-invite', 'pro-tip-details'])
       expect(buttons[0]!.text()).toBe('Получить Pro за друзей')
-      expect(buttons[0]!.classes()).toContain('btn-tinted')
+      expect(buttons[0]!.classes()).toContain('btn-secondary')
       expect(buttons[1]!.text()).toBe('Подробнее о Pro')
       expect(buttons[1]!.classes()).toContain('btn-secondary')
       expect(w.get('[data-testid=pro-tip-invite]').attributes('href')).toBe('/referrals')
@@ -129,7 +129,7 @@ describe('FinishedView — reminders about Pro', () => {
 
       const buttons = w.get('[data-testid=pro-tip-actions]').findAll('.btn')
       expect(buttons.map((b) => b.attributes('data-testid'))).toEqual(['pro-tip-details', 'pro-tip-invite'])
-      expect(buttons[0]!.classes()).toContain('btn-tinted')
+      expect(buttons[0]!.classes()).toContain('btn-secondary')
       expect(buttons[1]!.classes()).toContain('btn-secondary')
     })
 
@@ -365,7 +365,7 @@ describe('FinishedView — reminders about Pro', () => {
       expect(card.text()).toContain('Чтобы сохранить Pro, оформите подписку или пригласите друзей.')
       expect(card.findAll('.btn').map((b) => b.attributes('data-testid'))).toEqual(['trial-ending-pro', 'trial-ending-invite'])
       expect(w.get('[data-testid=trial-ending-pro]').text()).toBe('Оформить Pro')
-      expect(w.get('[data-testid=trial-ending-pro]').classes()).toContain('btn-tinted')
+      expect(w.get('[data-testid=trial-ending-pro]').classes()).toContain('btn-secondary')
 
       await w.get('[data-testid=trial-ending-pro]').trigger('click')
       await flushPromises()

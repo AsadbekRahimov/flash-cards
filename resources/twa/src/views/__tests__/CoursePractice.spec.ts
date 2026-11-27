@@ -86,6 +86,10 @@ async function render(practice: PracticeAccess | undefined, course: CourseDetail
   await router.push({ name: 'course', params: { slug: course.slug } })
   const wrapper = mount(CourseView, { props: { slug: course.slug }, global: { plugins: [router] }, attachTo: document.body })
   await flushPromises()
+  // the lessons of a module are under its disclosure (kit Muhrla 03; the current one starts open): every module opened
+  for (const toggle of wrapper.findAll('[data-testid=module-toggle]')) {
+    if (toggle.attributes('aria-expanded') !== 'true') await toggle.trigger('click')
+  }
   return { wrapper, router }
 }
 
@@ -99,12 +103,13 @@ afterEach(() => {
 })
 
 describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
-  it('is a tinted, full-width "Practice" under the main button, when practice is available', async () => {
+  it('is a row "Practice" of the list of the course (kit ListRow) under the main action, when practice is available', async () => {
     const { wrapper } = await render(access())
 
     const button = wrapper.get('[data-testid=practice-btn]')
     expect(button.text()).toBe('Практика')
-    expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(button.classes()).toContain('min-h-[60px]')
+    expect(button.find('.icon-tile').exists()).toBe(true)
     expect(button.classes()).not.toContain('btn-primary')
     expect(wrapper.find('[data-testid=practice-pro]').exists()).toBe(false)
     wrapper.unmount()
@@ -116,7 +121,8 @@ describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
     const html = wrapper.html()
     expect(html.indexOf('data-testid="continue-btn"')).toBeGreaterThan(-1)
     expect(html.indexOf('data-testid="practice-btn"')).toBeGreaterThan(html.indexOf('data-testid="continue-btn"'))
-    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    // the main action of the learner's course is the card of the current module (kit 03), no ink button
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
     wrapper.unmount()
   })
 
@@ -243,9 +249,9 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     expect(row.findAll('button').map((b) => b.attributes('data-testid'))).toEqual(['learn-btn', 'practice-lesson-btn'])
     expect(row.get('[data-testid=learn-btn] [data-testid=lesson-title]').text()).toBe('Урок 4 · Еда')
     expect(row.get('[data-testid=lesson-hint]').text()).toBe('1 из 3 слов')
-    // the current lesson has its own, under "вы здесь"
+    // the current lesson has its own too
     expect(rowButton(wrapper, 40).text()).toBe('Практика')
-    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
     wrapper.unmount()
   })
 

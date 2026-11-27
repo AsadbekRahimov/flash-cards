@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import type { IconName } from '@/components/ui/icons'
 import BattleScoreboard from '@/components/battle/BattleScoreboard.vue'
 import { resultTitleKey } from '@/components/battle/resultTitle'
@@ -53,11 +55,14 @@ const emit = defineEmits<{
   'open-busy': []
 }>()
 
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const opponentName = computed(() => props.battle.opponent.first_name?.trim() || t('battle.opponent'))
 
-/** A small symbol beside the title, in the ink of the outcome: no big circle, no celebration (redesign 2026-11); a loss is not red. */
+/**
+ * A small symbol above the title of an end that is not a victory, in the ink of the outcome (no big circle, no celebration); a loss is not
+ * red. A victory has the mascot and the stamp instead (kit Muhrla: the one moment of the screen).
+ */
 interface Look {
   icon: IconName
   tone: string
@@ -71,6 +76,7 @@ const LOOKS: Record<BattleOutcome, Look> = {
 }
 
 const look = computed(() => LOOKS[props.result.outcome])
+const won = computed(() => props.result.outcome === 'won')
 const title = computed((): string => t(resultTitleKey(props.battle, props.result)))
 
 /** The reasons that do not depend on who won; the others read differently for the winner and for the one who lost. */
@@ -122,20 +128,26 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="battle-result" :data-outcome="result.outcome" :data-reason="result.end_reason">
-    <div class="flex flex-1 flex-col gap-4 px-5 pt-6 pb-6">
-      <header class="flex flex-col gap-1.5">
-        <div class="flex items-center gap-2">
-          <span class="shrink-0" :class="look.tone" data-testid="result-icon"><AppIcon :name="look.icon" :size="22" /></span>
-          <h1 class="min-w-0 text-[32px] leading-[38px] font-semibold tracking-[-0.4px] break-words" data-testid="result-title">{{ title }}</h1>
-        </div>
-        <p class="text-[15px] leading-5 text-muted" data-testid="result-reason">{{ reason }}</p>
-        <p class="text-[13px] leading-[18px] text-muted break-words" data-testid="result-topic">{{ topic }}</p>
+    <div class="flex flex-1 flex-col gap-5 px-5 pt-6 pb-6 short:gap-4 short:pt-3">
+      <!--
+        The hero of a result (kit Muhrla, 06-urok-proyden): on the central axis. A victory is the one moment of the screen: the mascot with
+        the cup and the stamp with the learner's score (pressed in once). Any other end is told quietly: a small symbol, no mascot, no stamp.
+      -->
+      <header class="flex flex-col items-center gap-2 text-center">
+        <template v-if="won">
+          <MascotArt loading="eager" pose="trophy" :height="120" class="short:hidden" />
+          <StampMark :value="battle.scores.me" :unit="tn('battle.result.stamp_unit', battle.scores.me)" haptic class="my-1" />
+        </template>
+        <span v-else class="shrink-0" :class="look.tone" data-testid="result-icon"><AppIcon :name="look.icon" :size="28" /></span>
+        <h1 class="t-display-l break-words" data-testid="result-title">{{ title }}</h1>
+        <p class="t-body-m text-muted" data-testid="result-reason">{{ reason }}</p>
+        <p class="t-label-s text-tertiary break-words" data-testid="result-topic">{{ topic }}</p>
       </header>
 
       <!-- Another battle of the learner's stands in the way of the rematch: the way to it, up here where it is seen without scrolling. -->
       <div v-if="busyBattleId != null" class="space-y-2" data-testid="result-busy">
         <InlineAlert tone="warning" :message="t('error.code.battle_busy')" />
-        <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
       </div>
 
       <BattleScoreboard
@@ -152,7 +164,7 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <div class="list">
           <div class="list-row grid min-h-10 grid-cols-[2rem_minmax(0,1fr)_minmax(0,1fr)] gap-2 py-2 text-[13px] leading-[18px] text-muted">
             <span aria-hidden="true">#</span>
-            <span class="truncate">{{ t('battle.you') }}</span>
+            <span class="truncate text-accent">{{ t('battle.you') }}</span>
             <span class="truncate">{{ opponentName }}</span>
           </div>
           <div
@@ -165,12 +177,12 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
             <span class="font-mono text-[13px] leading-5 text-muted tabular-nums"><span class="sr-only">{{ t('battle.result.round', { round: round.no }) }}</span><span aria-hidden="true">{{ round.no }}</span></span>
             <span class="inline-flex items-center gap-2" data-testid="round-me" :data-verdict="round.me.verdict">
               <AppIcon :name="cell(round.me).look.icon" :size="16" class="shrink-0" :class="cell(round.me).look.ink" />
-              <span class="font-mono text-[15px] leading-[22px] font-medium tabular-nums">{{ cell(round.me).points }}</span>
+              <span class="font-display text-[15px] leading-[22px] font-semibold tabular-nums">{{ cell(round.me).points }}</span>
               <span class="sr-only">{{ t(cell(round.me).look.label) }}</span>
             </span>
             <span class="inline-flex items-center gap-2" data-testid="round-opponent" :data-verdict="round.opponent.verdict">
               <AppIcon :name="cell(round.opponent).look.icon" :size="16" class="shrink-0" :class="cell(round.opponent).look.ink" />
-              <span class="font-mono text-[15px] leading-[22px] font-medium tabular-nums">{{ cell(round.opponent).points }}</span>
+              <span class="font-display text-[15px] leading-[22px] font-semibold tabular-nums">{{ cell(round.opponent).points }}</span>
               <span class="sr-only">{{ t(cell(round.opponent).look.label) }}</span>
             </span>
           </div>
@@ -179,18 +191,18 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
 
       <!-- The friend offers a rematch: answered here. -->
       <section v-if="offered" class="card flex flex-col gap-1" data-testid="rematch-offer">
-        <h2 class="text-base leading-[22px] font-semibold">{{ t('battle.result.rematch_from', { name: opponentName }) }}</h2>
+        <h2 class="t-title-m">{{ t('battle.result.rematch_from', { name: opponentName }) }}</h2>
         <p class="text-[15px] leading-5 text-muted">{{ t('battle.result.rematch_text') }}</p>
       </section>
       <section v-else-if="ownRematch" class="card flex flex-col gap-1" data-testid="rematch-own" :data-state="rematchOn ? 'on' : 'waiting'">
-        <h2 class="text-base leading-[22px] font-semibold">{{ rematchOn ? t('battle.result.rematch_on') : t('battle.result.rematch_mine') }}</h2>
+        <h2 class="t-title-m">{{ rematchOn ? t('battle.result.rematch_on') : t('battle.result.rematch_mine') }}</h2>
         <p class="text-[15px] leading-5 text-muted">{{ rematchOn ? t('battle.result.rematch_on_text') : t('battle.result.rematch_mine_text') }}</p>
       </section>
 
       <!-- The ways out that are not the main one are in the page, after what the learner came to read: in a short window three buttons in the sticky block (192 of 568 px) covered the score and the rounds. -->
       <div class="flex gap-2" data-testid="result-exits">
-        <button v-if="!friendsFirst" type="button" class="btn btn-tinted flex-1" data-testid="friends-btn" @click="emit('friends')">{{ t('battle.to_friends') }}</button>
-        <button type="button" class="btn btn-plain flex-1" data-testid="course-btn" @click="emit('course')">{{ t('battle.to_course') }}</button>
+        <button v-if="!friendsFirst" type="button" class="btn btn-secondary flex-1" data-testid="friends-btn" @click="emit('friends')">{{ t('battle.to_friends') }}</button>
+        <button type="button" class="btn btn-ghost flex-1" data-testid="course-btn" @click="emit('course')">{{ t('battle.to_course') }}</button>
       </div>
     </div>
 
@@ -199,7 +211,7 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy !== null" data-testid="accept-rematch-btn" @click="emit('accept-rematch')">
           {{ t('battle.invite.accept') }}
         </button>
-        <button type="button" class="btn btn-plain btn-block" :disabled="busy !== null" data-testid="decline-rematch-btn" @click="emit('decline-rematch')">
+        <button type="button" class="btn btn-ghost btn-block" :disabled="busy !== null" data-testid="decline-rematch-btn" @click="emit('decline-rematch')">
           {{ t('battle.invite.decline') }}
         </button>
       </template>

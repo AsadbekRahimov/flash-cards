@@ -51,8 +51,9 @@ function onPick(code: string, name: string): void {
 }
 
 const otherLabel = computed(() => (props.area.kind === 'other' ? props.area.name : t('board.area.other')))
+/** A filter chip of the kit (COMPONENTS.md "Chip": 32 px when it is pressed): the chosen one in ink, the others on the surface. */
 const chip = (active: boolean): string =>
-  active ? 'bg-accent-soft font-semibold text-body shadow-[inset_0_0_0_1px_var(--app-primary)]' : 'border border-hairline bg-surface text-muted'
+  active ? 'bg-inverse font-semibold text-on-inverse' : 'bg-surface text-muted shadow-[inset_0_0_0_1px_var(--app-hairline)]'
 </script>
 
 <template>
@@ -69,7 +70,7 @@ const chip = (active: boolean): string =>
         type="button"
         role="radio"
         :aria-checked="area.kind === 'all'"
-        class="tap-target min-h-9 shrink-0 rounded-full px-3.5 text-sm leading-5 whitespace-nowrap"
+        class="tap-target h-8 shrink-0 rounded-full px-3.5 text-[13px] leading-[18px] whitespace-nowrap"
         :class="chip(area.kind === 'all')"
         data-testid="area-all"
         @click="onArea('all')"
@@ -80,7 +81,7 @@ const chip = (active: boolean): string =>
         type="button"
         role="radio"
         :aria-checked="area.kind === 'mine'"
-        class="tap-target min-h-9 shrink-0 rounded-full px-3.5 text-sm leading-5 whitespace-nowrap"
+        class="tap-target h-8 shrink-0 rounded-full px-3.5 text-[13px] leading-[18px] whitespace-nowrap"
         :class="chip(area.kind === 'mine')"
         data-testid="area-mine"
         @click="onArea('mine')"
@@ -92,7 +93,7 @@ const chip = (active: boolean): string =>
         role="radio"
         :aria-checked="area.kind === 'other'"
         aria-haspopup="dialog"
-        class="tap-target flex min-h-9 shrink-0 items-center gap-1 rounded-full px-3.5 text-sm leading-5 whitespace-nowrap"
+        class="tap-target flex h-8 shrink-0 items-center gap-1 rounded-full px-3.5 text-[13px] leading-[18px] whitespace-nowrap"
         :class="chip(area.kind === 'other')"
         data-testid="area-other"
         @click="sheetOpen = true"

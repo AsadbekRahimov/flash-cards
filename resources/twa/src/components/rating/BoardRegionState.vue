@@ -50,21 +50,21 @@ const foreignLine = computed(() => {
 <template>
   <section v-if="notSet" class="card space-y-3" data-testid="region-not-set">
     <div class="space-y-1">
-      <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('board.region_card.title') }}</h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('settings.region.hint') }}</p>
+      <h2 class="t-title-m">{{ t('board.region_card.title') }}</h2>
+      <p class="t-body-m text-muted">{{ t('settings.region.hint') }}</p>
       <p v-if="nextChange" class="text-[13px] leading-[18px] text-muted" data-testid="region-next-change">{{ nextChange }}</p>
     </div>
     <button type="button" class="btn btn-primary btn-block" data-testid="region-choose" @click="sheetOpen = true">{{ t('region.prompt.choose') }}</button>
   </section>
 
-  <p v-if="foreignLine" class="card text-[15px] leading-[22px] text-muted" data-testid="read-only-region">{{ foreignLine }}</p>
+  <p v-if="foreignLine" class="card t-body-m text-muted" data-testid="read-only-region">{{ foreignLine }}</p>
 
   <section v-if="below && region" class="card space-y-3" data-testid="region-below">
     <div class="space-y-1">
-      <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="region-below-title">
+      <h2 class="t-title-m" data-testid="region-below-title">
         {{ tn('board.below.title', region.min_participants, { name: region.name, participants: region.participants }) }}
       </h2>
-      <p class="text-[15px] leading-5 text-muted">{{ t('board.below.text', { min: region.min_participants }) }}</p>
+      <p class="t-body-m text-muted">{{ t('board.below.text', { min: region.min_participants }) }}</p>
     </div>
     <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="region-invite">{{ t('board.below.invite') }}</RouterLink>
   </section>

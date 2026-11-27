@@ -12,7 +12,7 @@ const rules = { min: GAME_RUN_RULES.tasksMin, max: GAME_RUN_RULES.tasksMax, flas
 
 <template>
   <BottomSheet :label="t('gameIntro.title')" data-testid="game-intro-sheet" @close="emit('close')">
-    <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('gameIntro.title') }}</h2>
+    <h2 class="t-display-m pr-10">{{ t('gameIntro.title') }}</h2>
     <ul class="flex flex-col divide-y divide-divider text-[15px] leading-5 text-muted [&>li]:py-2.5">
       <li data-testid="game-intro-p1">{{ t('gameIntro.p1') }}</li>
       <li data-testid="game-intro-p2">{{ t('gameIntro.p2', rules) }}</li>

@@ -3,7 +3,9 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import CupRules from '@/components/cup/CupRules.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
+import ClosedState from '@/components/ClosedState.vue'
+import AppChip from '@/components/ui/AppChip.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -194,31 +196,31 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="failure && failure.retry" :message="failure.message" data-testid="failure" @retry="load" />
 
-    <EmptyState
+    <ClosedState
       v-else-if="failure"
-      icon="lock-closed"
+      mascot="thinking"
       :title="failure.kind === 'not_admin' ? t('cup.setup.not_admin_title') : t('cup.invite.unavailable_title')"
       :text="failure.message"
       data-testid="failure"
     />
 
     <div v-else-if="setup" class="space-y-3">
-      <section class="flex flex-col gap-1.5 rounded-hero bg-highlight p-4" data-testid="setup-card">
-        <p class="text-sm leading-[18px] font-semibold">{{ t('cup.level', { level: setup.level }) }}</p>
-        <p v-if="period" class="text-[22px] leading-7 font-extrabold" data-testid="setup-period">{{ period }}</p>
-        <p class="text-[15px] leading-5" data-testid="setup-status">{{ statusLine }}</p>
+      <section class="flex flex-col items-start gap-2 rounded-hero bg-highlight p-5" data-testid="setup-card">
+        <AppChip>{{ t('cup.level', { level: setup.level }) }}</AppChip>
+        <p v-if="period" class="t-display-m" data-testid="setup-period">{{ period }}</p>
+        <p class="t-body-m text-muted" data-testid="setup-status">{{ statusLine }}</p>
       </section>
 
       <!-- A draft: the level and the language of the chat, then "Publish". -->
       <section v-if="draft" class="card flex flex-col gap-3" data-testid="publish-card">
         <label class="flex flex-col gap-1.5">
-          <span class="text-[15px] leading-5 font-semibold">{{ t('cup.setup.level') }}</span>
+          <span class="t-label-s text-muted">{{ t('cup.setup.level') }}</span>
           <select v-model="level" class="field" :disabled="publishing" data-testid="level-select">
             <option v-for="option in setup.options.levels" :key="option" :value="option">{{ option }}</option>
           </select>
         </label>
         <label class="flex flex-col gap-1.5">
-          <span class="text-[15px] leading-5 font-semibold">{{ t('cup.setup.locale') }}</span>
+          <span class="t-label-s text-muted">{{ t('cup.setup.locale') }}</span>
           <select v-model="messagesLocale" class="field" :disabled="publishing" data-testid="locale-select">
             <option v-for="option in setup.options.locales" :key="option" :value="option">{{ localeName(option) }}</option>
           </select>
@@ -240,18 +242,18 @@ onBeforeUnmount(() => {
       <!-- Published and open: the summaries of the day in the chat. -->
       <section v-if="open" class="card flex flex-col gap-3" data-testid="settings-card">
         <div class="flex min-h-11 items-center justify-between gap-3">
-          <span class="text-[15px] leading-5 font-semibold">{{ t('cup.setup.summaries') }}</span>
+          <span class="t-body-m-strong">{{ t('cup.setup.summaries') }}</span>
           <ToggleSwitch v-model="summaries" :label="t('cup.setup.summaries')" :disabled="saving" data-testid="summaries-toggle" />
         </div>
         <label v-if="summaries" class="flex flex-col gap-1.5">
-          <span class="text-[15px] leading-5 font-semibold">{{ t('cup.setup.summary_time') }}</span>
+          <span class="t-label-s text-muted">{{ t('cup.setup.summary_time') }}</span>
           <input v-model="summaryTime" type="time" class="field" :disabled="saving" data-testid="summary-time" />
         </label>
         <InlineAlert v-if="settingsError" tone="danger" :message="settingsError" data-testid="settings-error" />
         <InlineAlert v-else-if="saved && !settingsChanged" tone="success" :message="t('common.saved')" data-testid="settings-saved" />
         <button
           type="button"
-          class="btn btn-tinted btn-block"
+          class="btn btn-secondary btn-block"
           :disabled="saving || !settingsChanged || minuteOf(summaryTime) === null"
           :aria-busy="saving ? 'true' : undefined"
           data-testid="settings-save"
@@ -263,23 +265,24 @@ onBeforeUnmount(() => {
 
       <details class="list group" data-testid="rules">
         <summary class="list-row min-h-11 cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('cup.rules.title') }}</span>
+          <span class="t-body-m-strong min-w-0 flex-1">{{ t('cup.rules.title') }}</span>
+          <AppIcon name="chevron-down" :size="20" class="shrink-0 text-muted transition-transform group-open:rotate-180" />
         </summary>
-        <div class="px-[18px] pt-1 pb-4">
+        <div class="px-3 pt-1 pb-4">
           <CupRules :cup="setup" :rules="setup.rules" />
         </div>
       </details>
 
       <RouterLink v-if="!draft" :to="{ name: 'cup', params: { id: setup.id } }" class="btn btn-plain btn-block" data-testid="to-cup">{{ t('cup.setup.to_cup') }}</RouterLink>
 
-      <button v-if="draft || open" type="button" class="btn btn-plain btn-block text-danger-ink" data-testid="cancel-btn" @click="openCancel">
+      <button v-if="draft || open" type="button" class="btn btn-ghost btn-block text-danger-ink" data-testid="cancel-btn" @click="openCancel">
         {{ t('cup.cancel.open') }}
       </button>
     </div>
 
     <BottomSheet v-if="cancelOpen" :label="t('cup.cancel.title')" @close="cancelOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="cancel-sheet">
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('cup.cancel.title') }}</h2>
+        <h2 class="t-display-m">{{ t('cup.cancel.title') }}</h2>
         <p class="text-[15px] leading-5 text-muted">{{ t('cup.cancel.text') }}</p>
         <InlineAlert v-if="cancelError" tone="danger" :message="cancelError" data-testid="cancel-error" />
         <button type="button" class="btn btn-primary btn-block" data-testid="cancel-keep" @click="cancelOpen = false">{{ t('cup.cancel.keep') }}</button>

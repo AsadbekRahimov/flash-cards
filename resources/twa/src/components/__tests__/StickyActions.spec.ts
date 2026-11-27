@@ -39,13 +39,39 @@ describe('StickyActions', () => {
     w.unmount()
   })
 
-  it('takes the card colour on a white screen (`surface`), instead of the page colour', () => {
+  it('takes the card colour on a white screen (`surface`), instead of the page colour, unless the screen names its own (`--app-screen`)', () => {
     const w = mount(StickyActions, { props: { surface: true }, slots: { default: '<button type="button">Check</button>' } })
 
     const block = w.get('[data-testid=actions]')
-    expect(block.classes()).toContain('bg-surface')
+    expect(block.classes()).toContain('bg-[var(--app-screen,var(--app-surface))]')
     expect(block.classes()).not.toContain('bg-page')
+    expect(block.classes()).toEqual(expect.arrayContaining(['px-5', 'pt-3']))
     w.unmount()
+  })
+
+  it('is the feedback sheet of the kit with a `tone`: the soft colour, the top corners 28, padding 20; it slides up once', () => {
+    const animate = vi.fn()
+    Object.defineProperty(HTMLElement.prototype, 'animate', { value: animate, configurable: true, writable: true })
+    try {
+      const danger = mount(StickyActions, { props: { tone: 'danger' }, slots: { default: '<button type="button">Next</button>' } })
+      const block = danger.get('[data-testid=actions]')
+      expect(block.classes()).toEqual(expect.arrayContaining(['bg-danger-soft', 'rounded-t-xl', 'px-5', 'pt-5', 'sticky', 'bottom-0']))
+      expect(block.classes()).not.toContain('bg-page')
+      expect(block.attributes('data-tone')).toBe('danger')
+      expect(animate).toHaveBeenCalledTimes(1)
+      expect(animate.mock.calls[0]?.[0]).toEqual([{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }])
+      danger.unmount()
+
+      const success = mount(StickyActions, { props: { tone: 'success' } })
+      expect(success.get('[data-testid=actions]').classes()).toContain('bg-success-soft')
+      success.unmount()
+
+      // The plain block does not move.
+      mount(StickyActions).unmount()
+      expect(animate).toHaveBeenCalledTimes(2)
+    } finally {
+      delete (HTMLElement.prototype as { animate?: unknown }).animate
+    }
   })
 
   it('tells the toast how high it is while it is on screen, and takes that back when it goes', () => {

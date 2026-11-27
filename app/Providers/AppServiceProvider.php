@@ -301,6 +301,15 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-word-notes|'.$key);
         });
 
+        // The onboarding of the Mini App (docs/40 §2.1): a step is a quick tap, but nothing in it is worth more than 30 a minute.
+        RateLimiter::for('twa-onboarding', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-onboarding|'.$key);
+        });
+
         RateLimiter::for('twa-deck-import', function (Request $request): Limit {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

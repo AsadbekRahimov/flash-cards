@@ -18,6 +18,14 @@ export const uz: Translations = {
   'common.saved': 'Saqlandi',
   'common.copy_failed': "Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang.",
 
+  // ---- offline (F5 «Нет сети», docs/40 §2.6) ----
+  'offline.title': "Aloqa yo'q",
+  'offline.text': 'Internetni tekshiring. Tarmoq qaytishi bilan shu joydan davom etamiz.',
+  'offline.text_pending': 'Oxirgi javobingiz telefonda saqlandi — tarmoq qaytishi bilan uni yuboramiz.',
+  'offline.chip_lesson': '{lesson}-dars · {total} tadan {done} tasi saqlandi',
+  'offline.chip_session': '{total} tadan {done} tasi saqlandi',
+  'offline.chip_server': 'Progress serverda saqlangan',
+
   // ---- nav ----
   'nav.today': 'Bugun',
   'nav.courses': 'Kurs',
@@ -147,8 +155,8 @@ export const uz: Translations = {
   'assignments.done': 'Bajarilgan',
   'assignments.done_late': 'Kechikib bajarilgan',
   'assignments.load_failed': "Markaz vazifalarini yuklab bo'lmadi.",
-  'today.onboarding_hint': 'Sozlashni tugatish uchun botga /start yuboring',
-  'today.onboarding_btn': 'Sozlashni botda tugatish',
+  'today.onboarding.title': 'Sozlashni yakunlang',
+  'today.onboarding.text': 'Bir necha qadam — kurs va kunlik maqsadni tanlab beramiz',
   'today.greeting': 'Salom, {name}!',
   'today.session.hint': "Avval o'rgangan so'zlaringizni takrorlang va kursingizdagi yangi so'zlar bilan tanishing",
   'today.games.title': "So'z o'yinlari",
@@ -189,6 +197,10 @@ export const uz: Translations = {
   'today.streak.record': {
     one: 'rekord — {count} kun',
     other: 'rekord — {count} kun',
+  },
+  'today.streak.unit': {
+    one: 'kun',
+    other: 'kun',
   },
   'today.hero.lesson_eyebrow': '{level} · {number}-dars',
   'today.hero.lesson_eyebrow_plain': '{number}-dars',
@@ -450,6 +462,7 @@ export const uz: Translations = {
   'profile.readiness': 'Darajaga tayyorlik',
   'profile.readiness.hint': "O'zlashtirilgan so'zlar ulushi va hafta testi",
   'course.readiness': 'Tayyorlik va hafta testi',
+  'course.vocabulary': "Mening lug'atim",
   'error.code.level_quiz_disabled': 'Hafta testi hozir mavjud emas.',
   'error.code.readiness_disabled': 'Darajaga tayyorlik hozir mavjud emas.',
 
@@ -676,12 +689,23 @@ export const uz: Translations = {
   'catalog.open_lessons': 'Darslarni ochish',
   'profile.learning': "O'qish natijalarim",
   'profile.account': 'Hisobim',
+  'profile.stats': 'Statistika',
+  'profile.stats.streak': {
+    one: 'kun ketma-ket',
+    other: 'kun ketma-ket',
+  },
+  'profile.stats.words': {
+    one: "so'z o'rganildi",
+    other: "so'z o'rganildi",
+  },
+  'profile.stats.league': "ligadagi o'rin",
   'catalog.title': 'Kurslar',
   'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
   'catalog.choose': "Shu kursga o'tish",
   'catalog.start': 'Kursni boshlash',
   'catalog.selected': 'Kurs tanlandi',
   'catalog.active': "Siz shu kursni o'rganyapsiz",
+  'catalog.tile_active': "o'qilmoqda · {percent}%",
   'catalog.words': {
     one: "{count} ta so'z",
     other: "{count} ta so'z",
@@ -716,10 +740,18 @@ export const uz: Translations = {
     one: '{total} ta darsdan {done} tasi',
     other: '{total} ta darsdan {done} tasi',
   },
+  'course.lessons_passed': {
+    one: '{total} ta darsdan {done} tasi tugallangan',
+    other: '{total} ta darsdan {done} tasi tugallangan',
+  },
   'course.new_words': {
     one: "{count} ta yangi so'z",
     other: "{count} ta yangi so'z",
   },
+  'course.modules': 'Modullar',
+  'course.module_of': '{total} ta moduldan {number}-modul',
+  'course.lesson_of': '{total} ta darsdan {number}-dars',
+  'course.after_module': '{number}-moduldan keyin',
   'course.repeat': 'takrorlash',
   'course.after_lesson': '{number}-darsdan keyin',
   'course.start_lesson': 'Darsni boshlash',
@@ -848,6 +880,8 @@ export const uz: Translations = {
   'achievements.share': 'Ulashish',
   'achievements.shared': 'Siz allaqachon ulashgansiz',
   'achievements.empty_hint': "Har kuni mashq qiling — yutuqlar o'zi paydo bo'ladi.",
+  'achievements.received': 'Olinganlar',
+  'achievements.ahead': 'Oldinda',
 
   // ---- leagues (docs/13 §7.3) ----
   'league.title': 'Liga',
@@ -1480,6 +1514,10 @@ export const uz: Translations = {
   'battle.result.rounds': 'Raundlar',
   'battle.result.round': '{round}-raund',
   'battle.result.rematch': 'Revansh',
+  'battle.result.stamp_unit': {
+    one: 'ochko',
+    other: 'ochko',
+  },
   'battle.result.again': 'Yana taklif qilish',
   'battle.result.rematch_from': '{name} revansh taklif qilyapti',
   'battle.result.rematch_text': "Rejim ham, mavzu ham o'sha-o'sha. Qabul qiling — xona ochiladi.",
@@ -1651,6 +1689,10 @@ export const uz: Translations = {
   'gameRun.summary.league': 'Liga ochkolari',
   'gameRun.summary.new_stars': 'Yangi yulduzlar',
   'gameRun.summary.plus': '+{count}',
+  'gameRun.summary.stamp_unit': {
+    one: 'ochko',
+    other: 'ochko',
+  },
   'gameRun.summary.streak_held': 'Ketma-ketlik saqlandi',
   'gameRun.summary.boss_won': "Qo'riqchi yengildi",
   'gameRun.summary.boss_lost': 'Qo\'riqchi bardosh berdi',
@@ -1996,6 +2038,7 @@ export const uz: Translations = {
   },
   'cup.my_place': "Sizning o'rningiz: {rank}",
   'cup.final_place': "Yakuniy o'rin: {rank}",
+  'cup.final_stamp_unit': "o'rin",
   'cup.status.draft': "Kubok hali e'lon qilinmagan",
   'cup.status.scheduled': 'Boshlanish: {date}, 00:00',
   'cup.status.scheduled_soon': 'Boshlanishini kutyapmiz',

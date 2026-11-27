@@ -9,9 +9,10 @@ use App\Domain\Content\Support\Phrase;
 /**
  * A course as the catalog shows it, localized for one interface locale
  * (no per-learner data, so it is safe to cache). `title` / `description`
- * already went through the locale → ru fallback.
+ * already went through the locale → ru fallback. `stagesCount` - the modules of the course (docs/40 §2.1, "B1 · 20 modules"): counted
+ * in the cached catalog query; null where the course was not read with the count (a course outside the cached catalog).
  *
- * @phpstan-type CatalogCourseArray array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool}
+ * @phpstan-type CatalogCourseArray array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool, stages_count?:int|null}
  */
 final readonly class CatalogCourse
 {
@@ -24,6 +25,7 @@ final readonly class CatalogCourse
         public ?string $examTag,
         public int $wordsCount,
         public bool $isFeatured,
+        public ?int $stagesCount = null,
     ) {}
 
     /** The section of the catalog the course is listed in: `phrases` for a phrase course (docs/35 §3.3 a), else `courses`. */
@@ -44,6 +46,7 @@ final readonly class CatalogCourse
             'exam_tag' => $this->examTag,
             'words_count' => $this->wordsCount,
             'is_featured' => $this->isFeatured,
+            'stages_count' => $this->stagesCount,
         ];
     }
 
@@ -59,6 +62,7 @@ final readonly class CatalogCourse
             $data['exam_tag'],
             $data['words_count'],
             $data['is_featured'],
+            $data['stages_count'] ?? null,
         );
     }
 }

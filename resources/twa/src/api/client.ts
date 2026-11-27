@@ -63,6 +63,46 @@ export interface RequestOptions {
    * has no limit of its own - the solo practice and the rest of the app are not touched; the battle names its limits in `api/index.ts`.
    */
   timeoutMs?: number
+  /**
+   * Drops the request when it fires (a newer search has replaced it, the screen was left): it ends as a `network` error with the code
+   * `aborted`, which says nothing about the connection - the screen "Нет соединения" is not told (`onNetworkSignal`), no token is
+   * refreshed, and the caller, which dropped it itself, ignores it. A signal that has fired already sends nothing.
+   */
+  signal?: AbortSignal
+  /**
+   * A best-effort read of the screen that does without it (the achievements of the profile, "my cups" of "Today", a poll, a refresh after
+   * an action): its loss to the network is not the loss of the screen, so it never tells the screen "Нет соединения" that it `failed`
+   * (`onNetworkSignal`) - only that it `reached` the server, which is just as true of it. The caller keeps swallowing its failure.
+   */
+  background?: boolean
+}
+
+/** The code of the `network` error of a request the caller dropped (`RequestOptions.signal`). */
+export const REQUEST_ABORTED = 'aborted'
+
+/**
+ * What a JSON request says about the connection (docs/40 §2.6, F5 "Нет сети"): `failed` - it ended as a `network` error (fetch threw, the
+ * time ran out), `reached` - the server answered, with any status. `navigator.onLine` is not to be trusted, so the screen "Нет соединения"
+ * listens to this too (`composables/useOnline.ts`). `method` lets the listener tell a load (GET) from an action. A background request
+ * (`RequestOptions.background`) never says `failed`.
+ */
+export interface NetworkSignal {
+  outcome: 'failed' | 'reached'
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
+}
+
+const networkListeners = new Set<(signal: NetworkSignal) => void>()
+
+/** Listens to every JSON request of the API (not the clips, not the keepalive analytics); returns the function that stops it. */
+export function onNetworkSignal(listener: (signal: NetworkSignal) => void): () => void {
+  networkListeners.add(listener)
+  return () => {
+    networkListeners.delete(listener)
+  }
+}
+
+function signal(outcome: NetworkSignal['outcome'], method: NetworkSignal['method']): void {
+  for (const listener of [...networkListeners]) listener({ outcome, method })
 }
 
 /** The refresh in flight, shared by every request that got a 401 meanwhile. */
@@ -107,31 +147,44 @@ export function createApiClient(opts: ClientOptions) {
     const sentToken = withAuth ? opts.getToken() : ''
     if (sentToken) headers.Authorization = `Bearer ${sentToken}`
 
+    // A request the caller has dropped already is not sent at all.
+    const callerSignal = init.signal
+    if (callerSignal?.aborted) throw aborted()
+
     // A request with a limit is stopped by a timer of its own: `ofetch` has a `timeout` option, but it lets go of the timer as soon as the
     // headers are in, and a body that hangs would hang the caller (the poll of a battle waits for its reply before it asks again).
-    const controller = init.timeoutMs !== undefined ? new AbortController() : null
+    const controller = init.timeoutMs !== undefined || callerSignal !== undefined ? new AbortController() : null
     let timedOut = false
     const timer =
-      controller !== null
+      controller !== null && init.timeoutMs !== undefined
         ? setTimeout(() => {
             timedOut = true
             controller.abort()
           }, init.timeoutMs)
         : null
 
+    const method = init.method ?? 'GET'
+    const drop = (): void => controller?.abort()
+    callerSignal?.addEventListener('abort', drop, { once: true })
     try {
-      return await ofetch<T>(path, {
+      const result = await ofetch<T>(path, {
         baseURL,
-        method: init.method ?? 'GET',
+        method,
         headers,
         body: init.body,
         query: init.query,
         ...(controller !== null ? { signal: controller.signal } : {}),
       })
+      signal('reached', method)
+      return result
     } catch (err) {
       // The limit has done its work: a refresh of the token (below) must not be counted against it.
       if (timer !== null) clearTimeout(timer)
+      // Dropped by the caller: not a word about the connection, nothing to refresh.
+      if (callerSignal?.aborted && !timedOut) throw aborted(err)
       const apiErr = timedOut ? new ApiClientError('network', 0, 'timeout', 'The request timed out', err) : mapError(err)
+      if (apiErr.kind !== 'network') signal('reached', method)
+      else if (init.background !== true) signal('failed', method)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
         const fresh = await freshToken(sentToken)
         if (fresh) {
@@ -141,6 +194,7 @@ export function createApiClient(opts: ClientOptions) {
       throw apiErr
     } finally {
       if (timer !== null) clearTimeout(timer)
+      callerSignal?.removeEventListener('abort', drop)
     }
   }
 
@@ -269,6 +323,10 @@ export function createApiClient(opts: ClientOptions) {
     /** Fire-and-forget POST that survives the closing of the page (`keepalive`); no token refresh, no retry. */
     postKeepalive: (path: string, body: Record<string, unknown>) => postKeepalive(path, body),
   }
+}
+
+function aborted(raw?: unknown): ApiClientError {
+  return new ApiClientError('network', 0, REQUEST_ABORTED, 'The request was cancelled', raw)
 }
 
 function mapError(err: unknown): ApiClientError {

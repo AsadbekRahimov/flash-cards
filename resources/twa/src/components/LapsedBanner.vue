@@ -91,13 +91,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- A calm card (docs/14 §4.5): a status dot instead of a bright tile, the ink of the palette, the action under the text. -->
+  <!-- A calm card of the kit (radius lg, no shadow): a status dot instead of a bright tile, the action under the text. -->
   <section v-if="visible" class="card flex flex-col gap-3" role="status" data-testid="lapsed-banner">
     <div class="flex items-start gap-3">
       <span class="mt-[7px] size-2 shrink-0 rounded-full bg-warning" aria-hidden="true" data-testid="lapsed-dot" />
       <div class="min-w-0 flex-1">
-        <p class="text-base leading-[22px] font-semibold" data-testid="lapsed-title">{{ t(isTrial ? 'lapsed.trial.title' : 'lapsed.title') }}</p>
-        <p class="mt-0.5 text-sm leading-5 text-muted" data-testid="lapsed-text">
+        <p class="t-body-m-strong" data-testid="lapsed-title">{{ t(isTrial ? 'lapsed.trial.title' : 'lapsed.title') }}</p>
+        <p class="t-label-s mt-0.5 text-muted" data-testid="lapsed-text">
           {{ isTrial ? t('lapsed.trial.text') : t('lapsed.text', { date: dateText }) }}
         </p>
       </div>
@@ -113,7 +113,7 @@ onMounted(async () => {
       </button>
     </div>
     <!-- Tinted, not primary: the screens around it (Home, Subscription) have their own one primary button. -->
-    <button v-if="renewable" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
+    <button v-if="renewable" type="button" class="btn btn-secondary btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t(isTrial ? 'lapsed.trial.renew' : 'lapsed.renew') }}
     </button>
     <button v-if="isTrial" type="button" class="btn btn-plain btn-block" data-testid="lapsed-invite" @click="emit('invite')">

@@ -293,6 +293,8 @@ describe('CupsView: my cups', () => {
 
     expect(api.cups.list).toHaveBeenCalledTimes(1)
     expect(wrapper.find('[data-testid=empty]').exists()).toBe(true)
+    // no cups: the centred hero of the kit, the mascot greets
+    expect(wrapper.get('[data-testid=empty] [data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
   })
 
   it('the cup switched off', async () => {

@@ -7,15 +7,18 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learners\DTO\OnboardingOption;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
+use App\Domain\Learners\Support\OnboardingChoices;
 use App\Domain\Learners\Support\Regions;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Services\OrganizationInviteService;
+use App\Jobs\OfferPendingInvitesJob;
 use App\Models\Course;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -79,8 +82,8 @@ final class OnboardingService
     /** Callback value => local time. */
     public const REMINDER_TIMES = ['0800' => '08:00', '1300' => '13:00', '1900' => '19:00', '2100' => '21:00'];
 
-    /** The goal whose courses form the base catalog: the second step of the course recommendation. */
-    private const GENERAL_GOAL = 'general';
+    /** The goal whose courses form the base catalog: the second step of the course recommendation (and the levels of the Mini App). */
+    public const GENERAL_GOAL = 'general';
 
     /** `learners.meta` key: the course slug of a `c_<slug>` link, applied when the onboarding completes. */
     private const PENDING_COURSE = 'pending_course';
@@ -248,6 +251,37 @@ final class OnboardingService
         return $this->pull($learner, self::PENDING_FRIEND_INVITE);
     }
 
+    /**
+     * Puts back an org invite code {@see pullPendingOrgInvite()} took when its offer was not sent (Telegram 429, no slot of the budget):
+     * the retry of the job, or the next `/start`, offers it. A code remembered meanwhile (a newer link) wins.
+     */
+    public function restorePendingOrgInvite(Learner $learner, string $code): void
+    {
+        $this->restore($learner, self::PENDING_ORG_INVITE, $code);
+    }
+
+    /** Puts back a friend code {@see pullPendingFriendInvite()} took when its offer was not sent (same contract). */
+    public function restorePendingFriendInvite(Learner $learner, string $code): void
+    {
+        $this->restore($learner, self::PENDING_FRIEND_INVITE, $code);
+    }
+
+    private function restore(Learner $learner, string $key, string $code): void
+    {
+        DB::transaction(function () use ($learner, $key, $code): void {
+            $fresh = $this->lock($learner);
+            $meta = $fresh->meta ?? [];
+            if (array_key_exists($key, $meta)) {
+                return;
+            }
+
+            $fresh->meta = [...$meta, $key => $code];
+            $fresh->save();
+        });
+
+        $learner->refresh();
+    }
+
     private function pull(Learner $learner, string $key): ?string
     {
         $code = DB::transaction(function () use ($learner, $key): mixed {
@@ -323,9 +357,7 @@ final class OnboardingService
 
             if ($next === self::DONE) {
                 $completed = true;
-                [$course, $via] = $this->completeCourse($fresh);
-                $fresh->onboarding_completed_at = now();
-                $this->settings->scheduleReminder($fresh);
+                [$course, $via] = $this->finishLocked($fresh);
             }
 
             $fresh->save();
@@ -342,21 +374,121 @@ final class OnboardingService
         }
 
         if ($completed) {
-            $this->events->record(ProductEventName::OnboardingCompleted, [
-                'goal' => $learner->goal,
-                'level' => $learner->level,
-                'locale' => $learner->interface_locale,
-            ], learner: $learner);
-
-            if ($course !== null) {
-                $this->events->record(ProductEventName::CourseSelected, [
-                    'course_id' => $course->id,
-                    'via' => $via,
-                ], learner: $learner);
-            }
+            $this->recordCompletion($learner, $course, $via);
         }
 
         return $this->current($learner);
+    }
+
+    /**
+     * Ends the onboarding from outside the bot (the Mini App, docs/40 §2.1): the one place besides {@see apply()} that writes `done`, with
+     * the same steps under the same row lock - the goal of a skipped goal step, the course ({@see completeCourse()}: a `c_<slug>` link,
+     * the learner's own course, the course chosen on the level screen of the Mini App, the recommendation for the goal and level, the
+     * general course, the default one), `onboarding_completed_at`, `next_reminder_at`, and `meta.twa_onboarding` cut down to what is read
+     * after `done` ({@see OnboardingChoices::withoutDrafts()}: no draft of the placement test, no lists of steps) - all in one UPDATE;
+     * then `onboarding.completed {channel, ...}` and `course.selected`. A learner already `done` (by the bot, by a
+     * parallel request) is left alone: nothing is written, no event. A learner in the middle of the bot's steps jumps to `done`; the
+     * bot's old buttons are stale from then on ({@see OnboardingException::staleStep()}).
+     *
+     * The passed model is brought up to date from the locked row (no statement of its own).
+     *
+     * @return array{completed: bool, course: Course|null} whether it completed now, and the course it chose now (null - none, or kept)
+     */
+    public function completeExternally(Learner $learner, string $channel): array
+    {
+        $completed = false;
+        $course = null;
+        $via = null;
+
+        DB::transaction(function () use ($learner, &$completed, &$course, &$via): void {
+            $fresh = $this->lock($learner);
+            if ($fresh->onboarding_state === self::DONE) {
+                $learner->setRawAttributes($fresh->getAttributes(), true);
+
+                return;
+            }
+
+            $this->fillSkippedGoal($fresh);
+            $fresh->onboarding_state = self::DONE;
+            // The course the Mini App showed on its level screen and summary (docs/40 §2.1): the active one unless the learner has one.
+            $chosen = OnboardingChoices::progress($fresh)['course_slug'] ?? null;
+            [$course, $via] = $this->finishLocked($fresh, is_string($chosen) ? $chosen : null);
+            $fresh->meta = OnboardingChoices::withoutDrafts($fresh->meta ?? []);
+            $fresh->save();
+
+            $learner->setRawAttributes($fresh->getAttributes(), true);
+            $completed = true;
+        });
+
+        if ($completed) {
+            $this->recordCompletion($learner, $course, $via, $channel);
+
+            // The invitation remembered by `/start` is offered by the bot after its last step; here nobody would (docs/40 §5 п. 1).
+            // One job per offer: one message each, one slot of the outbound budget each.
+            foreach (self::pendingInviteKinds($learner) as $kind) {
+                OfferPendingInvitesJob::dispatch($learner->id, $kind);
+            }
+        }
+
+        return ['completed' => $completed, 'course' => $course];
+    }
+
+    /** Whether an `org_<code>` / `f_<code>` link waits for the end of the onboarding (the loaded row; no statement). */
+    public static function hasPendingInvite(Learner $learner): bool
+    {
+        return self::pendingInviteKinds($learner) !== [];
+    }
+
+    /**
+     * The invitations waiting for the end of the onboarding (the loaded row; no statement).
+     *
+     * @return list<string> {@see OfferPendingInvitesJob::ORGANIZATION} / {@see OfferPendingInvitesJob::FRIEND}
+     */
+    public static function pendingInviteKinds(Learner $learner): array
+    {
+        $meta = $learner->meta ?? [];
+        $kinds = [];
+
+        foreach ([self::PENDING_ORG_INVITE => OfferPendingInvitesJob::ORGANIZATION, self::PENDING_FRIEND_INVITE => OfferPendingInvitesJob::FRIEND] as $key => $kind) {
+            if (is_string($meta[$key] ?? null) && $meta[$key] !== '') {
+                $kinds[] = $kind;
+            }
+        }
+
+        return $kinds;
+    }
+
+    /**
+     * The end of the onboarding on the locked row (not saved): the active course, the moment, the next reminder. `$chosenSlug` - the
+     * course the learner chose on the level screen of the Mini App ({@see completeCourse()}).
+     *
+     * @return array{0: Course|null, 1: string|null}
+     */
+    private function finishLocked(Learner $fresh, ?string $chosenSlug = null): array
+    {
+        $chosen = $this->completeCourse($fresh, $chosenSlug);
+        $fresh->onboarding_completed_at = now();
+        $this->settings->scheduleReminder($fresh);
+
+        return $chosen;
+    }
+
+    /** `onboarding.completed` (with `channel` when it is not the bot) and `course.selected` for a course chosen now. */
+    private function recordCompletion(Learner $learner, ?Course $course, ?string $via, ?string $channel = null): void
+    {
+        $this->events->record(ProductEventName::OnboardingCompleted, [
+            'goal' => $learner->goal,
+            'level' => $learner->level,
+            'locale' => $learner->interface_locale,
+            ...($channel === null ? [] : ['channel' => $channel]),
+        ], learner: $learner);
+
+        if ($course !== null) {
+            $this->events->record(ProductEventName::CourseSelected, [
+                'course_id' => $course->id,
+                'via' => $via,
+            ], learner: $learner);
+        }
     }
 
     /**
@@ -522,13 +654,19 @@ final class OnboardingService
 
     /**
      * Sets `active_course_id` as the onboarding ends: the course of a `c_<slug>` link when it is
-     * still available, else (unless the learner already picked one) the recommendation for the
-     * goal and level, else the general course of the level, else the default course - only when it
-     * can be opened and has words. With none of them the learner stays without an active course.
+     * still available, else (unless the learner already picked one) the course chosen on the level
+     * screen of the Mini App (`$chosenSlug`, docs/40 §2.1: a public published course of the platform
+     * with words, not of phrases - what the screen offered; a course gone since falls through), else
+     * the recommendation for the goal and level, else the general course of the level, else the
+     * default course - only when it can be opened and has words. With none of them the learner stays
+     * without an active course.
+     *
+     * The chosen course costs the same one read of `courses` as the recommendation it replaces (the
+     * cached catalog finds it, the row is read by id).
      *
      * @return array{0: Course|null, 1: string|null} the course chosen now and how (`deeplink` / `onboarding`)
      */
-    private function completeCourse(Learner $learner): array
+    private function completeCourse(Learner $learner, ?string $chosenSlug = null): array
     {
         $meta = $learner->meta;
         $slug = $meta[self::PENDING_COURSE] ?? null;
@@ -546,7 +684,8 @@ final class OnboardingService
             return [null, null];
         }
 
-        $course = $this->catalog->recommend($learner->goal, $learner->level);
+        $course = $chosenSlug === null ? null : $this->chosenCourse($learner, $chosenSlug);
+        $course ??= $this->catalog->recommend($learner->goal, $learner->level);
         if ($course === null && $learner->goal !== self::GENERAL_GOAL) {
             $course = $this->catalog->recommend(self::GENERAL_GOAL, $learner->level);
         }
@@ -562,6 +701,27 @@ final class OnboardingService
         $learner->active_course_id = $course->id;
 
         return [$course, 'onboarding'];
+    }
+
+    /**
+     * The course of the level screen of the Mini App, when it may still become the active one: in the cached public catalog with words
+     * and not a course of phrases (what the screen could offer), and the row - read by id - a published course of the platform
+     * available to the learner.
+     */
+    private function chosenCourse(Learner $learner, string $slug): ?Course
+    {
+        foreach ($this->catalog->published($this->locales->default()) as $entry) {
+            if ($entry->slug !== $slug || $entry->wordsCount < 1 || $entry->section() === Phrase::SECTION_PHRASES) {
+                continue;
+            }
+
+            /** @var Course|null $course */
+            $course = Course::query()->find($entry->id);
+
+            return $course !== null && $course->owner_type === 'platform' && $this->catalog->isAvailable($course, $learner) ? $course : null;
+        }
+
+        return null;
     }
 
     private function lock(Learner $learner): Learner

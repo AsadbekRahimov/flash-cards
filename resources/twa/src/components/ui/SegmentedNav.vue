@@ -43,10 +43,10 @@ defineProps<{ items: SegmentedNavItem[]; ariaLabel: string; scrollable?: boolean
         :href="href"
         :aria-current="isActive ? 'page' : undefined"
         :data-testid="item.testid"
-        class="tap-target flex min-h-9 items-center justify-center rounded-lg px-3 text-center text-sm leading-5 transition-colors duration-150"
+        class="tap-target flex min-h-9 items-center justify-center rounded-sm px-3 text-center text-sm leading-5 transition-colors duration-150"
         :class="[
           scrollable ? 'flex-[1_0_auto] whitespace-nowrap' : 'min-w-0 flex-1',
-          isActive ? 'bg-accent-soft font-semibold text-body shadow-[inset_0_0_0_1px_var(--app-primary)]' : 'text-muted',
+          isActive ? 'bg-inverse font-semibold text-on-inverse' : 'text-muted',
         ]"
         @click="navigate"
       >

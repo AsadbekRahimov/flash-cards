@@ -28,4 +28,19 @@ return [
         'friend_invite' => 'Добавить в друзья в Muhrla',
         'game_city' => 'Я дошёл до :city',
     ],
+
+    // Сторис (docs/40 §2.4): тексты карточки 9:16 и подпись к ней. `text` — фраза без ссылки: сервер добавляет « · <ссылка>» сам и
+    // держит подпись в 200 символах. :days — «7 дней» (`days`), :cards — «20 карточек» (`cards`), :title — название достижения.
+    'story' => [
+        'days' => ':count день|:count дня|:count дней',
+        'cards' => ':count карточке|:count карточки|:count карточек',
+        'streak' => [
+            'title' => ':days подряд',
+            'description' => 'Учу английский в Muhrla — каждый день по :cards',
+            'text' => ':days подряд в Muhrla',
+        ],
+        'achievement' => [
+            'text' => 'Достижение «:title» в Muhrla',
+        ],
+    ],
 ];

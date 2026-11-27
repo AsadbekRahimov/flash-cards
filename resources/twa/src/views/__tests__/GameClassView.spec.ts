@@ -81,6 +81,10 @@ describe('GameClassView: active', () => {
     expect(members[0]?.text()).toContain('Dilnoza')
     expect(members[1]?.find('[data-testid=member-me]').text()).toBe('Вы')
     expect(members[0]?.text()).not.toContain('Вы')
+    // The avatar of the league table (InitialAvatar): mine in muhr with its letter `on-muhr`, the others quiet.
+    expect(members[1]?.get('[data-testid=member-avatar]').classes()).toEqual(expect.arrayContaining(['bg-muhr', 'text-on-muhr', 'size-8']))
+    expect(members[0]?.get('[data-testid=member-avatar]').classes()).not.toContain('bg-muhr')
+    expect(members[0]?.get('[data-testid=member-avatar]').text()).toBe('D')
     expect(r.wrapper.text()).toContain('Караван класса')
     expect(r.wrapper.text()).toContain('7-B')
     expect(back.target).toEqual({ name: 'today' })

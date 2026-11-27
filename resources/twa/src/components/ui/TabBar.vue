@@ -7,36 +7,58 @@ import type { StringKey } from '@/i18n/ru'
 import type { TabId } from '@/router'
 
 /**
- * Bottom navigation with the four tabs of docs/14 §5.1: Today, Course, League, Profile (docs/design/2026-11-25-redesign).
+ * Bottom navigation with the four tabs of docs/14 §5.1: Today, Course, League, Profile (kit Muhrla 2026-11-27, COMPONENTS.md "TabBar").
  *
  * No props. The active tab is `route.meta.tab` (set per route in `router/index.ts`), so inner screens
- * (a course, the settings) keep their tab highlighted. Every tab is an icon over its label; the active one is a "pill" (a 14 px
- * rounded block in `nav-active`) with the icon and the bold label in the accent, and `aria-current="page"`; the others are in the
- * body colour. Switching to another tab gives a selection haptic. The navigation landmark is named (`aria-label`, "Sections"): a
- * screen reader lists it next to the other `nav` of the screen (the Courses | Decks switch).
+ * (a course, the settings) keep their tab highlighted. Every tab is a 24 px icon over its label (Label/S); the active one has the label
+ * semibold in ink, the icon with a 2 px stroke and, under the label, a 16 x 3 mark in the muhr colour, and `aria-current="page"`;
+ * the others are in the secondary colour. Switching to another tab gives a selection haptic. The navigation landmark is named
+ * (`aria-label`, "Sections"): a screen reader lists it next to the other `nav` of the screen (the Courses | Decks switch).
  *
- * The icons are the outline drawings of the mock-ups, inline (24 px, stroke 1.8, `currentColor`), not the shared icon set.
+ * The icons are the Lucide drawings of the kit (`house`, `book-open`, `trophy`, `user`), inline, `currentColor`.
  *
- * Fixed to the bottom: `--app-tabbar-h` + the home-indicator inset high, the card colour with a hairline on top (flat: no blur,
+ * Fixed to the bottom: `--app-tabbar-h` (64) + the home-indicator inset high, the surface colour with a hairline on top (flat: no blur,
  * no shadow). App.vue shows it only for routes that have `meta.tab` and pads the content under it.
  */
 interface Tab {
   id: TabId
   to: RouteLocationRaw
   label: StringKey
-  /** The `d` of each `<path>` of the icon (24 × 24 view box); `rect` / `circle` are given as paths too. */
+  /** The `d` of each `<path>` of the icon (24 × 24 view box); `circle` is given as a path too. */
   paths: readonly string[]
 }
 
 const TABS: readonly Tab[] = [
-  // a calendar
-  { id: 'today', to: { name: 'today' }, label: 'nav.today', paths: ['M7 6h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z', 'M8 3v4M16 3v4M4 11h16'] },
-  // an open book; the tab opens the learner's own course (the catalog without one), docs/14 §6.5
-  { id: 'courses', to: { name: 'my-course' }, label: 'nav.courses', paths: ['M12 7c-2-1.5-5-2-8-2v12c3 0 6 .5 8 2 2-1.5 5-2 8-2V5c-3 0-6 .5-8 2zM12 7v12'] },
-  // a cup
-  { id: 'rating', to: { name: 'league' }, label: 'nav.rating', paths: ['M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4'] },
-  // a person
-  { id: 'profile', to: { name: 'profile' }, label: 'nav.profile', paths: ['M8 8a4 4 0 1 0 8 0a4 4 0 1 0-8 0', 'M4 20c1.5-4 4.5-5 8-5s6.5 1 8 5'] },
+  // Lucide house
+  {
+    id: 'today',
+    to: { name: 'today' },
+    label: 'nav.today',
+    paths: ['M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8', 'M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],
+  },
+  // Lucide book-open; the tab opens the learner's own course (the catalog without one), docs/14 §6.5
+  {
+    id: 'courses',
+    to: { name: 'my-course' },
+    label: 'nav.courses',
+    paths: ['M12 5v16', 'M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z'],
+  },
+  // Lucide trophy
+  {
+    id: 'rating',
+    to: { name: 'league' },
+    label: 'nav.rating',
+    paths: [
+      'M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2',
+      'M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2',
+      'M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3',
+      'M4 22h16',
+      'M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z',
+      'M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3',
+    ],
+  },
+  // Lucide user
+  { id: 'profile', to: { name: 'profile' }, label: 'nav.profile', paths: ['M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2', 'M8 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0'] },
 ]
 
 const route = useRoute()
@@ -57,12 +79,12 @@ function onSelect(tab: Tab): void {
     class="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-surface pb-[env(safe-area-inset-bottom,0px)]"
     data-testid="tab-bar"
   >
-    <ul class="mx-auto grid h-[var(--app-tabbar-h)] max-w-xl grid-cols-4 gap-1 px-3 py-2">
+    <ul class="mx-auto grid h-[var(--app-tabbar-h)] max-w-xl grid-cols-4 px-2">
       <li v-for="tab in TABS" :key="tab.id" class="min-w-0">
         <RouterLink
           :to="tab.to"
-          class="flex h-full flex-col items-center justify-center gap-[3px] rounded-option px-1 text-[13px] leading-[18px] transition-colors duration-150"
-          :class="activeTab === tab.id ? 'bg-nav-active font-bold text-accent' : 'font-medium text-body'"
+          class="relative flex h-full flex-col items-center justify-center gap-0.5 rounded-option px-1 pb-1.5 text-[13px] leading-[18px] transition-colors duration-200"
+          :class="activeTab === tab.id ? 'font-semibold text-body' : 'font-medium text-muted'"
           :aria-current="activeTab === tab.id ? 'page' : undefined"
           :data-testid="`tab-${tab.id}`"
           @click="onSelect(tab)"
@@ -74,7 +96,7 @@ function onSelect(tab: Tab): void {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.8"
+            :stroke-width="activeTab === tab.id ? 2 : 1.75"
             stroke-linecap="round"
             stroke-linejoin="round"
             class="shrink-0"
@@ -83,6 +105,13 @@ function onSelect(tab: Tab): void {
             <path v-for="(d, i) in tab.paths" :key="i" :d="d" />
           </svg>
           <span class="max-w-full truncate">{{ t(tab.label) }}</span>
+          <!-- The mark of the active tab: 16 x 3 in the muhr colour, under the label. -->
+          <span
+            v-if="activeTab === tab.id"
+            class="absolute bottom-1.5 left-1/2 h-[3px] w-4 -translate-x-1/2 rounded-full bg-muhr"
+            aria-hidden="true"
+            data-testid="tab-mark"
+          />
         </RouterLink>
       </li>
     </ul>

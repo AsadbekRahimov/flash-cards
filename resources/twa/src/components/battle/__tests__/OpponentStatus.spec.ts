@@ -17,7 +17,7 @@ describe('OpponentStatus', () => {
     ['ready', 'готов', 'chip-success'],
     ['answering', 'отвечает…', 'chip-neutral'],
     ['answered', 'ответил', 'chip-success'],
-    ['absent', 'нет связи', 'chip-warning'],
+    ['absent', 'нет связи', 'chip-accent'],
   ] as const)('%s: the word “%s” with a symbol, in the chip colour %s', (state, word, chip) => {
     const w = render(state)
     const el = w.get('[data-testid=player-chip]')

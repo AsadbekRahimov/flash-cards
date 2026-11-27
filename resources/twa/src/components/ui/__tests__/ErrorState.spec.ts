@@ -21,9 +21,24 @@ describe('ErrorState', () => {
     expect(w.get('h2').text()).toBe('Не загрузилось')
   })
 
-  it('draws the warning icon plain, in the danger colour (no circle)', () => {
+  it('shows the thinking mascot of the kit above the title by default, no warning icon', () => {
     const w = mount(ErrorState, { props: { message: 'm' } })
 
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('thinking')
+    expect(w.get('[data-testid=mascot-art]').attributes('alt')).toBe('')
+    expect(w.find('svg').exists()).toBe(false)
+  })
+
+  it('takes another pose', () => {
+    const w = mount(ErrorState, { props: { message: 'm', mascot: 'hello' } })
+
+    expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('hello')
+  })
+
+  it('draws the warning icon plain, in the danger colour (no circle), without the mascot', () => {
+    const w = mount(ErrorState, { props: { message: 'm', mascot: false } })
+
+    expect(w.find('[data-testid=mascot-art]').exists()).toBe(false)
     expect(w.get('svg').classes()).toContain('text-danger')
     expect(w.find('span svg').exists()).toBe(false)
     expect(w.findAll('path')).toHaveLength(1)

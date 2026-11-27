@@ -18,9 +18,11 @@ use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learners\DTO\DayBounds;
+use App\Domain\Learners\DTO\StreakState;
 use App\Domain\Learners\DTO\TodayCourse;
 use App\Domain\Learners\DTO\TodayLesson;
 use App\Domain\Learners\DTO\TodaySummary;
+use App\Domain\Learners\Enums\StreakHeldBy;
 use App\Domain\Learning\DTO\LevelQuizWeek;
 use App\Domain\Learning\Services\HardRoundService;
 use App\Domain\Learning\Services\LearnerStatsService;
@@ -91,9 +93,10 @@ final class TodayService
 
         $today = $this->clock->today($learner, $now);
         $todayDate = $today->toDateString();
-        // Today's and yesterday's rows in one statement: the settle of the weekly freeze, the goal / streak block and the
-        // "frozen yesterday" of the series share them.
-        $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
+        // The rows of the local week (Monday …) and of yesterday through today in one statement (≤ 8 rows by the unique `(learner_id,
+        // date)`): the settle of the weekly freeze, the goal / streak block, the "frozen yesterday" and the week of the series share them.
+        $from = min($today->startOfWeek(CarbonInterface::MONDAY)->toDateString(), $today->subDay()->toDateString());
+        $rows = $this->dailyStats->forRange($learner, $from, $todayDate);
         $stats = $rows[$todayDate] ?? null;
         // The learner's version BEFORE the plan is resolved (docs/12 §5.2): the snapshot below is computed from that plan and kept under this
         // version, so a grant / expiry committed meanwhile moves later readers to a newer key and the put goes to the dead one.
@@ -104,7 +107,7 @@ final class TodayService
         // The goal in line with the plan (docs/34 §2б.2): no statement unless Pro has just ended or come back. A lowering that completed
         // today's goal makes the rows read above stale - read again (rare: once per end of Pro).
         if ($this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_TODAY, $now)?->goalMet === true) {
-            $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
+            $rows = $this->dailyStats->forRange($learner, $from, $todayDate);
             $stats = $rows[$todayDate] ?? null;
         }
 
@@ -165,10 +168,13 @@ final class TodayService
         $practice = $this->practice->describe($learner, $entitlement);
         $nextLesson = $courseToday?->nextLesson;
 
+        $progress = $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows);
+        $progress = new DailyProgress($progress->goal, $progress->streak->withWeek($this->week($learner, $today, $from, $rows, $progress->streak)));
+
         return new TodaySummary(
             dueCount: $dueCount,
             newWordsRemaining: $this->quota->remaining($learner, $now, $entitlement, array_key_exists('served', $scalars) ? ScalarBatch::int($scalars, 'served') : null),
-            progress: $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows),
+            progress: $progress,
             activeCourse: $course === null || $courseToday === null ? null : $this->activeCourse($course, $courseToday, $quizScalars === [] ? null : $this->quizzes->weekLineFromScalars($learner, $scalars, $now)),
             openSessionId: $sessions->first(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_DAILY_REVIEW)?->id,
             entitlement: $entitlement,
@@ -251,6 +257,34 @@ final class TodayService
             ),
             $this->streaks->current($learner, $today, $stats, $now, $entitlement, $dayRows),
         );
+    }
+
+    /**
+     * The learner's local week, Monday to Sunday, for the calendar of F4 (docs/40 §2.5): what held each day so far (the goal, a run of
+     * the game, a freeze - {@see StreakHeldBy::fromRow()}), null for a day not held and for the days to come. From the rows read for
+     * the screen; only when THIS request froze yesterday (the series was settled after the read: `frozen_yesterday` while the row read
+     * says otherwise) are the rows read again, once - the freezes of a gap were spent on days the read saw unheld.
+     *
+     * @param  array<string, LearnerDailyStats>  $rows  the rows of `$from` … today by `Y-m-d`
+     * @return list<array{date: string, held_by: string|null, is_today: bool}>
+     */
+    private function week(Learner $learner, CarbonImmutable $today, string $from, array $rows, StreakState $streak): array
+    {
+        $todayDate = $today->toDateString();
+        $yesterday = $today->subDay()->toDateString();
+        if ($streak->frozenYesterday && ($rows[$yesterday] ?? null)?->frozen_at === null) {
+            $rows = $this->dailyStats->forRange($learner, $from, $todayDate);
+        }
+
+        $week = [];
+        $day = $today->startOfWeek(CarbonInterface::MONDAY);
+        for ($i = 0; $i < 7; $i++, $day = $day->addDay()) {
+            $date = $day->toDateString();
+            $row = $date <= $todayDate ? ($rows[$date] ?? null) : null;
+            $week[] = ['date' => $date, 'held_by' => $row === null ? null : StreakHeldBy::fromRow($row)?->value, 'is_today' => $date === $todayDate];
+        }
+
+        return $week;
     }
 
     /**

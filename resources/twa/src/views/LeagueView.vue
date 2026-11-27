@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import PlayerName from '@/components/PlayerName.vue'
 import RegionPromptCard from '@/components/RegionPromptCard.vue'
+import LeagueRow from '@/components/rating/LeagueRow.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
-import LoadingState from '@/components/ui/LoadingState.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { formatDate } from '@/composables/format'
@@ -24,15 +25,17 @@ import type { StringKey } from '@/i18n/ru'
 import type { LeagueResult, LeagueStandingItem, LeagueZone } from '@/api/types'
 
 /**
- * "Rating" tab, the League pane (docs/13 §7.3, docs/14 §6.7, docs/04 A.13, docs/design/2026-11-25-redesign League): the brand row and
- * the title "Weekly league"; the big tinted card — the week and how long is left, the league ("Silver league"), my place, my points in a
- * pill and how many it takes to pass the one above (what the server sends: `membership.rank` / `points` / `standings`); the standings
- * as rows (the place in a soft badge, the first name, the points), with a thin line of the promotion zone (and of the demotion zone,
- * where the league has one), my row tinted; a long group shows its top and my neighbours until "All the table" is tapped; then "How to
- * climb higher" with the way to the plan of the day, last week's result, the rules and the league settings.
+ * "Rating" tab, the League pane (docs/13 §7.3, docs/14 §6.7, docs/04 A.13), drawn by the kit Muhrla (08-liga): the brand row, the title
+ * "Weekly league" and the switch of the panes; the hero on the centre axis — the mascot with the cup, the league ("Silver league"), the
+ * week and how long is left in a chip, my place with my points and how many it takes to pass the one above (what the server sends:
+ * `membership.rank` / `points` / `standings`); the standings as LeagueRows (the place, a 32 px avatar with the initial, the first name,
+ * the points), with the zone captions between thin lines (promotion, and demotion where the league has one), my row in the soft accent
+ * with the avatar in the muhr colour, sticky while the page scrolls; a long group shows its top and my neighbours until "All the table"
+ * is tapped; then "How to climb higher" with the way to the plan of the day, last week's result, the rules and the league settings. Not in
+ * a group yet - the mascot with the cup and the line of the server's rule.
  * What gives points is said as it is: lessons and reviews, and the Caravan only while the game is open to the learner (`/me.game`);
  * practice games and the lesson review give none, so "games" are never named.
- * A week of the word points v2 (`rules_version: 2`, docs/32 §8.3, §12.9) adds the table of the group (Free / Pro) to the big card, takes
+ * A week of the word points v2 (`rules_version: 2`, docs/32 §8.3, §12.9) adds the table of the group (Free / Pro) to the hero, takes
  * "to the place above" from `next_gap` (shared places 1, 2, 2, 4: the nearest place that is strictly better), writes the tie-break facts
  * of the best days under each name (days with points, long repetitions) and says in the rules what counts. Without `rules_version` the
  * screen is the v1 one.
@@ -291,153 +294,108 @@ onMounted(() => {
     <PageHeader brand :title="t('league.weekly_title')" :subtitle="!membership && data?.enabled && !data.opted_out ? eyebrow || undefined : undefined" large />
     <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mb-3.5" />
 
-    <LoadingState v-if="!data && !message" />
+    <div v-if="!data && !message" role="status" aria-busy="true" data-testid="spinner">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <!-- The skeleton of the screen: the hero on the centre axis, then the rows of the table. -->
+      <div class="flex flex-col items-center gap-3 pt-2 pb-6" aria-hidden="true">
+        <span class="skeleton size-28 rounded-full" />
+        <span class="skeleton h-7 w-52" />
+        <span class="skeleton h-[26px] w-40 rounded-full" />
+      </div>
+      <div class="space-y-1" aria-hidden="true">
+        <div v-for="row in 5" :key="row" class="league-row">
+          <span class="skeleton h-4 w-5" />
+          <span class="skeleton size-8 rounded-full" />
+          <span class="skeleton h-4 flex-1" />
+          <span class="skeleton h-4 w-10" />
+        </div>
+      </div>
+    </div>
 
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <template v-else>
-      <div class="space-y-3">
+      <div class="space-y-4">
         <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
 
-        <section v-if="!data.enabled" class="card text-[15px] leading-[22px] text-muted" data-testid="disabled">
-          {{ t('league.disabled') }}
-        </section>
+        <EmptyState v-if="!data.enabled" :text="t('league.disabled')" data-testid="disabled" />
 
-        <!-- The big card of the mock-up: the week, the league, my place, my points and the way to the place above. -->
-        <section v-else-if="membership" class="relative flex flex-col gap-3 overflow-hidden rounded-hero bg-highlight p-4" data-testid="my-card">
-          <!-- The picture of the mock-up: a cup with a star on a stand between branches, drawn in the tokens of the palette. -->
-          <svg
-            aria-hidden="true"
-            width="150"
-            height="150"
-            viewBox="0 0 200 200"
-            fill="none"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="pointer-events-none absolute top-2 right-1.5 stroke-accent max-[359px]:size-[112px]"
-            data-testid="hero-art"
-          >
-            <path d="M100 4v14M72 10l6 12M128 10l-6 12" stroke-width="1.6" />
-            <path d="M64 48c-22-4-28 30 6 38M136 48c22-4 28 30-6 38" stroke-width="4" />
-            <path d="M64 38h72v40c0 22-14 38-36 38s-36-16-36-38z" class="fill-surface" />
-            <ellipse cx="100" cy="38" rx="36" ry="7" class="fill-nav-active" />
-            <path d="M100 58l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z" class="fill-primary/60" />
-            <path d="M92 116v20h16v-20" class="fill-surface" />
-            <path d="M78 136h44v12H78z" class="fill-nav-active" />
-            <path d="M66 148h68a6 6 0 0 1 6 6v16H60v-16a6 6 0 0 1 6-6z" class="fill-surface" />
-            <g class="fill-nav-active">
-              <path d="M44 152c-14-8-20-22-18-38" fill="none" />
-              <path d="M34 144c-10 0-16-6-18-14 8-2 16 4 18 14zM28 128c-10-2-14-10-14-18 8 0 14 8 14 18zM50 158c-8 6-18 6-24 0 6-6 16-6 24 0z" />
-            </g>
-            <g class="fill-nav-active" transform="translate(200 0) scale(-1 1)">
-              <path d="M44 152c-14-8-20-22-18-38" fill="none" />
-              <path d="M34 144c-10 0-16-6-18-14 8-2 16 4 18 14zM28 128c-10-2-14-10-14-18 8 0 14 8 14 18zM50 158c-8 6-18 6-24 0 6-6 16-6 24 0z" />
-            </g>
-            <path d="M40 178h120M22 184h156" stroke-width="1.4" />
-          </svg>
-
-          <div class="relative flex max-w-[210px] flex-col gap-1">
-            <p v-if="eyebrow" class="text-sm leading-[18px] font-semibold" data-testid="eyebrow">{{ eyebrow }}</p>
-            <span
-              v-if="categoryLabel"
-              class="self-start rounded-full bg-surface px-2.5 text-xs leading-6 font-bold text-accent"
-              data-testid="category"
-            >{{ categoryLabel }}</span>
-            <h2 class="text-[26px] leading-8 font-extrabold tracking-[-0.5px] break-words" data-testid="tier">{{ heading }}</h2>
-            <svg aria-hidden="true" width="150" height="10" viewBox="0 0 150 10" fill="none" class="max-w-full stroke-primary/60">
-              <path d="M3 7c40-5 90-6 144-3" stroke-width="4" stroke-linecap="round" />
-            </svg>
-            <p class="mt-0.5 text-base leading-[22px]" data-testid="my-place">{{ t('league.my_rank', { rank: membership.rank }) }}</p>
+        <!-- The hero of the kit (08-liga): the mascot with the cup, the league, the week, my place and the way to the place above. -->
+        <section v-else-if="membership" class="flex flex-col items-center gap-2 text-center" data-testid="my-card">
+          <MascotArt pose="trophy" :height="112" />
+          <h2 class="t-display-m mt-2 break-words" data-testid="tier">{{ heading }}</h2>
+          <div class="flex flex-wrap items-center justify-center gap-1.5">
+            <span v-if="eyebrow" class="chip chip-neutral" data-testid="eyebrow">{{ eyebrow }}</span>
+            <span v-if="categoryLabel" class="chip chip-accent" data-testid="category">{{ categoryLabel }}</span>
           </div>
+          <p class="t-body-m mt-1 max-w-80 text-muted">
+            <span data-testid="my-place">{{ t('league.my_rank', { rank: membership.rank }) }}</span>
+            ·
+            <span class="font-semibold text-body tabular-nums" data-testid="my-points">{{ tn('league.score', membership.points) }}</span>
+          </p>
+          <p class="t-label-s text-muted" data-testid="to-next">
+            <template v-if="toNext !== null">
+              {{ aboveRank !== null ? t('league.to_next_short', { rank: aboveRank }) : t('league.to_next_above') }} — {{ tn('league.score', toNext) }}
+            </template>
+            <template v-else-if="sharedFirst">{{ t('league.shared_first') }}</template>
+            <template v-else>{{ t('league.first_place') }}</template>
+          </p>
 
-          <div class="relative flex items-center gap-3">
-            <span
-              class="flex h-[38px] shrink-0 items-center gap-1.5 rounded-control bg-primary px-3.5 text-[15px] leading-5 font-bold text-on-primary tabular-nums"
-              data-testid="my-points"
-            >
-              <AppIcon name="star" solid :size="16" />
-              {{ tn('league.score', membership.points) }}
-            </span>
-            <span class="h-[30px] w-px shrink-0 bg-accent-line" aria-hidden="true" />
-            <p class="min-w-0 text-[13px] leading-[17px]" data-testid="to-next">
-              <template v-if="toNext !== null">
-                {{ aboveRank !== null ? t('league.to_next_short', { rank: aboveRank }) : t('league.to_next_above') }}<br />{{ tn('league.score', toNext) }}
-              </template>
-              <template v-else-if="sharedFirst">{{ t('league.shared_first') }}</template>
-              <template v-else>{{ t('league.first_place') }}</template>
-            </p>
-          </div>
-
-          <p v-if="membership.points_to_safety !== null" class="relative text-[13px] leading-[18px] font-semibold text-danger-ink" data-testid="to-safety">
+          <p v-if="membership.points_to_safety !== null" class="t-label-s font-semibold text-danger-ink" data-testid="to-safety">
             {{ t('league.to_safety', { points: tn('league.score', membership.points_to_safety) }) }}
           </p>
-          <p v-else-if="membership.points_to_promote !== null && membership.points_to_promote !== toNext" class="relative text-[13px] leading-[18px] text-muted" data-testid="to-promote">
+          <p v-else-if="membership.points_to_promote !== null && membership.points_to_promote !== toNext" class="t-label-s text-accent" data-testid="to-promote">
             {{ t('league.to_promote', { points: tn('league.score', membership.points_to_promote) }) }}
           </p>
-          <p v-else-if="isTopTier && membership.points_to_promote === null" class="relative text-[13px] leading-[18px] text-muted" data-testid="top-tier">
+          <p v-else-if="isTopTier && membership.points_to_promote === null" class="t-label-s text-muted" data-testid="top-tier">
             {{ t('league.top_tier') }}
           </p>
         </section>
 
-        <section v-else-if="data.opted_out" class="card text-[15px] leading-[22px] text-muted" data-testid="opted-out">
+        <section v-else-if="data.opted_out" class="card t-body-m text-muted" data-testid="opted-out">
           {{ t('league.opted_out') }}
         </section>
 
-        <section v-else class="card text-[15px] leading-[22px] text-muted" data-testid="not-placed">
-          {{ t('league.not_placed') }}
-        </section>
+        <!-- Not in a group yet (SCREENS.md: the league has not started for the learner) - the mascot with the cup. -->
+        <EmptyState v-else mascot="trophy" :text="t('league.not_placed')" data-testid="not-placed" />
 
         <!-- "Choose your region" (docs/35 §2.3): only for a learner without one, hidden for 30 days by "Not now". -->
         <RegionPromptCard />
 
-        <section v-if="data.enabled && membership" class="card px-2.5 pt-3.5 pb-2.5" :aria-label="t('league.standings')" data-testid="standings">
-          <h2 class="px-2.5 pb-1.5 text-[19px] leading-6 font-extrabold">{{ t('league.standings') }}</h2>
+        <!-- The table of the kit: rows on the page, my row in the soft accent and sticky, the zones as captions between thin lines. -->
+        <section v-if="data.enabled && membership" class="flex flex-col gap-1" :aria-label="t('league.standings')" data-testid="standings">
+          <h2 class="t-title-m px-1 pb-1">{{ t('league.standings') }}</h2>
           <template v-for="line in tableLines" :key="line.key">
-            <div
+            <LeagueRow
               v-if="line.kind === 'row' && line.row"
-              class="flex items-center gap-3.5 px-2.5 py-[9px]"
-              :class="line.row.is_me ? 'my-1 rounded-control bg-nav-active' : 'border-b border-divider'"
+              :rank="line.row.rank"
+              :name="rowName(line.row)"
+              :emoji="line.row.pro_emoji"
+              :points="line.row.points"
+              :me="line.row.is_me"
+              sticky
+              :suffix="line.row.is_me ? `· ${t('league.you')}` : undefined"
+              :facts="v2 ? rowFacts(line.row) : ''"
+              :zone="zoneOf(line.row.rank)"
               :data-testid="line.row.is_me ? 'row-me' : 'row'"
-            >
-              <span
-                class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
-                :class="{ 'bg-surface': line.row.is_me, 'bg-accent-soft': !line.row.is_me }"
-                :data-zone="zoneOf(line.row.rank)"
-                data-testid="rank"
-              >{{ line.row.rank }}</span>
-              <span class="flex min-w-0 flex-1 flex-col">
-                <PlayerName
-                  :name="rowName(line.row)"
-                  :emoji="line.row.pro_emoji"
-                  :suffix="line.row.is_me ? `· ${t('league.you')}` : undefined"
-                  class="text-base leading-[22px] font-bold"
-                />
-                <span v-if="v2 && rowFacts(line.row)" class="truncate text-xs leading-4 text-muted" data-testid="row-facts">{{ rowFacts(line.row) }}</span>
-              </span>
-              <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ line.row.points }}</span>
-            </div>
-            <!-- The zone lines: thin captions between the rows, not part of the mock-up's table but the rules of the league. -->
+            />
+            <!-- The zone lines of the kit: a caption in the accent of text between two 1 px lines (the demotion in the danger ink). -->
             <div
-              v-else-if="line.kind === 'promotion'"
-              class="border-t border-success-line bg-success-soft px-2.5 py-1 text-xs leading-4 text-success-ink"
-              data-testid="line-promotion"
+              v-else-if="line.kind === 'promotion' || line.kind === 'demotion'"
+              class="flex items-center gap-3 py-1.5"
+              :class="line.kind === 'promotion' ? 'text-accent' : 'text-danger-ink'"
+              :data-testid="`line-${line.kind}`"
             >
-              {{ line.text }}
+              <span class="h-px min-w-4 flex-1 bg-current" aria-hidden="true" />
+              <span class="t-caption max-w-[75%] text-center">{{ line.text }}</span>
+              <span class="h-px min-w-4 flex-1 bg-current" aria-hidden="true" />
             </div>
-            <div
-              v-else-if="line.kind === 'demotion'"
-              class="border-t border-danger-line bg-danger-soft px-2.5 py-1 text-xs leading-4 text-danger-ink"
-              data-testid="line-demotion"
-            >
-              {{ line.text }}
-            </div>
-            <div v-else class="px-2.5 py-1 text-[13px] leading-4 text-muted" aria-hidden="true" data-testid="gap">…</div>
+            <div v-else class="px-3 text-[13px] leading-4 text-muted" aria-hidden="true" data-testid="gap">…</div>
           </template>
           <button
             v-if="folds"
             type="button"
-            class="flex min-h-11 w-full items-center px-2.5 py-2 text-left text-sm font-semibold text-accent"
+            class="mt-1 flex min-h-11 w-full items-center justify-center px-3 py-2 text-sm font-semibold text-accent"
             :aria-expanded="expanded"
             data-testid="table-toggle"
             @click="expanded = !expanded"
@@ -447,32 +405,31 @@ onMounted(() => {
         </section>
 
         <!-- "How to climb higher": what gives points, and the way to the plan of the day (the Today screen). -->
-        <RouterLink
-          v-if="data.enabled && !data.opted_out"
-          :to="{ name: 'today' }"
-          class="flex min-h-12 items-center gap-2.5 rounded-option bg-accent-soft px-3.5 py-3 active:opacity-70"
-          data-testid="climb"
-        >
-          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="text-[15px] leading-5 font-bold" data-testid="climb-title">{{ climbTitle }}</span>
-            <span class="text-[13px] leading-[18px] text-muted" data-testid="climb-text">{{ climbText }}</span>
-          </span>
-          <span class="flex shrink-0 items-center gap-1 text-sm leading-5 font-bold text-accent" data-testid="climb-link">
-            {{ t('league.climb.link') }}
-            <AppIcon name="chevron-right" :size="18" />
-          </span>
-        </RouterLink>
+        <div v-if="data.enabled && !data.opted_out" class="list">
+          <RouterLink :to="{ name: 'today' }" class="list-row list-row-icon" data-testid="climb">
+            <span class="icon-tile" aria-hidden="true"><AppIcon name="target" :size="20" /></span>
+            <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="t-body-m-strong" data-testid="climb-title">{{ climbTitle }}</span>
+              <span class="text-[13px] leading-[18px] text-muted" data-testid="climb-text">{{ climbText }}</span>
+            </span>
+            <span class="flex shrink-0 items-center gap-0.5 text-sm leading-5 font-semibold text-accent" data-testid="climb-link">
+              {{ t('league.climb.link') }}
+              <AppIcon name="chevron-right" :size="18" />
+            </span>
+          </RouterLink>
+        </div>
 
         <ListGroup v-if="data.last_week" :header="t('league.last_week')" data-testid="last-week">
           <ListRow :title="lastWeekLine" />
         </ListGroup>
 
         <details class="list group" data-testid="rules">
-          <summary class="list-row cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-            <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('league.rules_title') }}</span>
-            <AppIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-150 group-open:rotate-180" />
+          <summary class="list-row list-row-icon cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
+            <span class="icon-tile" aria-hidden="true"><AppIcon name="information-circle" :size="20" /></span>
+            <span class="t-body-m-strong min-w-0 flex-1">{{ t('league.rules_title') }}</span>
+            <AppIcon name="chevron-down" :size="18" class="text-muted transition-transform duration-150 group-open:rotate-180" />
           </summary>
-          <div class="space-y-2 px-3.5 pt-1 pb-4 text-[15px] leading-[22px] text-muted">
+          <div class="t-body-m space-y-2 px-4 pt-1 pb-4 text-muted">
             <p v-if="closesLine" data-testid="closes">{{ closesLine }}</p>
             <template v-if="v2">
               <p data-testid="rules-groups">{{ t('league.rules_v2', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>

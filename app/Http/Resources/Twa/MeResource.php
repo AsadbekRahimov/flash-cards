@@ -6,6 +6,7 @@ namespace App\Http\Resources\Twa;
 
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Learners\Services\LearnerSettingsService;
+use App\Domain\Learners\Support\OnboardingChoices;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Twa\Services\MePayloadBuilder;
 use App\Models\Learner;
@@ -24,7 +25,7 @@ final class MeResource extends TwaResource
 {
     /**
      * @return array{
-     *   learner: array{id: int, first_name: string|null, username: string|null, locale: string, onboarding_completed: bool, pro_emoji: string|null},
+     *   learner: array{id: int, first_name: string|null, display_name: string|null, username: string|null, locale: string, onboarding_completed: bool, onboarding: array{completed: bool, step: string|null}, pro_emoji: string|null},
      *   groups: list<array{id: int, title: string}>,
      *   stats: array{words_learned: int, words_due_today: int},
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null},
@@ -44,9 +45,16 @@ final class MeResource extends TwaResource
             'learner' => [
                 'id' => $learner->id,
                 'first_name' => $learner->first_name,
+                // The name chosen in the onboarding of the Mini App (docs/40 §2.1): for the learner's own screens only.
+                'display_name' => $learner->display_name,
                 'username' => $learner->username,
                 'locale' => $learner->interface_locale,
                 'onboarding_completed' => $learner->onboarding_state === 'done',
+                // Where the Mini App resumes its onboarding: from the loaded row, no statement.
+                'onboarding' => [
+                    'completed' => $learner->onboarding_state === 'done',
+                    'step' => OnboardingChoices::resumeStep($learner),
+                ],
                 // The emoji of Pro next to the name (docs/31 §5а): null without a live Pro, whatever is chosen.
                 'pro_emoji' => $this->resource['pro_emoji'],
             ],

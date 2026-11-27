@@ -7,6 +7,7 @@ import { initLocale } from './i18n'
 import { useTelegram } from './composables/useTelegram'
 import { initTelegramTheme } from './composables/telegramTheme'
 import { startTimingMarks } from './composables/useTimingMarks'
+import { installVerticalSwipeGuard } from './composables/verticalSwipes'
 import './style.css'
 
 // The timing marks of this open (docs/04 A.21) start first: the offsets are from the navigation start, the open id and the
@@ -23,12 +24,15 @@ try {
 }
 
 // The app's own palette: <html data-theme> from Telegram's colorScheme (outside Telegram: prefers-color-scheme), the header and
-// window background in the page colour (white lesson screens: `useChromeSurface`); follows `themeChanged` (docs/14 §4.1). The first
+// window background in the page colour (every screen stands on it); follows `themeChanged` (docs/14 §4.1). The first
 // data-theme was already set before the first paint by the start script (src/boot/theme-boot.js); this takes over from it.
 initTelegramTheme()
 
 // Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).
 initLocale(useTelegram().languageCode())
+
+// A swipe down must not close the app in the middle of a lesson (kit TELEGRAM.md): off on the immersive screens only (Bot API 7.7+).
+installVerticalSwipeGuard(router, useTelegram().webApp)
 
 const app = createApp(App)
 app.use(createPinia())

@@ -7,19 +7,27 @@ import { api } from '@/api'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useAchievementsStore } from '@/stores/achievements'
 import { useBillingStore } from '@/stores/billing'
+import { useLeagueStore } from '@/stores/league'
+import { useTodayStore } from '@/stores/today'
 import { profile as gameProfile } from '@/api/__tests__/gameShopFixtures'
-import type { Entitlement, LearnerSettings, MeResponse } from '@/api/types'
+import type { AchievementItem, AchievementsResponse, Entitlement, LearnerSettings, MeResponse, TodayResponse } from '@/api/types'
 
 const mocks = vi.hoisted(() => ({
   ensure: vi.fn(),
-  learner: null as { id: number; first_name: string | null } | null,
+  learner: null as { id: number; first_name: string | null; display_name?: string | null } | null,
   hideBack: vi.fn(),
   showBack: vi.fn(),
 }))
 
 vi.mock('@/api', () => ({
-  api: { me: { get: vi.fn() }, gameShop: { profile: vi.fn() }, billing: { catalog: vi.fn(), offerViewed: vi.fn() } },
+  api: {
+    me: { get: vi.fn() },
+    gameShop: { profile: vi.fn() },
+    billing: { catalog: vi.fn(), offerViewed: vi.fn() },
+    achievements: { list: vi.fn() },
+  },
 }))
 
 vi.mock('@/stores/auth', () => ({
@@ -87,6 +95,8 @@ describe('ProfileView', () => {
     mocks.ensure.mockResolvedValue(undefined)
     mocks.learner = { id: 1, first_name: 'Асадбек' }
     vi.mocked(api.me.get).mockResolvedValue(me())
+    // `/achievements` (best effort): never answers unless a test says otherwise
+    vi.mocked(api.achievements.list).mockReturnValue(new Promise(() => {}))
     vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
   afterEach(() => {
@@ -95,17 +105,21 @@ describe('ProfileView', () => {
   })
 
   describe('Free learner', () => {
-    it('shows the brand row, the title and the big tinted card: the initial, the name, the Free chip and the daily limit of /me', async () => {
+    it('shows the brand row, the title and the hero of the kit: the initial, the name, the Free chip and the daily limit of /me', async () => {
       const w = await render()
 
       expect(mocks.ensure).toHaveBeenCalledTimes(1)
       expect(api.me.get).toHaveBeenCalledTimes(1)
       expect(w.find('[data-testid=brand-row]').exists()).toBe(true)
       expect(w.get('h1').text()).toBe('Профиль')
-      expect(w.get('[data-testid=profile-header]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+      // on the centre axis of the page (09-profil): the 72 px avatar in the muhr colour, the name in Display/M, the neutral Free chip
+      expect(w.get('[data-testid=profile-header]').classes()).toEqual(expect.arrayContaining(['items-center', 'text-center']))
       expect(w.get('[data-testid=profile-name]').text()).toBe('Асадбек')
+      expect(w.get('[data-testid=profile-name]').classes()).toContain('t-display-m')
       expect(w.get('[data-testid=profile-avatar]').text()).toBe('А')
+      expect(w.get('[data-testid=profile-avatar]').classes()).toEqual(expect.arrayContaining(['size-[72px]', 'bg-muhr', 'text-on-muhr']))
       expect(w.get('[data-testid=profile-chip]').text()).toBe('Free')
+      expect(w.get('[data-testid=profile-chip]').classes()).toContain('chip-neutral')
       expect(w.get('[data-testid=profile-chip]').attributes('data-plan')).toBe('free')
       expect(w.get('[data-testid=profile-plan]').text()).toBe('20 новых слов в день')
     })
@@ -332,9 +346,10 @@ describe('ProfileView', () => {
       expect(ids('group-account')).toEqual(['row-language', 'row-settings', 'row-billing'])
       expect(ids('group-more')).toEqual(['row-referrals', 'row-intro'])
       for (const group of ['group-results', 'group-account', 'group-more']) {
+        // the ListGroup of the kit: a label above, the rows in one flat card
         const plate = w.get(`[data-testid=${group}]`)
-        expect(plate.classes(), group).toContain('bg-highlight')
-        expect(plate.get('h2').classes(), group).toEqual(expect.arrayContaining(['text-lg', 'font-extrabold']))
+        expect(plate.get('h2').classes(), group).toContain('section-label')
+        expect(plate.find('.list').exists(), group).toBe(true)
       }
     })
 
@@ -359,6 +374,17 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=profile-avatar]').text()).toBe('Д')
     })
 
+    it('shows the name chosen in the onboarding, else the Telegram one (docs/40 §3, В1)', async () => {
+      mocks.learner = { id: 1, first_name: 'Dilnoza', display_name: 'Дилноза' }
+      const chosen = await render()
+      expect(chosen.get('[data-testid=profile-name]').text()).toBe('Дилноза')
+      expect(chosen.get('[data-testid=profile-avatar]').text()).toBe('Д')
+      chosen.unmount()
+
+      mocks.learner = { id: 1, first_name: 'Dilnoza', display_name: null }
+      expect((await render()).get('[data-testid=profile-name]').text()).toBe('Dilnoza')
+    })
+
     it('keeps an emoji initial whole', async () => {
       mocks.learner = { id: 1, first_name: '🦊 Fox' }
 
@@ -374,7 +400,7 @@ describe('ProfileView', () => {
 
       expect(w.get('[data-testid=profile-name]').text()).toBe('Ученик')
       const avatar = w.get('[data-testid=profile-avatar]')
-      expect(avatar.element.tagName.toLowerCase()).toBe('svg')
+      expect(avatar.find('svg').exists()).toBe(true)
       expect(avatar.text()).toBe('')
     })
 
@@ -722,5 +748,150 @@ describe('ProfileView', () => {
     vi.mocked(api.me.get).mockResolvedValue({ ...me(), settings: settingsFixture({ active_course: null }) })
     setActivePinia(createPinia())
     expect((await render()).find('[data-testid=row-readiness]').exists()).toBe(false)
+  })
+
+  describe('the statistics of the kit', () => {
+    const todayData = (over: Partial<TodayResponse> = {}): TodayResponse =>
+      ({
+        streak: { current: 12, best: 20, met_today: true, at_risk: false, freezes: 0 },
+        active_course: { id: 1, slug: 'english-a1-a2', title: 'A1-A2', progress: { learned: 120, total: 400 }, next_lesson: null },
+        league: { tier: 1, tier_key: 'silver', rank: 5, points: 351, members_count: 30 },
+        ...over,
+      }) as TodayResponse
+
+    it('shows the streak, the learned words and the place in the league from what /today has already said, in equal columns', async () => {
+      useTodayStore().data = todayData()
+
+      const w = await render()
+
+      const card = w.get('[data-testid=profile-stats]')
+      expect(card.attributes('aria-label')).toBe('Статистика')
+      expect(card.get('[data-testid=stat-streak]').text()).toBe('12дней подряд')
+      expect(card.get('[data-testid=stat-words]').text()).toBe('120слов выучено')
+      expect(card.get('[data-testid=stat-league]').text()).toBe('5место в лиге')
+      expect(card.get('[data-testid=stat-streak] .t-numeric-l').text()).toBe('12')
+      for (const id of ['stat-streak', 'stat-words', 'stat-league']) expect(card.get(`[data-testid=${id}]`).classes()).toContain('flex-1')
+      // a 1 px line between the columns, none before the first
+      expect(card.findAll('.w-px')).toHaveLength(2)
+    })
+
+    it('takes the place from the League screen when /today has none, and leaves out what is not known', async () => {
+      useTodayStore().data = todayData({ league: null, active_course: null })
+      useLeagueStore().data = { membership: { rank: 7 } } as never
+
+      const w = await render()
+
+      expect(w.findAll('[data-testid=profile-stats] [data-testid^=stat-]').map((el) => el.attributes('data-testid'))).toEqual([
+        'stat-streak',
+        'stat-league',
+      ])
+      expect(w.get('[data-testid=stat-league]').text()).toContain('7')
+    })
+
+    it('has no card while nothing is known, and asks /today for nothing (its timing marks belong to the first screen)', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-stats]').exists()).toBe(false)
+    })
+
+    it('inflects the labels in Uzbek', async () => {
+      setLocale('uz')
+      useTodayStore().data = todayData()
+
+      const w = await render()
+
+      expect(w.get('[data-testid=stat-streak]').text()).toBe('12kun ketma-ket')
+      expect(w.get('[data-testid=stat-league]').text()).toBe("5ligadagi o'rin")
+    })
+  })
+
+  describe('three achievements', () => {
+    const item = (key: string, over: Partial<AchievementItem> = {}): AchievementItem => ({
+      key,
+      title: key,
+      description: '',
+      unlocked_at: null,
+      shared_at: null,
+      progress: null,
+      share_text: null,
+      ...over,
+    })
+    const list = (items: AchievementItem[]): AchievementsResponse => ({
+      unlocked_count: items.filter((i) => i.unlocked_at !== null).length,
+      total: items.length,
+      share_link: null,
+      items,
+    })
+
+    it('shows the newest received first, then the nearest ahead, with the kit picture or the even fallback, and "N of M" to all', async () => {
+      vi.mocked(api.achievements.list).mockResolvedValue(
+        list([
+          item('first_session', { unlocked_at: '2026-09-12T10:00:00Z' }),
+          item('streak_7', { unlocked_at: '2026-11-20T10:00:00Z' }),
+          item('words_500', { progress: { current: 400, target: 500 } }),
+          item('first_friend'),
+          item('words_100', { progress: { current: 10, target: 100 } }),
+        ]),
+      )
+
+      const w = await render()
+
+      const badges = w.findAll('[data-testid=profile-achievements] [data-testid=achievement-badge]')
+      expect(badges.map((b) => b.text())).toEqual([expect.stringContaining('streak_7'), expect.stringContaining('first_session'), expect.stringContaining('words_500')])
+      expect(badges.map((b) => b.attributes('data-state'))).toEqual(['unlocked', 'unlocked', 'progress'])
+      expect(badges[0]?.text()).toContain('20 ноября')
+      expect(badges[0]?.get('img').attributes('src')).toContain('achievements/streak-7.webp')
+      // the kit has no picture for 500 words: the fallback stamp of the same size, in the soft accent while it is ahead in progress
+      expect(badges[2]?.find('img').exists()).toBe(false)
+      expect(badges[2]?.get('[data-testid=achievement-fallback]').attributes('style')).toContain('width: 88px')
+      expect(badges[2]?.text()).toContain('400 из 500')
+
+      const all = w.get('[data-testid=profile-achievements-all]')
+      expect(all.text()).toBe('Получено 2 из 5')
+      expect(all.attributes('href')).toBe('/achievements')
+    })
+
+    it('has no row of badges while /achievements has not answered or failed', async () => {
+      vi.mocked(api.achievements.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=profile-achievements]').exists()).toBe(false)
+      expect(w.find('[data-testid=profile-name]').exists()).toBe(true)
+    })
+
+    it('asks /achievements once: the second opening of the tab shows what the store has, without a request', async () => {
+      vi.mocked(api.achievements.list).mockResolvedValue(list([item('streak_7', { unlocked_at: '2026-11-20T10:00:00Z' })]))
+
+      const first = await render()
+      first.unmount()
+      const second = await render()
+
+      expect(api.achievements.list).toHaveBeenCalledTimes(1)
+      expect(second.findAll('[data-testid=profile-achievements] [data-testid=achievement-badge]')).toHaveLength(1)
+    })
+
+    it('asks nothing after the "Achievements" screen has loaded the store', async () => {
+      vi.mocked(api.achievements.list).mockResolvedValue(list([item('streak_7', { unlocked_at: '2026-11-20T10:00:00Z' })]))
+      await useAchievementsStore().load()
+      vi.mocked(api.achievements.list).mockClear()
+
+      const w = await render()
+
+      expect(api.achievements.list).not.toHaveBeenCalled()
+      expect(w.findAll('[data-testid=profile-achievements] [data-testid=achievement-badge]')).toHaveLength(1)
+    })
+
+    it('leaves the shared store without an error after a failed background read, and asks again on the next opening', async () => {
+      vi.mocked(api.achievements.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
+
+      ;(await render()).unmount()
+
+      const store = useAchievementsStore()
+      expect(store.status).toBe('idle')
+      expect(store.errorMessage).toBe('')
+      await render()
+      expect(api.achievements.list).toHaveBeenCalledTimes(2)
+    })
   })
 })

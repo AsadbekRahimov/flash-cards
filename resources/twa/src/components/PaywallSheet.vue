@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
+import { BACKGROUND } from '@/api/background'
 import { useRoute, useRouter } from 'vue-router'
 import { useDialogFocus } from '@/composables/useDialogFocus'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct, splitPrice } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
@@ -33,9 +35,10 @@ export type PaywallReason =
   | 'trial_ended'
 
 /**
- * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, docs/design/2026-11-25-redesign Pro): a white bottom sheet with a grabber and a close
- * button; the chip "Muhrla Pro" (a crown, `BRAND_PRO`) above the title, the title is the reason the sheet is open (`HEADINGS`, by the
- * placement), the lead, what Free gives and the three main things Pro gives (`ProBenefits short`: a tick, the name, the note under it).
+ * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6), drawn by the kit Muhrla (10-podpiska-pro): a bottom sheet with a grabber and a close
+ * button; on the centre axis the mascot in the scarf (`freeze`; left out on a short window), the ink chip "Muhrla Pro" (`BRAND_PRO`), the
+ * title — the reason the sheet is open (`HEADINGS`, by the placement) — and the lead; what Free gives and the three main things Pro gives
+ * (`ProBenefits short`: the plate of the icon, the name, the note, a check).
  *
  * Mode `coming_soon` (Phase 1): "Pro is coming", what Free gives, a promo code field and — only when
  * the owner configured one — the support contact for centers.
@@ -94,6 +97,12 @@ const props = withDefaults(
     boosterHit?: GameBoosterLimitHit | null
     /** The period chosen when the sheet opens (a tariff row of the Subscription screen); the first one when absent or not sold. */
     period?: BillingPeriod | null
+    /**
+     * The highest daily goal of Free when the screen knows it and the settings store may not (`daily_goal`, `trial_ended`): the
+     * onboarding O6 has `options.daily_goal_max` of `GET /onboarding`. Absent (`undefined`) - the settings of `/me`; `null` - the screen
+     * knows there is no limit.
+     */
+    goalMax?: number | null
   }>(),
   {
     reason: 'info',
@@ -101,6 +110,7 @@ const props = withDefaults(
     limitHit: null,
     boosterHit: null,
     period: null,
+    goalMax: undefined,
   },
 )
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
@@ -112,8 +122,13 @@ const billing = useBillingStore()
 const today = useTodayStore()
 const settings = useSettingsStore()
 
-/** The highest daily goal of Free (`options.daily_goal_max` of the settings that `/me` carries); null = not known or no limit. */
-const goalMax = computed((): number | null => settings.data?.options.daily_goal_max ?? null)
+/**
+ * The highest daily goal of Free: the prop when the screen passed one (`null` included - it knows there is no limit), else
+ * `options.daily_goal_max` of the settings that `/me` carries; null = not known or no limit.
+ */
+const goalMax = computed((): number | null =>
+  props.goalMax !== undefined ? props.goalMax : (settings.data?.options.daily_goal_max ?? null),
+)
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
@@ -375,12 +390,6 @@ function openInvite(): void {
   void router?.push({ name: 'referrals', query: { from: route?.name === 'billing' || route?.name === 'today' ? route.name : undefined } })
 }
 
-/** "1 300 Stars" → the number and the currency, drawn on two lines in a narrow card (the number never breaks). */
-function splitPrice(price: string): { amount: string; unit: string } {
-  const match = /^(.*\S)\s+(\S+)$/u.exec(price)
-  return match ? { amount: match[1] ?? price, unit: match[2] ?? '' } : { amount: price, unit: '' }
-}
-
 /** The first way to pay is the primary button with the price in it; the others are quieter buttons below. */
 const primaryOption = computed((): PayOption | null => options.value[0] ?? null)
 const otherOptions = computed((): PayOption[] => options.value.slice(1))
@@ -418,7 +427,7 @@ function onRedeemed(me: MeResponse): void {
   redeemed.value = true
   billing.apply(me)
   // The numbers on the Today screen (quota, plan badge) change with the plan.
-  void today.load()
+  void today.load(BACKGROUND)
   emit('redeemed', me)
 }
 
@@ -500,22 +509,16 @@ onBeforeUnmount(() => {
 
       <div ref="scroller" class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-testid="paywall-scroll" @scroll.passive="measure">
         <div class="pb-4">
-          <header class="flex flex-col gap-2.5 pt-3 pr-8 short:gap-1.5 short:pt-1">
-            <p class="flex">
-              <span class="inline-flex h-7 items-center gap-1.5 rounded-full bg-accent-soft px-3 text-[13px] leading-none font-bold text-accent" data-testid="paywall-eyebrow">
-                <!-- The crown of the mock-up. -->
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 18h16l1-10-5 4-4-7-4 7-5-4z" />
-                </svg>
-                {{ BRAND_PRO }}
-              </span>
-            </p>
-            <h2 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
+          <!-- The hero of the kit (10-podpiska-pro), on the centre axis: the mascot in the scarf, the ink chip of Pro, the title, the lead. -->
+          <header class="flex flex-col items-center gap-2 px-6 pt-2 text-center short:gap-1.5 short:pt-0" data-testid="paywall-header">
+            <MascotArt pose="freeze" :height="96" class="short:hidden" />
+            <span class="chip chip-ink h-7 px-3 text-sm" data-testid="paywall-eyebrow">{{ BRAND_PRO }}</span>
+            <h2 class="t-display-m short:text-[20px] short:leading-[26px]" data-testid="paywall-title">{{ title }}</h2>
 
-            <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
+            <InlineAlert v-if="paid" tone="success" :message="paidMessage" class="w-full" data-testid="paywall-paid" />
 
             <template v-if="!done">
-              <p v-if="lead" class="text-[15px] leading-[21px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
+              <p v-if="lead" class="t-body-m text-muted" data-testid="paywall-lead">{{ lead }}</p>
 
               <p v-if="freeLine" class="text-[13px] leading-[18px] text-muted" data-testid="paywall-free">{{ freeLine }}</p>
             </template>
@@ -528,6 +531,7 @@ onBeforeUnmount(() => {
               <span class="chip chip-warning h-auto py-1 whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
             </p>
 
+            <!-- The tariffs of the kit: equal cards on the surface, the chosen one in a 2 px frame of border/strong. -->
             <div
               v-if="periodCards.length > 1"
               class="grid"
@@ -543,10 +547,10 @@ onBeforeUnmount(() => {
                 role="radio"
                 :aria-checked="card.period === period"
                 :disabled="busy"
-                class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
+                class="pressable flex min-h-11 min-w-0 flex-col items-center gap-1 rounded-lg bg-surface text-center disabled:opacity-50"
                 :class="[
-                  periodCards.length > 2 ? 'px-2.5 py-3' : 'p-3.5',
-                  card.period === period ? 'border-2 border-primary bg-accent-soft' : 'border border-hairline bg-surface',
+                  periodCards.length > 2 ? 'px-2 py-3' : 'px-3 py-3.5',
+                  card.period === period ? 'shadow-[inset_0_0_0_2px_var(--app-border-strong)]' : 'shadow-[inset_0_0_0_1.5px_var(--app-hairline)]',
                 ]"
                 :data-testid="`period-${card.period}`"
                 @click="choosePeriod(card.period)"
@@ -554,19 +558,19 @@ onBeforeUnmount(() => {
                 <span class="text-sm leading-[18px] text-muted">{{ card.label }}</span>
                 <span data-testid="period-price">
                   <span
-                    class="block font-extrabold whitespace-nowrap"
-                    :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-[26px]'"
+                    class="block font-display font-semibold tracking-[-0.02em] whitespace-nowrap tabular-nums"
+                    :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[26px] leading-[30px]'"
                   >{{ splitPrice(card.price).amount }}</span> <span class="block text-[13px] leading-[18px] text-muted">{{ splitPrice(card.price).unit }}</span>
                 </span>
                 <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
                 <span
                   v-if="card.pct !== null"
-                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-success-ink"
+                  class="min-h-[18px] text-[13px] leading-[18px] font-semibold text-success-ink"
                   data-testid="period-saving"
                 >{{ savingText(card.pct) }}</span>
                 <span
                   v-else
-                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-accent-ink"
+                  class="min-h-[18px] text-[13px] leading-[18px] font-semibold text-body"
                   data-testid="period-saving"
                 >{{ card.period === period ? t('billing.period.chosen') : '' }}</span>
               </button>
@@ -611,7 +615,7 @@ onBeforeUnmount(() => {
               v-if="!done && dueCount > 0"
               type="button"
               class="btn btn-block"
-              :class="purchaseMode ? 'btn-tinted' : 'btn-primary'"
+              :class="purchaseMode ? 'btn-secondary' : 'btn-primary'"
               data-testid="paywall-review"
               @click="emit('review')"
             >
@@ -640,7 +644,7 @@ onBeforeUnmount(() => {
             </p>
 
             <!-- "Not now" sits under the price while something can be paid; otherwise it closes the sheet at the end. -->
-            <button v-if="!showsPay" type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
+            <button v-if="!showsPay" type="button" class="btn btn-ghost btn-block" data-testid="paywall-close" @click="emit('close')">
               {{ t('paywall.dismiss') }}
             </button>
           </div>
@@ -695,7 +699,7 @@ onBeforeUnmount(() => {
             <AppIcon name="clock" :size="18" class="mt-px text-warning" />
             <span>{{ t('billing.timeout') }}</span>
           </p>
-          <button type="button" class="btn btn-tinted btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
+          <button type="button" class="btn btn-secondary btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
             {{ t('billing.check_again') }}
           </button>
         </div>
@@ -718,7 +722,7 @@ onBeforeUnmount(() => {
             <span>{{ primaryLabel }}</span>
             <s v-if="primaryOption.listPrice" class="ml-2 text-sm font-normal opacity-70" data-testid="list-price">{{ primaryOption.listPrice }}</s>
           </button>
-          <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
+          <button type="button" class="btn btn-ghost btn-block" data-testid="paywall-close" @click="emit('close')">
             {{ t('paywall.not_now') }}
           </button>
           <p v-if="payMethod" class="text-center text-xs leading-[17px] text-muted" data-testid="pay-method">

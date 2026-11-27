@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import MascotArt from '@/components/ui/MascotArt.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import { BRAND } from '@/brand'
 import { formatDate } from '@/composables/format'
@@ -9,8 +10,9 @@ import { trialDaysLeft } from '@/composables/trial'
 import { useI18n } from '@/i18n'
 
 /**
- * The one-off sheet of the welcome trial (docs/36 §4б, W3), in the frame of the Pro mock-up (docs/design/2026-11-25-redesign Pro): the
- * badge "<brand> Pro", "Pro for N days - until :date", one line on what it means and what Pro gives - the same list as the paywall
+ * The one-off sheet of the welcome trial (docs/36 §4б, W3), in the frame of the Pro screen of the kit Muhrla (10-podpiska-pro): on the
+ * centre axis the mascot in the scarf, the ink badge "<brand> Pro", "Pro for N days - until :date", one line on what it means; then what
+ * Pro gives - the same list as the paywall
  * (`ProBenefits short`, by the server's word on practice and the game). The days and the date come from the end of the trial (`/me`
  * `renewal.ends_at`), nothing is written into the text. When to show it is the screen's business (`takeTrialWelcome`).
  *
@@ -31,22 +33,24 @@ const title = computed(() =>
 
 <template>
   <BottomSheet :label="t('trialSheet.label')" data-testid="trial-welcome-sheet" @close="emit('close')">
-    <div class="flex flex-col gap-2.5 pt-3">
-      <span class="inline-flex h-7 items-center gap-1.5 self-start rounded-full bg-accent-soft px-3 text-[13px] font-bold text-accent-ink" data-testid="trial-welcome-badge">
-        <AppIcon name="sparkles" :size="16" />
+    <!-- The hero of the Pro screen of the kit (10-podpiska-pro): the mascot in the scarf, the ink chip of Pro, the title, the line. -->
+    <div class="flex flex-col items-center gap-2 px-6 pt-2 text-center">
+      <MascotArt pose="freeze" :height="96" class="short:hidden" />
+      <span class="chip chip-ink gap-1.5" data-testid="trial-welcome-badge">
+        <AppIcon name="sparkles" :size="14" />
         {{ t('trialSheet.badge', { brand: BRAND }) }}
       </span>
-      <h2 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px]" data-testid="trial-welcome-title">{{ title }}</h2>
-      <p class="text-[15px] leading-[21px] text-muted">{{ t('trialSheet.text') }}</p>
+      <h2 class="t-display-m" data-testid="trial-welcome-title">{{ title }}</h2>
+      <p class="t-body-m text-muted">{{ t('trialSheet.text') }}</p>
     </div>
 
-    <ProBenefits short />
+    <ProBenefits short compact />
 
     <div class="flex flex-col gap-1.5 pb-1">
-      <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="trial-welcome-ok" @click="emit('close')">
+      <button type="button" class="btn btn-primary btn-block" data-testid="trial-welcome-ok" @click="emit('close')">
         {{ t('trialSheet.ok') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" data-testid="trial-welcome-more" @click="emit('more')">
+      <button type="button" class="btn btn-ghost btn-block" data-testid="trial-welcome-more" @click="emit('more')">
         {{ t('trialSheet.more') }}
       </button>
     </div>

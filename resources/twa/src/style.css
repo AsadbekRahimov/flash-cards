@@ -12,61 +12,71 @@
 @custom-variant short (@media (max-height: 760px));
 
 /*
- * Fonts (docs/14 §4.2, redesign 2026-11-25): files in the repository, no CDN (assets/fonts, SIL OFL 1.1, the licences lie next to the
- * files). Inter is the one face of the interface - titles and body copy alike - as one variable file (wght 400-800) per subset.
+ * Fonts (docs/14 §4.2, kit Muhrla 2026-11-27, docs/design/2026-11-27-muhrla-kit/docs/DESIGN.md §3): files in the repository, no CDN
+ * (assets/fonts, SIL OFL 1.1, the licences lie next to the files), one variable file per subset.
+ * - Onest - the text of the interface (400 / 500 / 600). The face is declared for 400-600 only, so the `font-bold` / `font-extrabold`
+ *   of the screens not yet redrawn is clamped to the 600 of the kit instead of a heavier cut.
+ * - Unbounded - headings, the English word, numbers (500 / 600; `font-display`, and `font-mono` with tabular figures, see @theme).
  * The browser downloads a subset only when the page has a character of its `unicode-range`: Russian text takes latin + cyrillic,
- * Uzbek text latin only (ʻ U+02BB and ʼ U+02BC are in the latin file), latin-ext waits for a rare letter. There is no italic file:
- * the few italic lines (English example sentences) take the slant the browser draws. IBM Plex Mono (400, 500) is latin only: it
- * sets numbers, counters and places; a Cyrillic letter in `font-mono` falls back to the system monospace. Neither has IPA letters
- * (ɪ ʃ ə ...), so a transcription is `font-ipa`, the system monospace, rather than a mix of two fonts in one word. index.html
- * preloads the latin Inter; the start script preloads the cyrillic one for a Russian interface.
+ * Uzbek text latin only (ʻ U+02BB and ʼ U+02BC are in the latin files of both faces), latin-ext waits for a rare letter. No italic
+ * file: the few italic lines take the slant the browser draws. Neither face has IPA letters (ɪ ʃ ə ...), so a transcription is
+ * `font-ipa`, the system monospace. index.html preloads the latin Onest; the start script preloads the cyrillic Onest for a Russian
+ * interface. Unbounded is not preloaded (it swaps in).
  */
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Onest';
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 400 600;
   font-display: swap;
-  src: url('./assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/onest-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Onest';
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 400 600;
   font-display: swap;
-  src: url('./assets/fonts/inter-latin-ext-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/onest-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Onest';
   font-style: normal;
-  font-weight: 400 800;
+  font-weight: 400 600;
   font-display: swap;
-  src: url('./assets/fonts/inter-cyrillic-wght-normal.woff2') format('woff2');
+  src: url('./assets/fonts/onest-cyrillic-wght-normal.woff2') format('woff2');
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 @font-face {
-  font-family: 'IBM Plex Mono';
+  font-family: 'Unbounded';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500 600;
   font-display: swap;
-  src: url('./assets/fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+  src: url('./assets/fonts/unbounded-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'IBM Plex Mono';
+  font-family: 'Unbounded';
   font-style: normal;
-  font-weight: 500;
+  font-weight: 500 600;
   font-display: swap;
-  src: url('./assets/fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url('./assets/fonts/unbounded-latin-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url('./assets/fonts/unbounded-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @theme {
   /*
-   * The app's own palette (docs/14 §4.1, redesign 2026-11-25): `bg-page`, `bg-surface`, `text-body`, `text-muted`, `bg-primary`,
-   * `text-accent`, `border-divider`, `bg-danger-soft`, `text-success-ink`, `border-warning-line`, ... The values live in :root
-   * (light) and :root[data-theme='dark'] below; the colours of the Telegram theme paint nothing any more.
+   * The app's own palette (docs/14 §4.1, kit 2026-11-27): `bg-page`, `bg-surface`, `text-body`, `text-muted`, `bg-primary`,
+   * `text-accent`, `border-divider`, `bg-danger-soft`, `text-success-ink`, `bg-inverse`, `bg-muhr`, `text-tertiary`, `border-strong`, ...
+   * The values live in :root (light) and :root[data-theme='dark'] below; the colours of the Telegram theme paint nothing.
    */
   --color-page: var(--app-page);
   --color-surface: var(--app-surface);
@@ -76,9 +86,17 @@
   --color-track: var(--app-track);
   --color-body: var(--app-text);
   --color-muted: var(--app-muted);
+  --color-tertiary: var(--app-text-tertiary);
   --color-accent: var(--app-accent);
   --color-primary: var(--app-primary);
   --color-on-primary: var(--app-on-primary);
+  --color-inverse: var(--app-inverse);
+  --color-on-inverse: var(--app-on-inverse);
+  --color-sunken: var(--app-sunken);
+  --color-muhr: var(--app-muhr);
+  --color-on-muhr: var(--app-on-muhr);
+  --color-strong: var(--app-border-strong);
+  --color-knob: var(--app-knob);
   --color-success: var(--app-success);
   --color-warning: var(--app-warning);
   --color-danger: var(--app-danger);
@@ -118,22 +136,79 @@
   --color-tg-bottom-bar-bg: var(--tg-bottom-bar-bg);
 
   /*
-   * Radii of the redesign (docs/design/2026-11-25-redesign): `rounded-card` (cards, lists, plan cards), `rounded-option` (answer
-   * options, the active tab, a row standing alone), `rounded-hero` (the big tinted card of a screen, a bottom sheet),
-   * `rounded-control` (buttons, fields), `rounded-badge` (a mark inside a line of text; chips are pills).
+   * Radii of the kit (DESIGN.md §5): xs 6 (the key of an answer, a small square chip), sm 10 (the plate of a list row, a league
+   * row), md 14 (buttons, answers, fields), lg 20 (list groups, stats, module cards), xl 28 (the hero, the top corners of a sheet),
+   * `rounded-full` 999. They replace Tailwind's own xs-xl scale. The names of the 2026-11-25 redesign stay, on the kit values:
+   * `rounded-hero` = xl, `rounded-card` = lg, `rounded-option` / `rounded-control` = md, `rounded-badge` = xs.
    */
-  --radius-hero: 20px;
-  --radius-card: 16px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-hero: 28px;
+  --radius-card: 20px;
   --radius-option: 14px;
-  --radius-control: 12px;
+  --radius-control: 14px;
   --radius-badge: 6px;
 
-  /* Inter for everything (titles and body copy; no serif any more), `font-mono` numbers and counters, `font-ipa` a transcription. */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+  /*
+   * Onest for the text, Unbounded (`font-display`) for headings, the English word and numbers. `font-mono` was the face of numbers and
+   * counters (IBM Plex Mono): it is Unbounded now, and `.font-mono` adds tabular figures (below), so the 80-odd numbers of the screens
+   * move over without a change of their markup. `font-ipa` a transcription.
+   */
+  --font-sans: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Unbounded', 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Unbounded', 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-ipa: Menlo, Consolas, 'DejaVu Sans Mono', 'Noto Sans Mono', ui-monospace, monospace;
   --default-font-family: var(--font-sans);
-  --default-mono-font-family: var(--font-mono);
+  --default-mono-font-family: var(--font-ipa);
+
+  /* Motion of the kit (ANIMATIONS.md §1): `ease-out` (the default curve), `ease-stamp` (the stamp, a little "knock"). */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+/* Text styles of the kit (DESIGN.md §3), as utilities: `t-display-l`, `t-title-m`, `t-word-xl`, `t-numeric-l`, `t-body-m`, ... */
+@utility t-display-l {
+  font: 600 30px/36px var(--font-display);
+  letter-spacing: -0.02em;
+}
+@utility t-display-m {
+  font: 600 24px/30px var(--font-display);
+  letter-spacing: -0.02em;
+}
+@utility t-title-m {
+  font: 500 18px/24px var(--font-display);
+  letter-spacing: -0.01em;
+}
+@utility t-word-xl {
+  font: 600 44px/50px var(--font-display);
+  letter-spacing: -0.03em;
+}
+@utility t-numeric-l {
+  font: 600 22px/26px var(--font-display);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+@utility t-body-l {
+  font: 500 17px/24px var(--font-sans);
+}
+@utility t-body-m {
+  font: 400 15px/22px var(--font-sans);
+}
+@utility t-body-m-strong {
+  font: 600 15px/22px var(--font-sans);
+}
+@utility t-button {
+  font: 600 16px/20px var(--font-sans);
+}
+@utility t-label-s {
+  font: 500 13px/18px var(--font-sans);
+}
+@utility t-caption {
+  font: 500 12px/16px var(--font-sans);
+  letter-spacing: 0.01em;
 }
 
 @layer base {
@@ -150,45 +225,68 @@
     outline: 2px solid var(--app-accent);
     outline-offset: 2px;
   }
+
+  /* A field takes at least 16 px, so iOS does not zoom into it (DESIGN.md §3). */
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+
+  button,
+  [role='button'] {
+    touch-action: manipulation;
+  }
 }
 
 /*
- * The palette (docs/14 §4.1). Light and dark — the approved mock-ups (docs/design/2026-11-25-redesign: Main, Path, League, Profile
- * and their *Dark pairs), a deep blue-graphite page instead of black; warning has no mock-up and keeps the values of 2026-11. The
- * light success is the #2fa862 of the mock-ups a shade darker (#2da05d), so that a mark of it reaches 3:1 on the page and on its
- * soft fill. <html data-theme> picks the palette: Telegram's `colorScheme`, outside Telegram the system's `prefers-color-scheme`
- * (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both, including each ink on
- * its soft fill (designSystem.spec.ts reads the hex values below and checks them).
+ * The palette of the kit "Дафтар и мухр" (docs/design/2026-11-27-muhrla-kit, DESIGN.md §2): warm paper, ink for the main action, one
+ * accent - the muhr (stamp) colour, only for the stamp, the streak, the current segment and the mark of the active tab. The old roles
+ * keep their names (140 components stand on them) and take the kit values (docs/14 §4.1, the table there): `primary` is the ink
+ * (`bg/inverse`), `accent` the accent in text (`text/accent`), `page` / `surface` / `fill` the canvas, the surface and the sunken
+ * paper. The kit has no warning colours: warm amber values in its tone. Where a colour of the kit gives text under 4.5:1 the role
+ * takes a darker ink (`success-ink` of the light palette). <html data-theme> picks the palette: Telegram's `colorScheme`, outside
+ * Telegram the system's `prefers-color-scheme` (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both
+ * (designSystem.spec.ts reads the hex values below and checks them), but one: the label on muhr (`on-muhr`) is only a big figure-label
+ * (the number of the current step, an initial), light as in the kit, held to the 3:1 of large text.
  */
 :root {
-  --app-page: #f4f6fb; /* page background */
-  --app-surface: #ffffff; /* cards, lists, sheets, the tab bar */
-  --app-fill: #e7ecf4; /* controls INSIDE a surface or on the page: the language pill, fields, secondary buttons, the pressed row */
-  --app-hairline: #e1e6ef; /* the 1 px border of a card, a button, an option; the line above the tab bar */
-  --app-divider: #edf0f5; /* lines between the rows inside a card */
-  --app-track: #d9dfe9; /* progress tracks and segments, the frame of a step not yet done, the off switch, skeletons */
-  --app-text: #151a28;
-  --app-muted: #5a6275; /* secondary text: subtitles, hints, values on the right */
-  --app-accent: #234fb1; /* links, text buttons, icons of rows, progress fill, focus ring */
-  --app-primary: #234fb1; /* the main button, the frame of a selected item, the text of the active tab */
-  --app-on-primary: #ffffff; /* text on primary (and on accent) */
-  --app-success: #2da05d; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
-  --app-warning: #b4741a;
-  --app-danger: #b4382c;
-  --app-accent-soft: #edf3ff; /* soft fills: the selected row or option, a tile, a chip, status boxes */
-  --app-success-soft: #eef6f1;
-  --app-warning-soft: #f7eedd;
-  --app-danger-soft: #fbf1ef;
-  --app-accent-ink: #234fb1; /* "ink": text in the colour, on its soft fill and on a card */
-  --app-success-ink: #1f5a40;
-  --app-warning-ink: #8a5510;
-  --app-danger-ink: #8c2a21;
-  --app-accent-line: #c9dafb; /* soft frames: a badge, a status box, a zone line in a table, a track on the highlight */
-  --app-success-line: #bfdccd;
-  --app-warning-line: #e6cfa6;
-  --app-danger-line: #edc7c1;
-  --app-highlight: #e1ebff; /* the big tinted card of a screen (the lesson of the day, the course, the league, the profile) */
-  --app-nav-active: #dce8ff; /* the pill of the active tab */
+  --app-page: #f6f2ea; /* bg/canvas: the page; the Telegram header and bottom bar take it too */
+  --app-surface: #fffdf8; /* bg/surface: cards, lists, sheets, the tab bar */
+  --app-fill: #eee8dc; /* bg/sunken as a control: the language pill, secondary fills, the pressed row */
+  --app-hairline: #e6dfd2; /* border/default: the 1 px border of a card, a button, an option; the line above the tab bar */
+  --app-divider: #e6dfd2; /* border/default: lines between the rows inside a card */
+  --app-track: #eee8dc; /* bg/sunken: progress tracks and segments, the off switch, skeletons */
+  --app-text: #1a1a1f; /* text/primary */
+  --app-muted: #5e5a52; /* text/secondary: subtitles, hints, values on the right */
+  --app-text-tertiary: #736c60; /* text/tertiary: meta, dates (on the page and on a card only) */
+  --app-accent: #b53a18; /* text/accent: links, text buttons, the accent in a line of text, focus ring */
+  --app-primary: #1a1a1f; /* bg/inverse: the main button, the frame of a selected item */
+  --app-on-primary: #fffdf8; /* text/on-inverse: text on primary (and on accent) */
+  --app-inverse: #1a1a1f; /* bg/inverse */
+  --app-on-inverse: #fffdf8; /* text/on-inverse */
+  --app-sunken: #eee8dc; /* bg/sunken: the plate of an icon, the key of an answer, disabled */
+  --app-muhr: #e4572e; /* accent/muhr: the stamp, the streak, the current segment, the mark of the active tab */
+  --app-on-muhr: #fffdf8; /* a label on muhr: the paper, as in the kit (3.6:1 - a big figure-label only: the number of a step, an initial) */
+  --app-border-strong: #1a1a1f; /* border/strong: the selected card or answer */
+  --app-knob: #ffffff; /* the knob of a switch */
+  --app-success: #2f8f5b; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
+  --app-warning: #b7791f;
+  --app-danger: #b3261e;
+  --app-accent-soft: #fbe3d9; /* bg/accent-soft: the "you" row, a soft tile, a chip */
+  --app-success-soft: #e3f1e8;
+  --app-warning-soft: #f7ebd3;
+  --app-danger-soft: #f8e1de;
+  --app-accent-ink: #b53a18; /* "ink": text in the colour, on its soft fill and on a card */
+  --app-success-ink: #1f6b43;
+  --app-warning-ink: #7a4e0e;
+  --app-danger-ink: #b3261e;
+  --app-accent-line: #f2c4b2; /* soft frames: a status box, a zone line in a table */
+  --app-success-line: #bcdcc8;
+  --app-warning-line: #e8d2a6;
+  --app-danger-line: #edbcb6;
+  --app-highlight: #fffdf8; /* the big card of a screen: the surface with a hairline (the "daftar" of the kit), see .bg-highlight */
+  --app-nav-active: #fbe3d9; /* the "you" row of a table (bg/accent-soft) */
 
   /* Legacy names (see @theme): aliases of the palette, never the colours of the Telegram theme. */
   --tg-bg: var(--app-surface);
@@ -206,8 +304,13 @@
   --tg-separator: var(--app-divider);
   --tg-bottom-bar-bg: var(--app-surface);
 
-  /* Height of the tab bar without the home-indicator inset: a 54 px tab with 8 px above and under it. */
-  --app-tabbar-h: 70px;
+  /* Motion of the kit (ANIMATIONS.md §1): the press of a button, a change of state, an entrance (a sheet, the stamp). */
+  --dur-press: 120ms;
+  --dur-state: 200ms;
+  --dur-enter: 260ms;
+
+  /* Height of the tab bar without the home-indicator inset (kit TabBar: 64 + safe area). */
+  --app-tabbar-h: 64px;
   /*
    * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
    * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
@@ -218,36 +321,44 @@
   color-scheme: light;
 }
 
-/* The dark pair: same roles, lighter inks, soft fills are dark tints of the colour. Native controls follow (`color-scheme`). */
+/* The dark pair of the kit: same roles. Native controls follow (`color-scheme`). */
 :root[data-theme='dark'] {
-  --app-page: #0f1420;
-  --app-surface: #181d2a;
-  --app-fill: #262d3d;
-  --app-hairline: #2a3142;
-  --app-divider: #232a39;
-  --app-track: #454c5e;
-  --app-text: #f0f2f7;
-  --app-muted: #a8aebd;
-  --app-accent: #a1c4ff;
-  --app-primary: #94baff;
-  --app-on-primary: #102444;
-  --app-success: #3ccb79;
-  --app-warning: #d9a04a;
-  --app-danger: #e5786b;
-  --app-accent-soft: #1b2538;
-  --app-success-soft: #16291f;
-  --app-warning-soft: #2c2314;
-  --app-danger-soft: #311b1a;
-  --app-accent-ink: #c5dcff;
-  --app-success-ink: #93d3b2;
-  --app-warning-ink: #e6be7e;
-  --app-danger-ink: #f1a59b;
-  --app-accent-line: #2f456b;
-  --app-success-line: #2a4b3a;
-  --app-warning-line: #54411f;
-  --app-danger-line: #5a2f2b;
-  --app-highlight: #1d2d4a;
-  --app-nav-active: #1e3052;
+  --app-page: #121117;
+  --app-surface: #1c1b22;
+  --app-fill: #25232b;
+  --app-hairline: #302e37;
+  --app-divider: #302e37;
+  --app-track: #25232b;
+  --app-text: #f3eee4;
+  --app-muted: #b4aea3;
+  --app-text-tertiary: #8c867b;
+  --app-accent: #ff8a65;
+  --app-primary: #f3eee4;
+  --app-on-primary: #1a1a1f;
+  --app-inverse: #f3eee4;
+  --app-on-inverse: #1a1a1f;
+  --app-sunken: #25232b;
+  --app-muhr: #ff6b42;
+  --app-on-muhr: #1a1a1f; /* the dark muhr is light: the paper on it is 2.8:1, the ink 6.2:1 */
+  --app-border-strong: #f3eee4;
+  --app-knob: #ffffff;
+  --app-success: #4cc38a;
+  --app-warning: #e0a84e;
+  --app-danger: #ff7a70;
+  --app-accent-soft: #3a221b;
+  --app-success-soft: #173323;
+  --app-warning-soft: #33281a;
+  --app-danger-soft: #3b1816;
+  --app-accent-ink: #ff8a65;
+  --app-success-ink: #4cc38a;
+  --app-warning-ink: #ebc27f;
+  --app-danger-ink: #ff7a70;
+  --app-accent-line: #6a3a2c;
+  --app-success-line: #2a5a3e;
+  --app-warning-line: #5a4524;
+  --app-danger-line: #6a2c28;
+  --app-highlight: #1c1b22;
+  --app-nav-active: #3a221b;
 
   color-scheme: dark;
 }
@@ -306,11 +417,19 @@ body {
     padding-bottom: calc(var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));
   }
 
-  /* A flat card: white, a 1 px hairline, radius 16, no shadow. */
+  /* A flat card: the surface, a 1 px hairline, radius 20 (lg), no shadow (the kit has no shadows: depth is the border). */
   .card {
     @apply rounded-card p-[18px];
     background: var(--app-surface);
     border: 1px solid var(--app-hairline);
+  }
+
+  /*
+   * The big card of a screen (`bg-highlight`: the lesson of the day, the course, the league, the profile) is the surface of the kit's
+   * "daftar" hero: the surface colour with the 1 px hairline drawn inside, so the padding of the screens stays as it is.
+   */
+  .bg-highlight {
+    box-shadow: inset 0 0 0 1px var(--app-hairline);
   }
 
   /* A small label above a group or inside a card ("Цель дня", "Советуем сегодня"): 13 px, secondary colour, normal case. */
@@ -319,33 +438,85 @@ body {
     color: var(--app-muted);
   }
 
+  /* Numbers (the old `font-mono`, now Unbounded, see @theme): figures of one width, so a counter does not jump. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- press feedback (ANIMATIONS.md §2) ---- */
+
+  .pressable {
+    transition:
+      transform var(--dur-press) var(--ease-out),
+      background-color var(--dur-press) var(--ease-out);
+  }
+  .pressable:active {
+    transform: scale(0.98);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pressable:hover {
+      filter: brightness(0.97);
+    }
+  }
+
   /* ---- buttons ---- */
 
-  /* Buttons of the mock-ups: radius 12, bold text; the main one of a screen is `btn-lg` (52 px, 17 px). */
+  /*
+   * Button of the kit (COMPONENTS.md "Button"): 52 px, radius md (14), Onest 600 16/20, gap 8, padding 0 / 20. Pressed: scale .98
+   * and a darker fill (the main one 82 % opacity, the others `sunken`), 120 ms. Disabled: the sunken paper with the tertiary text
+   * (the text of a disabled control is exempt from the contrast rule). Loading: `.btn-dots` instead of the label.
+   */
   .btn {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-control px-4 py-2.5 text-base leading-snug font-bold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
+    @apply inline-flex min-h-[52px] items-center justify-center gap-2 rounded-control px-5 py-2.5 text-base leading-5 font-semibold select-none active:scale-[0.98];
+    transition:
+      transform var(--dur-press) var(--ease-out),
+      background-color var(--dur-press) var(--ease-out),
+      color var(--dur-press) var(--ease-out),
+      opacity var(--dur-press) var(--ease-out);
+    touch-action: manipulation;
   }
-  /* The one main action of a screen: flat, dark, white text. */
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    background: var(--app-sunken);
+    box-shadow: none;
+    color: var(--app-text-tertiary);
+    transform: none;
+    cursor: default;
+  }
+  /* The one main action of a screen: the ink (bg/inverse), never the accent. */
   .btn-primary {
     background: var(--app-primary);
     color: var(--app-on-primary);
   }
-  /* Secondary action anywhere (page or card): an outlined button, the text in the ink of the accent. */
-  .btn-tinted {
-    background: var(--app-surface);
-    box-shadow: inset 0 0 0 1px var(--app-hairline);
-    color: var(--app-accent-ink);
+  .btn-primary:active:not(:disabled) {
+    opacity: 0.82;
   }
-  /* Neutral button (e.g. "Cancel"): the fill, a shade darker than the page and than a card, so it reads on both. */
+  /* Secondary of the kit: the surface in a 1.5 px hairline, the text in ink. */
   .btn-secondary {
-    background: var(--app-fill);
+    background: var(--app-surface);
+    box-shadow: inset 0 0 0 1.5px var(--app-hairline);
     color: var(--app-text);
   }
-  /* A text button ("Ещё один раунд", "Не сейчас"): no box, the accent, semibold. */
+  /* A ghost button ("Не сейчас", "Пропустить"): no box, ink. */
+  .btn-ghost {
+    background: transparent;
+    color: var(--app-text);
+  }
+  .btn-secondary:active:not(:disabled),
+  .btn-ghost:active:not(:disabled) {
+    background: var(--app-sunken);
+  }
+  /* A text button ("Ещё один раунд", "Все курсы"): no box, the accent in text, semibold. */
   .btn-plain {
     background: transparent;
     color: var(--app-accent);
     font-weight: 600;
+  }
+  .btn-plain:disabled,
+  .btn-plain[aria-disabled='true'],
+  .btn-ghost:disabled,
+  .btn-ghost[aria-disabled='true'] {
+    background: transparent;
   }
   .btn-danger {
     background: var(--app-danger-soft);
@@ -353,13 +524,52 @@ body {
     color: var(--app-danger-ink);
   }
   .btn-lg {
-    @apply min-h-[52px] text-[17px];
+    @apply min-h-[52px] text-base;
   }
   .btn-sm {
-    @apply min-h-9 rounded-lg px-3 py-1.5 text-sm;
+    @apply min-h-9 rounded-sm px-3 py-1.5 text-sm;
   }
   .btn-block {
     @apply flex w-full;
+  }
+
+  /* The loading label of a button: three 6 px dots pulsing one after another, 900 ms (ANIMATIONS.md §6). */
+  .btn-dots {
+    @apply inline-flex items-center gap-1.5;
+  }
+  .btn-dots > span {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: dot-pulse 900ms ease-in-out infinite;
+  }
+  .btn-dots > span:nth-child(2) {
+    animation-delay: 150ms;
+  }
+  .btn-dots > span:nth-child(3) {
+    animation-delay: 300ms;
+  }
+  @keyframes dot-pulse {
+    0%,
+    100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* IconButton of the kit: 44 x 44, a circle of sunken paper, a 20 px icon; pressed - a hairline ring (ui/IconButton). */
+  .icon-btn {
+    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full select-none;
+    background: var(--app-sunken);
+    color: var(--app-text);
+    transition: box-shadow var(--dur-press) var(--ease-out), transform var(--dur-press) var(--ease-out);
+    touch-action: manipulation;
+  }
+  .icon-btn:active:not(:disabled) {
+    box-shadow: inset 0 0 0 1.5px var(--app-hairline);
+    transform: scale(0.96);
+  }
+  .icon-btn:disabled {
+    color: var(--app-text-tertiary);
   }
 
   /*
@@ -384,21 +594,25 @@ body {
 
   /* ---- fields ---- */
 
-  /* Input / select / textarea: a white box with a hairline, like a card; on focus the frame takes the primary colour. */
+  /*
+   * TextField of the kit: 56 px, radius md, the surface in a 1 px hairline, 16 px text (no iOS zoom); focused - a 2 px frame in
+   * `border/strong` and a caret in the muhr colour.
+   */
   .field {
-    @apply block w-full rounded-control px-3.5 py-3 text-base disabled:opacity-50;
+    @apply block min-h-14 w-full rounded-control px-4 py-3 text-base disabled:opacity-50;
     background-color: var(--app-surface);
     color: var(--app-text);
     border: 1px solid var(--app-hairline);
+    caret-color: var(--app-muhr);
   }
   .field::placeholder {
-    color: var(--app-muted);
+    color: var(--app-text-tertiary);
   }
   .field:focus,
   .field:focus-visible {
     outline: none;
-    border-color: var(--app-primary);
-    box-shadow: inset 0 0 0 0.5px var(--app-primary);
+    border-color: var(--app-border-strong);
+    box-shadow: inset 0 0 0 1px var(--app-border-strong);
   }
   textarea.field {
     @apply min-h-24 resize-y;
@@ -407,13 +621,13 @@ body {
   select.field {
     appearance: none;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a6275' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a52' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.875rem center;
     background-size: 1rem;
   }
   :root[data-theme='dark'] select.field {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8aebd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4aea3' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
   /* A field placed straight on the page: the same box as .field now (kept for the screens that name it). */
   .field-surface {
@@ -452,32 +666,50 @@ body {
   /* ---- answer option ---- */
 
   /*
-   * Answer button (docs/design/2026-11-25-redesign Question / Feedback): a white box with a hairline, radius 14, 17 px text. The
-   * frame is an inset shadow, so the 2 px frame of a state does not move the text. Icons of the correct/incorrect states are drawn by the component.
-   * `dimmed` — the options that are neither picked nor right once the answer is checked.
+   * AnswerOption of the kit (COMPONENTS.md): the surface in a 1.5 px hairline, radius md (14), Body/L (17 / 24, 500), padding 0 16 0 12,
+   * gap 12. The frame is an inset shadow, so the 2 px frame of a state does not move the text. Selected: a 2 px frame in
+   * `border/strong`; correct: the success soft fill and frame; incorrect: the error soft fill and frame. The text stays ink: the key on
+   * the left and the check / cross on the right tell the state (QuizOption). `dimmed` - the options that are neither picked nor right
+   * once the answer is checked.
    */
   .option {
-    @apply flex min-h-14 w-full items-center gap-3.5 rounded-option px-4 py-2 text-left text-[17px] leading-[22px] font-normal transition-colors duration-150 active:scale-[0.99];
+    @apply flex min-h-14 w-full items-center gap-3 rounded-option py-2 pr-4 pl-3 text-left text-[17px] leading-6 font-medium active:scale-[0.99];
     background-color: var(--app-surface);
-    box-shadow: inset 0 0 0 1px var(--app-hairline);
+    box-shadow: inset 0 0 0 1.5px var(--app-hairline);
     color: var(--app-text);
+    transition:
+      background-color var(--dur-state) var(--ease-out),
+      box-shadow var(--dur-state) var(--ease-out),
+      transform var(--dur-press) var(--ease-out);
   }
   .option[data-state='selected'] {
-    background-color: var(--app-accent-soft);
-    box-shadow: inset 0 0 0 2px var(--app-primary);
-    font-weight: 700;
+    box-shadow: inset 0 0 0 2px var(--app-border-strong);
   }
   .option[data-state='correct'],
   .option[data-state='reveal'] {
     background-color: var(--app-success-soft);
     box-shadow: inset 0 0 0 2px var(--app-success);
-    color: var(--app-success-ink);
-    font-weight: 700;
   }
   .option[data-state='incorrect'] {
     background-color: var(--app-danger-soft);
     box-shadow: inset 0 0 0 2px var(--app-danger);
-    color: var(--app-danger-ink);
+  }
+  /* The check of a right answer grows in (0.6 -> 1), a missed answer shakes twice (±4 px, 240 ms) - ANIMATIONS.md §4. */
+  .option-mark {
+    animation: option-mark-pop var(--dur-state) var(--ease-out) both;
+  }
+  .option[data-state='incorrect'] {
+    animation: option-shake 240ms var(--ease-out);
+  }
+  @keyframes option-mark-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes option-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
   }
   .option[data-state='dimmed'] {
     background-color: transparent;
@@ -487,44 +719,50 @@ body {
 
   /* ---- chips ---- */
 
-  /* A small badge ("вы здесь", "новое", "Pro"): a pill, 12 px semibold text in a thin frame, on the card colour. */
+  /*
+   * Chip of the kit: 26 px, a pill, Label/S (13 / 18, 500), no frame; meta only (a level, a state). Tones: neutral (the sunken paper,
+   * the secondary text), accent, success, ink (`chip-ink`); warning and danger stay for the screens that name them.
+   */
   .chip {
-    @apply inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold whitespace-nowrap;
-    background: var(--app-surface);
-    border-color: var(--app-hairline);
+    @apply inline-flex h-[26px] items-center gap-1 rounded-full px-2.5 text-[13px] leading-[18px] font-medium whitespace-nowrap;
+    background: var(--app-sunken);
     color: var(--app-muted);
   }
   .chip-neutral {
-    border-color: var(--app-hairline);
+    background: var(--app-sunken);
     color: var(--app-muted);
   }
   .chip-accent {
-    border-color: var(--app-accent-line);
+    background: var(--app-accent-soft);
     color: var(--app-accent-ink);
   }
   .chip-success {
-    border-color: var(--app-success-line);
+    background: var(--app-success-soft);
     color: var(--app-success-ink);
   }
   .chip-warning {
-    border-color: var(--app-warning-line);
+    background: var(--app-warning-soft);
     color: var(--app-warning-ink);
   }
   .chip-danger {
-    border-color: var(--app-danger-line);
+    background: var(--app-danger-soft);
     color: var(--app-danger-ink);
+  }
+  .chip-ink {
+    background: var(--app-inverse);
+    color: var(--app-on-inverse);
   }
 
   /* ---- progress ---- */
 
-  /* A thin line (4 px; the header of a lesson makes it 3 px with `h-[3px]`): the track and the fill in the accent. See ui/ProgressLine. */
+  /* A thin line (4 px; the header of a lesson makes it 3 px with `h-[3px]`): the sunken track and the fill in ink. See ui/ProgressLine. */
   .progress {
     @apply h-1 w-full overflow-hidden rounded-full;
     background: var(--app-track);
   }
   .progress-fill {
     @apply h-full rounded-full transition-[width] duration-300;
-    background: var(--app-accent);
+    background: var(--app-inverse);
   }
   /* On the track (.progress.progress-success) or on the fill itself. */
   .progress.progress-success > .progress-fill,
@@ -535,6 +773,26 @@ body {
   .progress-fill.progress-primary {
     background: var(--app-primary);
   }
+  .progress.progress-muhr > .progress-fill,
+  .progress-fill.progress-muhr {
+    background: var(--app-muhr);
+  }
+
+  /* The segments of a lesson / onboarding (COMPONENTS.md): 4-6 px, radius 3; done - ink, current - muhr, the rest - sunken. */
+  .segments {
+    @apply flex w-full gap-1;
+  }
+  .segment {
+    @apply h-1.5 min-w-0 flex-1 rounded-[3px];
+    background: var(--app-track);
+    transition: background-color var(--dur-state) var(--ease-out);
+  }
+  .segment[data-state='done'] {
+    background: var(--app-inverse);
+  }
+  .segment[data-state='current'] {
+    background: var(--app-muhr);
+  }
 
   /* ---- grouped list ---- */
 
@@ -543,20 +801,27 @@ body {
     background: var(--app-surface);
     border: 1px solid var(--app-hairline);
   }
-  /* A row of the mock-ups: 54 px, 14 px from the edges of the card, 16 px text. */
+  /* ListRow of the kit: at least 60 px, padding 10 / 12, gap 12, Body/M (15 / 22). */
   .list-row {
-    @apply relative flex min-h-[54px] w-full items-center gap-3.5 px-3.5 py-3 text-left text-base leading-[22px];
+    @apply relative flex min-h-[60px] w-full items-center gap-3 px-3 py-2.5 text-left text-[15px] leading-[22px];
     color: var(--app-text);
   }
-  /* The line between the rows runs from edge to edge of the card. */
+  /* The line between the rows: from the text (12 px in), from the text after the 40 px plate when the rows have one (64 px in). */
   .list-row + .list-row::before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    left: 0;
+    left: 12px;
     height: 1px;
     background: var(--app-divider);
+  }
+  .list-row.list-row-icon + .list-row.list-row-icon::before {
+    left: 64px;
+  }
+  a.list-row,
+  button.list-row {
+    transition: background-color var(--dur-press) var(--ease-out);
   }
   a.list-row:active,
   button.list-row:active {
@@ -567,31 +832,62 @@ body {
   }
 
   /*
-   * The icon at the start of a list row: a bare icon in a colour of the palette, no square under it (the mock-ups of 2026-11-25).
-   * The `tile-*` names stay for the screens that pass them; they only pick the icon colour.
+   * The plate at the start of a list row (kit ListRow): 40 x 40, radius sm (10), the sunken paper, a 20 px icon in ink. The `tile-*`
+   * names stay for the screens that pass them; they only pick the icon colour (one accent: most of them are ink now).
    */
   .icon-tile {
-    @apply inline-flex size-[26px] shrink-0 items-center justify-center;
-    color: var(--app-muted);
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-sm;
+    background: var(--app-sunken);
+    color: var(--app-text);
   }
   .tile-blue,
   .tile-purple,
-  .tile-teal {
-    color: var(--app-accent);
+  .tile-teal,
+  .tile-gray {
+    color: var(--app-text);
   }
   .tile-green {
-    color: var(--app-success);
+    color: var(--app-success-ink);
   }
   .tile-orange,
   .tile-yellow {
-    color: var(--app-warning);
+    color: var(--app-warning-ink);
   }
   .tile-red,
   .tile-pink {
-    color: var(--app-danger);
+    color: var(--app-danger-ink);
   }
-  .tile-gray {
-    color: var(--app-muted);
+
+  /* LeagueRow of the kit: 52 px, radius sm, rank / avatar / name / score; the learner's own row in the soft accent (data-me). */
+  .league-row {
+    @apply flex min-h-[52px] items-center gap-3 rounded-sm px-3;
+    font-variant-numeric: tabular-nums;
+  }
+  .league-row[data-me='true'] {
+    background: var(--app-accent-soft);
+  }
+
+  /* The mascot enters once: 8 px from below and a fade, 300 ms (ANIMATIONS.md §8). */
+  .mascot-enter {
+    animation: mascot-enter 300ms var(--ease-out) both;
+  }
+  @keyframes mascot-enter {
+    0% { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ---- the stamp (signature, ANIMATIONS.md §3): ui/StampMark ---- */
+
+  @keyframes stamp-press {
+    0% { transform: rotate(-8deg) scale(1.25); opacity: 0; }
+    60% { transform: rotate(-8deg) scale(0.96); opacity: 1; }
+    100% { transform: rotate(-8deg) scale(1); opacity: 1; }
+  }
+  .stamp {
+    transform: rotate(-8deg);
+  }
+  .stamp--enter {
+    animation: stamp-press var(--dur-enter) var(--ease-stamp) both;
   }
 
   /* ---- feedback of the lesson (docs/14 §6.2): only transform and opacity, nothing runs all the time ---- */
@@ -652,8 +948,21 @@ body {
 
   @media (prefers-reduced-motion: reduce) {
     .grade-pulse,
-    .combo-pop {
+    .combo-pop,
+    .btn-dots > span,
+    .option-mark,
+    .option[data-state='incorrect'],
+    .mascot-enter {
       animation: none;
+    }
+    /* The stamp only fades in (ANIMATIONS.md §9: transforms become a 120 ms crossfade). */
+    .stamp--enter {
+      animation: stamp-fade 120ms linear both;
+    }
+    .pressable,
+    .btn,
+    .option {
+      transition-duration: 1ms;
     }
     .card-swap-enter-active,
     .card-swap-leave-active,
@@ -662,12 +971,23 @@ body {
     }
   }
 
+  @keyframes stamp-fade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
   /* ---- states and overlays ---- */
 
-  /* The track colour, not the fill: a fill-coloured block is barely visible on a card in the light theme. */
+  /* Skeleton of the kit (ANIMATIONS.md §6): sunken blocks, opacity 0.6 <-> 1, 1.2 s. */
   .skeleton {
-    @apply animate-pulse rounded-lg motion-reduce:animate-none;
-    background: var(--app-track);
+    @apply rounded-sm motion-reduce:animate-none;
+    background: var(--app-sunken);
+    animation: skeleton-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes skeleton-pulse {
+    0%,
+    100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
 
   /* The dimmed page behind a bottom sheet: neutral black dims the light and the dark page alike, the theme has no token for it. */
@@ -675,7 +995,7 @@ body {
     background: rgb(0 0 0 / 0.4);
   }
 
-  /* Bottom sheet: the grabber is the ::before. Flat: the scrim sets it apart from the page, no shadow. */
+  /* Bottom sheet: the top corners 28 (xl), the grabber is the ::before. Flat: the scrim sets it apart from the page, no shadow. */
   .sheet {
     @apply w-full max-w-xl rounded-t-hero px-4 pt-3;
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
@@ -688,7 +1008,7 @@ body {
     height: 5px;
     margin: 0 auto 12px;
     border-radius: 3px;
-    background: var(--app-track);
+    background: var(--app-hairline);
   }
 
   /*
