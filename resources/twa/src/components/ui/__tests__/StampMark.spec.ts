@@ -1,8 +1,26 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import StampMark from '../StampMark.vue'
 
+const impact = vi.hoisted(() => vi.fn())
+vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ haptic: impact }) }))
+
 describe('StampMark', () => {
+  it('is felt once when it appears, only when asked (`haptic`: the screens of a result, not Today)', async () => {
+    impact.mockClear()
+    const quiet = mount(StampMark, { props: { value: 12, unit: 'дней' } })
+    expect(impact).not.toHaveBeenCalled()
+
+    const felt = mount(StampMark, { props: { value: 3, unit: 'очка', haptic: true } })
+    expect(impact).toHaveBeenCalledTimes(1)
+    expect(impact).toHaveBeenCalledWith('medium')
+    // a new value on the same stamp is no new press
+    await felt.setProps({ value: 4 })
+    expect(impact).toHaveBeenCalledTimes(1)
+    quiet.unmount()
+    felt.unmount()
+  })
+
   it('shows the value and the unit, and is one image for a screen reader', () => {
     const w = mount(StampMark, { props: { value: 12, unit: 'дней' } })
     const stamp = w.get('[data-testid=stamp]')

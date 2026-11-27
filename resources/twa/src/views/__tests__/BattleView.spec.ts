@@ -1586,15 +1586,20 @@ describe('BattleView — the end', () => {
     expect(text(r, 'battle-live')).toBe('Матч прерван')
   })
 
-  it('the learner who won hears it: a tap of success and the word to a screen reader', async () => {
+  it('the learner who won feels it: the press of the stamp (one haptic of the result) and the word to a screen reader', async () => {
     const r = await render(battle())
     servePoll(() => pollOf(finishedBattle('won')))
     serveBattle(() => finishedBattle('won'))
+    tg.haptic.mockClear()
+    tg.notification.mockClear()
 
     await pass(2000)
 
     expect(text(r, 'battle-live')).toBe('Победа')
-    expect(tg.notification).toHaveBeenCalledWith('success')
+    expect(r.wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
+    expect(tg.haptic).toHaveBeenCalledTimes(1)
+    expect(tg.haptic).toHaveBeenCalledWith('medium')
+    expect(tg.notification).not.toHaveBeenCalledWith('success')
   })
 
   it('has one primary button', async () => {

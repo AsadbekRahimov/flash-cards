@@ -6,6 +6,7 @@ import FlaskIcons from '../FlaskIcons.vue'
 import GameReveal from '../GameReveal.vue'
 import RunHeader from '../RunHeader.vue'
 import RunSummary from '../RunSummary.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import AnswerReveal from '@/components/practice/AnswerReveal.vue'
 import { setLocale } from '@/i18n'
 import { collocation, gap, pairs, spell, summary, translateFwd } from '@/api/__tests__/gameRunFixtures'
@@ -306,6 +307,7 @@ describe('RunSummary', () => {
       // a boss beaten: the stamp of the score, pressed in once
       expect(wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
       expect(wrapper.get('[data-testid=stamp]').attributes('aria-label')).toBe('320 очков')
+      expect(wrapper.getComponent(StampMark).props('haptic')).toBe(true)
       expect(wrapper.get('[data-testid=boss]').text()).toContain('Точность 92%')
       expect(wrapper.get('[data-testid=city-card-title]').text()).toBe('Я дошёл до Самарканда')
       expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Поделиться')

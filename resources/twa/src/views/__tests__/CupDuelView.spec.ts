@@ -3,6 +3,7 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupDuelView from '../CupDuelView.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import { api } from '@/api'
 import { useBackButton } from '@/composables/useBackButton'
 import { ApiClientError } from '@/api/client'
@@ -187,6 +188,7 @@ describe('CupDuelView: over', () => {
     expect(tid(r, 'mascot-art').attributes('data-pose')).toBe('trophy')
     expect(r.wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
     expect(tid(r, 'stamp').attributes('aria-label')).toBe('4 очка')
+    expect(r.wrapper.getComponent(StampMark).props('haptic')).toBe(true)
     // A duel over is not asked about again, and does not lead to its match.
     await advance(10_000)
     expect(api.cups.duels.show).toHaveBeenCalledTimes(1)

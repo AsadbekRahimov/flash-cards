@@ -353,7 +353,7 @@ onBeforeUnmount(() => {
         -->
         <div v-if="finalRank !== null" class="flex flex-col items-center gap-2 pb-1" data-testid="cup-final">
           <MascotArt v-if="finalRank <= 3" pose="trophy" :height="120" class="short:hidden" />
-          <StampMark :value="finalRank" :unit="t('cup.final_stamp_unit')" />
+          <StampMark :value="finalRank" :unit="t('cup.final_stamp_unit')" haptic />
         </div>
 
         <div class="flex flex-col items-start gap-2">

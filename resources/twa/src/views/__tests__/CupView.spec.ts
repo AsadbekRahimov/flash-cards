@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import CupView from '../CupView.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
@@ -150,6 +151,8 @@ describe('CupView: the states of the cup', () => {
     // The result of the kit: the stamp of the final place (pressed in once), the mascot with the cup for the podium.
     expect(r.wrapper.findAll('[data-testid=stamp]')).toHaveLength(1)
     expect(tid(r, 'stamp').attributes('aria-label')).toBe('2 место')
+    // the press is felt too (kit TELEGRAM.md: the stamp of a result)
+    expect(r.wrapper.getComponent(StampMark).props('haptic')).toBe(true)
     expect(tid(r, 'stamp').classes()).toContain('stamp--enter')
     expect(tid(r, 'cup-final').get('[data-testid=mascot-art]').attributes('data-pose')).toBe('trophy')
   })

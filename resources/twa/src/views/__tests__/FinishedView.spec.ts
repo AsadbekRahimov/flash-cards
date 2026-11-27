@@ -16,7 +16,7 @@ vi.mock('@/api', () => ({
   api: { achievements: { list: vi.fn() }, league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn(), finish: vi.fn() } },
 }))
 
-const telegram = vi.hoisted(() => ({ close: vi.fn(), notificationHaptic: vi.fn() }))
+const telegram = vi.hoisted(() => ({ close: vi.fn(), notificationHaptic: vi.fn(), haptic: vi.fn() }))
 
 vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => telegram }))
 
@@ -1054,11 +1054,18 @@ describe('FinishedView', () => {
       expect(w.findAll('[data-testid=stamp]')).toHaveLength(1)
       expect(w.get('[data-testid=mascot-art]').attributes('data-pose')).toBe('celebrate')
       expect(w.get('[data-testid=mascot-art]').classes()).toContain('short:hidden')
+      // One haptic of the result: the press of the stamp (kit TELEGRAM.md), not the success on top of it.
+      expect(telegram.haptic).toHaveBeenCalledTimes(1)
+      expect(telegram.haptic).toHaveBeenCalledWith('medium')
+      expect(telegram.notificationHaptic).not.toHaveBeenCalled()
     })
 
     it('has no stamp without a streak, and a calm mascot for an empty session or a lost round of hard words', () => {
       useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } })
       expect(render(5, 1).find('[data-testid=stamp]').exists()).toBe(false)
+      // no stamp: the success haptic is the one of the result
+      expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
+      expect(telegram.haptic).not.toHaveBeenCalled()
 
       useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0 })
       const empty = render(0, 0, 'nothing_due')
@@ -1265,11 +1272,11 @@ describe('FinishedView', () => {
         expect(w.find('.confetti-piece').exists()).toBe(false)
       })
 
-      it('still buzzes the success haptic (the sound is kept too: FinishedHardRound.spec)', () => {
+      it('still gives the haptic of the result: the press of the stamp of the streak (the sound is kept too: FinishedHardRound.spec)', () => {
         useTrainingStore().summary = summary()
         render(5, 1)
 
-        expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
+        expect(telegram.haptic).toHaveBeenCalledWith('medium')
       })
     })
 

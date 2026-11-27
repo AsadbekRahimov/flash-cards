@@ -280,7 +280,7 @@ const liveText = computed((): string => [title.value, outcome.value].filter((par
       -->
       <section class="flex flex-col items-center gap-3 rounded-hero bg-highlight p-5 text-center" :aria-busy="acting !== null ? 'true' : undefined" data-testid="duel-card">
         <MascotArt v-if="hero" :pose="hero" :height="112" class="short:hidden" />
-        <StampMark v-if="iWon && myScore !== null" :value="myScore" :unit="tn('battle.result.stamp_unit', myScore)" />
+        <StampMark v-if="iWon && myScore !== null" :value="myScore" :unit="tn('battle.result.stamp_unit', myScore)" haptic />
         <h2 class="t-display-m break-words" data-testid="duel-title">{{ title }}</h2>
         <CupDuelKind :rated="rated" :hint="shownStatus === 'open'" center />
 

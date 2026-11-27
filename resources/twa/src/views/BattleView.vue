@@ -487,9 +487,7 @@ watch(
   },
 )
 
-watch(over, (isOver) => {
-  if (isOver && result.value.outcome === 'won') notificationHaptic('success')
-})
+// A victory is felt by the press of its stamp (BattleResult: StampMark `haptic`, `impactOccurred('medium')`) - one haptic of the result.
 </script>
 
 <template>

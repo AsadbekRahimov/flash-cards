@@ -136,7 +136,7 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
       <header class="flex flex-col items-center gap-2 text-center">
         <template v-if="won">
           <MascotArt pose="trophy" :height="120" class="short:hidden" />
-          <StampMark :value="battle.scores.me" :unit="tn('battle.result.stamp_unit', battle.scores.me)" class="my-1" />
+          <StampMark :value="battle.scores.me" :unit="tn('battle.result.stamp_unit', battle.scores.me)" haptic class="my-1" />
         </template>
         <span v-else class="shrink-0" :class="look.tone" data-testid="result-icon"><AppIcon :name="look.icon" :size="28" /></span>
         <h1 class="t-display-l break-words" data-testid="result-title">{{ title }}</h1>

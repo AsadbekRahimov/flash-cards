@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useTelegram } from '@/composables/useTelegram'
 
 /**
  * The stamp ("muhr"), the signature element of the kit Muhrla (COMPONENTS.md "Stamp", stamp.png): 92 x 92, an outer ring of 2.5 px
@@ -8,16 +9,27 @@ import { computed } from 'vue'
  *
  * - `value` — the big text ("12"); `unit` — the line under it ("ДНЕЙ"), already localized.
  * - `animate` — the "stamp press" when it appears (ANIMATIONS.md §3; a fade only under `prefers-reduced-motion`); default true.
- *   One stamp at a time on a screen; the caller gives the `impactOccurred('medium')` haptic.
+ *   One stamp at a time on a screen.
+ * - `haptic` — the press is felt too: `impactOccurred('medium')` once, when the stamp appears (TELEGRAM.md "Muhr bosildi",
+ *   ANIMATIONS.md §3 "at the same time"); default false. On the screens of a result (a lesson passed, the end of a battle, a duel, a cup,
+ *   a run) - not on Today, whose stamp is there every day. A screen that turns it on gives no other haptic of the result.
  *
  * The rings are in the muhr colour; the value too (a large text: 3:1 is enough, 3.3:1 on the page); the small unit takes the accent
  * of text (`text-accent`, 4.5:1). For a screen reader the stamp is one image named "12 ДНЕЙ".
  *
  * @example <StampMark :value="String(streak)" :unit="t('today.streak.unit', { count: streak })" />
  */
-const props = withDefaults(defineProps<{ value: string | number; unit?: string; animate?: boolean }>(), { unit: '', animate: true })
+const props = withDefaults(defineProps<{ value: string | number; unit?: string; animate?: boolean; haptic?: boolean }>(), {
+  unit: '',
+  animate: true,
+  haptic: false,
+})
 
 const label = computed(() => [String(props.value), props.unit].filter((part) => part !== '').join(' '))
+
+onMounted(() => {
+  if (props.haptic) useTelegram().haptic('medium')
+})
 </script>
 
 <template>

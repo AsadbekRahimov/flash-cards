@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createPinia, setActivePinia } from 'pinia'
 import TodayView from '../TodayView.vue'
+import StampMark from '@/components/ui/StampMark.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ICONS } from '@/components/ui/icons'
@@ -216,6 +217,8 @@ describe('TodayView', () => {
       const stamp = w.get('[data-testid=today-header] [data-testid=stamp]')
       expect(stamp.attributes('aria-label')).toBe('12 дней')
       expect(w.get('[data-testid=stamp-value]').text()).toBe('12')
+      // Today's stamp is there every day: no haptic of a result (kit TELEGRAM.md: the result screens only)
+      expect(w.getComponent(StampMark).props('haptic')).toBe(false)
       w.unmount()
 
       const one = await render(today({ streak: { current: 1, best: 1, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))

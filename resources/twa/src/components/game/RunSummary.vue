@@ -105,7 +105,7 @@ const celebrate = computed((): boolean => !props.failed && (boss.value === null 
              mascot with the cup and the stamp of the score. One stamp on the screen either way. -->
         <template v-if="celebrate && boss">
           <MascotArt pose="trophy" :height="120" class="short:hidden" />
-          <StampMark :value="summary.score" :unit="tn('gameRun.summary.stamp_unit', summary.score)" class="my-1" />
+          <StampMark :value="summary.score" :unit="tn('gameRun.summary.stamp_unit', summary.score)" haptic class="my-1" />
         </template>
         <MascotArt v-else-if="celebrate" pose="celebrate" :height="176" class="short:h-28 short:w-auto" />
         <h2 class="t-display-l break-words" data-testid="summary-title">{{ title }}</h2>

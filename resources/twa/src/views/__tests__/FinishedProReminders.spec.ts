@@ -16,7 +16,7 @@ vi.mock('@/api', () => ({
   api: { achievements: { list: vi.fn() }, league: { monthMe: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn(), finish: vi.fn() } },
 }))
 
-vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn() }) }))
+vi.mock('@/composables/useTelegram', () => ({ useTelegram: () => ({ close: vi.fn(), notificationHaptic: vi.fn(), haptic: vi.fn() }) }))
 
 const router = createRouter({
   history: createMemoryHistory(),

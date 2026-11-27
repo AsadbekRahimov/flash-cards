@@ -541,7 +541,8 @@ const hasRows = computed(() => corrected.value !== null || showGoal.value || sho
 /** "Next review": the review of a lesson moves no schedule, so it has none. */
 const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
-notificationHaptic('success')
+// One haptic of the result: the press of the stamp (`impactOccurred('medium')`, StampMark `haptic`) when there is one, the success otherwise.
+if (stamp.value === null) notificationHaptic('success')
 if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')
 if (quotaExhausted.value) void billing.load()
 
@@ -562,7 +563,7 @@ onBeforeUnmount(() => {
     <!-- The stamp is pressed in the corner of the page, as on a page of a notebook; on a short window (no mascot) it is the hero itself. -->
     <div class="relative flex justify-center short:static" data-testid="finished-hero">
       <MascotArt :pose="mascotPose" :height="120" class="short:hidden" />
-      <StampMark v-if="stamp" :value="stamp.value" :unit="stamp.unit" class="absolute! top-0 right-0 short:static!" />
+      <StampMark v-if="stamp" :value="stamp.value" :unit="stamp.unit" haptic class="absolute! top-0 right-0 short:static!" />
     </div>
     <header v-if="planHeader" class="mt-3 flex flex-col items-center gap-1.5 text-center" data-testid="plan-header">
       <h1 class="t-display-l break-words">{{ title }}</h1>
