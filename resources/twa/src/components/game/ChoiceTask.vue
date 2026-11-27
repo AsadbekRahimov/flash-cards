@@ -163,7 +163,7 @@ function listen(): void {
             v-for="(option, index) in element.options"
             :key="option.id"
             type="button"
-            class="option min-h-[60px] short:min-h-12"
+            class="option short:min-h-12"
             :data-state="stateOf(option)"
             :data-removed="removed.has(option.id) ? 'true' : undefined"
             :data-testid="`option-${index}`"

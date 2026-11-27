@@ -264,19 +264,21 @@ const shortOfCoins = computed(() => confirming.value !== null && store.balance <
 
       <section v-else-if="tab === 'shop'" data-testid="shop">
         <!-- The categories: the chips of the kit as a filter (32 px, a 44 px touch area): the chosen one in ink, the others on the sunken paper. -->
-        <div class="-mx-5 mb-3 flex gap-2 overflow-x-auto px-5 py-1.5" role="tablist" :aria-label="t('gameCaravan.cats_aria')" data-testid="categories">
+        <div class="-mx-5 mb-2 flex gap-2 overflow-x-auto px-5" role="tablist" :aria-label="t('gameCaravan.cats_aria')" data-testid="categories">
           <button
             v-for="option in categoryOptions"
             :key="option.value"
             type="button"
             role="tab"
             :aria-selected="option.value === category"
-            class="tap-target t-label-s h-8 shrink-0 rounded-full px-3.5 transition-colors duration-200"
-            :class="option.value === category ? 'bg-inverse text-on-inverse' : 'bg-sunken text-muted'"
+            class="flex min-h-11 shrink-0 items-center"
             :data-testid="`cat-${option.value}`"
             @click="category = option.value"
           >
-            {{ option.label }}
+            <span
+              class="t-label-s flex h-8 items-center rounded-full px-3.5 transition-colors duration-200"
+              :class="option.value === category ? 'bg-inverse text-on-inverse' : 'bg-sunken text-muted'"
+            >{{ option.label }}</span>
           </button>
         </div>
 
