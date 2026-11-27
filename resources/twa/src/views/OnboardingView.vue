@@ -6,6 +6,7 @@ import DailyGoalStep from '@/components/onboarding/DailyGoalStep.vue'
 import GoalsStep from '@/components/onboarding/GoalsStep.vue'
 import LevelStep from '@/components/onboarding/LevelStep.vue'
 import NameStep from '@/components/onboarding/NameStep.vue'
+import PlacementStep from '@/components/onboarding/PlacementStep.vue'
 import PlanStep from '@/components/onboarding/PlanStep.vue'
 import ReminderStep from '@/components/onboarding/ReminderStep.vue'
 import WelcomeStep from '@/components/onboarding/WelcomeStep.vue'
@@ -27,6 +28,8 @@ import { useOnboardingI18n } from '@/i18n/onboarding'
  * - A step enters from the right (24 px and a fade, 260 ms; ANIMATIONS.md §7), going back - from the left; without motion only a fade.
  * - The state is loaded once; while it loads O2-O8 show a skeleton, a failed load - the error with "Retry". O1 needs no data.
  * - 409 `onboarding_completed` on any step (finished in the bot or on another device) - "Today".
+ * - `/onboarding/placement` - the placement test of O5 (docs/40 §2.1a): its own segments (the questions) instead of the 7 steps; Back and
+ *   its last button lead to O5, which shows the result as the chosen row.
  */
 const props = defineProps<{ step: string | null }>()
 
@@ -51,11 +54,19 @@ const STEP_COMPONENTS: Readonly<Record<Screen, Component>> = {
   plan: PlanStep,
 }
 
-const screen = computed((): Screen => {
+/** The placement test of O5: a screen of its own between O5 and O6 (not a step: nothing is saved by it, the progress is its own). */
+const PLACEMENT = 'placement'
+
+const screen = computed((): Screen | typeof PLACEMENT => {
   const step = props.step
+  if (step === PLACEMENT) return PLACEMENT
   return step !== null && (SCREENS as readonly string[]).includes(step) ? (step as Screen) : 'welcome'
 })
-const index = computed(() => SCREENS.indexOf(screen.value))
+const isPlacement = computed(() => screen.value === PLACEMENT)
+/** The place of the screen in the order (the test - right after O5, so entering it slides forward and leaving it back). */
+const position = computed(() => (screen.value === PLACEMENT ? SCREENS.indexOf('level') + 0.5 : SCREENS.indexOf(screen.value)))
+/** The step of the progress: the test counts as O5. */
+const index = computed(() => Math.floor(position.value))
 /** O2 is "1 / 7" … O8 is "7 / 7". */
 const TOTAL = SCREENS.length - 1
 
@@ -65,7 +76,7 @@ const needsData = computed(() => screen.value !== 'welcome')
 const direction = ref<'next' | 'back' | null>(null)
 const animate = ref(false)
 
-watch(index, (now, before) => {
+watch(position, (now, before) => {
   direction.value = now > before ? 'next' : 'back'
   // Under `prefers-reduced-motion` the CSS makes it a short fade, which ends (and takes the class off) like the slide.
   animate.value = true
@@ -84,9 +95,14 @@ function goTo(target: string): void {
   if ((SCREENS as readonly string[]).includes(target)) void router.replace(locationOf(target as Screen))
 }
 
-/** "Back": the step before; to it by `back()` when the learner came from it (the history does not grow with every "Back"). */
+/** O5 asks for the placement test. */
+function openPlacement(): void {
+  void router.push({ name: 'onboarding', params: { step: PLACEMENT } })
+}
+
+/** "Back": the step before; to it by `back()` when the learner came from it (the history does not grow with every "Back"). The test - O5. */
 function goBack(): void {
-  const previous = SCREENS[index.value - 1]
+  const previous = isPlacement.value ? 'level' : SCREENS[index.value - 1]
   if (previous === undefined) return
   const target = router.resolve(locationOf(previous))
   if (router.options.history.state.back === target.fullPath) router.back()
@@ -136,7 +152,7 @@ onBeforeUnmount(() => {
   <section class="flex flex-1 flex-col bg-page" data-testid="onboarding" :data-step="screen">
     <!-- The column of `.page` without its bottom padding: the sticky buttons of a step stand on the bottom edge with the safe zone. -->
     <div class="mx-auto flex w-full max-w-xl flex-1 flex-col px-5 pt-2">
-      <div v-if="screen !== 'welcome'" class="flex items-center gap-3 pt-2 pb-4" data-testid="onboarding-progress">
+      <div v-if="screen !== 'welcome' && !isPlacement" class="flex items-center gap-3 pt-2 pb-4" data-testid="onboarding-progress">
         <SegmentProgress
           :total="TOTAL"
           :current="index - 1"
@@ -163,7 +179,8 @@ onBeforeUnmount(() => {
         data-testid="onboarding-step"
         @animationend.self="animate = false"
       >
-        <component :is="STEP_COMPONENTS[screen]" @next="goNext" @exit="leave" @done="finish" @missing="goTo" />
+        <PlacementStep v-if="screen === PLACEMENT" @back="goBack" @exit="leave" />
+        <component :is="STEP_COMPONENTS[screen]" v-else @next="goNext" @exit="leave" @done="finish" @missing="goTo" @placement="openPlacement" />
       </div>
     </div>
   </section>

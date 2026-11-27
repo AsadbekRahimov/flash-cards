@@ -13,6 +13,7 @@ export const streakUz: StreakTranslations = {
   },
   'streak.saved.freezes_left': 'Qolgan zaxira kunlar: {count}',
   'streak.saved.continue': 'Davom ettirish',
+  'streak.saved.share': 'Ketma-ketlikni ulashish',
   'streak.lost.title': 'Ketma-ketlik uzildi',
   'streak.lost.lead': {
     one: "{count} kun ketma-ket shug'ullangan edingiz.",

@@ -49,6 +49,7 @@ final class TwaOnboardingService
         private readonly EntitlementResolver $entitlements,
         private readonly DailyGoalLimiter $goals,
         private readonly ProductEventRecorder $events,
+        private readonly PlacementTestService $placement,
     ) {}
 
     /** The state of the onboarding from the loaded row, the cached catalog and the cached plan - no statement when both are warm. */
@@ -86,6 +87,8 @@ final class TwaOnboardingService
                 'recommended_daily_goal' => OnboardingChoices::RECOMMENDED_DAILY_GOAL,
                 'reminder_times' => OnboardingChoices::REMINDER_TIMES,
                 'reminder_step_minutes' => LearnerSettingsService::REMINDER_STEP_MINUTES,
+                // "Take the 2-minute test" on the level screen (docs/40 §2.1a): shown only while the catalog can give one.
+                'placement_available' => $this->placement->isAvailable(),
             ],
         );
     }

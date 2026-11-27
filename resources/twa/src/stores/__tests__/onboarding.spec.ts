@@ -20,7 +20,7 @@ const state = vi.hoisted(() => ({
 }))
 
 vi.mock('@/api', () => ({
-  api: { onboarding: { get: vi.fn(), saveStep: vi.fn(), complete: vi.fn() } },
+  api: { onboarding: { get: vi.fn(), saveStep: vi.fn(), complete: vi.fn(), placement: vi.fn(), placementAnswers: vi.fn() } },
 }))
 
 vi.mock('@/stores/auth', () => ({
@@ -290,5 +290,64 @@ describe('onboarding store', () => {
     expect(await store.complete()).toBe('error')
     expect(store.saveErrorStep).toBe('complete')
     expect(state.learner?.onboarding?.completed).toBe(false)
+  })
+
+  describe('the placement test (docs/40 §2.1a)', () => {
+    const test = () => ({
+      questions: Array.from({ length: 10 }, (_, i) => ({ id: i + 1, word: `w${i + 1}`, options: ['a', 'b', 'c', 'd'] })),
+      expires_at: new Date(Date.now() + 60_000).toISOString(),
+    })
+
+    async function started() {
+      const store = useOnboardingStore()
+      store.take(onboardingFixture({ step: 'level' }))
+      vi.mocked(api.onboarding.placement).mockResolvedValue(test())
+      expect(await store.startPlacement()).toBe('ok')
+      for (let i = 0; i < 9; i++) await store.answerPlacement(i % 4)
+      return store
+    }
+
+    it('a 422 of the answers drops the set: the next start asks a new one', async () => {
+      const store = await started()
+      vi.mocked(api.onboarding.placementAnswers).mockRejectedValueOnce(new ApiClientError('validation', 422, 'validation', 'bad'))
+
+      expect(await store.answerPlacement(0)).toBe('error')
+      expect(store.placement.phase).toBe('idle')
+      expect(store.placement.test).toBeNull()
+      expect(store.placement.error).not.toBe('')
+
+      await store.startPlacement()
+      expect(api.onboarding.placement).toHaveBeenCalledTimes(2)
+    })
+
+    it('takes the row of the level when the course of the result is not among the rows', async () => {
+      const store = await started()
+      vi.mocked(api.onboarding.placementAnswers).mockResolvedValueOnce({ level: 'A2', course_slug: 'english-a2-old', correct_by_level: { A1: 2, A2: 1 } })
+
+      expect(await store.answerPlacement(0)).toBe('ok')
+      expect(store.draft.level).toBe('A1')
+      expect(store.placement.suggested).toBe('A1')
+      expect(api.onboarding.saveStep).not.toHaveBeenCalled()
+    })
+
+    it('leaves the choice alone when no row fits the result', async () => {
+      const store = await started()
+      store.draft.level = 'C2'
+      vi.mocked(api.onboarding.placementAnswers).mockResolvedValueOnce({ level: 'X9', course_slug: 'nope', correct_by_level: {} })
+
+      await store.answerPlacement(0)
+      expect(store.placement.phase).toBe('result')
+      expect(store.draft.level).toBe('C2')
+      expect(store.placement.suggested).toBeNull()
+    })
+
+    it('an empty set is an error, not an endless skeleton', async () => {
+      const store = useOnboardingStore()
+      vi.mocked(api.onboarding.placement).mockResolvedValue({ questions: [], expires_at: new Date().toISOString() })
+
+      expect(await store.startPlacement()).toBe('error')
+      expect(store.placement.phase).toBe('idle')
+      expect(store.placement.error).toBe('Непредвиденная ошибка.')
+    })
   })
 })

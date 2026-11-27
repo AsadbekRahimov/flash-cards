@@ -13,6 +13,8 @@ const state = vi.hoisted(() => ({
   back: undefined as undefined | (() => void),
   hideBack: vi.fn(),
   haptic: vi.fn(),
+  /** `useTelegram().canShareToStory`: a client of Mini Apps 7.8+ (F3); false by default - only "Поделиться". */
+  canStory: false,
   /** `useShare().share`: by default the message went out (the mark runs); a test may hold it or end it otherwise. */
   share: vi.fn(),
   pending: { value: false },
@@ -32,6 +34,7 @@ vi.mock('@/composables/useShare', async () => {
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     haptic: state.haptic,
+    canShareToStory: () => state.canStory,
     showBackButton: (handler: () => void) => {
       state.back = handler
       return state.hideBack
@@ -67,6 +70,7 @@ const makeRouter = () =>
     routes: [
       { path: '/profile', name: 'profile', component: { template: '<div />' } },
       { path: '/achievements', name: 'achievements', component: AchievementsView },
+      { path: '/share/story', name: 'share-story', component: { template: '<div />' } },
     ],
   })
 
@@ -91,6 +95,7 @@ describe('AchievementsView', () => {
     vi.clearAllMocks()
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
+    state.canStory = false
     state.pending.value = false
     state.share.mockImplementation(async (_kind: string, _subject: string | null, _fallback: unknown, onShared?: () => void) => {
       onShared?.()
@@ -236,6 +241,38 @@ describe('AchievementsView', () => {
 
   describe('sharing', () => {
     const hero = (w: Wrapper) => w.get('[data-testid=hero]')
+
+    it('offers "В сторис" beside "Поделиться" on a client of 7.8+, for a received achievement only (F3)', async () => {
+      state.canStory = true
+      const { wrapper, router } = await render()
+
+      await card(wrapper, 'first_session').trigger('click')
+      const story = hero(wrapper).get('[data-testid=story-btn]')
+      expect(story.text()).toBe('В сторис')
+      expect(story.classes()).toEqual(expect.arrayContaining(['btn', 'btn-secondary']))
+      expect(hero(wrapper).find('[data-testid=share-btn]').exists()).toBe(true)
+
+      await story.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('share-story')
+      expect(router.currentRoute.value.query).toEqual({ kind: 'achievement', subject: 'first_session' })
+      // The screen of the story asks the server; Achievements does not.
+      expect(state.share).not.toHaveBeenCalled()
+      expect(api.achievements.shared).not.toHaveBeenCalled()
+    })
+
+    it('has no "В сторис" for an achievement ahead, nor on a client below 7.8', async () => {
+      state.canStory = true
+      const { wrapper } = await render()
+      await card(wrapper, 'words_100').trigger('click')
+      expect(wrapper.find('[data-testid=story-btn]').exists()).toBe(false)
+
+      state.canStory = false
+      const other = await render()
+      await card(other.wrapper, 'first_session').trigger('click')
+      expect(other.wrapper.find('[data-testid=story-btn]').exists()).toBe(false)
+      expect(other.wrapper.find('[data-testid=share-btn]').exists()).toBe(true)
+    })
 
     it('has a secondary "Поделиться" in the hero of a received achievement, none for one ahead', async () => {
       const { wrapper } = await render()

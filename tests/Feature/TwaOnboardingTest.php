@@ -84,7 +84,7 @@ const OB_STATE = [
     'values' => ['display_name', 'first_name', 'age_range', 'goals', 'level', 'course', 'daily_goal', 'reminder' => ['enabled', 'time']],
     'options' => [
         'age_ranges', 'goals', 'levels' => ['*' => ['level', 'levels', 'course_slug', 'title', 'level_label', 'stages_count']],
-        'daily_goals', 'daily_goal_max', 'recommended_daily_goal', 'reminder_times', 'reminder_step_minutes',
+        'daily_goals', 'daily_goal_max', 'recommended_daily_goal', 'reminder_times', 'reminder_step_minutes', 'placement_available',
     ],
 ];
 

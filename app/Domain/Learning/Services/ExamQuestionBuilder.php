@@ -162,6 +162,52 @@ final class ExamQuestionBuilder
     }
 
     /**
+     * Questions for `$words` with the distractors taken from `$pool` only - words already loaded by the caller (the placement test of
+     * the onboarding, docs/40 §2.1a: the random words of the course of a level, in one statement per course). The same rules as
+     * {@see forWords()} (real translations, the language of the answer first, the same part of speech first, never a second right
+     * answer), the layers being the pool without the asked words, then the asked words themselves; no statement but the translations
+     * (cached per word). A word the pool cannot give a single distractor for is left out instead of failing the set: the caller
+     * decides whether what is left is enough.
+     *
+     * @param  list<Word>  $words
+     * @param  list<Word>  $pool
+     * @return list<array{word_id:int, word:string, correct_translation:string, options:list<string>}>
+     */
+    public function forWordsFromPool(array $words, array $pool, string $locale): array
+    {
+        if ($words === []) {
+            return [];
+        }
+
+        $asked = array_fill_keys(array_map(static fn (Word $word): int => (int) $word->id, $words), true);
+        $others = array_values(array_filter($pool, static fn (Word $word): bool => ! isset($asked[(int) $word->id])));
+        $resolved = $this->translations->resolveMany([...$words, ...$others], $locale);
+        $layers = [$this->candidateTexts($others, $resolved), $this->candidateTexts($words, $resolved)];
+
+        $questions = [];
+        foreach ($words as $word) {
+            try {
+                $questions[] = $this->buildQuestion($word, $resolved[(int) $word->id], $layers);
+            } catch (ExamSessionException) {
+                // No real distractor in the pool for this word: the question is dropped, not the set.
+            }
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Warms the translations of `$words` in `$locale` in one batch (one statement for the words not cached yet), so the calls of
+     * {@see forWordsFromPool()} that follow read them from the cache.
+     *
+     * @param  list<Word>  $words
+     */
+    public function translationsOf(array $words, string $locale): void
+    {
+        $this->translations->resolveMany($words, $locale);
+    }
+
+    /**
      * @param  list<list<array{translation:string, part_of_speech:string|null, locale:string}>>  $layers
      * @return array{word_id:int, word:string, correct_translation:string, options:list<string>}
      *

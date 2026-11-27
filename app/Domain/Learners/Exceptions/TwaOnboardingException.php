@@ -13,6 +13,8 @@ use RuntimeException;
  *   409  onboarding_completed   the onboarding is already done (in the bot, on another device): the client goes to "Today"
  *   422  onboarding_incomplete  `POST /onboarding/complete` before the level is chosen, `details = {missing: [level]}`
  *   422  display_name_invalid   the name breaks a rule of {@see DisplayName}, `details = {reason}` (`DisplayName::REASON_*`)
+ *   410  placement_expired      the placement test (docs/40 §2.1a) ran out or was never started: the client starts a new one
+ *   422  placement_unavailable  the catalog cannot give a placement test (fewer than two levels with words)
  */
 final class TwaOnboardingException extends RuntimeException
 {
@@ -21,6 +23,10 @@ final class TwaOnboardingException extends RuntimeException
     public const INCOMPLETE = 'onboarding_incomplete';
 
     public const DISPLAY_NAME_INVALID = 'display_name_invalid';
+
+    public const PLACEMENT_EXPIRED = 'placement_expired';
+
+    public const PLACEMENT_UNAVAILABLE = 'placement_unavailable';
 
     /**
      * @param  array<string, mixed>  $details
@@ -43,6 +49,18 @@ final class TwaOnboardingException extends RuntimeException
     public static function incomplete(array $missing): self
     {
         return new self(self::INCOMPLETE, 422, 'The onboarding is not finished yet.', ['missing' => $missing]);
+    }
+
+    /** 410: the placement test of the learner has run out (docs/40 §2.1a) or was never issued - a new one is started. */
+    public static function placementExpired(): self
+    {
+        return new self(self::PLACEMENT_EXPIRED, 410, 'The placement test has expired. Start a new one.');
+    }
+
+    /** 422: the catalog cannot give the questions of the placement test (fewer than two levels with words). */
+    public static function placementUnavailable(): self
+    {
+        return new self(self::PLACEMENT_UNAVAILABLE, 422, 'The placement test is not available.');
     }
 
     public static function displayNameInvalid(string $reason): self

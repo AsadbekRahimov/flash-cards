@@ -16,6 +16,7 @@ use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
 use App\Domain\Learners\Support\Regions;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Services\OrganizationInviteService;
+use App\Jobs\OfferPendingInvitesJob;
 use App\Models\Course;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -383,9 +384,28 @@ final class OnboardingService
 
         if ($completed) {
             $this->recordCompletion($learner, $course, $via, $channel);
+
+            // The invitation remembered by `/start` is offered by the bot after its last step; here nobody would (docs/40 §5 п. 1).
+            if (self::hasPendingInvite($learner)) {
+                OfferPendingInvitesJob::dispatch($learner->id);
+            }
         }
 
         return ['completed' => $completed, 'course' => $course];
+    }
+
+    /** Whether an `org_<code>` / `f_<code>` link waits for the end of the onboarding (the loaded row; no statement). */
+    public static function hasPendingInvite(Learner $learner): bool
+    {
+        $meta = $learner->meta ?? [];
+
+        foreach ([self::PENDING_ORG_INVITE, self::PENDING_FRIEND_INVITE] as $key) {
+            if (is_string($meta[$key] ?? null) && $meta[$key] !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

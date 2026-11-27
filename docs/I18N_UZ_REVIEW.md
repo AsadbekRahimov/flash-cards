@@ -5460,3 +5460,58 @@ Mini App: точки силы памяти под карточкой (`resources
 | `vocabulary.not_found` | Hech narsa topilmadi | Ничего не нашли |
 | `vocabulary.not_found_text` | Yozilishini tekshiring yoki tarjima bo'yicha qidiring. | Проверьте написание или поищите по переводу. |
 | `vocabulary.filter_empty` | Bu yerda hozircha so'z yo'q | Здесь пока нет слов |
+
+## Выпуски 4–5 · F3 «Поделиться в сторис» и тест уровня на O5 в Mini App (docs/40 §2.4, §2.1a, T12, T15, 27.11.2026) — не проверено носителем
+
+Mini App: экран `/share/story` (свой словарь ленивого экрана `resources/twa/src/i18n/story/uz.ts`; кнопка «В сторис» на «Достижениях» читает его же),
+ссылка «Поделиться серией» на F4 (`resources/twa/src/i18n/streak/uz.ts`), тест уровня (`resources/twa/src/i18n/onboarding/uz.ts`). Сторис — «storis»,
+баттл — «bellashuv» (как в существующих строках), заморозка/Pro — как раньше. Носителю проверить: «Storisga ulashish» / «Storisga» (короткая кнопка рядом
+с «Ulashish»), «Do'stni bellashuvga chaqirish», «har kuni {count} tadan kartochka», «{count} kundan beri ketma-ket», «Darajangiz: {level}», «{level} bilan davom etish».
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `story.heading` | Storisga ulashish | Поделиться в сторис |
+| `story.preview` | Storis shunday ko'rinadi | Так будет выглядеть сторис |
+| `story.streak.title.one/other` | {count} kun ketma-ket | {count} день / дня / дней подряд |
+| `story.streak.text.one/other` | {brand}'da ingliz tilini o'rganyapman — har kuni {count} tadan kartochka. | Учу английский в {brand} — каждый день по {count} карточке / карточки / карточек. |
+| `story.streak.share_text.one/other` | {count} kundan beri ketma-ket {brand}'da ingliz tilini o'rganyapman! | {count} день / дня / дней подряд учу английский в {brand}! |
+| `story.hint` | Muhrni do'stlaringizga ko'rsating — shug'ullana boshlagan do'stlar uchun Pro kunlarini olasiz. | Покажите печать друзьям — за друзей, которые начнут заниматься, вы получите дни Pro. |
+| `story.share` | Storisga ulashish | Поделиться в сторис |
+| `story.share_plain` | Ulashish | Поделиться |
+| `story.preparing` | Rasm tayyorlanmoqda… | Готовим картинку… |
+| `story.battle` | Do'stni bellashuvga chaqirish | Позвать друга на баттл |
+| `story.no_link` | Hozircha ulashib bo'lmaydi: havola hali tayyor emas. Keyinroq urinib ko'ring. | Поделиться пока не получится: ссылка ещё не готова. Попробуйте позже. |
+| `story.to_story` | Storisga | В сторис |
+| `streak.saved.share` | Ketma-ketlikni ulashish | Поделиться серией |
+| `onboarding.level.lead_test` | Ishonchingiz komil emasmi — 2 daqiqalik testdan o'ting. | Не уверены — пройдите тест за 2 минуты. |
+| `onboarding.level.test` | 2 daqiqalik testdan o'tish | Пройти тест за 2 минуты |
+| `onboarding.level.by_test` | Test bo'yicha taxminiy daraja — o'zgartirish mumkin. | Примерный уровень по тесту — можно сменить. |
+| `onboarding.placement.title` | Daraja testi | Тест уровня |
+| `onboarding.placement.progress_label` | {n}-savol, jami {total} | Вопрос {n} из {total} |
+| `onboarding.placement.prompt` | Tarjimasini tanlang | Выберите перевод |
+| `onboarding.placement.loading` | Savollar tayyorlanmoqda… | Готовим вопросы… |
+| `onboarding.placement.checking` | Javoblar tekshirilmoqda… | Проверяем ответы… |
+| `onboarding.placement.result_title` | Darajangiz: {level} | Ваш уровень: {level} |
+| `onboarding.placement.result_lead` | Bu taxminiy daraja — kursni keyingi ekranda o'zgartirish mumkin. | Это примерный уровень — курс можно сменить на следующем экране. |
+| `onboarding.placement.correct` | To'g'ri javoblar: {total} tadan {count} ta | Верных ответов: {count} из {total} |
+| `onboarding.placement.choose` | {level} bilan davom etish | Продолжить с {level} |
+| `onboarding.placement.expired_title` | Test vaqti tugadi | Время теста вышло |
+| `onboarding.placement.expired_text` | Test 20 daqiqa amal qiladi. Qaytadan boshlang — savollar yangi bo'ladi. | Тест действует 20 минут. Начните заново — вопросы будут новые. |
+| `onboarding.placement.restart` | Qaytadan boshlash | Начать заново |
+| `onboarding.placement.unavailable_title` | Test hozir mavjud emas | Тест сейчас недоступен |
+| `onboarding.placement.unavailable_text` | Darajani o'zingiz tanlang — uni istalgan vaqtda o'zgartirish mumkin. | Выберите уровень сами — его можно сменить в любой момент. |
+| `onboarding.placement.back` | Darajani tanlash | Выбрать уровень |
+
+## Выпуск 4 · сервер сторис: тексты карточки 9:16 и подписи (`lang/uz/share.php`, ключи `share.story.*`; docs/40 §2.4, T11, 27.11.2026) — не проверено носителем
+
+Карточка 1080×1920 для `shareToStory` и подпись к ней. `:days` — «7 kun» (`share.story.days`), `:cards` — «20 ta kartochka» (`share.story.cards`), `:title` — название достижения.
+`text` — фраза без ссылки: сервер добавляет « · https://t.me/<bot>?start=ref_…» сам и держит подпись в 200 символах. Носителю проверить: «ketma-ket» для серии дней, «har kuni :cards» без аффикса, порядок «Muhrla'da … yutug'i».
+
+| Ключ | uz (не проверено носителем) | ru |
+|---|---|---|
+| `share.story.days` | :count kun | :count день / дня / дней |
+| `share.story.cards` | :count ta kartochka | :count карточке / карточки / карточек |
+| `share.story.streak.title` | :days ketma-ket | :days подряд |
+| `share.story.streak.description` | Muhrla'da ingliz tilini o'rganyapman — har kuni :cards | Учу английский в Muhrla — каждый день по :cards |
+| `share.story.streak.text` | Muhrla'da :days ketma-ket | :days подряд в Muhrla |
+| `share.story.achievement.text` | Muhrla'da «:title» yutug'i | Достижение «:title» в Muhrla |

@@ -29,7 +29,8 @@ namespace App\Domain\Learners\DTO;
  *   daily_goal_max: int|null,
  *   recommended_daily_goal: int,
  *   reminder_times: list<string>,
- *   reminder_step_minutes: int
+ *   reminder_step_minutes: int,
+ *   placement_available: bool
  * }
  */
 final readonly class TwaOnboardingState

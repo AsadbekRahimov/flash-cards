@@ -14,6 +14,8 @@ use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Services\AchievementCardRenderer;
 use App\Domain\Engagement\Services\InviteCardBuilder;
 use App\Domain\Engagement\Services\MonthWinnerCardBuilder;
+use App\Domain\Engagement\Services\StoryCardRenderer;
+use App\Domain\Engagement\Services\StoryShareService;
 use App\Domain\Engagement\Support\CardPalette;
 use App\Domain\Game\Support\CityNames;
 use App\Models\LeagueMonth;
@@ -146,3 +148,95 @@ it('copies the light-theme colours of the Mini App (style.css)', function (): vo
             ->and(strtolower($m[1]))->toBe($hex, "{$token} of style.css is {$m[1]}, CardPalette has {$hex}");
     }
 });
+
+it('copies the colours of the story card from the kit: the ink and the paper of the light theme, the muted and the muhr of the dark pair', function (): void {
+    $css = (string) file_get_contents(base_path('resources/twa/src/style.css'));
+    $dark = strpos($css, ":root[data-theme='dark'] {");
+    expect($dark)->not->toBeFalse();
+
+    foreach (CardPalette::STORY_TOKENS as ['token' => $token, 'theme' => $theme, 'hex' => $hex]) {
+        $haystack = $theme === 'dark' ? substr($css, (int) $dark) : $css;
+        expect(preg_match('/'.preg_quote($token, '/').':\s*(#[0-9a-fA-F]{6})\s*;/', $haystack, $m))->toBe(1, "style.css ({$theme}) has no {$token}")
+            ->and(strtolower($m[1]))->toBe($hex, "{$token} of style.css ({$theme}) is {$m[1]}, CardPalette has {$hex}");
+    }
+});
+
+// --- The story card (docs/40 §2.4) ----------------------------------------------------------------------------------------------
+
+/** Fails with the card and the text when a story card would cut its title or its description. */
+function assertStoryFits(CardSpec $spec, string $where): void
+{
+    $lines = app(StoryCardRenderer::class)->lines($spec);
+
+    expect(count($lines['title']))->toBeLessThanOrEqual(StoryCardRenderer::TITLE_LINES, "{$where}: the title «{$spec->title}» takes ".count($lines['title']).' lines')
+        ->and(count($lines['description']))->toBeLessThanOrEqual(StoryCardRenderer::DESCRIPTION_LINES, "{$where}: the description «{$spec->description}» takes ".count($lines['description']).' lines');
+
+    foreach ([[$lines['title'], 'bold', StoryCardRenderer::TITLE_SIZE], [$lines['description'], 'regular', StoryCardRenderer::DESCRIPTION_SIZE]] as [$rows, $font, $size]) {
+        foreach ($rows as $row) {
+            $box = imagettfbbox($size, 0, (string) config("achievements.fonts.{$font}"), $row);
+            expect($box)->not->toBeFalse()
+                ->and(abs($box[2] - $box[0]))->toBeLessThanOrEqual(StoryCardRenderer::TEXT_WIDTH, "{$where}: «{$row}» is wider than the story");
+        }
+    }
+}
+
+/** The story of a series of `$days` with the goal `$goal`, as StoryShareService builds it. */
+function streakStorySpec(int $days, int $goal, string $locale): CardSpec
+{
+    $daysText = trans_choice('share.story.days', $days, ['count' => $days], $locale);
+
+    return new CardSpec(
+        'streak_'.$days,
+        'streak',
+        (string) $days,
+        __('share.story.streak.title', ['days' => $daysText], $locale),
+        __('share.story.streak.description', ['cards' => trans_choice('share.story.cards', $goal, ['count' => $goal], $locale)], $locale),
+        '',
+    );
+}
+
+it('fits the story of every series length 1…365 with every goal of the day, and of every achievement', function (string $locale): void {
+    foreach ([10, 20, 40] as $goal) {
+        foreach ([1, 2, 3, 4, 5, 7, 11, 21, 22, 25, 30, 99, 100, 101, 111, 121, 200, 365] as $days) {
+            assertStoryFits(streakStorySpec($days, $goal, $locale), "streak {$days}, goal {$goal} ({$locale})");
+        }
+    }
+    foreach (AchievementKey::cases() as $key) {
+        assertStoryFits(new CardSpec($key->value, $key->family(), $key->badge(), $key->title($locale), $key->description($locale), ''), "story {$key->value} ({$locale})");
+    }
+})->with(['ru', 'uz']);
+
+it('keeps the caption of a story within 200 characters for every series length and achievement, with the longest link', function (string $locale): void {
+    $link = 'https://t.me/'.str_repeat('b', 32).'?start=ref_'.str_repeat('X', 16);
+    $limit = StoryShareService::TEXT_LIMIT - mb_strlen(' · '.$link);
+
+    for ($days = 1; $days <= 365; $days++) {
+        $text = __('share.story.streak.text', ['days' => trans_choice('share.story.days', $days, ['count' => $days], $locale)], $locale);
+        expect(mb_strlen($text))->toBeLessThanOrEqual($limit, "streak {$days} ({$locale})");
+    }
+    foreach (AchievementKey::cases() as $key) {
+        $text = __('share.story.achievement.text', ['title' => $key->title($locale)], $locale);
+        expect(mb_strlen($text))->toBeLessThanOrEqual($limit, "{$key->value} ({$locale})");
+    }
+})->with(['ru', 'uz']);
+
+it('has a glyph for every character of the story texts in both fonts', function (string $locale): void {
+    $texts = [(string) config('app.brand'), '@abcdefghijklmnopqrstuvwxyz_0123456789 · …'];
+    foreach ([1, 2, 5, 21, 365] as $days) {
+        $spec = streakStorySpec($days, 20, $locale);
+        $texts[] = $spec->title.' '.$spec->description.' '.__('share.story.streak.text', ['days' => trans_choice('share.story.days', $days, ['count' => $days], $locale)], $locale);
+    }
+    foreach ([1, 2, 5] as $goal) {
+        $texts[] = trans_choice('share.story.cards', $goal, ['count' => $goal], $locale);
+    }
+    $texts[] = __('share.story.achievement.text', ['title' => 'T'], $locale);
+    $characters = array_unique(mb_str_split(preg_replace('/\s+/u', '', implode(' ', $texts)) ?? ''));
+
+    foreach (['regular', 'bold'] as $kind) {
+        $font = (string) config("achievements.fonts.{$kind}");
+        $notdef = glyphPixels($font, "\u{E000}");
+        $missing = array_values(array_filter($characters, fn (string $char): bool => glyphPixels($font, $char) === $notdef));
+
+        expect($missing)->toBe([], "{$kind} has no glyph for: ".implode(' ', $missing));
+    }
+})->with(['ru', 'uz']);

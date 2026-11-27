@@ -13,9 +13,11 @@ import type { OnboardingLevelOption } from '@/api/onboardingTypes'
 /**
  * O5 "Level" (kit 02-onboarding/O5): the rows are the COURSES the levels lead to (`options.levels`, docs/40 §2.1) - the chip of the
  * course on the left, what the level means in words, the radio on the right; "Start with B1". No "Phrases" (it is never the main course,
- * docs/40 §3, В2) - the server does not offer it. "Take the 2-minute test" is hidden until the placement test is released (В6).
+ * docs/40 §3, В2) - the server does not offer it. "Take the 2-minute test" (the text button under "Start with B1") opens the placement
+ * test (docs/40 §2.1a) - only when the server offers it (`options.placement_available`); its result comes back here as the chosen row,
+ * with «Примерный уровень по тесту — можно сменить» while that row stays chosen.
  */
-const emit = defineEmits<{ next: []; exit: [] }>()
+const emit = defineEmits<{ next: []; exit: []; placement: [] }>()
 const store = useOnboardingStore()
 const { selectionHaptic } = useTelegram()
 const { t } = useOnboardingI18n()
@@ -26,6 +28,14 @@ const DESCRIBED = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const rows = computed((): OnboardingLevelOption[] => store.data?.options.levels ?? [])
 const chosen = computed(() => rows.value.find((row) => row.level === store.draft.level) ?? null)
 const busy = computed(() => store.saving === 'level')
+const testAvailable = computed(() => store.data?.options.placement_available === true)
+/** The chosen row is the one the test suggested. */
+const byTest = computed(() => store.placement.suggested !== null && store.placement.suggested === store.draft.level)
+
+function openTest(): void {
+  store.openPlacement()
+  emit('placement')
+}
 
 /** What the level of a row means ("Starting from zero"); a level without words - none. */
 function describe(row: OnboardingLevelOption): string {
@@ -48,7 +58,7 @@ async function onContinue(): Promise<void> {
 
 <template>
   <div class="flex flex-1 flex-col">
-    <StepIntro :title="t('onboarding.level.title')" :lead="t('onboarding.level.lead')" />
+    <StepIntro :title="t('onboarding.level.title')" :lead="testAvailable ? t('onboarding.level.lead_test') : t('onboarding.level.lead')" />
     <div v-if="rows.length > 0" class="mt-5 flex flex-col gap-2.5" role="radiogroup" :aria-label="t('onboarding.level.title')">
       <SelectableTile
         v-for="row in rows"
@@ -75,12 +85,15 @@ async function onContinue(): Promise<void> {
       </SelectableTile>
     </div>
     <InlineAlert v-else-if="store.data !== null" tone="info" :message="t('onboarding.level.empty')" class="mt-5" data-testid="level-empty" />
+    <p v-if="byTest && rows.length > 0" class="t-body-m mt-3 text-center text-muted" data-testid="level-by-test">{{ t('onboarding.level.by_test') }}</p>
     <OnboardingActions
       :label="chosen ? t('onboarding.level.start', { level: chosen.level_label }) : t('onboarding.continue')"
       :disabled="chosen === null"
       :busy="busy"
       :error="store.saveErrorStep === 'level' ? store.saveError : ''"
+      :secondary="testAvailable ? t('onboarding.level.test') : null"
       @primary="onContinue"
+      @secondary="openTest"
     />
   </div>
 </template>

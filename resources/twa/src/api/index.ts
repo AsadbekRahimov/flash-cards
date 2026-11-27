@@ -92,8 +92,15 @@ import type {
   GameRunView,
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
-import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
-import type { OnboardingCompleteResponse, OnboardingSavedStep, OnboardingState, OnboardingStepBodies } from './onboardingTypes'
+import type { ShareEventRequest, ShareKind, SharePrepared, StoryShare, StoryShareKind } from './shareTypes'
+import type {
+  OnboardingCompleteResponse,
+  OnboardingSavedStep,
+  OnboardingState,
+  OnboardingStepBodies,
+  PlacementResult,
+  PlacementTest,
+} from './onboardingTypes'
 import type { VocabularyPage, VocabularyQuery } from './vocabularyTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
@@ -169,6 +176,10 @@ export const api = {
       client().put<OnboardingState>(`/onboarding/steps/${step}`, { ...body }),
     /** Finishes the onboarding (idempotent); 422 `onboarding_incomplete {missing}`. */
     complete: () => client().post<OnboardingCompleteResponse>('/onboarding/complete'),
+    /** The placement test of O5 (docs/04 A.24a): a new set of 10 questions; 409 `onboarding_completed`. */
+    placement: () => client().post<PlacementTest>('/onboarding/placement'),
+    /** The answers of the test, all at once; 410 `placement_expired` (20 min), 409 `onboarding_completed`, 422. */
+    placementAnswers: (answers: number[]) => client().post<PlacementResult>('/onboarding/placement/answers', { answers }),
   },
   vocabulary: {
     /**
@@ -218,6 +229,12 @@ export const api = {
     /** A message "through the bot" with the card and the button (docs/04 A.22); 403/404/422/429/503 -> the plain share dialog. */
     prepare: (kind: ShareKind, subject: string | null) =>
       client().post<SharePrepared>('/share/prepare', subject === null ? { kind } : { kind, subject }),
+    /**
+     * The 9:16 card of a story (docs/04 A.26, docs/40 §2.4): only on the tap "Share to a story". 403 `share_unavailable` / 404 -> the plain
+     * share; 429 `rate_limited` and the network -> "Retry".
+     */
+    story: (kind: StoryShareKind, subject: string | null) =>
+      client().post<StoryShare>('/share/story', subject === null ? { kind } : { kind, subject }),
     /** The client's analytics of a share (204); sent without waiting, a failure is swallowed by the caller. */
     event: (body: ShareEventRequest) => client().post<void>('/share/events', { ...body }),
   },

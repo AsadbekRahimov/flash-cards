@@ -72,6 +72,8 @@ export interface OnboardingOptions {
   recommended_daily_goal: number | null
   reminder_times: string[]
   reminder_step_minutes: number
+  /** O5 offers "Take the 2-minute test" (docs/40 §2.1a, T15); absent or false - an older server, the button is hidden. */
+  placement_available?: boolean
 }
 
 /** `OnboardingStateResource`. */
@@ -104,4 +106,33 @@ export interface OnboardingCompleteResponse {
 export interface LearnerOnboarding {
   completed: boolean
   step: string | null
+}
+
+/**
+ * The placement test of O5 (docs/40 §2.1a, docs/04 A.24a): 10 questions "word -> 4 translations", 2 for each level. The key of the answers
+ * stays on the server; the client knows only the words and the options. Nothing of it is written into the progress of the learner.
+ */
+export interface PlacementQuestion {
+  id: number | string
+  word: string
+  /** Four translations; the answer is the index of the chosen one (0-3). */
+  options: string[]
+}
+
+/** 201 of `POST /onboarding/placement`: a new set every time; it expires (`expires_at`, ISO 8601; 20 min) - then 410 `placement_expired`. */
+export interface PlacementTest {
+  questions: PlacementQuestion[]
+  expires_at: string
+}
+
+/** `POST /onboarding/placement/answers`: the index of the chosen option of every question, in their order. */
+export interface PlacementAnswersRequest {
+  answers: number[]
+}
+
+/** The result: the level found and the course it leads to (a row of `options.levels`); the right answers of each level. */
+export interface PlacementResult {
+  level: string
+  course_slug: string
+  correct_by_level: Record<string, number>
 }

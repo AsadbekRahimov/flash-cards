@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
 use App\Http\Controllers\Api\Twa\OfferViewedController;
 use App\Http\Controllers\Api\Twa\OnboardingController;
+use App\Http\Controllers\Api\Twa\OnboardingPlacementController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -84,6 +85,12 @@ Route::prefix('twa')->group(function (): void {
                 ->name('twa.onboarding.step');
             Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('twa.onboarding.complete');
         });
+        // The placement test of the level screen (docs/40 §2.1a, docs/04 A.27): a set of words per start, one scoring per set - the
+        // cap of the personal sessions (10/min) keeps a script from guessing the key by starting over.
+        Route::middleware('throttle:twa-session-create')->group(function (): void {
+            Route::post('/onboarding/placement', [OnboardingPlacementController::class, 'start'])->name('twa.onboarding.placement');
+            Route::post('/onboarding/placement/answers', [OnboardingPlacementController::class, 'answer'])->name('twa.onboarding.placement.answers');
+        });
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');
@@ -104,6 +111,10 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/share/prepare', [ShareController::class, 'prepare'])
             ->middleware('throttle:twa-share')
             ->name('twa.share.prepare');
+        // The 9:16 card for `WebApp.shareToStory` (docs/40 §2.4, docs/04 A.26): a render on the disk, the same cap as the message.
+        Route::post('/share/story', [ShareController::class, 'story'])
+            ->middleware('throttle:twa-share')
+            ->name('twa.share.story');
         Route::post('/share/events', [ShareController::class, 'event'])
             ->middleware('throttle:twa-share-event')
             ->name('twa.share.events');

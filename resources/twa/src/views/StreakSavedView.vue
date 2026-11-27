@@ -24,7 +24,8 @@ import { useStreakI18n } from '@/i18n/streak'
  * - `lost` - there was no freeze for it (`streak.lost`): a calm screen without a celebration - the thinking mascot, «Серия прервалась»,
  *   «Было N дней»; Free gets a quiet card «Заморозка сохранила бы серию — в Pro» that opens the paywall `streak_freeze` only on a tap;
  *   Pro reads why its freezes were not enough. Primary «Начать заново».
- * Both lead back to "Today" (the button and Telegram's Back). «Поделиться серией» (F3) comes with the story screen (T12).
+ * Both lead back to "Today" (the button and Telegram's Back). A saved streak offers «Поделиться серией» under the button: F3, the story of
+ * the streak (`/share/story?kind=streak`, docs/40 §2.4).
  */
 const props = defineProps<{ kind: 'saved' | 'lost' }>()
 
@@ -67,6 +68,11 @@ const missed = computed((): number => {
 })
 
 const lead = computed(() => (missed.value > 1 ? tn('streak.saved.lead_missed', missed.value) : tn('streak.saved.lead', current.value)))
+
+/** F3: the story of the streak. */
+function toStory(): void {
+  void router.push({ name: 'share-story', query: { kind: 'streak' } })
+}
 
 const paywallOpen = ref(false)
 const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
@@ -112,6 +118,15 @@ const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="streak-continue" @click="toToday">
         <span>{{ kind === 'saved' ? t('streak.saved.continue') : t('streak.lost.restart') }}</span>
         <AppIcon v-if="kind === 'saved'" name="arrow-right" :size="20" />
+      </button>
+      <button
+        v-if="kind === 'saved' && current > 0"
+        type="button"
+        class="btn btn-plain btn-block"
+        data-testid="streak-share"
+        @click="toStory"
+      >
+        {{ t('streak.saved.share') }}
       </button>
     </StickyActions>
 

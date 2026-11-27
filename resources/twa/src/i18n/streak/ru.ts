@@ -21,6 +21,7 @@ export const streakRu = {
   },
   'streak.saved.freezes_left': 'Осталось заморозок: {count}',
   'streak.saved.continue': 'Продолжить серию',
+  'streak.saved.share': 'Поделиться серией',
   'streak.lost.title': 'Серия прервалась',
   'streak.lost.lead': {
     one: 'Было {count} день подряд.',

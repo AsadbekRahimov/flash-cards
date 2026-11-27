@@ -14,6 +14,8 @@ import {
   type OnboardingState,
   type OnboardingStep,
   type OnboardingStepBodies,
+  type PlacementResult,
+  type PlacementTest,
   type WriteAccess,
 } from '@/api/onboardingTypes'
 
@@ -37,6 +39,29 @@ export type SaveOutcome = 'ok' | 'completed' | 'pro_required' | 'invalid' | 'err
 
 /** How the finish ended: `ok`; `incomplete` - a step is missing (`missingStep`); `error` - `saveError` says what. */
 export type CompleteOutcome = 'ok' | 'incomplete' | 'error'
+
+/**
+ * The placement test of O5 (docs/40 §2.1a): the set of questions, the answers chosen so far and the result. Kept here for the open of the
+ * app: a learner who left the test ("Back") and comes back resumes it while it has not expired; a closed app starts a new set.
+ * - `phase`: `idle` - no test; `loading` - the set is asked; `question` - answering; `submitting` - the answers are on their way;
+ *   `result` - the server said the level; `expired` - 410, the set is too old (a new one on "Start again"); `unavailable` - 422
+ *   `placement_unavailable`, the catalog cannot give a test now (the learner chooses the level on O5).
+ * - `error`: why the last request failed (localized); '' - it did not. The answers stay for "Retry".
+ */
+export interface PlacementState {
+  phase: 'idle' | 'loading' | 'question' | 'submitting' | 'result' | 'expired' | 'unavailable'
+  test: PlacementTest | null
+  answers: number[]
+  result: PlacementResult | null
+  error: string
+  /** `level` of the row of O5 the result put into the draft; O5 says "by the test" while that row is still chosen. */
+  suggested: string | null
+}
+
+/** How a request of the test ended: `ok`; `completed` - the onboarding was finished elsewhere (409); `error` - `placement.error` says what. */
+export type PlacementOutcome = 'ok' | 'completed' | 'error'
+
+const emptyPlacement = (): PlacementState => ({ phase: 'idle', test: null, answers: [], result: null, error: '', suggested: null })
 
 /** The answers of the learner on the screens: kept here, so "Back" and a failed save lose nothing. */
 export interface OnboardingDraft {
@@ -76,6 +101,7 @@ interface OnboardingStoreState {
   goalProRequired: boolean
   /** The step 422 `onboarding_incomplete` named (`details.missing[0]`). */
   missingStep: OnboardingStep | null
+  placement: PlacementState
 }
 
 const emptyDraft = (): OnboardingDraft => ({
@@ -114,6 +140,7 @@ export const useOnboardingStore = defineStore('onboarding', {
     nameError: null,
     goalProRequired: false,
     missingStep: null,
+    placement: emptyPlacement(),
   }),
 
   getters: {
@@ -303,6 +330,102 @@ export const useOnboardingStore = defineStore('onboarding', {
         learner.onboarding_completed = true
         learner.onboarding = { completed: true, step: null }
       }
+    },
+
+    /**
+     * Opens the placement test: an unfinished set that has not expired is resumed where it stopped (nothing is asked); otherwise a new set
+     * (`POST /onboarding/placement`) - also after a result, so a second test is a new set.
+     */
+    async startPlacement(): Promise<PlacementOutcome> {
+      const placement = this.placement
+      if (placement.phase === 'loading' || placement.phase === 'submitting') return 'ok'
+      if (placement.phase === 'question' && placement.test !== null && Date.parse(placement.test.expires_at) > Date.now()) return 'ok'
+      const suggested = placement.suggested
+      this.placement = { ...emptyPlacement(), phase: 'loading', suggested }
+      try {
+        await useAuthStore().ensure()
+        const test = await api.onboarding.placement()
+        this.placement = { ...emptyPlacement(), phase: test.questions.length > 0 ? 'question' : 'idle', test, suggested }
+        if (test.questions.length === 0) {
+          this.placement.error = errorMessage(null, 'settings')
+          return 'error'
+        }
+        return 'ok'
+      } catch (err) {
+        return this.placementRefused(err, 'idle')
+      }
+    },
+
+    /** The button of O5 asks for the test: a result or an expired set of before gives way to a new set (the suggestion stays). */
+    openPlacement(): void {
+      const placement = this.placement
+      if (placement.phase === 'result' || placement.phase === 'expired' || placement.phase === 'unavailable') {
+        this.placement = { ...emptyPlacement(), suggested: placement.suggested }
+      }
+      else placement.error = ''
+    },
+
+    /** The learner chose the option `index` of the current question; after the last one the answers go to the server. */
+    async answerPlacement(index: number): Promise<PlacementOutcome> {
+      const placement = this.placement
+      const test = placement.test
+      if (placement.phase !== 'question' || test === null || placement.answers.length >= test.questions.length) return 'ok'
+      placement.answers.push(index)
+      return placement.answers.length === test.questions.length ? this.submitPlacement() : 'ok'
+    },
+
+    /** Sends the answers (all at once) - also "Retry" after a failed send; the result goes into the choice of O5. */
+    async submitPlacement(): Promise<PlacementOutcome> {
+      const placement = this.placement
+      const test = placement.test
+      if (placement.phase === 'submitting' || test === null || placement.answers.length !== test.questions.length) return 'ok'
+      placement.phase = 'submitting'
+      placement.error = ''
+      try {
+        await useAuthStore().ensure()
+        const result = await api.onboarding.placementAnswers([...placement.answers])
+        placement.result = result
+        placement.phase = 'result'
+        this.applyPlacement(result)
+        return 'ok'
+      } catch (err) {
+        if (err instanceof ApiClientError && err.code === 'placement_expired') {
+          placement.phase = 'expired'
+          return 'error'
+        }
+        return this.placementRefused(err, 'question')
+      }
+    },
+
+    /** The result into the draft of O5: the row of its course (else the row of its level); the learner can still change it. */
+    applyPlacement(result: PlacementResult): void {
+      const rows = this.data?.options.levels ?? []
+      const row = rows.find((option) => option.course_slug === result.course_slug) ?? rows.find((option) => option.levels.includes(result.level))
+      if (row === undefined) return
+      this.draft.level = row.level
+      this.placement.suggested = row.level
+      this.clearError()
+    },
+
+    placementRefused(err: unknown, phase: 'idle' | 'question'): PlacementOutcome {
+      if (err instanceof ApiClientError && err.code === 'onboarding_completed') {
+        this.markCompleted()
+        this.placement = emptyPlacement()
+        return 'completed'
+      }
+      if (err instanceof ApiClientError && err.code === 'placement_unavailable') {
+        this.placement = { ...emptyPlacement(), phase: 'unavailable', suggested: this.placement.suggested }
+        return 'error'
+      }
+      // A refusal of the set (422 - the answers do not fit it any more): the next try starts a new one.
+      const broken = err instanceof ApiClientError && err.kind === 'validation'
+      this.placement.phase = broken ? 'idle' : phase
+      if (broken) {
+        this.placement.test = null
+        this.placement.answers = []
+      }
+      this.placement.error = errorMessage(err, 'settings')
+      return 'error'
     },
 
     /** The error of a step is not news any more (the learner changed the answer). */

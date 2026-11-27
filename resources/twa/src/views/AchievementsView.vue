@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import AchievementArt from '@/components/achievements/AchievementArt.vue'
 import AchievementBadge from '@/components/ui/AchievementBadge.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -17,6 +18,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAchievementsStore } from '@/stores/achievements'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import { useStoryI18n } from '@/i18n/story'
 import type { AchievementItem } from '@/api/types'
 
 /**
@@ -26,13 +28,24 @@ import type { AchievementItem } from '@/api/types'
  * (the ones with progress first, then the locked ones) as grids of AchievementBadges. An achievement the kit has no picture for gets the
  * even fallback stamp (`AchievementArt`). A tap on a badge shows it in the hero and brings the hero into view.
  * "Share" sends the card of the achievement through the bot (`useShare`, docs/36 §1в); an older client or a refusal opens Telegram's share
- * dialog with the learner's invite link and the text of the server, as before. Back -> Profile.
+ * dialog with the learner's invite link and the text of the server, as before. "To a story" beside it (a client of Mini Apps 7.8+ only,
+ * docs/40 §2.4) opens F3 for the chosen achievement. Back -> Profile.
  */
 const auth = useAuthStore()
 const achievements = useAchievementsStore()
-const { haptic } = useTelegram()
+const router = useRouter()
+const { haptic, canShareToStory } = useTelegram()
 const { pending: sharing, share: shareThroughBot } = useShare()
 const { t, locale } = useI18n()
+const { t: st } = useStoryI18n()
+
+/** The story editor of Telegram is there (7.8+): "To a story" is offered; below it only "Share". */
+const storyAvailable = canShareToStory()
+
+function toStory(item: AchievementItem): void {
+  haptic('light')
+  void router.push({ name: 'share-story', query: { kind: 'achievement', subject: item.key } })
+}
 
 useBackButton({ name: 'profile' })
 
@@ -168,24 +181,38 @@ onMounted(() => {
             <p class="text-[13px] leading-[18px] text-success-ink" data-testid="unlocked-on">
               {{ t('achievements.unlocked_on', { date: unlockedDate(selected.unlocked_at) }) }}
             </p>
-            <button
-              v-if="data.share_link"
-              type="button"
-              class="btn btn-secondary mt-2 min-w-48"
-              :disabled="sharing"
-              :aria-busy="sharingKey === selected.key ? 'true' : undefined"
-              data-testid="share-btn"
-              @click="share(selected)"
-            >
-              <span
-                v-if="sharingKey === selected.key"
-                class="size-4 shrink-0 animate-spin rounded-full border-2 border-track border-t-accent motion-reduce:animate-none"
-                aria-hidden="true"
-                data-testid="share-busy"
-              />
-              <AppIcon v-else name="share" :size="18" />
-              <span>{{ t('achievements.share') }}</span>
-            </button>
+            <div class="mt-2 flex flex-wrap justify-center gap-2">
+              <button
+                v-if="data.share_link"
+                type="button"
+                class="btn btn-secondary"
+                :class="storyAvailable ? 'min-w-36' : 'min-w-48'"
+                :disabled="sharing"
+                :aria-busy="sharingKey === selected.key ? 'true' : undefined"
+                data-testid="share-btn"
+                @click="share(selected)"
+              >
+                <span
+                  v-if="sharingKey === selected.key"
+                  class="size-4 shrink-0 animate-spin rounded-full border-2 border-track border-t-accent motion-reduce:animate-none"
+                  aria-hidden="true"
+                  data-testid="share-busy"
+                />
+                <AppIcon v-else name="share" :size="18" />
+                <span>{{ t('achievements.share') }}</span>
+              </button>
+              <button
+                v-if="storyAvailable"
+                type="button"
+                class="btn btn-secondary min-w-36"
+                :disabled="sharing"
+                data-testid="story-btn"
+                @click="toStory(selected)"
+              >
+                <AppIcon name="sparkles" :size="18" />
+                <span>{{ st('story.to_story') }}</span>
+              </button>
+            </div>
             <p v-if="selected.shared_at" class="flex items-center gap-1 text-xs leading-4 text-muted" data-testid="shared">
               <AppIcon name="check" :size="14" />
               <span>{{ t('achievements.shared') }}</span>

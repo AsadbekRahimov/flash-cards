@@ -278,6 +278,17 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/AllTimeRatingView.vue'),
     meta: { tab: 'rating' },
   },
+  // F3 "Поделиться в сторис" (docs/40 §2.4): `?kind=streak` (from the streak screen) or `?kind=achievement&subject=<key>`.
+  {
+    path: '/share/story',
+    name: 'share-story',
+    component: () => import('@/views/ShareStoryView.vue'),
+    props: (route) => ({
+      kind: route.query.kind === 'achievement' ? 'achievement' : 'streak',
+      subject: typeof route.query.subject === 'string' && route.query.subject !== '' ? route.query.subject : null,
+    }),
+    meta: { tab: 'profile' },
+  },
   {
     path: '/achievements',
     name: 'achievements',

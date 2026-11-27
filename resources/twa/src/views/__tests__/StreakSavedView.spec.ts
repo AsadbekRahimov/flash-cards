@@ -64,6 +64,7 @@ async function render(kind: 'saved' | 'lost', data: TodayResponse | null = today
     routes: [
       { path: '/today', name: 'today', component: { render: () => h('section', { 'data-testid': 'today' }) } },
       { path: '/streak/saved', name: 'streak-saved', component: StreakSavedView, props: () => ({ kind }) },
+      { path: '/share/story', name: 'share-story', component: { render: () => h('section', { 'data-testid': 'share-story' }) } },
     ],
   })
   await router.push('/today')
@@ -129,6 +130,27 @@ describe('StreakSavedView', () => {
       await flushPromises()
 
       expect(router.currentRoute.value.name).toBe('today')
+    })
+  })
+
+  describe('«Поделиться серией» (F3)', () => {
+    it('is a text button under «Продолжить серию» that opens the story of the streak, asking nothing itself', async () => {
+      const { wrapper: w, router } = await render('saved')
+
+      const share = w.get('[data-testid=streak-share]')
+      expect(share.text()).toBe('Поделиться серией')
+      expect(share.classes()).toContain('btn-plain')
+      await share.trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.name).toBe('share-story')
+      expect(router.currentRoute.value.query).toEqual({ kind: 'streak' })
+      expect(api.today.get).not.toHaveBeenCalled()
+    })
+
+    it('is not offered for a lost streak', async () => {
+      const { wrapper: w } = await render('lost', todayData({ streak: streak({ current: 0, frozen_yesterday: false, lost: { days: 9, on: '2026-11-28' } }) }))
+      expect(w.find('[data-testid=streak-share]').exists()).toBe(false)
     })
   })
 
