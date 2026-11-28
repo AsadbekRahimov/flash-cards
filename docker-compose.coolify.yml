@@ -62,7 +62,7 @@ services:
   # §11.1), then migrations straight to PostgreSQL (connection pgsql_direct = DB_DIRECT_HOST), past pgbouncer, as in
   # deploy.sh, then the reference data (roles, shop items: idempotent, never demo data), then the bot's command menu, Mini App
   # button and webhook (docker/telegram-setup.sh: skipped with a warning without the variables, an error of the Telegram API
-  # only warns). Every other application service starts only after it exited with 0.
+  # only warns). Every other application service starts only after it exited with 0; lf-nginx does not wait for anything.
   lf-migrate:
     <<: *app
     restart: "no"
@@ -197,11 +197,12 @@ services:
     networks:
       - lf-internal
       - proxy
-    depends_on:
-      lf-app:
-        condition: service_healthy
-      lf-api:
-        condition: service_healthy
+    # No depends_on: nginx starts at once and stays up for the whole deploy, whatever lf-migrate / lf-app / lf-api do. Its
+    # upstreams re-resolve (coolify.conf: resolver 127.0.0.11, `server ... resolve`), so it starts without them and finds them
+    # when they come; until then - and whenever one dies - it answers itself: 503 + public/maintenance.html for the pages,
+    # 503 JSON for /api/*, the plain 502/504 for the webhook, the payments and the probes; /twa/ needs no PHP at all. With
+    # `service_healthy` here a failed start of lf-app aborted the deploy before nginx came up, and Traefik showed its own
+    # "no available server" page inside the Mini App (28.11.2026).
     environment:
       APP_SERVER: octane
       # The real client address is resolved by coolify.conf (X-Forwarded-For from Traefik), not by the

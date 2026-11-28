@@ -164,7 +164,8 @@ it('writes the origin of AUDIO_PUBLIC_URL for the CSP of the Mini App, empty whe
 
 it('lets the audio domain into media-src - and only there, not connect-src (docs/26 §9.9) - of every CSP of the Mini App in the image configs, and passes it to nginx', function (): void {
     foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
-        preg_match_all('/add_header Content-Security-Policy "([^"]*)"/', infraFile($file), $m);
+        // The CSPs of the Mini App (/twa/); the maintenance page has its own, which loads nothing.
+        preg_match_all('/add_header Content-Security-Policy "([^"]*https:\/\/telegram\.org[^"]*)"/', infraFile($file), $m);
 
         expect($m[1])->toHaveCount(3);
         foreach ($m[1] as $csp) {
@@ -513,4 +514,114 @@ it('builds GD with JPEG and FreeType in every image: the share cards are JPEG', 
             ->and(substr_count($docker, 'libjpeg-turbo-dev'))->toBe(substr_count($docker, 'docker-php-ext-configure gd'), $file);
     }
     expect(substr_count(infraFile('Dockerfile'), 'gd_info()["JPEG Support"]'))->toBe(2);
+});
+
+// --- PHP unreachable (28.11.2026): nginx stays up without its upstreams and answers itself - JSON for the API, the plain status
+// --- for the webhook, the payments and the probes, the branded page for the rest; the application's own 5xx pass unchanged.
+
+/** The body of a top-level `location {spec} {` block (a named or an exact location), or null when the file has none. */
+function exactLocation(string $conf, string $spec): ?string
+{
+    return preg_match('/^    location '.preg_quote($spec, '/').' \{\n(?<body>.*?)^    \}/ms', $conf, $m) === 1 ? $m['body'] : null;
+}
+
+it('starts lf-nginx without waiting for the application, with upstreams it re-resolves at run time', function (): void {
+    $nginx = coolifyCompose()['services']['lf-nginx'];
+
+    expect($nginx)->not->toHaveKey('depends_on');
+
+    foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
+        $conf = infraFile($file);
+        preg_match_all('/^\s*server \S+.*;$/m', $conf, $servers);
+
+        // Every upstream server is resolved by nginx at run time: an absent name does not stop nginx from starting.
+        expect($conf)->toContain('resolver 127.0.0.11 valid=5s ipv6=off;')
+            ->and($servers[0])->toHaveCount(3);
+        foreach ($servers[0] as $line) {
+            expect($line)->toMatch('/^\s*server [a-z-]+:\d+ resolve;$/');
+        }
+    }
+});
+
+it('answers nginx\'s own 502 and 504 itself and never intercepts a response of the application', function (): void {
+    foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
+        $conf = infraFile($file);
+
+        expect($conf)->toContain("    error_page 502 = \$lexiflow_down_502;\n    error_page 504 = \$lexiflow_down_504;\n    recursive_error_pages on;\n")
+            // The application's 503 (maintenance mode, the envelope of the API) and a failing /health/ready pass as they are.
+            ->and($conf)->not->toContain('intercept_errors on')
+            ->and(preg_match_all('/^\s*error_page /m', $conf))->toBe(4, $file);
+
+        $api = prefixLocation($conf, '/api/');
+        expect($api)->toContain('error_page 502 504 = @lexiflow_down_api;');
+
+        // The plain status with a body: a response of its own, so recursive_error_pages cannot loop on it.
+        expect(exactLocation($conf, '@lexiflow_down_502'))->toContain('return 502 "Bad Gateway\n";')
+            ->and(exactLocation($conf, '@lexiflow_down_504'))->toContain('return 504 "Gateway Timeout\n";');
+
+        $page = (string) exactLocation($conf, '@lexiflow_down_page');
+        expect($page)->toContain('error_page 503 /maintenance.html;')
+            ->and($page)->toContain('return 503;');
+
+        $file404 = (string) exactLocation($conf, '= /maintenance.html');
+        expect($file404)->toContain('internal;')
+            ->and($file404)->toContain('add_header Retry-After 30 always;')
+            ->and($file404)->toContain('add_header Cache-Control "no-store" always;')
+            ->and($file404)->toContain("add_header Content-Security-Policy \"default-src 'none'; style-src 'unsafe-inline';")
+            ->and($file404)->toContain('add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;')
+            ->and($file404)->toContain('add_header X-Content-Type-Options "nosniff" always;');
+    }
+
+    // The development config talks to live containers only: nothing of this there.
+    expect(infraFile('docker/nginx/default.conf'))->not->toContain('lexiflow_down');
+});
+
+it('answers /api/* with the error envelope of the API, 503 and Retry-After, when app-api is unreachable', function (): void {
+    foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
+        $api = (string) exactLocation(infraFile($file), '@lexiflow_down_api');
+
+        expect($api)->toContain('default_type application/json;')
+            ->and($api)->toContain('add_header Retry-After 30 always;')
+            ->and($api)->toContain('add_header Cache-Control "no-store" always;')
+            ->and(preg_match("/return 503 '(?<body>[^']+)';/", $api, $m))->toBe(1);
+
+        // The shape of ApiErrorResource (docs/04 A.6): the Mini App reads error.code of a 503 (ApiClientError kind `server`).
+        expect(json_decode($m['body'], true, 512, JSON_THROW_ON_ERROR))->toBe(['error' => [
+            'code' => 'maintenance',
+            'message' => 'The service is being updated. Try again in a minute.',
+        ]]);
+    }
+});
+
+it('keeps the plain status for the webhook, the payments and the probes, and gives every other page the branded one', function (): void {
+    foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
+        $conf = infraFile($file);
+
+        expect(preg_match('/^map \$request_uri \$lexiflow_upstream_plain \{\n    default 0;\n    ~(?<pattern>\S+) 1;\n\}$/m', $conf, $m))->toBe(1, $file);
+        foreach (['502', '504'] as $code) {
+            expect($conf)->toContain("map \$lexiflow_upstream_plain \$lexiflow_down_{$code} {\n    1 @lexiflow_down_{$code};\n    default @lexiflow_down_page;\n}");
+        }
+        $pattern = '#'.$m['pattern'].'#';
+
+        foreach (['/telegram/webhook/abc', '/billing/webhook/payme', '/billing/webhook/click/prepare', '/billing/return', '/billing/return?x=1', '/up', '/up?probe=1', '/health/ready', '/health'] as $plain) {
+            expect(preg_match($pattern, $plain))->toBe(1, $plain);
+        }
+        foreach (['/', '/?utm=1', '/admin', '/admin/login', '/org', '/2fa/challenge', '/livewire-abc/update', '/privacy', '/upgrade', '/healthy', '/api', '/telegram'] as $page) {
+            expect(preg_match($pattern, $page))->toBe(0, $page);
+        }
+    }
+});
+
+it('ships a self-contained branded maintenance page: inline CSS, no script, no request to anywhere, three languages', function (): void {
+    $html = infraFile('public/maintenance.html');
+
+    expect($html)->toContain('<meta charset="utf-8">')
+        ->and($html)->toContain('<meta http-equiv="refresh" content="20">')
+        ->and($html)->toContain('Muhrla')
+        ->and($html)->toContain('lang="uz"')->and($html)->toContain('lang="ru"')->and($html)->toContain('lang="en"')
+        ->and($html)->toContain('#F6F2EA')->and($html)->toContain('#121117')->and($html)->toContain('#E4572E')
+        ->and($html)->toContain('prefers-color-scheme: dark')
+        // The CSP of its location is `default-src 'none'; style-src 'unsafe-inline'`: nothing that would load anything.
+        ->and($html)->not->toMatch('/<script|<link|<img|<iframe|@import|url\(|\bsrc=|\bstyle="/i')
+        ->and($html)->not->toMatch('#https?://#i');
 });

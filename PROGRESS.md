@@ -1,5 +1,17 @@
 # Progress Log
 
+## Деплой Coolify: гонка `view:cache` и страница «503 No Available Server» ✅ код (2026-11-28)
+
+**Инцидент.** Redeploy упал: `dependency failed to start: container lf-app is unhealthy`. Пять сервисов (`lf-app`, три очереди, `lf-scheduler`) делят том `app_storage`, и каждый на старте делает `view:cache` (сначала чистит каталог, потом компилирует) — один удалял временные файлы другого (`rename(...): No such file or directory`). `lf-nginx` ждал `service_healthy` у `lf-app` / `lf-api`, выкладка оборвалась, nginx не поднялся, и в Mini App показалась чужая страница Traefik.
+
+**Сделано.**
+- `docker/entrypoint.sh`: в проде `VIEW_COMPILED_PATH` (по умолчанию `/var/www/html/bootstrap/cache/views`, не том) выставляется и создаётся до `config:cache` и попадает в кэш конфига; в dev путь прежний. Остальные кэши старта (`config`, `route`, `event`, `filament:optimize` — компоненты и Blade-иконки) и так пишутся в `bootstrap/cache` и у каждого контейнера свои.
+- `docker-compose.coolify.yml`: у `lf-nginx` убран `depends_on` — он стартует сразу (апстримы с `resolve`, проверено на `nginx:1.30.8`).
+- `docker/nginx/coolify.conf` и `prod.conf`: на собственные 502/504 nginx (PHP недоступен) — `/api/*` 503 JSON-конверт `{"error":{"code":"maintenance",…}}`; `/telegram/webhook/*`, `/billing/*`, `/up`, `/health/*` — исходный 502/504 с текстом; остальное — 503 и `public/maintenance.html` (Muhrla, uz/ru/en, inline CSS). Везде `Retry-After: 30`, `Cache-Control: no-store`. `*_intercept_errors` выключены: ответы приложения не подменяются.
+- Тесты: `ProductionImageConfigTest` (путь вне `storage/` до `config:cache`, прогон entrypoint с фальшивым `php`), `DeployInfraConfigTest` (нет `depends_on`, `resolve`, `error_page`, карта путей, JSON, страница). Docs: 39 §2а, DEVOPS_GUIDE.
+
+**Не закрыто.** Пока Coolify пересоздаёт сам `lf-nginx` (секунды), у Traefik нет бэкенда — это только на уровне Traefik/Coolify. `docker-compose.prod.yml` (VPS): `nginx` по-прежнему ждёт `service_healthy`.
+
 ## Новые экраны кита Muhrla (docs/40) ✅ код, ревью пройдено (2026-11-27)
 
 **Сделано по выпускам** (docs/40 §4).

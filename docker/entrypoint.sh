@@ -17,6 +17,14 @@ SURFACE="$(printf '%s' "${APP_SURFACE:-full}" | tr -d '[:space:]' | tr '[:upper:
 SURFACE="${SURFACE:-full}"
 
 if [ "${APP_ENV:-production}" = "production" ]; then
+    # Compiled Blade views per container, not on the shared `app_storage` volume: every application container of a stack
+    # (app, the queues, the scheduler, migrate) runs `view:cache` at start, which first empties the directory and then
+    # compiles into it - on one shared directory one container deletes the half-written files of another (`rename(...): No
+    # such file or directory`, the failed Coolify deploy of 28.11.2026). bootstrap/cache is not a volume and belongs to
+    # `app`. Set before config:cache: the path is baked into the config cache, so php-fpm and Octane read it from there.
+    # Production only - in development the views stay in storage/framework/views (the bind-mounted tree, Tailwind's @source).
+    export VIEW_COMPILED_PATH="${VIEW_COMPILED_PATH:-/var/www/html/bootstrap/cache/views}"
+    mkdir -p "$VIEW_COMPILED_PATH"
     php artisan config:cache --no-interaction
     php artisan route:cache --no-interaction
     if [ "$SURFACE" != "api" ]; then
