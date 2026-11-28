@@ -31,6 +31,10 @@
 # REDIS_LRU_HOST=host.docker.internal REDIS_LRU_PORT=6380. The `infra` network is then not used for the database, but stays
 # (LF_INFRA_NETWORK, `coolify` by default) so that the same file serves both layouts.
 #
+# Memory limits come from the environment, the defaults are the former fixed values: APP_MEM_LIMIT (lf-app, 768m),
+# API_MEM_LIMIT (lf-api, 896m; raise it together with OCTANE_WORKERS), QUEUE_MEM_LIMIT (each of the three lf-queue-*, 320m),
+# SCHEDULER_MEM_LIMIT (384m), NGINX_MEM_LIMIT (128m).
+#
 # Service names carry the lf- prefix: every resource that joins the shared `coolify` network brings its names along,
 # and the other application has an `app` too. No `ports:` anywhere - the domain is assigned to lf-nginx in Coolify,
 # and Traefik terminates TLS.
@@ -92,7 +96,7 @@ services:
       PHP_FPM_START_SERVERS: "2"
       PHP_FPM_MIN_SPARE_SERVERS: "1"
       PHP_FPM_MAX_SPARE_SERVERS: "3"
-    mem_limit: 768m
+    mem_limit: ${APP_MEM_LIMIT:-768m}
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
@@ -140,7 +144,7 @@ services:
       lf-migrate:
         condition: service_completed_successfully
     command: ["php", "artisan", "queue:work", "redis", "--queue=high", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
-    mem_limit: 320m
+    mem_limit: ${QUEUE_MEM_LIMIT:-320m}
 
   lf-queue-default:
     <<: *app
@@ -148,7 +152,7 @@ services:
       lf-migrate:
         condition: service_completed_successfully
     command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
-    mem_limit: 320m
+    mem_limit: ${QUEUE_MEM_LIMIT:-320m}
 
   lf-queue-low:
     <<: *app
@@ -156,7 +160,7 @@ services:
       lf-migrate:
         condition: service_completed_successfully
     command: ["php", "artisan", "queue:work", "redis", "--queue=low,tts", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
-    mem_limit: 320m
+    mem_limit: ${QUEUE_MEM_LIMIT:-320m}
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
@@ -173,7 +177,7 @@ services:
       lf-migrate:
         condition: service_completed_successfully
     command: ["php", "artisan", "schedule:work"]
-    mem_limit: 384m
+    mem_limit: ${SCHEDULER_MEM_LIMIT:-384m}
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
@@ -218,7 +222,7 @@ services:
     volumes:
       - app_audio:/var/www/html/storage/app/public/audio:ro
       - app_share_cards:/var/www/html/storage/app/public/share-cards:ro
-    mem_limit: 128m
+    mem_limit: ${NGINX_MEM_LIMIT:-128m}
 
 volumes:
   app_storage:
