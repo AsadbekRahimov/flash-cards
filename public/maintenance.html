@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+    The page nginx answers itself (status 503, Retry-After) while PHP cannot be reached: a container is being replaced,
+    has not started yet or died (docker/nginx/coolify.conf and prod.conf, `@lexiflow_down_page`). Not served directly
+    (`location = /maintenance.html` is internal). Self-contained on purpose - inline CSS, no script, no font, no image,
+    no request to anywhere: the CSP of that location is `default-src 'none'; style-src 'unsafe-inline'`.
+    Colours of the Muhrla kit: canvas #F6F2EA / #121117, ink #1A1A1F / #F3EEE4, accent #E4572E.
+-->
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="20">
+<title>Muhrla</title>
+<style>
+    :root {
+        color-scheme: light dark;
+        --canvas: #F6F2EA;
+        --ink: #1A1A1F;
+        --card: #FFFFFF;
+        --muted: rgba(26, 26, 31, 0.62);
+        --accent: #E4572E;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --canvas: #121117;
+            --ink: #F3EEE4;
+            --card: #1C1B22;
+            --muted: rgba(243, 238, 228, 0.66);
+        }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+    }
+    main {
+        width: 100%;
+        max-width: 420px;
+        padding: 32px 28px;
+        border-radius: 20px;
+        background: var(--card);
+    }
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 24px;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+    .mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+    }
+    section + section { margin-top: 18px; }
+    h1 { margin: 0 0 4px; font-size: 18px; font-weight: 650; }
+    p { margin: 0; color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+    <div class="brand"><span class="mark" aria-hidden="true"></span>Muhrla</div>
+    <section lang="uz">
+        <h1>Yangilanish ketmoqda</h1>
+        <p>Bir daqiqada qaytamiz. Yutuqlaringiz saqlanadi.</p>
+    </section>
+    <section lang="ru">
+        <h1>Обновляемся</h1>
+        <p>Вернёмся через минуту. Ваш прогресс сохранён.</p>
+    </section>
+    <section lang="en">
+        <h1>Updating</h1>
+        <p>We'll be back in a minute. Your progress is saved.</p>
+    </section>
+</main>
+</body>
+</html>
